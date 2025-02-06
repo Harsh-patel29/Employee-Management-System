@@ -9,6 +9,7 @@ import {
 import App from "./App.jsx";
 import Login from "./pages/Login.jsx";
 import DashBoard from "./pages/DashBoard.jsx";
+import Signin from "./pages/Signin.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<App />}>
         <Route path="/dashboard" element={<DashBoard />} />
       </Route>
+      <Route path="/signin" element={<Signin />} />
       <Route path="/login" element={<Login />}></Route>
     </>
   )

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const Login = () => {
   const [email, setemail] = useState("");
+  const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
   const [loading, setloading] = useState(false);
 
@@ -13,15 +14,12 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/users/auth",
-        {
-          email,
-          password,
-        },
+        "http://localhost:8000/api/users/",
+        { username, email, password },
         { withCredentials: true }
       );
       console.log(res.data);
-      navigate("/dashboard");
+      navigate("/login");
     } catch (error) {
       console.log("Error in logging user", error);
       setloading(false);
@@ -35,10 +33,10 @@ const Login = () => {
       <div className="h-[100vh] flex flex-col items-center justify-around">
         <div>
           <h1 className="text-2xl font-semibold">
-            {loading ? "Loading..." : "Login"}
+            {loading ? "Loading..." : "SignIn"}
           </h1>
         </div>
-        <div className="border border-blue-300 rounded-2xl w-[25%] h-[70%] flex justify-center ">
+        <div className="border border-blue-300 rounded-2xl w-[25%] h-[80%] flex justify-center ">
           <div>
             <img
               src="https://ems.jiyantech.com/assets/imgs/theme/logo.png"
@@ -46,9 +44,21 @@ const Login = () => {
               className="xl:w-[318px] h-[74px] mt-4 xl:ml-4 sm:w-[250px] "
             />
             <h3 className="p-6 font-light text-lg  text-gray-700">
-              Welcome back! Please enter your details.
+              Please enter your details.
             </h3>
             <div className="flex flex-col items-start">
+              <label htmlFor="Username" className=" ">
+                Username:
+              </label>
+              <input
+                type="text"
+                placeholder="Enter Username"
+                className="ml-2 border rounded w-[90%] mt-2 p-1 "
+                onChange={(e) => setusername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex flex-col items-start xl:pt-10 sm:pt-0">
               <label htmlFor="Email" className=" ">
                 Email:
               </label>
