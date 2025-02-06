@@ -63,13 +63,13 @@ const signUp = AsyncHandler(async (req, res) => {
 
 const loginUser = AsyncHandler(async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       throw new ApiError(400, "All fields are required");
     }
 
     const existedUser = await User.findOne({
-      $or: [{ username }, { email }],
+      $or: [{ email }],
     });
 
     const { accessToken, refreshToken } = await generateAccessadndRefreshToken(
