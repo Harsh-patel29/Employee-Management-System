@@ -1,52 +1,86 @@
 import mongoose, { Schema } from "mongoose";
-import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-// import dotenv from "dotenv";
-// dotenv.config({
-//   path: "./.env",
-// });
-
+import jwt from "jsonwebtoken";
 const userSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: true,
-    },
-    email: {
+    Email: {
       type: String,
       required: true,
       unique: true,
     },
-    password: {
+    Password: {
       type: String,
       required: true,
-      unique: true,
     },
-    refreshToken: {
+    Date_of_Birth: {
       type: String,
+      required: true,
+    },
+    Mobile_Number: {
+      type: Number,
+      required: true,
+    },
+    Gender: {
+      type: String,
+      enum: ["MALE", "FEMALE"],
+      default: "MALE",
+    },
+    EMP_CODE: {
+      type: String,
+    },
+    DATE_OF_JOINING: {
+      type: String,
+    },
+    Designation: {
+      type: String,
+    },
+    WeekOff: {
+      type: String,
+    },
+    role: {
+      type: Schema.Types.String,
+      ref: "Role",
+      required: true,
+    },
+    roleid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
     },
   },
   { timestamps: true }
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  this.password = await bcryptjs.hash(this.password, 10);
+  if (!this.isModified("Password")) return next();
+  this.Password = await bcryptjs.hash(this.Password, 10);
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (password) {
-  return await bcryptjs.compare(password, this.password);
+userSchema.statics.generateEMPCode = async function () {
+  const lastEmployee = await this.findOne({}, { EMP_CODE: 1 })
+    .sort({
+      EMP_CODE: -1,
+    })
+    .limit(1);
+  if (!lastEmployee) {
+    return "EMP001";
+  }
+
+  const lastNumber = parseInt(lastEmployee.EMP_CODE.slice(3));
+  const nextNumber = lastNumber + 1;
+  return `EMP${nextNumber.toString().padStart(3, "0")}`;
 };
 
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcryptjs.compare(password, this.Password);
+};
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
-      username: this.username,
       _id: this._id,
-      email: this.email,
+      Email: this.Email,
+      EMP_CODE: this.EMP_CODE,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }

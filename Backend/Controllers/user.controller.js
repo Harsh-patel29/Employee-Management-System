@@ -1,100 +1,65 @@
 import { User } from "../Models/user.model.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { ApiResponse } from "../Utils/ApiResponse.js";
 import { ApiError } from "../Utils/ApiError.js";
+import { ApiResponse } from "../Utils/ApiResponse.js";
+import { AsyncHandler } from "../Utils/AsyncHandler.js";
+const createUser = AsyncHandler(async (req, res) => {
+  const {
+    Email,
+    Password,
+    Date_of_Birth,
+    Mobile_Number,
+    Gender,
+    EMP_CODE,
+    DATE_OF_JOINING,
+    Designation,
+    WeekOff,
+    role,
+  } = req.body;
 
-const generateAccessadndRefreshToken = async (UserID) => {
-  try {
-    const user = await User.findById(UserID);
-    if (!user) {
-      throw new ApiError(400, "User not found");
-    }
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+  // if (
+  //   !Email ||
+  //   !Password ||
+  //   !Date_of_Birth ||
+  //   !Mobile_Number ||
+  //   !Gender ||
+  //   !DATE_OF_JOINING ||
+  //   !Designation ||
+  //   !WeekOff ||
+  //   !role
+  // ) {
+  //   throw new ApiError(400, "All fields are required");
+  // }
 
-    user.refreshToken = refreshToken;
-
-    await user.save({
-      validateBeforeSave: false,
-    });
-    return { accessToken, refreshToken };
-  } catch (error) {
-    throw new ApiError(
-      "500",
-      "Something went wrong while creating access and RefreshToken"
-    );
-  }
-};
-
-const signUp = AsyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-
-  if (!username || !email || !password) {
-    throw new ApiError(404, "All credentials are Required");
-  }
-
-  const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
+  const userExist = await User.findOne({
+    $or: [{ Email }, { EMP_CODE }],
   });
-  if (existedUser) {
-    throw new ApiError(400, "User with username and email already exists");
+  if (userExist) {
+    throw new ApiError(404, "User already exists");
   }
+
   try {
+    const rolesResult = req.rolesResult;
+    const roleid = rolesResult[0]._id;
     const user = await User.create({
-      username: username,
-      email: email,
-      password: password,
+      Email,
+      Password,
+      Date_of_Birth,
+      Mobile_Number,
+      Gender,
+      EMP_CODE: await User.generateEMPCode(),
+      DATE_OF_JOINING,
+      Designation,
+      WeekOff,
+      role,
+      roleid: roleid,
     });
-
-    const createdUser = await User.findById(user._id).select("-password");
-
-    if (!createdUser) {
-      throw new ApiError(500, "User not Created");
-    }
-
+    await user.save();
     return res
       .status(200)
-      .json(new ApiResponse(200, createdUser, "User created Successfully"));
+      .json(new ApiResponse(200, user, "User Created Successfully"));
   } catch (error) {
-    console.log("Something went wrong while creating User", error);
-    throw new ApiError(500, "Something went wrong while creating User");
+    throw new ApiError(500, error, "User creation failed");
   }
 });
 
-const loginUser = AsyncHandler(async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      throw new ApiError(400, "All fields are required");
-    }
-
-    const existedUser = await User.findOne({
-      $or: [{ email }],
-    });
-
-    const { accessToken, refreshToken } = await generateAccessadndRefreshToken(
-      existedUser._id
-    );
-    if (!existedUser) {
-      throw new ApiError(404, "User does not exists");
-    }
-    const isPasswordValid = await existedUser.isPasswordCorrect(password);
-    if (!isPasswordValid) {
-      throw new ApiError(404, "Password is incorrect");
-    }
-
-    const loggedinUser = await User.findById(existedUser._id).select(
-      "-password -refreshToken"
-    );
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, { httpOnly: true })
-      .cookie("refreshToken", refreshToken, { httpOnly: true })
-      .json(new ApiResponse(200, loggedinUser, "User LoggedIn Successfully"));
-  } catch (error) {
-    console.log("Something went wrong while loggin user", error);
-    throw new ApiError(500, "Something went wrong while loggin user");
-  }
-});
-
-export { signUp, loginUser };
+export { createUser };
