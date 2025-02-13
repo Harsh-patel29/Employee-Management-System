@@ -13,6 +13,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@mantine/core": "^7.16.3",
+    "@mantine/hooks": "^7.16.3",
     "bcryptjs": "^2.4.3",
     "concurrently": "^9.1.2",
     "cookie-parser": "^1.4.7",

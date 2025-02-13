@@ -8,35 +8,39 @@ import { MdKeyboardCommandKey } from "react-icons/md";
 import { LuUsers } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
 import "./Navigation.css";
-import ThemeToggle from "../Components/ThemeToggle.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  collapedSideBar,
+  expandSideBar,
+} from "../feature/ToggelSideBar/ToggleSideBarSlice";
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
-  const [sidebar, setsidebar] = useState(false);
+  // const [sidebar, setsidebar] = useState(false);/
 
   const toggeldropdown = () => {
     setdropdown(!dropdown);
   };
-  const togglesideBar = () => {
-    setsidebar(!sidebar);
-  };
 
-  const closeSideBar = () => {
-    setsidebar(false);
-  };
+  const dispatch = useDispatch();
+  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
+
   const value = localStorage.getItem("theme");
+
   return (
     <div
       style={{ zIndex: 999 }}
-      className={`${sidebar ? "hidden" : "flex"} ${
+      className={`${isExpanded ? "flex" : "hidden"} ${
         value === "light" ? "bg-white" : "bg-gray-900"
       }
       ${value === "light" ? "border-white" : "border-black"}
-      xl:flex lg:flex md:hidden sm:hidden flex border-b border-r shadow-2xl flex-col justify-between p-4 w-[4%] hover:w-[15%]  rounded-r-md`}
+      xl:flex lg:flex md:hidden[] sm:hidden flex border-b border-r shadow-2xl flex-col justify-between p-4 w-[4%] hover:w-[15%]  rounded-r-md`}
       id="navigation-container"
+      onMouseEnter={() => dispatch(expandSideBar())}
+      onMouseLeave={() => dispatch(collapedSideBar())}
     >
       <div className="flex flex-col justify-center space-y-4">
         <Link
-          to="/"
+          to="/dashboard"
           className="flex items-center transition-transform transform hover:translate-x-2"
         >
           <MdDashboard size={26} className="mr-2 mt-[3rem]" />
@@ -68,8 +72,8 @@ const Navigation = () => {
           <CgTime size={26} className="mr-2 mt-[3rem]" />
           <span
             className={`
-            ${value === "light" ? "text-black" : "text-white"}
-            hidden nav-item-name  mt-[3rem]`}
+              ${value === "light" ? "text-black" : "text-white"}
+              hidden nav-item-name  mt-[3rem]`}
           >
             Attendance
           </span>
@@ -81,8 +85,8 @@ const Navigation = () => {
           <MdOutlineCalendarMonth size={26} className="mr-2 mt-[3rem]" />
           <span
             className={`
-            ${value === "light" ? "text-black" : "text-white"}
-            hidden nav-item-name  mt-[3rem]`}
+              ${value === "light" ? "text-black" : "text-white"}
+              hidden nav-item-name  mt-[3rem]`}
           >
             Leave
           </span>
@@ -94,8 +98,8 @@ const Navigation = () => {
           <MdKeyboardCommandKey size={26} className="mr-2 mt-[3rem]" />
           <span
             className={`
-            ${value === "light" ? "text-black" : "text-white"}
-            hidden nav-item-name  mt-[3rem]`}
+              ${value === "light" ? "text-black" : "text-white"}
+              hidden nav-item-name  mt-[3rem]`}
           >
             Master
           </span>
@@ -116,8 +120,8 @@ const Navigation = () => {
           <IoSettingsOutline size={26} className="mr-2 mt-[3rem]" />
           <span
             className={`
-            ${value === "light" ? "text-black" : "text-white"}
-            hidden nav-item-name  mt-[3rem]`}
+              ${value === "light" ? "text-black" : "text-white"}
+              hidden nav-item-name  mt-[3rem]`}
           >
             Settings
           </span>

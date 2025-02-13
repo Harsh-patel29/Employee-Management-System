@@ -4,7 +4,6 @@ import "../src/index.css";
 import NavBar from "./pages/NavBar";
 import DashBoard from "./pages/DashBoard";
 import { useSelector } from "react-redux";
-import ThemeToggle from "./Components/ThemeToggle";
 function App() {
   const theme = useSelector((state) => state.theme.theme);
   return (
@@ -15,11 +14,10 @@ function App() {
         }
         style={{ height: "100vh" }}
       >
-        <NavBar />
-        <Navigation />
-        <DashBoard />
         <main>
           <Outlet />
+          <NavBar />
+          <Navigation />
         </main>
       </div>
     </>

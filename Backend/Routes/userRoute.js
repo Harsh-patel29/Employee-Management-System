@@ -5,6 +5,7 @@ import {
   logoutUser,
   updateUser,
   deleteUser,
+  getAllUsers,
 } from "../Controllers/user.controller.js";
 import {
   authenticate,
@@ -18,5 +19,6 @@ router.route("/createUser").post(authenticate, Authorized, roles, createUser);
 router.route("/updateUser").put(authenticate, Authorized, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);
 router.route("/logout").post(authenticate, logoutUser);
+router.route("/").get(authenticate, Authorized, getAllUsers);
 
 export default router;

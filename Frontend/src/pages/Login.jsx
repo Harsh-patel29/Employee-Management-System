@@ -4,8 +4,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import ThemeToggle from "../Components/ThemeToggle.jsx";
 const Login = () => {
-  const [email, setemail] = useState("");
-  const [password, setpassword] = useState("");
+  const [Email, setEmail] = useState("");
+  const [Password, setPassword] = useState("");
   const [loading, setloading] = useState(false);
 
   const theme = useSelector((state) => state.theme.theme);
@@ -18,14 +18,14 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/users/auth",
+        "http://localhost:8000/api/v1/user/login",
         {
-          email,
-          password,
+          Email,
+          Password,
         },
         { withCredentials: true }
       );
-      console.log(res.data);
+      localStorage.setItem("role", res.data.message.role);
       navigate("/dashboard");
     } catch (error) {
       console.log("Error in logging user", error);
@@ -65,7 +65,7 @@ const Login = () => {
               type="text"
               placeholder="Enter your Email"
               className="ml-2 border rounded w-[90%] mt-2 p-1 "
-              onChange={(e) => setemail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -77,7 +77,7 @@ const Login = () => {
               type="password"
               placeholder="Enter Password"
               className="ml-2 border rounded w-[90%] mt-2 p-1 "
-              onChange={(e) => setpassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
             <div className="flex justify-center w-[100%] mt-20 ">
