@@ -30,19 +30,41 @@ const authenticate = AsyncHandler(async (req, res, next) => {
 });
 
 const Authorized = AsyncHandler(async (req, res, next) => {
-  const roleid = req.user.roleid;
-  const isAdmin = await Role.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(process.env.Admin_ID),
+  console.log(req.user.role);
+
+  const isAuthorized = await User.aggregate([
+    [
+      {
+        $lookup: {
+          from: "useraccesses",
+          localField: "roleid",
+          foreignField: "role",
+          as: "ok",
+        },
       },
-    },
+      {
+        $match: {
+          role: req.user.role,
+        },
+      },
+      {
+        $unwind: {
+          path: "$ok",
+        },
+      },
+      {
+        $project: {
+          manageUserAccess: "$ok.manageUserAccess",
+          manageuser: "$ok.manageUser",
+        },
+      },
+    ],
   ]);
+  const isManageUserAllowed = isAuthorized[0].manageuser;
+  const isUserAccessAllowed = isAuthorized[0].manageUserAccess;
 
-  const AdminId = isAdmin[0]._id;
-
-  if (roleid.toString() === AdminId.toString()) {
-    console.log("Authorized");
+  if (isManageUserAllowed && isUserAccessAllowed) {
+    console.log("Authorizes");
     next();
   } else {
     throw new ApiError(404, "Unauthorized");
