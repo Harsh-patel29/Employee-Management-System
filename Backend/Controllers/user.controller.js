@@ -1,8 +1,8 @@
+import mongoose from "mongoose";
 import { User } from "../Models/user.model.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import bcryptjs from "bcryptjs";
 
 const generateAccessandRefreshToken = async (UserID) => {
   try {
@@ -176,4 +176,32 @@ const updateUser = AsyncHandler(async (req, res) => {
   }
 });
 
-export { createUser, loginUser, logoutUser, updateUser };
+const deleteUser = AsyncHandler(async (req, res) => {
+  const requestingUser = await User.findById(req.user._id);
+  console.log(requestingUser);
+
+  if (!requestingUser) {
+    throw new ApiError(404, "Requesting user not found");
+  }
+
+  if (requestingUser.role !== "Admin") {
+    throw new ApiError(403, "Only admins can delete users");
+  }
+  const user = await User.findById(req.params.id);
+  const id = req.params.id;
+
+  if (!user) {
+    throw new ApiError(400, "User not found");
+  }
+
+  if (user.role === "Admin") {
+    throw new ApiError(404, "Admin cannot be deleted");
+  }
+
+  await User.findByIdAndDelete(id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User deleted Successfully"));
+});
+
+export { createUser, loginUser, logoutUser, updateUser, deleteUser };
