@@ -64,7 +64,6 @@ const Authorized = AsyncHandler(async (req, res, next) => {
   const isUserAccessAllowed = isAuthorized[0].manageUserAccess;
 
   if (isManageUserAllowed && isUserAccessAllowed) {
-    console.log("Authorizes");
     next();
   } else {
     throw new ApiError(404, "Unauthorized");

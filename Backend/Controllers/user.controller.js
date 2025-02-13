@@ -94,6 +94,9 @@ const loginUser = AsyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ Email });
+  if (!user) {
+    throw new ApiError(403, "User not found");
+  }
 
   const isPasswordValid = await user.isPasswordCorrect(Password);
 
@@ -141,4 +144,36 @@ const logoutUser = AsyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User loggedOut Successfully"));
 });
 
-export { createUser, loginUser, logoutUser };
+const updateUser = AsyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    (user.Email = req.body.Email),
+      (user.Password = req.body.Password),
+      (user.Date_of_Birth = req.body.Date_of_Birth),
+      (user.Mobile_Number = req.body.Mobile_Number),
+      (user.Gender = req.body.Gender),
+      (user.DATE_OF_JOINING = req.body.DATE_OF_JOINING),
+      (user.Designation = req.body.Designation);
+    (user.WeekOff = req.body.WeekOff), (user.role = req.body.role);
+
+    const updatedUser = await user.save();
+    const newUser = {
+      Email: updatedUser.Email,
+      Password: updatedUser.Password,
+      Date_of_Birth: updatedUser.Date_of_Birth,
+      Mobile_Number: updatedUser.Mobile_Number,
+      Gender: updatedUser.Gender,
+      DATE_OF_JOINING: updatedUser.DATE_OF_JOINING,
+      Designation: updatedUser.Designation,
+      WeekOff: updatedUser.WeekOff,
+      role: updatedUser.role,
+    };
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newUser, "User updated Successfully"));
+  }
+});
+
+export { createUser, loginUser, logoutUser, updateUser };
