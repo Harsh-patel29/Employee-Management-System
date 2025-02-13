@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config({
+  path: "./.env",
+});
 const userSchema = new Schema(
   {
     Email: {
@@ -47,6 +51,9 @@ const userSchema = new Schema(
       ref: "Role",
       required: true,
     },
+    refreshToken: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
@@ -56,6 +63,9 @@ userSchema.pre("save", async function (next) {
   this.Password = await bcryptjs.hash(this.Password, 10);
   next();
 });
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcryptjs.compare(password, this.Password);
+};
 
 userSchema.statics.generateEMPCode = async function () {
   const lastEmployee = await this.findOne({}, { EMP_CODE: 1 })
@@ -72,9 +82,6 @@ userSchema.statics.generateEMPCode = async function () {
   return `EMP${nextNumber.toString().padStart(3, "0")}`;
 };
 
-userSchema.methods.isPasswordCorrect = async function (password) {
-  return await bcryptjs.compare(password, this.Password);
-};
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
