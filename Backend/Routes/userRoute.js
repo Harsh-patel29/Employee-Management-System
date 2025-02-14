@@ -17,7 +17,7 @@ const router = Router();
 router
   .route("/login")
   .post(loginUser)
-  .get(authenticate, Authorized, roles, (req, res) => {
+  .get(authenticate, (req, res) => {
     res.json({ message: "Login Status fetched Successfully", user: req.user });
   });
 router.route("/createUser").post(authenticate, Authorized, roles, createUser);

@@ -3,6 +3,18 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
+import {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from "../Components/components/ui/select.tsx";
 const Users = () => {
   const [user, setuser] = useState([]);
   const [loading, setloading] = useState(true);
@@ -66,7 +78,7 @@ const Users = () => {
                   <th className="p-3 text-left">#</th>
                   <th className="p-3 text-left">Name</th>
                   <th className="p-3 text-left">EmpCode</th>
-                  <th className="p-3 text-left">Job Role</th>
+                  <th className="p-3 text-left">Email</th>
                   <th className="p-3 text-left">Date of Joining</th>
                   <th className="p-3 text-left">Mobile</th>
                   <th className="p-3 text-left">Reporting Manager</th>
@@ -77,13 +89,29 @@ const Users = () => {
                 {user.length > 0 ? (
                   user.map((user, index) => (
                     <tr key={user._id} className="border-b hover:bg-gray-100">
+                      <Select>
+                        <SelectTrigger className="w-auto">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="DOJ">
+                            Date of Joining :- {user.DATE_OF_JOINING}
+                          </SelectItem>
+                          <SelectItem value="Mobile Number">
+                            Mobile Number :- {user.Mobile_Number}
+                          </SelectItem>
+                          <SelectItem value="system">
+                            DOB :-{user.Date_of_Birth}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                       <td className="p-3">{index + 1}</td>
-                      <td className="p-3">{user.Email || "N/A"}</td>
+                      <td className="p-3">{user.Name || "N/A"}</td>
                       <td className="p-3">{user.EMP_CODE || "N/A"}</td>
-                      <td className="p-3">{user.role || "N/A"}</td>
+                      <td className="p-3">{user.Email || "N/A"}</td>
                       <td className="p-3">{user.DATE_OF_JOINING}</td>
                       <td className="p-3">{user.Mobile_Number || "N/A"}</td>
-                      <td className="p-3">{user.reportingManager || "N/A"}</td>
+                      <td className="p-3">{user.ReportingManager || "N/A"}</td>
                       <td className="p-3">
                         <button className="text-blue-500 hover:text-blue-700">
                           <FaEdit />

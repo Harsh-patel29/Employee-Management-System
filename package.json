@@ -15,6 +15,7 @@
   "dependencies": {
     "@mantine/core": "^7.16.3",
     "@mantine/hooks": "^7.16.3",
+    "@radix-ui/react-dropdown-menu": "^2.1.6",
     "bcryptjs": "^2.4.3",
     "concurrently": "^9.1.2",
     "cookie-parser": "^1.4.7",
@@ -24,5 +25,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
     "nodemon": "^3.1.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4"
   }
 }
