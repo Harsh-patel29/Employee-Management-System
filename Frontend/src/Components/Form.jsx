@@ -157,7 +157,7 @@ export default function AuthForm({ onSubmit }) {
           name="Designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date Of Joining</FormLabel>
+              <FormLabel>Designation</FormLabel>
               <FormControl>
                 <Input type="text" placeholder="Enter Designation" {...field} />
               </FormControl>
@@ -169,7 +169,7 @@ export default function AuthForm({ onSubmit }) {
           name="WeekOff"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date Of Joining</FormLabel>
+              <FormLabel>Week Off</FormLabel>
               <FormControl>
                 <Input type="text" placeholder="Enter WeekOff" {...field} />
               </FormControl>
