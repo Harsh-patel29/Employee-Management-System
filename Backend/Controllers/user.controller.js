@@ -66,7 +66,9 @@ const createUser = AsyncHandler(async (req, res) => {
 
   try {
     const rolesResult = req.rolesResult;
+
     const roleid = rolesResult[0]._id;
+
     const user = await User.create({
       Email,
       Name,

@@ -3,18 +3,27 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import {
   Select,
-  SelectGroup,
   SelectValue,
   SelectTrigger,
   SelectContent,
-  SelectLabel,
   SelectItem,
-  SelectSeparator,
-  SelectScrollUpButton,
-  SelectScrollDownButton,
 } from "../Components/components/ui/select.tsx";
+import {
+  Drawer,
+  DrawerPortal,
+  DrawerOverlay,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+} from "../Components/components/ui/drawer.tsx";
+import AuthForm from "../Components/Form.jsx";
 const Users = () => {
   const [user, setuser] = useState([]);
   const [loading, setloading] = useState(true);
@@ -39,19 +48,27 @@ const Users = () => {
     Details();
   }, []);
 
-  // const Admin = async () => {
-  //   try {
-  //     const res = await axios.get("http://localhost:8000/api/v1/user/");
-
-  //     if (res.data.message.role === "Admin") {
-  //       setisAdmin(true);
-  //     } else {
-  //       setisAdmin(false);
-  //     }
-  //   } catch (error) {
-  //     console.log("Error", error);
-  //   }
-  //   Admin();
+  const navigate = useNavigate();
+  const addUser = async (data) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/user/createUser",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      if (res.data.success === true) {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log("Something went wrong while creating user");
+    }
+  };
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   console.log("Sidebar expanded", isExpanded);
@@ -66,7 +83,12 @@ const Users = () => {
       <div className=" w-auto ml-14 h-full shadow-xl rounded-xl">
         <div className="text-3xl pb-4 flex ml-2 justify-between">
           Users
-          <div className={`${isAdmin ? "flex" : "hidden"}`}>+</div>
+          <Drawer>
+            <DrawerTrigger>+</DrawerTrigger>
+            <DrawerContent className="">
+              <AuthForm onSubmit={addUser} />
+            </DrawerContent>
+          </Drawer>
         </div>
         {loading ? (
           <p className="text-gray-500">Loading...</p>
@@ -75,6 +97,7 @@ const Users = () => {
             <table className="w-full border-collapse">
               <thead className="bg-blue-200 text-gray-800">
                 <tr>
+                  <th></th>
                   <th className="p-3 text-left">#</th>
                   <th className="p-3 text-left">Name</th>
                   <th className="p-3 text-left">EmpCode</th>

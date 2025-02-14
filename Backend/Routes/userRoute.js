@@ -20,7 +20,7 @@ router
   .get(authenticate, (req, res) => {
     res.json({ message: "Login Status fetched Successfully", user: req.user });
   });
-router.route("/createUser").post(authenticate, Authorized, roles, createUser);
+router.route("/createUser").post(roles, authenticate, Authorized, createUser);
 router.route("/updateUser").put(authenticate, Authorized, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);
 router.route("/logout").post(authenticate, logoutUser);
