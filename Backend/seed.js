@@ -29,6 +29,6 @@ const seedData = AsyncHandler(async () => {
   }
 });
 
-connectDB()
-  .then(seedData())
-  .catch((err) => console.log(err));
+// connectDB()
+//   .then(seedData())
+//   .catch((err) => console.log(err));

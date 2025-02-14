@@ -30,6 +30,7 @@ const generateAccessandRefreshToken = async (UserID) => {
 const createUser = AsyncHandler(async (req, res) => {
   const {
     Email,
+    Name,
     Password,
     Date_of_Birth,
     Mobile_Number,
@@ -39,6 +40,7 @@ const createUser = AsyncHandler(async (req, res) => {
     Designation,
     WeekOff,
     role,
+    ReportingManager,
   } = req.body;
 
   // if (
@@ -67,6 +69,7 @@ const createUser = AsyncHandler(async (req, res) => {
     const roleid = rolesResult[0]._id;
     const user = await User.create({
       Email,
+      Name,
       Password,
       Date_of_Birth,
       Mobile_Number,
@@ -77,6 +80,7 @@ const createUser = AsyncHandler(async (req, res) => {
       WeekOff,
       role,
       roleid: roleid,
+      ReportingManager,
     });
     await user.save();
     return res
@@ -112,9 +116,7 @@ const loginUser = AsyncHandler(async (req, res) => {
     httpOnly: true,
   };
 
-  const loggedInUser = await User.findById(user._id).select(
-    "-Password -refreshToken"
-  );
+  const loggedInUser = await User.findById(user._id).select("-Password ");
   return res
     .status(200)
     .cookie("accessToken", accessToken, option)

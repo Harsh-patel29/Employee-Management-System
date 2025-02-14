@@ -1,39 +1,30 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import ThemeToggle from "../Components/ThemeToggle.jsx";
+import { loginUser } from "../feature/datafetch/datafetchSlice.js";
+import { useNavigate } from "react-router";
 const Login = () => {
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
-  const [loading, setloading] = useState(false);
 
   const theme = useSelector((state) => state.theme.theme);
   const value = localStorage.getItem("theme");
 
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+  const { loading, error, user } = useSelector((state) => state.auth);
+
   const handleSubmit = async (e) => {
-    setloading(true);
     e.preventDefault();
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/user/login",
-        {
-          Email,
-          Password,
-        },
-        { withCredentials: true }
-      );
-      localStorage.setItem("role", res.data.message.role);
-      navigate("/dashboard");
-    } catch (error) {
-      console.log("Error in logging user", error);
-      setloading(false);
-    } finally {
-      setloading(false);
-    }
+    dispatch(loginUser({ Email, Password }));
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   return (
     <div

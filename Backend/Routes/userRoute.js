@@ -14,7 +14,12 @@ import {
 import { roles } from "../Middlewares/accessMidleware.js";
 const router = Router();
 
-router.route("/login").post(loginUser).get(authenticate, Authorized, roles);
+router
+  .route("/login")
+  .post(loginUser)
+  .get(authenticate, Authorized, roles, (req, res) => {
+    res.json({ message: "Login Status fetched Successfully", user: req.user });
+  });
 router.route("/createUser").post(authenticate, Authorized, roles, createUser);
 router.route("/updateUser").put(authenticate, Authorized, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);

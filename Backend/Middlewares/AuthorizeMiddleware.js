@@ -1,9 +1,8 @@
 import { User } from "../Models/user.model.js";
-import { Role } from "../Models/Role.model.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { ApiError } from "../Utils/ApiError.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+
 const authenticate = AsyncHandler(async (req, res, next) => {
   const token =
     (req.cookies && req.cookies.accessToken) ||
@@ -30,8 +29,6 @@ const authenticate = AsyncHandler(async (req, res, next) => {
 });
 
 const Authorized = AsyncHandler(async (req, res, next) => {
-  console.log(req.user.role);
-
   const isAuthorized = await User.aggregate([
     [
       {

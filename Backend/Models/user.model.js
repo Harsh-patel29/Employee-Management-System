@@ -7,6 +7,11 @@ dotenv.config({
 });
 const userSchema = new Schema(
   {
+    Name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     Email: {
       type: String,
       required: true,
@@ -50,6 +55,9 @@ const userSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
       required: true,
+    },
+    ReportingManager: {
+      type: String,
     },
     refreshToken: {
       type: String,

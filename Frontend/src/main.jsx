@@ -11,13 +11,16 @@ import store from "../src/app/store.js";
 import Login from "./pages/Login.jsx";
 import DashBoard from "./pages/DashBoard.jsx";
 import Users from "./pages/users.jsx";
+import PrivateRoute from "./PrivateRoute.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<App />}>
-        <Route path="/dashboard" element={<DashBoard />} />
-        <Route path="/users" element={<Users />} />
+      <Route element={<PrivateRoute />}>
+        <Route path="/" element={<App />}>
+          <Route path="/dashboard" element={<DashBoard />} />
+          <Route path="/users" element={<Users />} />
+        </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>
     </>
