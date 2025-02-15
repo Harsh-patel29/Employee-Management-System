@@ -3,6 +3,7 @@ import { User } from "../Models/user.model.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
+import { error, log } from "console";
 
 const generateAccessandRefreshToken = async (UserID) => {
   try {
@@ -149,21 +150,32 @@ const logoutUser = AsyncHandler(async (req, res) => {
 });
 
 const updateUser = AsyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  console.log(req.params.id);
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  console.log(id);
+
+  const user = await User.findById(id);
+  console.log(user);
+
   if (!user) {
     throw new ApiError(404, "User not found");
   } else {
-    (user.Email = req.body.Email),
+    (user.Name = req.body.Name),
+      (user.Email = req.body.Email),
       (user.Password = req.body.Password),
       (user.Date_of_Birth = req.body.Date_of_Birth),
       (user.Mobile_Number = req.body.Mobile_Number),
       (user.Gender = req.body.Gender),
       (user.DATE_OF_JOINING = req.body.DATE_OF_JOINING),
       (user.Designation = req.body.Designation);
-    (user.WeekOff = req.body.WeekOff), (user.role = req.body.role);
+    (user.WeekOff = req.body.WeekOff),
+      (user.role = req.body.role),
+      (user.ReportingManager = req.body.ReportingManager);
 
     const updatedUser = await user.save();
+    console.log(updateUser);
     const newUser = {
+      Name: updatedUser.Name,
       Email: updatedUser.Email,
       Password: updatedUser.Password,
       Date_of_Birth: updatedUser.Date_of_Birth,
@@ -173,7 +185,9 @@ const updateUser = AsyncHandler(async (req, res) => {
       Designation: updatedUser.Designation,
       WeekOff: updatedUser.WeekOff,
       role: updatedUser.role,
+      ReportingManager: updatedUser.ReportingManager,
     };
+
     return res
       .status(200)
       .json(new ApiResponse(200, newUser, "User updated Successfully"));

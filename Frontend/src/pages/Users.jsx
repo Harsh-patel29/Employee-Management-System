@@ -1,9 +1,10 @@
 import React, { use, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { FaEdit } from "react-icons/fa";
-import { useNavigate } from "react-router";
+import { replace, useNavigate } from "react-router";
 import {
   Select,
   SelectValue,
@@ -24,7 +25,18 @@ import {
   DrawerDescription,
 } from "../Components/components/ui/drawer.tsx";
 import AuthForm from "../Components/Form.jsx";
-
+import UpdateForm from "../Components/UpdateForm.jsx";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "../Components/components/ui/sheet";
+import AdminForm from "../Components/AdminForm.jsx";
+import { populate } from "dotenv";
 const Users = () => {
   const { user } = useSelector((state) => state.auth);
 
@@ -54,6 +66,7 @@ const Users = () => {
   }, []);
 
   const navigate = useNavigate();
+
   const addUser = async (data) => {
     try {
       const res = await axios.post(
@@ -76,7 +89,25 @@ const Users = () => {
   };
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
-  console.log("Sidebar expanded", isExpanded);
+
+  const handleEdit = (userID) => {
+    window.history.pushState({}, "", `/users/${userID}`);
+  };
+
+  const { id } = useParams();
+  const [sheetopen, setsheetopen] = useState(false);
+  const [userid, setuserid] = useState(id);
+  const openSheet = (id) => {
+    navigate(`/users/${id}`); // ✅ Change URL before opening the sheet
+    setTimeout(() => {
+      setsheetopen(true); // Now open the sheet
+    }, 0); // Delay ensures URL updates first
+  };
+
+  useEffect(() => {
+    setuserid(id);
+    console.log(id);
+  }, [id]);
 
   return (
     <div
@@ -100,8 +131,8 @@ const Users = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
-          <div className="overflow-x-auto bg-white shadow-md w-[80rem] rounded-lg">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto bg-white shadow-md w-[80rem] rounded-lg h-[30rem]">
+            <table className="w-full border-collapse ">
               <thead className="bg-blue-200 text-gray-800">
                 <tr>
                   <th></th>
@@ -144,11 +175,31 @@ const Users = () => {
                       <td className="p-3">{user.Email || "N/A"}</td>
                       <td className="p-3">{user.DATE_OF_JOINING}</td>
                       <td className="p-3">{user.Mobile_Number || "N/A"}</td>
-                      <td className="p-3">{user.ReportingManager || "N/A"}</td>
+                      <td className="p-3 ">{user.ReportingManager || "N/A"}</td>
                       <td className="p-3">
-                        <button className="text-blue-500 hover:text-blue-700">
-                          <FaEdit />
-                        </button>
+                        <Sheet
+                          // open={!!id}
+                          onOpenChange={(open) => {
+                            if (!open) navigate("/users");
+                          }}
+                        >
+                          <SheetTrigger
+                            onClick={() => openSheet(user._id)}
+                            asChild
+                          >
+                            <FaEdit />
+                          </SheetTrigger>
+                          <SheetContent className="min-w-4xl">
+                            <SheetHeader>
+                              <SheetTitle className="text-2xl">
+                                Update User??
+                              </SheetTitle>
+                              <SheetDescription>
+                                {isAdmin ? <AdminForm /> : <UpdateForm />}
+                              </SheetDescription>
+                            </SheetHeader>
+                          </SheetContent>
+                        </Sheet>
                       </td>
                     </tr>
                   ))

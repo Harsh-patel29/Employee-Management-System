@@ -22,7 +22,7 @@ router
     res.json({ message: "Login Status fetched Successfully", user: req.user });
   });
 router.route("/createUser").post(roles, authenticate, Authorized, createUser);
-router.route("/updateUser").put(authenticate, Authorized, roles, updateUser);
+router.route("/:id").put(authenticate, Authorized, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);
 router.route("/logout").post(authenticate, logoutUser);
 router.route("/").get(authenticate, isAuth, getAllUsers);
