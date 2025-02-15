@@ -12,6 +12,7 @@ import {
   Authorized,
 } from "../Middlewares/AuthorizeMiddleware.js";
 import { roles } from "../Middlewares/accessMidleware.js";
+import { isAuth } from "../Middlewares/authMiddleware.js";
 const router = Router();
 
 router
@@ -24,6 +25,6 @@ router.route("/createUser").post(roles, authenticate, Authorized, createUser);
 router.route("/updateUser").put(authenticate, Authorized, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);
 router.route("/logout").post(authenticate, logoutUser);
-router.route("/").get(authenticate, Authorized, getAllUsers);
+router.route("/").get(authenticate, isAuth, getAllUsers);
 
 export default router;

@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import {
@@ -24,23 +24,28 @@ import {
   DrawerDescription,
 } from "../Components/components/ui/drawer.tsx";
 import AuthForm from "../Components/Form.jsx";
+
 const Users = () => {
-  const [user, setuser] = useState([]);
+  const { user } = useSelector((state) => state.auth);
+
+  const [users, setusers] = useState([]);
   const [loading, setloading] = useState(true);
   const [isAdmin, setisAdmin] = useState(false);
+
   useEffect(() => {
     const Details = async (e) => {
       try {
         const res = await axios.get("http://localhost:8000/api/v1/user/", {
           withCredentials: true,
         });
-        setuser(res.data.message);
+
+        setusers(res.data.message);
       } catch (error) {
         console.log("Not Authorized", error?.response.data || error.message);
       } finally {
         setloading(false);
       }
-      const role = localStorage.getItem("role");
+      const role = user.user.role;
       if (role === "Admin") {
         setisAdmin(true);
       } else setisAdmin(false);
@@ -84,7 +89,9 @@ const Users = () => {
         <div className="text-3xl pb-4 flex ml-2 justify-between">
           Users
           <Drawer>
-            <DrawerTrigger>+</DrawerTrigger>
+            <DrawerTrigger className={`${isAdmin ? "flex" : "hidden"}`}>
+              +
+            </DrawerTrigger>
             <DrawerContent className="">
               <AuthForm onSubmit={addUser} />
             </DrawerContent>
@@ -101,6 +108,7 @@ const Users = () => {
                   <th className="p-3 text-left">#</th>
                   <th className="p-3 text-left">Name</th>
                   <th className="p-3 text-left">EmpCode</th>
+                  <th className="p-3 text-left">role</th>
                   <th className="p-3 text-left">Email</th>
                   <th className="p-3 text-left">Date of Joining</th>
                   <th className="p-3 text-left">Mobile</th>
@@ -109,8 +117,8 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {user.length > 0 ? (
-                  user.map((user, index) => (
+                {users?.length > 0 ? (
+                  users.map((user, index) => (
                     <tr key={user._id} className="border-b hover:bg-gray-100">
                       <Select>
                         <SelectTrigger className="w-auto">
@@ -128,9 +136,11 @@ const Users = () => {
                           </SelectItem>
                         </SelectContent>
                       </Select>
+
                       <td className="p-3">{index + 1}</td>
                       <td className="p-3">{user.Name || "N/A"}</td>
                       <td className="p-3">{user.EMP_CODE || "N/A"}</td>
+                      <td className="p-3">{user.role || "N/A"}</td>
                       <td className="p-3">{user.Email || "N/A"}</td>
                       <td className="p-3">{user.DATE_OF_JOINING}</td>
                       <td className="p-3">{user.Mobile_Number || "N/A"}</td>

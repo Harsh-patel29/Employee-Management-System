@@ -209,10 +209,22 @@ const deleteUser = AsyncHandler(async (req, res) => {
 });
 
 const getAllUsers = AsyncHandler(async (req, res) => {
-  const user = await User.find({});
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "User fetched Successfully"));
+  const rolesPermission = req.permission;
+
+  const manageAccess = rolesPermission[0].manageUserAccess;
+
+  if (manageAccess === true) {
+    const user = await User.find({});
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User fetched Successfully"));
+  }
+  if (manageAccess === false) {
+    const user = await User.find({ _id: req.user._id });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "Developer Fetched Successfully"));
+  }
 });
 
 export {
