@@ -28,7 +28,7 @@ const formSchema = z.object({
   ReportingManager: z.string(),
 });
 
-export default function AuthForm({ onSubmit }) {
+export default function AdminForm({ onSubmit }) {
   const { control, handleSubmit } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {

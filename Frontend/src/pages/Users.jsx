@@ -36,7 +36,6 @@ import {
   SheetClose,
 } from "../Components/components/ui/sheet";
 import AdminForm from "../Components/AdminForm.jsx";
-import { populate } from "dotenv";
 const Users = () => {
   const { user } = useSelector((state) => state.auth);
 
@@ -90,24 +89,41 @@ const Users = () => {
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
 
-  const handleEdit = (userID) => {
-    window.history.pushState({}, "", `/users/${userID}`);
-  };
+  // const handleEdit = (userID) => {
+  //   window.history.pushState({}, "", `/users/${userID}`);
+  // };
 
   const { id } = useParams();
   const [sheetopen, setsheetopen] = useState(false);
   const [userid, setuserid] = useState(id);
   const openSheet = (id) => {
-    navigate(`/users/${id}`); // ✅ Change URL before opening the sheet
+    navigate(`/users/${id}`);
     setTimeout(() => {
-      setsheetopen(true); // Now open the sheet
-    }, 0); // Delay ensures URL updates first
+      setsheetopen(true);
+    }, 0);
   };
 
   useEffect(() => {
     setuserid(id);
-    console.log(id);
   }, [id]);
+
+  const updateUser = async (data) => {
+    const res = await axios.put(
+      `http://localhost:8000/api/v1/user/${id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    if (res.data.statusCode) {
+      navigate("/dashboard");
+    }
+
+    return res.data;
+  };
 
   return (
     <div
@@ -195,7 +211,11 @@ const Users = () => {
                                 Update User??
                               </SheetTitle>
                               <SheetDescription>
-                                {isAdmin ? <AdminForm /> : <UpdateForm />}
+                                {isAdmin ? (
+                                  <AdminForm onSubmit={updateUser} />
+                                ) : (
+                                  <UpdateForm />
+                                )}
                               </SheetDescription>
                             </SheetHeader>
                           </SheetContent>
