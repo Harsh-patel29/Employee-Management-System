@@ -96,6 +96,7 @@ const Users = () => {
   const { id } = useParams();
   const [sheetopen, setsheetopen] = useState(false);
   const [userid, setuserid] = useState(id);
+
   const openSheet = (id) => {
     navigate(`/users/${id}`);
     setTimeout(() => {
@@ -200,7 +201,9 @@ const Users = () => {
                           }}
                         >
                           <SheetTrigger
-                            onClick={() => openSheet(user._id)}
+                            onClick={() => {
+                              openSheet(user._id);
+                            }}
                             asChild
                           >
                             <FaEdit />
@@ -214,7 +217,7 @@ const Users = () => {
                                 {isAdmin ? (
                                   <AdminForm onSubmit={updateUser} />
                                 ) : (
-                                  <UpdateForm />
+                                  <UpdateForm onSubmit={updateUser} />
                                 )}
                               </SheetDescription>
                             </SheetHeader>

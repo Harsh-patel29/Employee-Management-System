@@ -150,12 +150,9 @@ const logoutUser = AsyncHandler(async (req, res) => {
 });
 
 const updateUser = AsyncHandler(async (req, res) => {
-  console.log(req.params.id);
   const id = new mongoose.Types.ObjectId(req.params.id);
-  console.log(id);
 
   const user = await User.findById(id);
-  console.log(user);
 
   if (!user) {
     throw new ApiError(404, "User not found");
@@ -166,7 +163,7 @@ const updateUser = AsyncHandler(async (req, res) => {
       (user.Date_of_Birth = req.body.Date_of_Birth),
       (user.Mobile_Number = req.body.Mobile_Number),
       (user.Gender = req.body.Gender),
-      (user.DATE_OF_JOINING = req.body.DATE_OF_JOINING),
+      (user.DATE_OF_JOINING = req.body.DATE_OF_JOINING || user.DATE_OF_JOINING),
       (user.Designation = req.body.Designation);
     (user.WeekOff = req.body.WeekOff),
       (user.role = req.body.role),
@@ -241,6 +238,19 @@ const getAllUsers = AsyncHandler(async (req, res) => {
   }
 });
 
+const getUserById = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User fetched Successfully"));
+  }
+});
+
 export {
   createUser,
   loginUser,
@@ -248,4 +258,5 @@ export {
   updateUser,
   deleteUser,
   getAllUsers,
+  getUserById,
 };

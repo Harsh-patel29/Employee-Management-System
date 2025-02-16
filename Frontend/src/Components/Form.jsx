@@ -146,8 +146,9 @@ export default function AuthForm({ onSubmit }) {
                 <select
                   id="Gender"
                   {...field}
-                  className="flex border border-black/80 w-32 h-8 rounded-md shadow"
+                  className="flex border  w-32 h-8 rounded-md shadow"
                 >
+                  <option value="Select">Select</option>
                   <option value="MALE">MALE</option>
                   <option value="FEMALE">FEMALE</option>
                 </select>
@@ -204,9 +205,10 @@ export default function AuthForm({ onSubmit }) {
               <FormControl>
                 <select
                   id="role"
-                  className="flex border border-black/80 w-32 h-8 rounded-md shadow"
+                  className="flex border  w-32 h-8 rounded-md shadow"
                   {...field}
                 >
+                  <option value="Select">Select</option>
                   <option value="Admin">Admin</option>
                   <option value="HR">HR</option>
                   <option value="Product_Manager">Product_Manager</option>

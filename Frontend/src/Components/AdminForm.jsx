@@ -13,13 +13,16 @@ import {
   FormMessage,
   FormField,
 } from "../Components/components/ui/form";
-
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useParams } from "react-router";
+import { getUser } from "../feature/datafetch/userfetchSlice";
 const formSchema = z.object({
   Name: z.string(),
   Email: z.string().email("Please enter correct Email"),
   Password: z.string().min(6, "Passoword must be 6 characters"),
   Date_of_Birth: z.string(),
-  Mobile_Number: z.string().min(8, "Please enter valid mobile Number"),
+  Mobile_Number: z.number().min(8, "Please enter valid mobile Number"),
   Gender: z.enum(["MALE", "FEMALE"]),
   DATE_OF_JOINING: z.string(),
   Designation: z.string(),
@@ -29,7 +32,18 @@ const formSchema = z.object({
 });
 
 export default function AdminForm({ onSubmit }) {
-  const { control, handleSubmit } = useForm({
+  const user = useSelector((state) => state.getuser);
+
+  const dispatch = useDispatch();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getUser(id));
+    }
+  }, [dispatch, id]);
+
+  const { control, handleSubmit, reset } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       Name: "",
@@ -46,12 +60,35 @@ export default function AdminForm({ onSubmit }) {
     },
   });
 
+  const detail = user?.user?.message;
+  useEffect(() => {
+    if (user?.user?.message) {
+      reset({
+        Name: detail?.Name || "",
+        Email: detail?.Email || "",
+        Password: detail?.Password || "",
+        Date_of_Birth: detail?.Date_of_Birth
+          ? detail?.Date_of_Birth.split("T")[0]
+          : "",
+        Mobile_Number: detail?.Mobile_Number || "",
+        Gender: detail?.Gender || "",
+        DATE_OF_JOINING: detail?.DATE_OF_JOINING
+          ? detail?.DATE_OF_JOINING.split("T")[0]
+          : "",
+        Designation: detail?.Designation || "",
+        WeekOff: detail?.WeekOff || "",
+        role: detail?.role || "",
+        ReportingManager: detail.ReportingManager || "",
+      });
+    }
+  }, [user, reset]);
+
   return (
     <Form {...control}>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 max-w-md mx-auto p-4 border 
-         rounded-lg shadow flex flex-wrap gap-8 "
+         rounded-lg shadow flex flex-wrap gap-6 "
       >
         <FormField
           control={control}
@@ -60,12 +97,7 @@ export default function AdminForm({ onSubmit }) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input
-                  className="w-auto"
-                  type="text"
-                  placeholder="Enter Your Name"
-                  {...field}
-                />
+                <Input type="text" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -80,7 +112,7 @@ export default function AdminForm({ onSubmit }) {
                 <Input
                   className="w-auto"
                   type="email"
-                  placeholder="Enter Your Email"
+                  placeholder="Enter your email"
                   {...field}
                 />
               </FormControl>
@@ -148,6 +180,7 @@ export default function AdminForm({ onSubmit }) {
                   {...field}
                   className="flex border border-black/80 w-32 h-8 rounded-md shadow"
                 >
+                  <option value="Select">Select</option>
                   <option value="MALE">MALE</option>
                   <option value="FEMALE">FEMALE</option>
                 </select>
@@ -207,6 +240,7 @@ export default function AdminForm({ onSubmit }) {
                   className="flex border border-black/80 w-32 h-8 rounded-md shadow"
                   {...field}
                 >
+                  <option value="Select">Select</option>
                   <option value="Admin">Admin</option>
                   <option value="HR">HR</option>
                   <option value="Product_Manager">Product_Manager</option>

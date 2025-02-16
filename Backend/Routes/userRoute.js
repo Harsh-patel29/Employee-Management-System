@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUser,
   getAllUsers,
+  getUserById,
 } from "../Controllers/user.controller.js";
 import {
   authenticate,
@@ -22,8 +23,9 @@ router
     res.json({ message: "Login Status fetched Successfully", user: req.user });
   });
 router.route("/createUser").post(roles, authenticate, Authorized, createUser);
-router.route("/:id").put(authenticate, Authorized, roles, updateUser);
+router.route("/:id").put(authenticate, roles, updateUser);
 router.route("/:id").delete(authenticate, Authorized, deleteUser);
+router.route("/:id").get(authenticate, getUserById);
 router.route("/logout").post(authenticate, logoutUser);
 router.route("/").get(authenticate, isAuth, getAllUsers);
 
