@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { FaEdit } from "react-icons/fa";
-import { replace, useNavigate } from "react-router";
+import { data, replace, useNavigate } from "react-router";
 import {
   Select,
   SelectValue,
@@ -26,6 +26,7 @@ import {
 } from "../Components/components/ui/drawer.tsx";
 import AuthForm from "../Components/Form.jsx";
 import UpdateForm from "../Components/UpdateForm.jsx";
+import { Button } from "../Components/components/ui/button.tsx";
 import {
   Sheet,
   SheetContent,
@@ -35,6 +36,15 @@ import {
   SheetTrigger,
   SheetClose,
 } from "../Components/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../Components/components/ui/dialog";
+import { MdDelete } from "react-icons/md";
 import AdminForm from "../Components/AdminForm.jsx";
 const Users = () => {
   const { user } = useSelector((state) => state.auth);
@@ -119,10 +129,20 @@ const Users = () => {
         withCredentials: true,
       }
     );
-    if (res.data.statusCode) {
+    if (res.data.success === true) {
       navigate("/dashboard");
     }
 
+    return res.data;
+  };
+
+  const deleteUser = async () => {
+    const res = await axios.delete(`http://localhost:8000/api/v1/user/${id}`, {
+      withCredentials: true,
+    });
+    if (res.data.success === true) {
+      navigate("/dashboard");
+    }
     return res.data;
   };
 
@@ -161,7 +181,10 @@ const Users = () => {
                   <th className="p-3 text-left">Date of Joining</th>
                   <th className="p-3 text-left">Mobile</th>
                   <th className="p-3 text-left">Reporting Manager</th>
-                  <th className="p-3 text-left">Action</th>
+                  <th className="p-3 text-left">Update</th>
+                  <th className={`${isAdmin ? "p-3 text-left" : "hidden"}`}>
+                    Delete
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -223,6 +246,42 @@ const Users = () => {
                             </SheetHeader>
                           </SheetContent>
                         </Sheet>
+                      </td>
+                      <td className={`${isAdmin ? "" : "hidden"}`}>
+                        <Dialog
+                          onOpenChange={(open) => {
+                            if (!open) navigate("/users");
+                          }}
+                        >
+                          <DialogTrigger
+                            onClick={() => {
+                              openSheet(user._id);
+                            }}
+                            asChild
+                          >
+                            <MdDelete />
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you absolutely sure?
+                              </DialogTitle>
+                              <DialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the user's account and remove
+                                their data from servers.
+                                <Button
+                                  className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                                  onClick={() => {
+                                    deleteUser();
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </DialogDescription>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
                       </td>
                     </tr>
                   ))

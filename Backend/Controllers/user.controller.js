@@ -44,20 +44,6 @@ const createUser = AsyncHandler(async (req, res) => {
     ReportingManager,
   } = req.body;
 
-  // if (
-  //   !Email ||
-  //   !Password ||
-  //   !Date_of_Birth ||
-  //   !Mobile_Number ||
-  //   !Gender ||
-  //   !DATE_OF_JOINING ||
-  //   !Designation ||
-  //   !WeekOff ||
-  //   !role
-  // ) {
-  //   throw new ApiError(400, "All fields are required");
-  // }
-
   const userExist = await User.findOne({
     $or: [{ Email }, { EMP_CODE }],
   });
@@ -193,7 +179,6 @@ const updateUser = AsyncHandler(async (req, res) => {
 
 const deleteUser = AsyncHandler(async (req, res) => {
   const requestingUser = await User.findById(req.user._id);
-  console.log(requestingUser);
 
   if (!requestingUser) {
     throw new ApiError(404, "Requesting user not found");

@@ -22,7 +22,7 @@ const formSchema = z.object({
   Email: z.string().email("Please enter correct Email"),
   Password: z.string().min(6, "Passoword must be 6 characters"),
   Date_of_Birth: z.string(),
-  Mobile_Number: z.number().min(8, "Please enter valid mobile Number"),
+  Mobile_Number: z.string().min(10, "Please enter valid mobile Number"),
   Gender: z.enum(["MALE", "FEMALE"]),
   DATE_OF_JOINING: z.string(),
   Designation: z.string(),
