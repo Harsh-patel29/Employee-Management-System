@@ -3,7 +3,8 @@ import { User } from "../Models/user.model.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
-
+import { Role } from "../Models/Role.model.js";
+import { UserAccess } from "../Models/Role_Access.js";
 const generateAccessandRefreshToken = async (UserID) => {
   try {
     const user = await User.findById(UserID);
@@ -238,6 +239,82 @@ const getUserById = AsyncHandler(async (req, res) => {
   }
 });
 
+// const ManageDetails = AsyncHandler(async (req, res) => {
+//   const accessId = await UserAccess.aggregate([
+//     {
+//       $lookup: {
+//         from: "roles",
+//         localField: "role",
+//         foreignField: "_id",
+//         as: "ok",
+//       },
+//     },
+//     {
+//       $unwind: {
+//         path: "$ok",
+//       },
+//     },
+//     {
+//       $match: {
+//         role: new mongoose.Types.ObjectId("67ac67abcbab2e409938d0cb"),
+//       },
+//     },
+//   ]);
+//   console.log(accessId);
+
+//   const roleid = await Role.aggregate([
+//     [
+//       {
+//         $lookup: {
+//           from: "useraccesses",
+//           localField: "_id",
+//           foreignField: "role",
+//           as: "ok",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$ok",
+//         },
+//       },
+//       {
+//         $match: {
+//           _id: accessId[0].role, // Roles _id
+//         },
+//       },
+//     ],
+//   ]);
+//   console.log(roleid[0]);
+
+//   return res.status(200).json(new ApiResponse(200, roleid[0].ok, "Fetched"));
+// });
+const ManageDetails = AsyncHandler(async (req, res) => {
+  const roleid = await Role.aggregate([
+    [
+      {
+        $lookup: {
+          from: "useraccesses",
+          localField: "_id",
+          foreignField: "role",
+          as: "ok",
+        },
+      },
+      {
+        $unwind: {
+          path: "$ok",
+        },
+      },
+      {
+        $project: {
+          ok: "$ok",
+        },
+      },
+    ],
+  ]);
+
+  return res.status(200).json(new ApiResponse(200, roleid, "Fetched"));
+});
+
 export {
   createUser,
   loginUser,
@@ -246,5 +323,5 @@ export {
   deleteUser,
   getAllUsers,
   getUserById,
-  getAccessDetails,
+  ManageDetails,
 };
