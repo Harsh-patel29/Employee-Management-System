@@ -3,7 +3,6 @@ import { User } from "../Models/user.model.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { error, log } from "console";
 
 const generateAccessandRefreshToken = async (UserID) => {
   try {
@@ -138,7 +137,9 @@ const logoutUser = AsyncHandler(async (req, res) => {
 const updateUser = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
 
-  const user = await User.findById(id);
+  const user = await User.findById({ _id: id });
+  const result = req.rolesResult;
+  const roleid = result[0]._id;
 
   if (!user) {
     throw new ApiError(404, "User not found");
@@ -154,9 +155,10 @@ const updateUser = AsyncHandler(async (req, res) => {
     (user.WeekOff = req.body.WeekOff),
       (user.role = req.body.role),
       (user.ReportingManager = req.body.ReportingManager);
+    user.roleid = roleid;
 
     const updatedUser = await user.save();
-    console.log(updateUser);
+
     const newUser = {
       Name: updatedUser.Name,
       Email: updatedUser.Email,
@@ -244,4 +246,5 @@ export {
   deleteUser,
   getAllUsers,
   getUserById,
+  getAccessDetails,
 };

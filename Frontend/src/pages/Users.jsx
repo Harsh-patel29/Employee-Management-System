@@ -197,10 +197,10 @@ const Users = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="DOJ">
-                            Date of Joining :- {user.DATE_OF_JOINING}
+                            Gender :- {user.DATE_OF_JOINING}
                           </SelectItem>
                           <SelectItem value="Mobile Number">
-                            Mobile Number :- {user.Mobile_Number}
+                            WeekOff :- {user.WeekOff}
                           </SelectItem>
                           <SelectItem value="system">
                             DOB :-{user.Date_of_Birth}

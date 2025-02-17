@@ -23,10 +23,9 @@ router
     res.json({ message: "Login Status fetched Successfully", user: req.user });
   });
 router.route("/createUser").post(roles, authenticate, Authorized, createUser);
-router.route("/:id").put(authenticate, roles, updateUser);
+router.route("/:id").put(roles, authenticate, updateUser);
 router.route("/:id").delete(authenticate, deleteUser);
 router.route("/:id").get(authenticate, getUserById);
 router.route("/logout").post(authenticate, logoutUser);
 router.route("/").get(authenticate, isAuth, getAllUsers);
-
 export default router;

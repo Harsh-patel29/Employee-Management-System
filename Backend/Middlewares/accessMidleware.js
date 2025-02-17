@@ -6,16 +6,15 @@ dotenv.config({
 });
 
 const roles = AsyncHandler(async (req, res, next) => {
-  const result = await Role.aggregate([
-    [
-      {
-        $match: {
-          name: req.body.role,
-        },
+  const results = await Role.aggregate([
+    {
+      $match: {
+        name: req.body.role,
       },
-    ],
+    },
   ]);
-  req.rolesResult = result;
+
+  req.rolesResult = results;
   next();
 });
 
