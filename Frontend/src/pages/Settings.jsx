@@ -7,33 +7,40 @@ const Settings = () => {
 
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getdetail());
+    setTimeout(() => {
+      dispatch(getdetail());
+    }, 0);
   }, []);
 
   const roles = [
     { name: "Admin" },
-    { name: "User" },
+    { name: "Developer" },
     { name: "HR" },
     { name: "Product Manager" },
   ];
-  const [permissions, setPermissions] = useState({
-    Admin: {
-      manageUser: detail.detail[0].ok.manageUser,
-      manageUserAccess: detail.detail[0].ok.manageUserAccess,
-    },
-    User: {
-      manageUser: detail.detail[1].ok.manageUser,
-      manageUserAccess: detail.detail[1].ok.manageUserAccess,
-    },
-    HR: {
-      manageUser: detail.detail[2].ok.manageUser,
-      manageUserAccess: detail.detail[2].ok.manageUserAccess,
-    },
-    ProductManager: {
-      manageUser: detail.detail[3].ok.manageUser,
-      manageUserAccess: detail.detail[3].ok.manageUserAccess,
-    },
-  });
+  const [permissions, setPermissions] = useState({});
+
+  useEffect(() => {
+    if (!detail || !detail.detail) return;
+    setPermissions({
+      Admin: {
+        manageUser: detail.detail[0]?.ok?.manageUser,
+        manageUserAccess: detail.detail[0]?.ok?.manageUserAccess,
+      },
+      Developer: {
+        manageUser: detail.detail[1].ok?.manageUser,
+        manageUserAccess: detail.detail[1].ok?.manageUserAccess,
+      },
+      HR: {
+        manageUser: detail.detail[2].ok?.manageUser,
+        manageUserAccess: detail.detail[2]?.ok?.manageUserAccess,
+      },
+      ProductManager: {
+        manageUser: detail.detail[3]?.ok?.manageUser,
+        manageUserAccess: detail.detail[3]?.ok?.manageUserAccess,
+      },
+    });
+  }, [detail]);
   const togglePermission = (role, permission) => {
     setPermissions((prev) => ({
       ...prev,
