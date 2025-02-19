@@ -66,7 +66,7 @@ export default function UpdateForm({ onSubmit }) {
       reset({
         Name: detail?.Name || "",
         Email: detail?.Email || "",
-        Password: detail?.Password || "",
+        // Password: detail?.Password || "",
         Date_of_Birth: detail?.Date_of_Birth
           ? detail?.Date_of_Birth.split("T")[0]
           : "",

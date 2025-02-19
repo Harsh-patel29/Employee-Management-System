@@ -33,7 +33,7 @@ const Navigation = () => {
         value === "light" ? "bg-white" : "bg-gray-900"
       }
       ${value === "light" ? "border-white" : "border-black"}
-      xl:flex lg:flex md:hidden[] sm:hidden flex border-b border-r shadow-2xl flex-col justify-between p-4 w-[4%] hover:w-[15%]  rounded-r-md`}
+      xl:flex lg:flex md:flex md:w-[8%] h-auto  sm:flex sm:w-[10%] flex border-b border-r shadow-2xl flex-col justify-between p-4 xl:w-[4%] hover:w-[15%]  rounded-r-md`}
       id="navigation-container"
       onMouseEnter={() => dispatch(expandSideBar())}
       onMouseLeave={() => dispatch(collapedSideBar())}
@@ -43,7 +43,7 @@ const Navigation = () => {
           to="/dashboard"
           className="flex items-center transition-transform transform hover:translate-x-2"
         >
-          <MdDashboard size={26} className="mr-2 mt-[3rem]" />
+          <MdDashboard size={26} className="mr-2 mt-[3rem] " />
           <span
             className={`${
               value === "light" ? "text-black" : "text-white"

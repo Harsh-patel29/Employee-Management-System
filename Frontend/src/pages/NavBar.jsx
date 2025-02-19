@@ -42,18 +42,18 @@ const NavBar = () => {
       style={{ top: 0 }}
       className={` ${
         value === "light" ? "bg-white " : "bg-black"
-      }w-[100%]  flex flex-row  text-white h-20 border  ${
+      }w-full   flex flex-row  text-white h-20 border  ${
         value === "light" ? "border-white" : "border-black"
-      } shadow `}
+      } shadow  `}
     >
       <Link to="/">
         <img
           src="https://ems.jiyantech.com/assets/imgs/theme/logo.png"
-          className="h-20 w-60 p-5 ml-2 flex items-center"
+          className="xl:h-20 xl:w-60 xl:p-5 xl:ml-2 max-sm:w-70 max-sm:h-10 max-sm:p-0.5 max-sm:ml-2 max-sm:mt-3 flex items-center lg:h-15 lg:w-50 lg:p-1 lg:ml-2 lg:mt-2 md:h-16 md:w-45 md:ml-2 md:p-1 md:mt-2 sm:h-17 sm:w-50 sm:p-2 sm:mt-1 "
         />
       </Link>
       <div
-        className={`flex items-center w-[100%] justify-end mr-10 space-x-11 `}
+        className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11 `}
       >
         <ThemeToggle />
         <div className={`${value === "light" ? "text-black" : "text-white"}`}>
