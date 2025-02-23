@@ -42,9 +42,9 @@ const NavBar = () => {
       style={{ top: 0 }}
       className={` ${
         value === "light" ? "bg-white " : "bg-black"
-      }w-full   flex flex-row  text-white h-20 border  ${
+      }w-full  sm:w-full flex flex-row  text-white h-20 border  ${
         value === "light" ? "border-white" : "border-black"
-      } shadow  `}
+      } shadow `}
     >
       <Link to="/">
         <img
