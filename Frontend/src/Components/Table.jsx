@@ -1,0 +1,349 @@
+//// filepath: /c:/Users/Harsh Patel/Programming/InternShip_Project/Frontend/src/Components/Table.jsx
+import * as React from "react";
+import axios from "axios";
+import PropTypes from "prop-types";
+import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router";
+import { FaEdit } from "react-icons/fa";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "../Components/components/ui/sheet";
+import {
+  Drawer,
+  DrawerPortal,
+  DrawerOverlay,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerDescription,
+} from "../Components/components/ui/drawer.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../Components/components/ui/dialog";
+import UpdateForm from "./UpdateForm";
+import AuthForm from "./Form.jsx";
+import AdminForm from "./AdminForm";
+import { MdDelete } from "react-icons/md";
+import { Button } from "../Components/components/ui/button.tsx";
+
+function Row({
+  row,
+  isAdmin,
+  addUser,
+  updateUser,
+  openSheet,
+  navigate,
+  deleteUser,
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <React.Fragment>
+      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {row.index}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {row.Name}
+        </TableCell>
+        <TableCell>{row.EMP_CODE}</TableCell>
+        <TableCell>{row.role}</TableCell>
+        <TableCell>{row.Email}</TableCell>
+        <TableCell>{row.Mobile_Number}</TableCell>
+        <TableCell>{row.ReportingManager}</TableCell>
+        <TableCell>
+          {
+            <Sheet
+              onOpenChange={(open) => {
+                if (!open) navigate("/users");
+              }}
+            >
+              <SheetTrigger
+                onClick={() => {
+                  openSheet(row._id);
+                }}
+                asChild
+              >
+                <FaEdit className="font-semibold text-lg" />
+              </SheetTrigger>
+              <SheetContent className="min-w-4xl">
+                <SheetHeader>
+                  <SheetTitle className="text-2xl">Update User??</SheetTitle>
+                  <SheetDescription>
+                    {isAdmin ? (
+                      <AdminForm onSubmit={updateUser} />
+                    ) : (
+                      <UpdateForm onSubmit={updateUser} />
+                    )}
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          }
+        </TableCell>
+        <TableCell className={`${isAdmin ? "flex" : "hidden"}`}>
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) navigate("/users");
+            }}
+          >
+            <DialogTrigger
+              onClick={() => {
+                openSheet(row._id);
+              }}
+              asChild
+            >
+              <MdDelete className="font-semibold text-lg" />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  user's account and remove their data from servers.
+                  <Button
+                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                    onClick={() => {
+                      deleteUser();
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Additional Details
+              </Typography>
+              <Typography variant="body2">
+                DOJ: {row.DATE_OF_JOINING}
+              </Typography>
+              <Typography variant="body2">
+                Mobile: {row.Mobile_Number}
+              </Typography>
+              <Typography variant="body2">Email: {row.Email}</Typography>
+              <Typography variant="body2">
+                Date of Birth: {row.Date_of_Birth}
+              </Typography>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
+
+Row.propTypes = {
+  row: PropTypes.shape({
+    index: PropTypes.number,
+    Name: PropTypes.string,
+    Email: PropTypes.string,
+    role: PropTypes.string,
+    EMP_CODE: PropTypes.string,
+    Date_of_Birth: PropTypes.string,
+    Mobile_Number: PropTypes.string,
+    Designation: PropTypes.string,
+    ReportingManager: PropTypes.string,
+  }).isRequired,
+};
+
+export default function CollapsibleTable() {
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const [users, setUsers] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [isAdmin, setisAdmin] = React.useState(false);
+  React.useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const res = await axios.get("http://localhost:8000/api/v1/user/", {
+          withCredentials: true,
+        });
+        setUsers(res.data.message);
+      } catch (error) {
+        console.error(
+          "Error fetching users:",
+          error?.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+      const role = user.user.role;
+      if (role === "Admin") {
+        setisAdmin(true);
+      } else setisAdmin(false);
+    }
+    fetchUsers();
+  }, []);
+
+  const { id } = useParams();
+  const [sheetopen, setsheetopen] = React.useState(false);
+  const [userid, setuserid] = React.useState(id);
+
+  const openSheet = (id) => {
+    navigate(`/users/${id}`);
+    setTimeout(() => {
+      setsheetopen(true);
+    }, 0);
+  };
+
+  React.useEffect(() => {
+    setuserid(id);
+  }, [id]);
+
+  const addUser = async (data) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/user/createUser",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      if (res.data.success === true) {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log("Something went wrong while creating user");
+    }
+  };
+
+  const updateUser = async (data) => {
+    const res = await axios.put(
+      `http://localhost:8000/api/v1/user/${id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    if (res.data.success === true) {
+      navigate("/dashboard");
+    }
+
+    return res.data;
+  };
+
+  const deleteUser = async () => {
+    const res = await axios.delete(`http://localhost:8000/api/v1/user/${id}`, {
+      withCredentials: true,
+    });
+    if (res.data.success === true) {
+      navigate("/dashboard");
+    }
+    return res.data;
+  };
+  return loading ? (
+    <div>Loading....</div>
+  ) : (
+    <TableContainer component={Paper}>
+      <div className="text-3xl pb-4 flex ml-2 justify-between">
+        Users
+        <Drawer>
+          <DrawerTrigger className={`${isAdmin ? "flex" : "hidden"}`}>
+            +
+          </DrawerTrigger>
+          <DrawerContent className="">
+            <AuthForm onSubmit={addUser} />
+          </DrawerContent>
+        </Drawer>
+      </div>
+      <Table aria-label="collapsible table">
+        <TableHead className="bg-blue-200 text-gray-800 ">
+          <TableRow>
+            <TableCell />
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              #
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Name
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              EMP Code
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Role
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Email
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Mobile
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Reporting Manager
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Action
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              Delete
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {users.map((user, index) => (
+            <Row
+              key={user._id}
+              row={{ ...user, index: index + 1 }}
+              isAdmin={isAdmin}
+              addUser={addUser}
+              updateUser={updateUser}
+              openSheet={openSheet}
+              navigate={navigate}
+              deleteUser={deleteUser}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}

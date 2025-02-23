@@ -13,6 +13,7 @@ import DashBoard from "./pages/DashBoard.jsx";
 import Users from "./pages/Users.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Settings from "./pages/Settings.jsx";
+import Master from "./pages/Master.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<Users />} />
+          <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
