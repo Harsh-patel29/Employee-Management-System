@@ -9,10 +9,10 @@ function App() {
     <>
       <div
         className={
-          theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"
+          theme === "dark" ? "bg-[#121212] text-white" : "bg-white text-black"
         }
       >
-        <main className="p-0 m-0 h-[756px] ">
+        <main className="h-screen ">
           <NavBar />
           <Outlet />
           <Navigation />

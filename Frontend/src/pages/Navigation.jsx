@@ -30,7 +30,7 @@ const Navigation = () => {
     <div
       style={{ zIndex: 999 }}
       className={`${isExpanded ? "flex" : "hidden"} ${
-        value === "light" ? "bg-white" : "bg-gray-900"
+        value === "light" ? "bg-white" : "bg-[#121212]"
       }
       ${value === "light" ? "border-white" : "border-black"}
       xl:flex lg:flex md:flex md:w-[8%] h-auto  sm:flex sm:w-[10%] flex border-b border-r shadow-2xl flex-col justify-between p-4 xl:w-[4%] hover:w-[15%] lg:hover:w-[2%] rounded-r-md`}

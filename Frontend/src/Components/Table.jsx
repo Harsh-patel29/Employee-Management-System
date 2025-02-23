@@ -52,7 +52,6 @@ import AuthForm from "./Form.jsx";
 import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
-
 function Row({
   row,
   isAdmin,
@@ -63,30 +62,44 @@ function Row({
   deleteUser,
 }) {
   const [open, setOpen] = React.useState(false);
+  const theme = useSelector((state) => state.theme.theme);
   return (
     <React.Fragment>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+      <TableRow
+        sx={{
+          backgroundColor: theme === "light" ? "white" : "#161b22",
+          color: theme === "light" ? "black" : "#f8f9fa",
+        }}
+      >
         <TableCell>
           <IconButton
             aria-label="expand row"
             size="small"
             onClick={() => setOpen(!open)}
           >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {open ? (
+              <KeyboardArrowUpIcon
+                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+              />
+            ) : (
+              <KeyboardArrowDownIcon
+                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+              />
+            )}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
           {row.index}
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
           {row.Name}
         </TableCell>
-        <TableCell>{row.EMP_CODE}</TableCell>
-        <TableCell>{row.role}</TableCell>
-        <TableCell>{row.Email}</TableCell>
-        <TableCell>{row.Mobile_Number}</TableCell>
-        <TableCell>{row.ReportingManager}</TableCell>
-        <TableCell>
+        <TableCell sx={{ color: "inherit" }}>{row.EMP_CODE}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>{row.role}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>{row.Email}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>{row.Mobile_Number}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>{row.ReportingManager}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>
           {
             <Sheet
               onOpenChange={(open) => {
@@ -116,7 +129,10 @@ function Row({
             </Sheet>
           }
         </TableCell>
-        <TableCell className={`${isAdmin ? "flex" : "hidden"}`}>
+        <TableCell
+          sx={{ color: "#ff3b30" }}
+          className={`${isAdmin ? "flex" : "hidden"}`}
+        >
           <Dialog
             onOpenChange={(open) => {
               if (!open) navigate("/users");
@@ -151,7 +167,14 @@ function Row({
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell
+          style={{ paddingBottom: 0, paddingTop: 0 }}
+          colSpan={10}
+          sx={{
+            backgroundColor: theme === "light" ? "white" : "#161b22",
+            color: theme === "light" ? "black" : "#f8f9fa",
+          }}
+        >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
@@ -281,14 +304,27 @@ export default function CollapsibleTable() {
     }
     return res.data;
   };
+
+  const theme = useSelector((state) => state.theme.theme);
+
   return loading ? (
     <div>Loading....</div>
   ) : (
-    <TableContainer component={Paper}>
-      <div className="text-3xl pb-4 flex ml-2 justify-between">
+    <TableContainer
+      component={Paper}
+      sx={{
+        backgroundColor: theme === "light" ? "white" : "#111827",
+        color: theme === "light" ? "black" : "#8a94a7",
+      }}
+    >
+      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2 ">
         Users
         <Drawer>
-          <DrawerTrigger className={`${isAdmin ? "flex" : "hidden"}`}>
+          <DrawerTrigger
+            className={`${isAdmin ? "flex" : "hidden"}
+            ${theme === "light" ? "hover:bg-gray-200" : " hover:bg-gray-700"}
+            w-10 h-10 rounded-3xl justify-center`}
+          >
             +
           </DrawerTrigger>
           <DrawerContent className="">
@@ -297,7 +333,9 @@ export default function CollapsibleTable() {
         </Drawer>
       </div>
       <Table aria-label="collapsible table">
-        <TableHead className="bg-blue-200 text-gray-800 ">
+        <TableHead
+          sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
+        >
           <TableRow>
             <TableCell />
             <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>

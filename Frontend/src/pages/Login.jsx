@@ -7,9 +7,6 @@ import LoginForm from "../Components/LoginForm.jsx";
 import { Flex } from "@mantine/core";
 
 const Login = () => {
-  // const [Email, setEmail] = useState("");
-  // const [Password, setPassword] = useState("");
-
   const theme = useSelector((state) => state.theme.theme);
   const value = localStorage.getItem("theme");
 
@@ -30,7 +27,7 @@ const Login = () => {
 
   return (
     <div
-      className={`${value === "light" ? "bg-white" : "bg-gray-900"} 
+      className={`${value === "light" ? "bg-white" : "bg-[#121212]"} 
       ${value === "light" ? "text-gray-900" : "text-white"}
        flex items-center w-full h-[100vh]  flex-col`}
     >
