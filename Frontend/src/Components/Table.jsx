@@ -52,6 +52,9 @@ import AuthForm from "./Form.jsx";
 import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
+import { Bounce, toast } from "react-toastify";
+import { light } from "@mui/material/styles/createPalette";
+import { Flex } from "@mantine/core";
 function Row({
   row,
   isAdmin,
@@ -268,9 +271,19 @@ export default function CollapsibleTable() {
           withCredentials: true,
         }
       );
-      console.log(res.data);
       if (res.data.success === true) {
         navigate("/dashboard");
+        toast.success("User Created Successfully", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
       }
     } catch (error) {
       console.log("Something went wrong while creating user");
@@ -290,8 +303,18 @@ export default function CollapsibleTable() {
     );
     if (res.data.success === true) {
       navigate("/dashboard");
+      toast.success("User Updated Successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
     }
-
     return res.data;
   };
 
@@ -301,6 +324,17 @@ export default function CollapsibleTable() {
     });
     if (res.data.success === true) {
       navigate("/dashboard");
+      toast.success("User Deleted Successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
     }
     return res.data;
   };
@@ -315,9 +349,10 @@ export default function CollapsibleTable() {
       sx={{
         backgroundColor: theme === "light" ? "white" : "#111827",
         color: theme === "light" ? "black" : "#8a94a7",
+        maxHeight: 400,
       }}
     >
-      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2 ">
+      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2  ">
         Users
         <Drawer>
           <DrawerTrigger
@@ -327,12 +362,16 @@ export default function CollapsibleTable() {
           >
             +
           </DrawerTrigger>
-          <DrawerContent className="">
+          <DrawerContent
+            className={`${theme === "light" ? "bg-white" : "bg-[#121212]"}
+              ${theme === "light" ? "text-black" : "text-white"}
+            `}
+          >
             <AuthForm onSubmit={addUser} />
           </DrawerContent>
         </Drawer>
       </div>
-      <Table aria-label="collapsible table">
+      <Table aria-label="collapsible table ">
         <TableHead
           sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
         >

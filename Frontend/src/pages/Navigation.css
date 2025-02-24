@@ -15,7 +15,7 @@ navigation-container {
 
 @media screen and (min-width: 768px) {
   #navigation-container:hover {
-    width: 19%;
+    width: 15%;
   }
 }
 

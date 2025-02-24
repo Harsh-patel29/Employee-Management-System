@@ -3,6 +3,8 @@ import Navigation from "./pages/Navigation";
 import "../src/index.css";
 import NavBar from "./pages/NavBar";
 import { useSelector } from "react-redux";
+import { ToastContainer, Bounce, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   const theme = useSelector((state) => state.theme.theme);
   return (
@@ -12,10 +14,11 @@ function App() {
           theme === "dark" ? "bg-[#121212] text-white" : "bg-white text-black"
         }
       >
-        <main className="h-screen ">
+        <main className="h-screen">
           <NavBar />
           <Outlet />
           <Navigation />
+          <ToastContainer />
         </main>
       </div>
     </>

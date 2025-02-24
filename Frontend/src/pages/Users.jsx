@@ -4,8 +4,6 @@ import CollapsibleTable from "../Components/Table.jsx";
 const Users = () => {
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
 
-  const value = localStorage.getItem("theme");
-
   return (
     <div
       className={`${
