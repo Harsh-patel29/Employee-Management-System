@@ -3,18 +3,19 @@ import { useSelector } from "react-redux";
 
 const DashBoard = () => {
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
-
+  const theme = useSelector((state) => state.theme.theme);
   return (
     <div
-      className={`absolute rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 w-[92%] shadow bg-[#fff] h-[50%] min-w-0  max-sm:h-[80%] sm:w-[80%] sm:h-[80%]  transition-all duration-300 ${
+      className={`absolute rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 xl:max-h-[45%] shadow  min-w-0  max-sm:h-[80%] sm:w-[80%] sm:h-[80%] sm:max-h-[90%]  transition-all duration-300 ${
         isExpanded
-          ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90   md:scale-x-80 sm:scale-x-80 "
-          : "xl:scale-x-100 xl:left-2 lg:scale-x-100 lg:left-10 md:scale-x-100 sm:scale-x-100 "
-      }
+          ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
+          : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-10 md:scale-x-100 sm:scale-x-100"
+      } 
+      ${theme === "light" ? "bg-white" : "bg-[#201f1f]"}
         `}
     >
-      <div className="xl:mb-2 xl:ml-6 max-sm:flex max-sm:justify-center ">
-        <h1 className="text-2xl font-bold md:ml-6 md:mt-2 sm:mt-2 max-sm:mt-2  sm:flex sm:items-center sm:justify-center">
+      <div className="xl:mb-2 xl:ml-6  max-sm:flex max-sm:justify-center xl:flex lg:flex  ">
+        <h1 className="text-2xl font-bold md:ml-6 md:mt-2 sm:mt-2 max-sm:mt-2 sm:flex sm:justify-center">
           OverView
         </h1>
       </div>
