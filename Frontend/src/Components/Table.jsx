@@ -1,4 +1,3 @@
-//// filepath: /c:/Users/Harsh Patel/Programming/InternShip_Project/Frontend/src/Components/Table.jsx
 import * as React from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
@@ -25,19 +24,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose,
 } from "../Components/components/ui/sheet";
 import {
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
   DrawerTrigger,
-  DrawerClose,
   DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
-  DrawerDescription,
 } from "../Components/components/ui/drawer.tsx";
 import {
   Dialog,
@@ -47,14 +38,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Components/components/ui/dialog";
-import UpdateForm from "./UpdateForm";
 import AuthForm from "./Form.jsx";
 import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
-import { light } from "@mui/material/styles/createPalette";
-import { Flex } from "@mantine/core";
 function Row({
   row,
   isAdmin,
@@ -121,11 +109,7 @@ function Row({
                 <SheetHeader>
                   <SheetTitle className="text-2xl">Update User??</SheetTitle>
                   <SheetDescription>
-                    {isAdmin ? (
-                      <AdminForm onSubmit={updateUser} />
-                    ) : (
-                      <UpdateForm onSubmit={updateUser} />
-                    )}
+                    {<AdminForm onSubmit={updateUser} />}
                   </SheetDescription>
                 </SheetHeader>
               </SheetContent>
