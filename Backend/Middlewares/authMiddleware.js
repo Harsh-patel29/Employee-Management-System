@@ -27,12 +27,12 @@ const isAuth = AsyncHandler(async (req, res, next) => {
     },
     {
       $project: {
-        manageUserAccess: "$ok.manageUserAccess",
-        manageuser: "$ok.manageUser",
+        ok: "$ok",
       },
     },
   ]);
-  req.permission = result;
+  req.permission = result[0].ok.access_keys.user;
+
   next();
 });
 

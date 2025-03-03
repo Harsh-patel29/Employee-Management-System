@@ -8,7 +8,7 @@ const PrivateRoute = () => {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(checkAuth()); // Check authentication status on page load
+    dispatch(checkAuth());
   }, [dispatch]);
 
   return user ? <Outlet /> : <Navigate to="/login" />;

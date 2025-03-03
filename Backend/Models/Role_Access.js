@@ -6,13 +6,12 @@ const User_AccessSchema = new Schema({
     ref: "Role",
     required: true,
   },
-  manageUser: {
-    type: Boolean,
-    default: 0,
+  access_keys: {
+    type: Schema.Types.Mixed,
   },
-  manageUserAccess: {
+  is_deleted: {
     type: Boolean,
-    default: 0,
+    default: false,
   },
 });
 

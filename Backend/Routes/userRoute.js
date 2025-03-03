@@ -8,8 +8,10 @@ import {
   getAllUsers,
   getUserById,
   ManageDetails,
+  getAllowedSettings,
 } from "../Controllers/user.controller.js";
 import {
+  accessAllowed,
   authenticate,
   Authorized,
 } from "../Middlewares/AuthorizeMiddleware.js";
@@ -30,4 +32,7 @@ router.route("/:id").get(authenticate, getUserById);
 router.route("/detail/role").get(authenticate, isAuth, ManageDetails);
 router.route("/logout").post(authenticate, logoutUser);
 router.route("/").get(authenticate, isAuth, getAllUsers);
+router
+  .route("/settings/fetch")
+  .get(authenticate, isAuth, accessAllowed, getAllowedSettings);
 export default router;

@@ -4,6 +4,7 @@ import ToggleSideBarSliceReducer from "../feature/ToggelSideBar/ToggleSideBarSli
 import authSliceReducer from "../feature/datafetch/datafetchSlice.js";
 import userSliceReducer from "../feature/datafetch/userfetchSlice.js";
 import detailSliceReducer from "../feature/datafetch/detailfetchSlice.js";
+import settingsSliceReducer from "../feature/datafetch/accessfetchSlice.js";
 export default configureStore({
   reducer: {
     theme: themeReducer,
@@ -11,5 +12,6 @@ export default configureStore({
     auth: authSliceReducer,
     getuser: userSliceReducer,
     getDetail: detailSliceReducer,
+    settings: settingsSliceReducer,
   },
 });

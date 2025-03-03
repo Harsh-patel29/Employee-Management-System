@@ -2,6 +2,7 @@ import { User } from "../Models/user.model.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { ApiError } from "../Utils/ApiError.js";
 import jwt from "jsonwebtoken";
+import { UserAccess } from "../Models/Role_Access.js";
 
 const authenticate = AsyncHandler(async (req, res, next) => {
   const token =
@@ -36,7 +37,7 @@ const Authorized = AsyncHandler(async (req, res, next) => {
           from: "useraccesses",
           localField: "roleid",
           foreignField: "role",
-          as: "ok",
+          as: "result",
         },
       },
       {
@@ -45,26 +46,54 @@ const Authorized = AsyncHandler(async (req, res, next) => {
         },
       },
       {
-        $unwind: {
-          path: "$ok",
+        $project: {
+          result: "$result",
         },
       },
       {
-        $project: {
-          manageUserAccess: "$ok.manageUserAccess",
-          manageuser: "$ok.manageUser",
+        $unwind: {
+          path: "$result",
         },
       },
     ],
   ]);
-  const isManageUserAllowed = isAuthorized[0].manageuser;
-  const isUserAccessAllowed = isAuthorized[0].manageUserAccess;
+  const access = isAuthorized[0].result.access_keys.user;
 
-  if (isManageUserAllowed && isUserAccessAllowed) {
+  if (
+    access.can_add_user === true &&
+    access.can_update_user === true &&
+    access.can_delete_user === true
+  ) {
     next();
   } else {
     throw new ApiError(404, "Unauthorized");
   }
 });
 
-export { authenticate, Authorized };
+const accessAllowed = AsyncHandler(async (req, res, next) => {
+  const isAllowed = await UserAccess.aggregate([
+    {
+      $lookup: {
+        from: "roles",
+        localField: "role",
+        foreignField: "_id",
+        as: "result",
+      },
+    },
+    {
+      $unwind: {
+        path: "$result",
+      },
+    },
+    {
+      $project: {
+        result: "$result",
+      },
+    },
+  ]);
+  req.Allowed = isAllowed;
+
+  next();
+});
+
+export { authenticate, Authorized, accessAllowed };

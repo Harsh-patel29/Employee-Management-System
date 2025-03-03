@@ -4,7 +4,6 @@ import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { Role } from "../Models/Role.model.js";
-import { UserAccess } from "../Models/Role_Access.js";
 const generateAccessandRefreshToken = async (UserID) => {
   try {
     const user = await User.findById(UserID);
@@ -210,15 +209,14 @@ const deleteUser = AsyncHandler(async (req, res) => {
 const getAllUsers = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
 
-  const manageAccess = rolesPermission[0].manageUserAccess;
+  const ViewAccess = rolesPermission.can_view_other_users;
 
-  if (manageAccess === true) {
+  if (ViewAccess === true) {
     const user = await User.find({});
     return res
       .status(200)
       .json(new ApiResponse(200, user, "User fetched Successfully"));
-  }
-  if (manageAccess === false) {
+  } else {
     const user = await User.find({ _id: req.user._id });
     return res
       .status(200)
@@ -315,6 +313,23 @@ const ManageDetails = AsyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, roleid, "Fetched"));
 });
 
+const getAllowedSettings = AsyncHandler(async (req, res) => {
+  const AllowedPermissions = req.Allowed;
+  const permission = req.permission;
+  const viewAccess = permission.can_view_user_access;
+  const AddRole = permission.can_add_user_roles;
+  const UpdateRole = permission.can_update_user_roles;
+  const DeleteRole = permission.can_delete_user_roles;
+
+  if (viewAccess === true) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, AllowedPermissions, "Fetched!!"));
+  } else {
+    throw new ApiError(404, "User not allowed to view Roles");
+  }
+});
+
 export {
   createUser,
   loginUser,
@@ -324,4 +339,5 @@ export {
   getAllUsers,
   getUserById,
   ManageDetails,
+  getAllowedSettings,
 };
