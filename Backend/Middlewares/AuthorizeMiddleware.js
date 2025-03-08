@@ -71,26 +71,7 @@ const Authorized = AsyncHandler(async (req, res, next) => {
 });
 
 const accessAllowed = AsyncHandler(async (req, res, next) => {
-  const isAllowed = await UserAccess.aggregate([
-    {
-      $lookup: {
-        from: "roles",
-        localField: "role",
-        foreignField: "_id",
-        as: "result",
-      },
-    },
-    {
-      $unwind: {
-        path: "$result",
-      },
-    },
-    {
-      $project: {
-        result: "$result",
-      },
-    },
-  ]);
+  const isAllowed = await UserAccess.find({});
   req.Allowed = isAllowed;
 
   next();

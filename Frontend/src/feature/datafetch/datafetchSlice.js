@@ -1,20 +1,37 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import axios from "axios";
+import { TrendingUpDown } from "lucide-react";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async (userData, { rejectWithValue }) => {
+  async (userData, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.post(
         "http://localhost:8000/api/v1/user/login",
         userData,
         { withCredentials: true }
       );
+      dispatch(getLoginDetail());
 
       return res.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
+    }
+  }
+);
+
+export const getLoginDetail = createAsyncThunk(
+  "auth/getDetails",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/v1/user/login", {
+        withCredentials: true,
+      });
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
     }
   }
 );
@@ -61,6 +78,18 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.rejected, (state) => {
         state.user = null;
+      })
+      .addCase(getLoginDetail.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(getLoginDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(getLoginDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

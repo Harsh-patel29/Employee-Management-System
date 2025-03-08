@@ -31,6 +31,7 @@ const isAuth = AsyncHandler(async (req, res, next) => {
       },
     },
   ]);
+
   req.permission = result[0].ok.access_keys.user;
 
   next();

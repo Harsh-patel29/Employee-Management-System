@@ -45,9 +45,10 @@ import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
 function Row({
   row,
-  isAdmin,
-  addUser,
+  canAddUser,
   updateUser,
+  canUpdateUser,
+  canDeleteUser,
   openSheet,
   navigate,
   deleteUser,
@@ -103,7 +104,11 @@ function Row({
                 }}
                 asChild
               >
-                <FaEdit className="font-semibold text-lg" />
+                <FaEdit
+                  className={`${
+                    canUpdateUser ? "font-semibold text-lg" : "hidden"
+                  }`}
+                />
               </SheetTrigger>
               <SheetContent className="min-w-4xl">
                 <SheetHeader>
@@ -118,7 +123,7 @@ function Row({
         </TableCell>
         <TableCell
           sx={{ color: "#ff3b30" }}
-          className={`${isAdmin ? "flex" : "hidden"}`}
+          className={`${canAddUser ? "flex" : "hidden"}`}
         >
           <Dialog
             onOpenChange={(open) => {
@@ -131,7 +136,11 @@ function Row({
               }}
               asChild
             >
-              <MdDelete className="font-semibold text-lg" />
+              <MdDelete
+                className={`${
+                  canDeleteUser ? "font-semibold text-lg" : "hidden"
+                }`}
+              />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -202,9 +211,13 @@ Row.propTypes = {
 export default function CollapsibleTable() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+
   const [users, setUsers] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [isAdmin, setisAdmin] = React.useState(false);
+  const [canAddUser, setcanAddUser] = React.useState(false);
+  const [canUpdateUser, setcanUpdateUser] = React.useState(false);
+  const [canDeleteUser, setcanDeleteUser] = React.useState(false);
+
   React.useEffect(() => {
     async function fetchUsers() {
       try {
@@ -220,10 +233,22 @@ export default function CollapsibleTable() {
       } finally {
         setLoading(false);
       }
-      const role = user.user.role;
-      if (role === "Admin") {
-        setisAdmin(true);
-      } else setisAdmin(false);
+      const createrole = user.permission.can_add_user;
+      if (createrole === true) {
+        setcanAddUser(true);
+      } else setcanAddUser(false);
+      const updateRole = user.permission.can_update_user;
+      if (updateRole === true) {
+        setcanUpdateUser(true);
+      } else {
+        setcanUpdateUser(false);
+      }
+      const deleteRole = user.permission.can_delete_user;
+      if (deleteRole === true) {
+        setcanDeleteUser(true);
+      } else {
+        setcanDeleteUser(false);
+      }
     }
     fetchUsers();
   }, []);
@@ -340,7 +365,7 @@ export default function CollapsibleTable() {
         Users
         <Drawer>
           <DrawerTrigger
-            className={`${isAdmin ? "flex" : "hidden"}
+            className={`${canAddUser ? "flex" : "hidden"}
             ${theme === "light" ? "hover:bg-gray-200" : " hover:bg-gray-700"}
             w-10 h-10 rounded-3xl justify-center`}
           >
@@ -383,10 +408,10 @@ export default function CollapsibleTable() {
               Reporting Manager
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Action
+              {`${canUpdateUser ? "Action" : ""}`}
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Delete
+              {`${canDeleteUser ? "Delete" : ""}`}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -395,7 +420,9 @@ export default function CollapsibleTable() {
             <Row
               key={user._id}
               row={{ ...user, index: index + 1 }}
-              isAdmin={isAdmin}
+              canAddUser={canAddUser}
+              canUpdateUser={canUpdateUser}
+              canDeleteUser={canDeleteUser}
               addUser={addUser}
               updateUser={updateUser}
               openSheet={openSheet}

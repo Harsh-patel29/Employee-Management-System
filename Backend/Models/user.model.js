@@ -56,6 +56,10 @@ const userSchema = new Schema(
       ref: "Role",
       required: true,
     },
+    access_keys: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserAccess",
+    },
     ReportingManager: {
       type: String,
     },

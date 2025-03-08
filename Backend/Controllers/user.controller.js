@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User } from "../Models/user.model.js";
+import { UserAccess } from "../Models/Role_Access.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
@@ -54,6 +55,7 @@ const createUser = AsyncHandler(async (req, res) => {
     const rolesResult = req.rolesResult;
 
     const roleid = rolesResult[0]._id;
+    const access_keys = rolesResult[0].permission[0];
 
     const user = await User.create({
       Email,
@@ -68,6 +70,7 @@ const createUser = AsyncHandler(async (req, res) => {
       WeekOff,
       role,
       roleid: roleid,
+      access_keys: access_keys,
       ReportingManager,
     });
     await user.save();
@@ -81,6 +84,7 @@ const createUser = AsyncHandler(async (req, res) => {
 
 const loginUser = AsyncHandler(async (req, res) => {
   const { Email, Password } = req.body;
+  const access = req.permission;
   if (!Email || !Password) {
     throw new ApiError(400, "All fileds are required");
   }
@@ -103,6 +107,7 @@ const loginUser = AsyncHandler(async (req, res) => {
   const option = {
     httpOnly: true,
   };
+  console.log(access);
 
   const loggedInUser = await User.findById(user._id).select("-Password ");
   return res
@@ -180,14 +185,10 @@ const updateUser = AsyncHandler(async (req, res) => {
 });
 
 const deleteUser = AsyncHandler(async (req, res) => {
-  const requestingUser = await User.findById(req.user._id);
+  const requestingUserAccess = req.permission;
 
-  if (!requestingUser) {
-    throw new ApiError(404, "Requesting user not found");
-  }
-
-  if (requestingUser.role !== "Admin") {
-    throw new ApiError(403, "Only admins can delete users");
+  if (requestingUserAccess.can_delete_user === false) {
+    throw new ApiError(403, "Unauthorized");
   }
   const user = await User.findById(req.params.id);
   const id = req.params.id;
@@ -237,55 +238,6 @@ const getUserById = AsyncHandler(async (req, res) => {
   }
 });
 
-// const ManageDetails = AsyncHandler(async (req, res) => {
-//   const accessId = await UserAccess.aggregate([
-//     {
-//       $lookup: {
-//         from: "roles",
-//         localField: "role",
-//         foreignField: "_id",
-//         as: "ok",
-//       },
-//     },
-//     {
-//       $unwind: {
-//         path: "$ok",
-//       },
-//     },
-//     {
-//       $match: {
-//         role: new mongoose.Types.ObjectId("67ac67abcbab2e409938d0cb"),
-//       },
-//     },
-//   ]);
-//   console.log(accessId);
-
-//   const roleid = await Role.aggregate([
-//     [
-//       {
-//         $lookup: {
-//           from: "useraccesses",
-//           localField: "_id",
-//           foreignField: "role",
-//           as: "ok",
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$ok",
-//         },
-//       },
-//       {
-//         $match: {
-//           _id: accessId[0].role, // Roles _id
-//         },
-//       },
-//     ],
-//   ]);
-//   console.log(roleid[0]);
-
-//   return res.status(200).json(new ApiResponse(200, roleid[0].ok, "Fetched"));
-// });
 const ManageDetails = AsyncHandler(async (req, res) => {
   const roleid = await Role.aggregate([
     [
@@ -313,21 +265,60 @@ const ManageDetails = AsyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, roleid, "Fetched"));
 });
 
-const getAllowedSettings = AsyncHandler(async (req, res) => {
-  const AllowedPermissions = req.Allowed;
-  const permission = req.permission;
-  const viewAccess = permission.can_view_user_access;
-  const AddRole = permission.can_add_user_roles;
-  const UpdateRole = permission.can_update_user_roles;
-  const DeleteRole = permission.can_delete_user_roles;
+const getAllowedSettingsById = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params);
+  const Permissions = await UserAccess.findById(id);
+  const AllowedPermissions = Permissions.access_keys.user;
 
-  if (viewAccess === true) {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, AllowedPermissions, "Fetched!!"));
-  } else {
-    throw new ApiError(404, "User not allowed to view Roles");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, AllowedPermissions, "Fetched!!"));
+});
+
+const chageAccess = AsyncHandler(async (req, res) => {
+  const { id } = req.params; // permission document id
+  const { key, value } = req.body; // expected payload: { key, value }
+
+  // Additional check to ensure key is provided
+  if (typeof key === "undefined" || key === null) {
+    throw new ApiError(400, "Permission key is undefined");
   }
+
+  // Validate the id format
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Invalid permissions id");
+  }
+
+  const permissions = await UserAccess.findById(id);
+
+  if (!permissions) {
+    throw new ApiError(404, "Permissions not found");
+  }
+
+  // Ensure the permissions structure is valid and the key exists
+  if (!permissions.access_keys || !permissions.access_keys.user) {
+    throw new ApiError(500, "Invalid permissions structure");
+  }
+  if (!(key in permissions.access_keys.user)) {
+    throw new ApiError(400, `Permission key "${key}" does not exist`);
+  }
+
+  // Update the specific permission key with the new value
+  await UserAccess.findByIdAndUpdate(
+    id,
+    { $set: { [`access_keys.user.${key}`]: value } },
+    { new: true }
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        permissions.access_keys.user,
+        "Access updated successfully"
+      )
+    );
 });
 
 export {
@@ -339,5 +330,6 @@ export {
   getAllUsers,
   getUserById,
   ManageDetails,
-  getAllowedSettings,
+  getAllowedSettingsById,
+  chageAccess,
 };

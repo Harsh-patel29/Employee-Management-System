@@ -4,7 +4,7 @@ import ThemeToggle from "../Components/ThemeToggle.jsx";
 import { loginUser } from "../feature/datafetch/datafetchSlice.js";
 import { useNavigate } from "react-router";
 import LoginForm from "../Components/LoginForm.jsx";
-
+import { getLoginDetail } from "../feature/datafetch/datafetchSlice.js";
 const Login = () => {
   const theme = useSelector((state) => state.theme.theme);
   const value = localStorage.getItem("theme");

@@ -1,102 +1,250 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccessDetail } from "../feature/datafetch/accessfetchSlice";
+import { useParams, useNavigate } from "react-router";
+import axios from "axios";
+import { Button } from "../Components/components/ui/button";
+import { Switch } from "../Components/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../Components/components/ui/dropdown";
+import { getChangeDetail } from "../feature/datafetch/ChangeFetch.js";
+
+const updateAccess = (userId, key, value) => {
+  return axios.put(
+    `http://localhost:8000/api/v1/user/settings/fetch/${userId}`,
+    { key, value },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
 
 const Settings = () => {
+  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
+  const theme = useSelector((state) => state.theme.theme);
+
   const dispatch = useDispatch();
-  const data = useSelector((state) => state.settings);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [permissions, setPermissions] = useState({});
+
+  const { id } = useParams();
+
+  const [userid, setuserid] = useState(id);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeout(() => {
-      dispatch(fetchAccessDetail()).then(() => setLoading(false)); // Set loading to false after fetch
-    }, 0);
-  }, [dispatch]);
+    setuserid(id);
+  }, [id]);
 
-  const roles = [
-    { name: "Admin" },
-    { name: "Developer" },
-    { name: "HR" },
-    { name: "Product Manager" },
-  ];
-
-  useEffect(() => {
-    if (loading || !data) return; // Wait for data to load
-    setPermissions((prev) => ({
-      ...prev,
-      Admin: {
-        can_add_user:
-          data?.data?.message[0]?.result?.access?.user?.can_add_user,
-        can_update_user:
-          data?.data?.message[0]?.result.access?.user?.can_update_user,
-      },
-    }));
-    console.log("Initialized permissions:", permissions);
-  }, [data, loading]);
-
-  const togglePermission = (role, permission) => {
-    setPermissions((prev) => ({
-      ...prev,
-      [role]: {
-        ...prev[role],
-        [permission]: !prev[role]?.[permission],
-      },
-    }));
+  const detail = useSelector((state) => state.ChangeAccess);
+  const getPermissionById = async (id) => {
+    dispatch(getChangeDetail(id));
   };
-  console.log(permissions);
 
-  if (loading) {
-    return <div>Loading...</div>; // Show loading state
-  }
+  const [permissions, setPermissions] = useState({});
+  useEffect(() => {
+    if (detail?.detail?.message) {
+      setPermissions({ ...detail.detail.message });
+    }
+  }, [detail]);
+
+  const handleToggle = (key, checked) => {
+    setPermissions((prev) => ({
+      ...prev,
+      [key]: checked,
+    }));
+    updateAccess(userid, key, checked)
+      .then((response) => {
+        console.log("Permission updated", response.data);
+      })
+      .catch((err) => console.error(err));
+  };
 
   return (
-    <div className="absolute ml-28 mt-32 w-[80rem] bg-gray-100 p-6 flex  justify-center">
-      <div className=" bg-white shadow-lg rounded-lg p-6 w-[70rem] ">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6 ">
-          Role-Based Permissions
-        </h1>
-        <div className="space-y-6">
-          {roles.map((role) => (
-            <div
-              key={role.name}
-              className="bg-gray-50 p-4 rounded-lg shadow-md"
-            >
-              <h2 className="text-xl font-semibold text-gray-700 mb-4">
-                {role.name}
-              </h2>
-              <div className="flex items-center justify-between">
-                {/* Manage User Toggle */}
-                <label className="flex items-center space-x-3">
-                  <span className="text-gray-700">Can add User</span>
-                  <input
-                    type="checkbox"
-                    className="toggle-checkbox hidden"
-                    checked={permissions[role.name]?.can_add_user || false}
-                    onChange={() => togglePermission(role.name, "can_add_user")}
-                  />{" "}
-                  <div
-                    className={`w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 transition ${
-                      permissions[role.name]?.can_add_user
-                        ? "bg-green-500"
-                        : "bg-gray-300"
-                    }`}
-                  >
-                    {" "}
-                    <div
-                      className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${
-                        permissions[role.name]?.can_add_user
-                          ? "translate-x-6"
-                          : ""
-                      }`}
-                    ></div>
-                  </div>
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div
+      className={`absolute flex flex-col justify-around rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow-xl min-w-0 xl:w-[80%] xl:h-[70%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%]  transition-all duration-300 ${
+        isExpanded
+          ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
+          : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
+      } 
+      ${theme === "light" ? "bg-white" : "bg-[#201f1f]"}
+        `}
+    >
+      <DropdownMenu
+        onOpenChange={(open) => {
+          if (!open) {
+            navigate(`/settings`);
+          } else {
+            navigate(`/settings/67ac6426aef8063f23746a75`);
+            getPermissionById("67ac6426aef8063f23746a75");
+          }
+        }}
+      >
+        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
+          <Button variant="outline" className="w-full">
+            Admin
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-4xl">
+          <DropdownMenuLabel className="flex justify-center">
+            Access
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            {Object.keys(permissions).length > 0 ? (
+              Object.entries(permissions).map(([key, value]) => (
+                <DropdownMenuItem
+                  key={key}
+                  className="flex justify-between items-center"
+                >
+                  <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
+                  <Switch
+                    onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
+                    checked={value}
+                    onCheckedChange={(checked) => handleToggle(key, checked)}
+                    className="data-[state=checked]:bg-blue-500"
+                  />
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No permissions found</p>
+            )}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu
+        onOpenChange={(open) => {
+          if (!open) {
+            navigate(`/settings`);
+          } else {
+            navigate(`/settings/67ac67accbab2e409938d0ce`);
+            getPermissionById("67ac67accbab2e409938d0ce");
+          }
+        }}
+      >
+        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
+          <Button variant="outline" className="w-full">
+            Developer
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-4xl">
+          <DropdownMenuLabel className="flex justify-center">
+            Access
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            {Object.keys(permissions).length > 0 ? (
+              Object.entries(permissions).map(([key, value]) => (
+                <DropdownMenuItem
+                  key={key}
+                  className="flex justify-between items-center"
+                >
+                  <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
+                  <Switch
+                    onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
+                    checked={value}
+                    onCheckedChange={(checked) => handleToggle(key, checked)}
+                    className="data-[state=checked]:bg-blue-500"
+                  />
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No permissions found</p>
+            )}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu
+        onOpenChange={(open) => {
+          if (!open) {
+            navigate(`/settings`);
+          } else {
+            navigate(`/settings/67ac67db190f041e27634fb3`);
+            getPermissionById("67ac67db190f041e27634fb3");
+          }
+        }}
+      >
+        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
+          <Button variant="outline" className="w-full">
+            HR
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-4xl">
+          <DropdownMenuLabel className="flex justify-center">
+            Access
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            {Object.keys(permissions).length > 0 ? (
+              Object.entries(permissions).map(([key, value]) => (
+                <DropdownMenuItem
+                  key={key}
+                  className="flex justify-between items-center"
+                >
+                  <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
+                  <Switch
+                    onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
+                    checked={value}
+                    onCheckedChange={(checked) => handleToggle(key, checked)}
+                    className="data-[state=checked]:bg-blue-500"
+                  />
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No permissions found</p>
+            )}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu
+        onOpenChange={(open) => {
+          if (!open) {
+            navigate(`/settings`);
+          } else {
+            navigate(`/settings/67ac67fe40c38b9cb8e3186e`);
+            getPermissionById("67ac67fe40c38b9cb8e3186e");
+          }
+        }}
+      >
+        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
+          <Button variant="outline" className="w-full">
+            Product_Manager
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-4xl">
+          <DropdownMenuLabel className="flex justify-center">
+            Access
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            {Object.keys(permissions).length > 0 ? (
+              Object.entries(permissions).map(([key, value]) => (
+                <DropdownMenuItem
+                  key={key}
+                  className="flex justify-between items-center"
+                >
+                  <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
+                  <Switch
+                    onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
+                    checked={value}
+                    onCheckedChange={(checked) => handleToggle(key, checked)}
+                    className="data-[state=checked]:bg-blue-500"
+                  />
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No permissions found</p>
+            )}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

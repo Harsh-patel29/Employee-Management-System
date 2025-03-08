@@ -25,6 +25,7 @@ const router = createBrowserRouter(
           <Route path="/users/:id" element={<Users />} />
           <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/:id" element={<Settings />} />
         </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>
