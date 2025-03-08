@@ -33,7 +33,7 @@ const Navigation = () => {
         value === "light" ? "bg-white" : "bg-[#121212]"
       }
       ${value === "light" ? "border-white" : "border-black"}
-      xl:flex lg:flex md:flex md:w-[8%] xl:h-auto lg:h-[88.3%] md:h-[88.5%] sm:h-[88.8%] sm:flex sm:w-[10%] flex border-b border-r shadow-2xl flex-col justify-between p-4 xl:w-[4%] hover:w-[15%] lg:hover:w-[2%] rounded-r-md `}
+      xl:flex lg:flex md:flex md:w-[8%]  sm:flex sm:w-[10%] flex border-b border-r shadow-2xl flex-col justify-between p-4 xl:w-[4%] hover:w-[15%] lg:hover:w-[2%] rounded-r-md `}
       id="navigation-container"
       onMouseEnter={() => dispatch(expandSideBar())}
       onMouseLeave={() => dispatch(collapedSideBar())}

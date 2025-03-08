@@ -69,12 +69,13 @@ const Settings = () => {
 
   return (
     <div
-      className={`absolute flex flex-col justify-around rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow-xl min-w-0 xl:w-[80%] xl:h-[70%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%]  transition-all duration-300 ${
-        isExpanded
-          ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
-          : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
-      } 
-      ${theme === "light" ? "bg-white" : "bg-[#201f1f]"}
+      className={`absolute flex flex-col justify-evenly rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow-xl min-w-0 xl:w-[80%] xl:h-[70%]
+         lg:h-[80%] lg:w-[85%] md:h-[85%] md:w-[80%] sm:h-[80%] sm:w-[80%] transition-all duration-300 ${
+           isExpanded
+             ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
+             : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
+         } 
+      ${theme === "light" ? "bg-white" : "bg-[#111827]"}
         `}
     >
       <DropdownMenu
@@ -87,13 +88,25 @@ const Settings = () => {
           }
         }}
       >
-        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
-          <Button variant="outline" className="w-full">
+        <DropdownMenuTrigger
+          asChild
+          className={`${
+            theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
+          } h-20 text-xl`}
+        >
+          <Button
+            variant="outline"
+            className={`w-full ${
+              theme === "light" ? "" : "hover:bg-[#374151]"
+            }`}
+          >
             Admin
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-4xl">
-          <DropdownMenuLabel className="flex justify-center">
+        <DropdownMenuContent
+          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151]"}`}
+        >
+          <DropdownMenuLabel className="flex justify-center ">
             Access
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
@@ -114,7 +127,9 @@ const Settings = () => {
                 </DropdownMenuItem>
               ))
             ) : (
-              <p className="text-center text-gray-500">No permissions found</p>
+              <p className="text-center bg-[#374151] text-gray-500">
+                No permissions found
+              </p>
             )}
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -129,12 +144,24 @@ const Settings = () => {
           }
         }}
       >
-        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
-          <Button variant="outline" className="w-full">
+        <DropdownMenuTrigger
+          asChild
+          className={`${
+            theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
+          } h-20 text-xl`}
+        >
+          <Button
+            variant="outline"
+            className={`w-full ${
+              theme === "light" ? "" : "hover:bg-[#374151]"
+            }`}
+          >
             Developer
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-4xl">
+        <DropdownMenuContent
+          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151] "}`}
+        >
           <DropdownMenuLabel className="flex justify-center">
             Access
           </DropdownMenuLabel>
@@ -171,12 +198,24 @@ const Settings = () => {
           }
         }}
       >
-        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
-          <Button variant="outline" className="w-full">
+        <DropdownMenuTrigger
+          asChild
+          className={`${
+            theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
+          } h-20 text-xl`}
+        >
+          <Button
+            variant="outline"
+            className={`w-full ${
+              theme === "light" ? "" : "hover:bg-[#374151]"
+            }`}
+          >
             HR
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-4xl">
+        <DropdownMenuContent
+          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151] "}`}
+        >
           <DropdownMenuLabel className="flex justify-center">
             Access
           </DropdownMenuLabel>
@@ -213,12 +252,26 @@ const Settings = () => {
           }
         }}
       >
-        <DropdownMenuTrigger asChild className="bg-[#bfdbfe] h-20 text-xl">
-          <Button variant="outline" className="w-full">
+        <DropdownMenuTrigger
+          asChild
+          className={`${
+            theme === "light"
+              ? "bg-[#bfdbfe] border"
+              : "bg-[#161b22] border-[#374151]"
+          } h-20 text-xl`}
+        >
+          <Button
+            variant="outline"
+            className={`w-full ${
+              theme === "light" ? "" : "hover:bg-[#374151]"
+            }`}
+          >
             Product_Manager
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-4xl">
+        <DropdownMenuContent
+          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151]"}`}
+        >
           <DropdownMenuLabel className="flex justify-center">
             Access
           </DropdownMenuLabel>
@@ -228,11 +281,11 @@ const Settings = () => {
               Object.entries(permissions).map(([key, value]) => (
                 <DropdownMenuItem
                   key={key}
-                  className="flex justify-between items-center"
+                  className="flex justify-between items-center hover:bg-[#374151]"
                 >
                   <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
                   <Switch
-                    onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
+                    onClick={(e) => e.stopPropagation()}
                     checked={value}
                     onCheckedChange={(checked) => handleToggle(key, checked)}
                     className="data-[state=checked]:bg-blue-500"

@@ -10,23 +10,27 @@ navigation-container {
 @media screen and (min-width: 640px) {
   #navigation-container:hover {
     width: 20%;
+    height: 100%;
   }
 }
 
 @media screen and (min-width: 768px) {
   #navigation-container:hover {
     width: 15%;
+    height: 100%;
   }
 }
 
 @media screen and (min-width: 1024px) {
   #navigation-container:hover {
-    width: 13%;
+    width: 14%;
+    height: 100%;
   }
 }
 @media screen and (min-width: 1280px) {
   #navigation-container:hover {
     width: 10%;
+    height: 100%;
   }
 }
 .nav-item-name {
