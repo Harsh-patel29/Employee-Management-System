@@ -60,8 +60,8 @@ const Authorized = AsyncHandler(async (req, res, next) => {
   const access = isAuthorized[0].result.access_keys.user;
 
   if (
-    access.can_add_user === true &&
-    access.can_update_user === true &&
+    access.can_add_user === true ||
+    access.can_update_user === true ||
     access.can_delete_user === true
   ) {
     next();

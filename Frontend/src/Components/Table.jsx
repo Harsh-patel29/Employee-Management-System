@@ -110,9 +110,11 @@ function Row({
                   }`}
                 />
               </SheetTrigger>
-              <SheetContent className="min-w-4xl">
+              <SheetContent
+                className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
+                min-w-6xl`}
+              >
                 <SheetHeader>
-                  <SheetTitle className="text-2xl">Update User??</SheetTitle>
                   <SheetDescription>
                     {<AdminForm onSubmit={updateUser} />}
                   </SheetDescription>

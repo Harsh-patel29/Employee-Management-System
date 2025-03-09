@@ -63,10 +63,13 @@ export default function AuthForm({ onSubmit }) {
 
   return (
     <Form {...control}>
+      <h2 className="w-full flex h-15 justify-center text-2xl font-semibold mt-8">
+        Create User
+      </h2>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={`
-        grid grid-cols-3 gap-8 space-y-10 items-center justify-evenly ml-36 mt-4 `}
+        grid grid-cols-3 gap-8  items-center justify-evenly ml-18`}
       >
         <FormField
           control={control}
@@ -74,15 +77,15 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%]">
               <FormLabel>Name</FormLabel>
-              <div>{errors?.Name && <span>{errors.Name.message}</span>}</div>
               <FormControl>
                 <Input
-                  className=""
+                  className="shadow"
                   type="text"
                   placeholder="Enter Your Name"
                   {...field}
                 />
               </FormControl>
+              <div>{errors?.Name && <span>{errors.Name.message}</span>}</div>
             </FormItem>
           )}
         />
@@ -92,15 +95,15 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%]">
               <FormLabel>Email</FormLabel>
-              <div>{errors?.Email && <span>{errors.Email.message}</span>}</div>
               <FormControl>
                 <Input
-                  className=""
+                  className="shadow"
                   type="email"
                   placeholder="Enter Your Email"
                   {...field}
                 />
               </FormControl>
+              <div>{errors?.Email && <span>{errors.Email.message}</span>}</div>
             </FormItem>
           )}
         />
@@ -110,17 +113,17 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%]">
               <FormLabel>Password</FormLabel>
-              <div>
-                {errors?.Password && <span>{errors.Password.message}</span>}
-              </div>
               <FormControl>
                 <Input
-                  className=""
+                  className="shadow"
                   type="password"
                   placeholder="Enter Password"
                   {...field}
                 />
               </FormControl>
+              <div>
+                {errors?.Password && <span>{errors.Password.message}</span>}
+              </div>
             </FormItem>
           )}
         />
@@ -130,17 +133,12 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%] flex flex-col">
               <FormLabel>DOB</FormLabel>
-              <div>
-                {errors?.Date_of_Birth && (
-                  <span>{errors.Date_of_Birth.message}</span>
-                )}
-              </div>
               <FormControl>
                 <Popover>
                   <PopoverTrigger>
                     <Input
                       type="text"
-                      className="justify-evenly"
+                      className="justify-evenly shadow"
                       value={
                         field.value
                           ? new Date(field.value).toLocaleDateString("en-CA")
@@ -170,6 +168,11 @@ export default function AuthForm({ onSubmit }) {
                   </PopoverContent>
                 </Popover>
               </FormControl>
+              <div>
+                {errors?.Date_of_Birth && (
+                  <span>{errors.Date_of_Birth.message}</span>
+                )}
+              </div>
             </FormItem>
           )}
         />
@@ -179,18 +182,19 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%]">
               <FormLabel>Mobile Number</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  className="shadow"
+                  placeholder="Enter Your Mobile Number"
+                  {...field}
+                />
+              </FormControl>
               <div>
                 {errors?.Mobile_Number && (
                   <span>{errors.Mobile_Number.message}</span>
                 )}
               </div>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="Enter Your Mobile Number"
-                  {...field}
-                />
-              </FormControl>
             </FormItem>
           )}
         />
@@ -200,9 +204,6 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="">
               <FormLabel htmlFor="Gender">Select Gender</FormLabel>
-              <div>
-                {errors?.Gender && <span>{errors.Gender.message}</span>}
-              </div>
               <FormControl>
                 <select
                   id="Gender"
@@ -213,7 +214,7 @@ export default function AuthForm({ onSubmit }) {
                     value=""
                     className={`${
                       theme === "light" ? "bg-white" : "bg-[#121212]"
-                    }`}
+                    } shadow`}
                     disabled
                     selected
                   >
@@ -237,6 +238,9 @@ export default function AuthForm({ onSubmit }) {
                   </option>
                 </select>
               </FormControl>
+              <div>
+                {errors?.Gender && <span>{errors.Gender.message}</span>}
+              </div>
             </FormItem>
           )}
         />
@@ -246,17 +250,12 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="w-[80%] flex flex-col ">
               <FormLabel>Date Of Joining</FormLabel>
-              <div>
-                {errors?.DATE_OF_JOINING && (
-                  <span>{errors.DATE_OF_JOINING.message}</span>
-                )}
-              </div>
               <FormControl>
                 <Popover>
                   <PopoverTrigger>
                     <Input
                       type="text"
-                      className="justify-evenly"
+                      className="justify-evenly shadow"
                       value={
                         field.value
                           ? new Date(field.value).toLocaleDateString("en-CA")
@@ -285,6 +284,11 @@ export default function AuthForm({ onSubmit }) {
                   </PopoverContent>
                 </Popover>
               </FormControl>
+              <div>
+                {errors?.DATE_OF_JOINING && (
+                  <span>{errors.DATE_OF_JOINING.message}</span>
+                )}
+              </div>
             </FormItem>
           )}
         />
@@ -295,7 +299,12 @@ export default function AuthForm({ onSubmit }) {
             <FormItem className="w-[80%]">
               <FormLabel>Designation</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Enter Designation" {...field} />
+                <Input
+                  type="text"
+                  placeholder="Enter Designation"
+                  className="shadow"
+                  {...field}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -307,7 +316,12 @@ export default function AuthForm({ onSubmit }) {
             <FormItem className="w-[80%]">
               <FormLabel>Week Off</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Enter WeekOff" {...field} />
+                <Input
+                  type="text"
+                  placeholder="Enter WeekOff"
+                  className="shadow"
+                  {...field}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -318,7 +332,6 @@ export default function AuthForm({ onSubmit }) {
           render={({ field }) => (
             <FormItem className="">
               <FormLabel htmlFor="role">Role</FormLabel>
-              <div>{errors?.role && <span>{errors.role.message}</span>}</div>
               <FormControl>
                 <select
                   id="role"
@@ -369,6 +382,7 @@ export default function AuthForm({ onSubmit }) {
                   </option>
                 </select>
               </FormControl>
+              <div>{errors?.role && <span>{errors.role.message}</span>}</div>
             </FormItem>
           )}
         />
@@ -381,6 +395,7 @@ export default function AuthForm({ onSubmit }) {
               <FormControl>
                 <Input
                   type="text"
+                  className="shadow"
                   placeholder="Enter Name of ReportingManager"
                   {...field}
                 />
@@ -388,9 +403,11 @@ export default function AuthForm({ onSubmit }) {
             </FormItem>
           )}
         />
+        <div></div>
+        <div></div>
         <Button
           type="submit"
-          className=" row-span-2 w-[50%] col-span-2 ml-96 mb-2 bg-blue-600 hover:bg-blue-700"
+          className=" w-[80%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"
         >
           Submit
         </Button>

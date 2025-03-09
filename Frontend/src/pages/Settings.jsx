@@ -61,9 +61,7 @@ const Settings = () => {
       [key]: checked,
     }));
     updateAccess(userid, key, checked)
-      .then((response) => {
-        console.log("Permission updated", response.data);
-      })
+      .then((response) => {})
       .catch((err) => console.error(err));
   };
 
@@ -75,7 +73,7 @@ const Settings = () => {
              ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
              : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
          } 
-      ${theme === "light" ? "bg-white" : "bg-[#111827]"}
+      ${theme === "light" ? "bg-white" : "bg-[#0b0d12]"}
         `}
     >
       <DropdownMenu
@@ -104,7 +102,9 @@ const Settings = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151]"}`}
+          className={`w-4xl ${
+            theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
+          }`}
         >
           <DropdownMenuLabel className="flex justify-center ">
             Access
@@ -160,7 +160,9 @@ const Settings = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151] "}`}
+          className={`w-4xl ${
+            theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd] "
+          }`}
         >
           <DropdownMenuLabel className="flex justify-center">
             Access
@@ -214,7 +216,9 @@ const Settings = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151] "}`}
+          className={`w-4xl ${
+            theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
+          }`}
         >
           <DropdownMenuLabel className="flex justify-center">
             Access
@@ -270,7 +274,9 @@ const Settings = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className={`w-4xl ${theme === "light" ? "" : "bg-[#374151]"}`}
+          className={`w-4xl ${
+            theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
+          }`}
         >
           <DropdownMenuLabel className="flex justify-center">
             Access
@@ -288,7 +294,7 @@ const Settings = () => {
                     onClick={(e) => e.stopPropagation()}
                     checked={value}
                     onCheckedChange={(checked) => handleToggle(key, checked)}
-                    className="data-[state=checked]:bg-blue-500"
+                    className="data-[state=checked]:bg-blue-500 "
                   />
                 </DropdownMenuItem>
               ))
