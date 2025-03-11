@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
+import bcryptjs from "bcryptjs";
 import { User } from "../Models/user.model.js";
 import { UserAccess } from "../Models/Role_Access.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { Role } from "../Models/Role.model.js";
+import { PassThrough } from "stream";
+import { PasswordInput } from "@mantine/core";
 const generateAccessandRefreshToken = async (UserID) => {
   try {
     const user = await User.findById(UserID);
@@ -107,7 +110,6 @@ const loginUser = AsyncHandler(async (req, res) => {
   const option = {
     httpOnly: true,
   };
-  console.log(access);
 
   const loggedInUser = await User.findById(user._id).select("-Password ");
   return res
@@ -149,10 +151,14 @@ const updateUser = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not found");
   } else {
-    (user.Name = req.body.Name),
-      (user.Email = req.body.Email),
-      (user.Password = req.body.Password),
-      (user.Date_of_Birth = req.body.Date_of_Birth),
+    user.Name = req.body.Name;
+    user.Email = req.body.Email;
+    if (req.body.Password && req.body.Password.length >= 6) {
+      user.Password = req.body.Password;
+    } else {
+      user.Password = user.Password;
+    }
+    (user.Date_of_Birth = req.body.Date_of_Birth),
       (user.Mobile_Number = req.body.Mobile_Number),
       (user.Gender = req.body.Gender),
       (user.DATE_OF_JOINING = req.body.DATE_OF_JOINING || user.DATE_OF_JOINING),
@@ -167,7 +173,7 @@ const updateUser = AsyncHandler(async (req, res) => {
     const newUser = {
       Name: updatedUser.Name,
       Email: updatedUser.Email,
-      Password: updatedUser.Password,
+      Password: "",
       Date_of_Birth: updatedUser.Date_of_Birth,
       Mobile_Number: updatedUser.Mobile_Number,
       Gender: updatedUser.Gender,
@@ -209,9 +215,7 @@ const deleteUser = AsyncHandler(async (req, res) => {
 
 const getAllUsers = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
-
   const ViewAccess = rolesPermission.can_view_other_users;
-
   if (ViewAccess === true) {
     const user = await User.find({});
     return res
@@ -221,20 +225,23 @@ const getAllUsers = AsyncHandler(async (req, res) => {
     const user = await User.find({ _id: req.user._id });
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "Developer Fetched Successfully"));
+      .json(new ApiResponse(200, user, "Employee Fetched Successfully"));
   }
 });
 
 const getUserById = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
   const user = await User.findById(id);
-
+  const userResponse = {
+    ...user.toObject(),
+    Password: "",
+  };
   if (!user) {
     throw new ApiError(404, "User not found");
   } else {
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "User fetched Successfully"));
+      .json(new ApiResponse(200, userResponse, "User fetched Successfully"));
   }
 });
 
@@ -276,15 +283,13 @@ const getAllowedSettingsById = AsyncHandler(async (req, res) => {
 });
 
 const chageAccess = AsyncHandler(async (req, res) => {
-  const { id } = req.params; // permission document id
-  const { key, value } = req.body; // expected payload: { key, value }
+  const { id } = req.params;
+  const { key, value } = req.body;
 
-  // Additional check to ensure key is provided
   if (typeof key === "undefined" || key === null) {
     throw new ApiError(400, "Permission key is undefined");
   }
 
-  // Validate the id format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new ApiError(400, "Invalid permissions id");
   }
@@ -295,7 +300,6 @@ const chageAccess = AsyncHandler(async (req, res) => {
     throw new ApiError(404, "Permissions not found");
   }
 
-  // Ensure the permissions structure is valid and the key exists
   if (!permissions.access_keys || !permissions.access_keys.user) {
     throw new ApiError(500, "Invalid permissions structure");
   }
@@ -303,7 +307,6 @@ const chageAccess = AsyncHandler(async (req, res) => {
     throw new ApiError(400, `Permission key "${key}" does not exist`);
   }
 
-  // Update the specific permission key with the new value
   await UserAccess.findByIdAndUpdate(
     id,
     { $set: { [`access_keys.user.${key}`]: value } },
@@ -321,6 +324,14 @@ const chageAccess = AsyncHandler(async (req, res) => {
     );
 });
 
+const getDefaultValue = AsyncHandler(async (req, res) => {
+  const isDefault = req.isDefault;
+  const isDefaultFlag = isDefault && isDefault[0] && isDefault[0].is_default;
+  return res
+    .status(200)
+    .json(new ApiResponse(200, isDefaultFlag, "Fetched Successfully!!"));
+});
+
 export {
   createUser,
   loginUser,
@@ -332,4 +343,5 @@ export {
   ManageDetails,
   getAllowedSettingsById,
   chageAccess,
+  getDefaultValue,
 };

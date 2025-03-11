@@ -14,7 +14,6 @@ import Users from "./pages/Users.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Settings from "./pages/Settings.jsx";
 import Master from "./pages/Master.jsx";
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>

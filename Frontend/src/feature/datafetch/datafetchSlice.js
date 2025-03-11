@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import axios from "axios";
-import { TrendingUpDown } from "lucide-react";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",

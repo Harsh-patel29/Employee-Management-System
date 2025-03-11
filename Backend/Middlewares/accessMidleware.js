@@ -18,4 +18,16 @@ const roles = AsyncHandler(async (req, res, next) => {
   next();
 });
 
-export { roles };
+const isDefault = AsyncHandler(async (req, res, next) => {
+  const isDefault = await Role.aggregate([
+    {
+      $match: {
+        name: req.user.role,
+      },
+    },
+  ]);
+  req.isDefault = isDefault;
+  next();
+});
+
+export { roles, isDefault };

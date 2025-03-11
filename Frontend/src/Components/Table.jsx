@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
@@ -22,14 +22,8 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "../Components/components/ui/sheet";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerContent,
-} from "../Components/components/ui/drawer.tsx";
 import {
   Dialog,
   DialogContent,
@@ -38,11 +32,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Components/components/ui/dialog";
-import AuthForm from "./Form.jsx";
 import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
+import { getLoginDetail } from "../feature/datafetch/datafetchSlice.js";
 function Row({
   row,
   canAddUser,
@@ -52,6 +46,9 @@ function Row({
   openSheet,
   navigate,
   deleteUser,
+  sheetopen,
+  currentId,
+  isDefault,
 }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
@@ -94,8 +91,11 @@ function Row({
         <TableCell sx={{ color: "inherit" }}>
           {
             <Sheet
+              open={sheetopen && row._id === currentId}
               onOpenChange={(open) => {
-                if (!open) navigate("/users");
+                if (!open) {
+                  window.location.assign("/users");
+                }
               }}
             >
               <SheetTrigger
@@ -116,7 +116,7 @@ function Row({
               >
                 <SheetHeader>
                   <SheetDescription>
-                    {<AdminForm onSubmit={updateUser} />}
+                    <AdminForm mode="update" onSubmit={updateUser} />
                   </SheetDescription>
                 </SheetHeader>
               </SheetContent>
@@ -125,7 +125,7 @@ function Row({
         </TableCell>
         <TableCell
           sx={{ color: "#ff3b30" }}
-          className={`${canAddUser ? "flex" : "hidden"}`}
+          className={`${isDefault ? "hidden" : "flex"}`}
         >
           <Dialog
             onOpenChange={(open) => {
@@ -134,14 +134,14 @@ function Row({
           >
             <DialogTrigger
               onClick={() => {
-                openSheet(row._id);
+                navigate(row._id);
               }}
               asChild
             >
               <MdDelete
-                className={`${
-                  canDeleteUser ? "font-semibold text-lg" : "hidden"
-                }`}
+                className={
+                  isDefault === false ? "font-semibold text-lg" : "hidden"
+                }
               />
             </DialogTrigger>
             <DialogContent>
@@ -213,12 +213,33 @@ Row.propTypes = {
 export default function CollapsibleTable() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-
   const [users, setUsers] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [canAddUser, setcanAddUser] = React.useState(false);
   const [canUpdateUser, setcanUpdateUser] = React.useState(false);
-  const [canDeleteUser, setcanDeleteUser] = React.useState(false);
+  const [isDefault, setisDefault] = React.useState(false);
+
+  React.useEffect(() => {
+    async function getDetail() {
+      try {
+        const res = await axios.get(
+          "http://localhost:8000/api/v1/user/role/defaultvalue",
+          {
+            withCredentials: true,
+          }
+        );
+        setisDefault(res.data.message);
+      } catch (error) {
+        console.error(
+          "Error fetching users:",
+          error?.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+    getDetail();
+  }, []);
 
   React.useEffect(() => {
     async function fetchUsers() {
@@ -245,17 +266,12 @@ export default function CollapsibleTable() {
       } else {
         setcanUpdateUser(false);
       }
-      const deleteRole = user.permission.can_delete_user;
-      if (deleteRole === true) {
-        setcanDeleteUser(true);
-      } else {
-        setcanDeleteUser(false);
-      }
     }
     fetchUsers();
   }, []);
 
   const { id } = useParams();
+
   const [sheetopen, setsheetopen] = React.useState(false);
   const [userid, setuserid] = React.useState(id);
 
@@ -283,18 +299,20 @@ export default function CollapsibleTable() {
         }
       );
       if (res.data.success === true) {
-        navigate("/dashboard");
-        toast.success("User Created Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        window.location.assign("/users");
+        setTimeout(() => {
+          toast.success("User Created Successfully", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }, 2000);
       }
     } catch (error) {
       console.log("Something went wrong while creating user");
@@ -302,8 +320,9 @@ export default function CollapsibleTable() {
   };
 
   const updateUser = async (data) => {
+    setsheetopen(false);
     const res = await axios.put(
-      `http://localhost:8000/api/v1/user/${id}`,
+      `http://localhost:8000/api/v1/user/${userid}`,
       data,
       {
         headers: {
@@ -313,28 +332,20 @@ export default function CollapsibleTable() {
       }
     );
     if (res.data.success === true) {
-      navigate("/dashboard");
-      toast.success("User Updated Successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
+      window.location.assign("/users");
     }
+
     return res.data;
   };
 
   const deleteUser = async () => {
-    const res = await axios.delete(`http://localhost:8000/api/v1/user/${id}`, {
-      withCredentials: true,
-    });
+    const res = await axios.delete(
+      `http://localhost:8000/api/v1/user/${userid}`,
+      {
+        withCredentials: true,
+      }
+    );
     if (res.data.success === true) {
-      navigate("/dashboard");
       toast.success("User Deleted Successfully", {
         position: "top-right",
         autoClose: 3000,
@@ -346,6 +357,7 @@ export default function CollapsibleTable() {
         theme: "colored",
         transition: Bounce,
       });
+      window.location.assign("/users");
     }
     return res.data;
   };
@@ -363,24 +375,33 @@ export default function CollapsibleTable() {
         maxHeight: 400,
       }}
     >
-      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2  ">
+      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2">
         Users
-        <Drawer>
-          <DrawerTrigger
-            className={`${canAddUser ? "flex" : "hidden"}
-            ${theme === "light" ? "hover:bg-gray-200" : " hover:bg-gray-700"}
-            w-10 h-10 rounded-3xl justify-center`}
-          >
-            +
-          </DrawerTrigger>
-          <DrawerContent
-            className={`${theme === "light" ? "bg-white" : "bg-[#121212]"}
-              ${theme === "light" ? "text-black" : "text-white"}
+        <Sheet>
+          <SheetTrigger
+            className={`${
+              theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
+            } 
+            ${
+              canAddUser
+                ? "h-10 w-10 rounded-3xl justify-center flex"
+                : "hidden"
+            }
             `}
           >
-            <AuthForm onSubmit={addUser} />
-          </DrawerContent>
-        </Drawer>
+            +
+          </SheetTrigger>
+          <SheetContent
+            className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
+                min-w-6xl`}
+          >
+            <SheetHeader>
+              <SheetDescription>
+                <AdminForm mode="create" onSubmit={addUser} />
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
       </div>
       <Table aria-label="collapsible table ">
         <TableHead
@@ -413,7 +434,7 @@ export default function CollapsibleTable() {
               {`${canUpdateUser ? "Action" : ""}`}
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              {`${canDeleteUser ? "Delete" : ""}`}
+              {isDefault === false ? "Delete" : ""}
             </TableCell>
           </TableRow>
         </TableHead>
@@ -424,12 +445,14 @@ export default function CollapsibleTable() {
               row={{ ...user, index: index + 1 }}
               canAddUser={canAddUser}
               canUpdateUser={canUpdateUser}
-              canDeleteUser={canDeleteUser}
               addUser={addUser}
               updateUser={updateUser}
               openSheet={openSheet}
               navigate={navigate}
               deleteUser={deleteUser}
+              sheetopen={sheetopen}
+              currentId={userid}
+              isDefault={isDefault} // <-- Pass the isDefault prop here
             />
           ))}
         </TableBody>

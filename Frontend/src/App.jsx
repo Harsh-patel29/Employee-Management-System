@@ -3,7 +3,7 @@ import Navigation from "./pages/Navigation";
 import "../src/index.css";
 import NavBar from "./pages/NavBar";
 import { useSelector } from "react-redux";
-import { ToastContainer, Bounce, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   const theme = useSelector((state) => state.theme.theme);
