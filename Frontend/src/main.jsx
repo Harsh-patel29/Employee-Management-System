@@ -14,6 +14,8 @@ import Users from "./pages/Users.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Settings from "./pages/Settings.jsx";
 import Master from "./pages/Master.jsx";
+import Roles from "./pages/Roles.jsx";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -22,9 +24,10 @@ const router = createBrowserRouter(
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<Users />} />
+          <Route path="/users/roles" element={<Roles />} />
+          <Route path="/users/roles/:id" element={<Roles />} />
           <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/settings/:id" element={<Settings />} />
         </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>

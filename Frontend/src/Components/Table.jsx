@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
@@ -367,96 +367,107 @@ export default function CollapsibleTable() {
   return loading ? (
     <div>Loading....</div>
   ) : (
-    <TableContainer
-      component={Paper}
-      sx={{
-        backgroundColor: theme === "light" ? "white" : "#111827",
-        color: theme === "light" ? "black" : "#8a94a7",
-        maxHeight: 400,
-      }}
-    >
-      <div className="text-3xl pb-4 flex ml-2 justify-between mt-2">
-        Users
-        <Sheet>
-          <SheetTrigger
-            className={`${
-              theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
-            } 
+    <>
+      <div className="inline-flex justify-between w-full pb-3 mt-2 ">
+        <div className="text-3xl flex ml-2">Users</div>
+        <div className="text-3xl flex gap-10">
+          <button
+            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-xl "
+            onClick={() => navigate("/users/roles")}
+          >
+            Manage Users
+          </button>
+          <Sheet>
+            <SheetTrigger
+              className={`${
+                theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
+              } 
             ${
               canAddUser
                 ? "h-10 w-10 rounded-3xl justify-center flex"
                 : "hidden"
             }
             `}
-          >
-            +
-          </SheetTrigger>
-          <SheetContent
-            className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
-                min-w-6xl`}
-          >
-            <SheetHeader>
-              <SheetDescription>
-                <AdminForm mode="create" onSubmit={addUser} />
-              </SheetDescription>
-            </SheetHeader>
-          </SheetContent>
-        </Sheet>
+            >
+              +
+            </SheetTrigger>
+            <SheetContent
+              className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
+            min-w-6xl`}
+            >
+              <SheetHeader>
+                <SheetDescription>
+                  <AdminForm mode="create" onSubmit={addUser} />
+                </SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
-      <Table aria-label="collapsible table ">
-        <TableHead
-          sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
-        >
-          <TableRow>
-            <TableCell />
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              #
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Name
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              EMP Code
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Role
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Email
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Mobile
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              Reporting Manager
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              {`${canUpdateUser ? "Action" : ""}`}
-            </TableCell>
-            <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-              {isDefault === false ? "Delete" : ""}
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user, index) => (
-            <Row
-              key={user._id}
-              row={{ ...user, index: index + 1 }}
-              canAddUser={canAddUser}
-              canUpdateUser={canUpdateUser}
-              addUser={addUser}
-              updateUser={updateUser}
-              openSheet={openSheet}
-              navigate={navigate}
-              deleteUser={deleteUser}
-              sheetopen={sheetopen}
-              currentId={userid}
-              isDefault={isDefault} // <-- Pass the isDefault prop here
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+
+      <TableContainer
+        component={Paper}
+        sx={{
+          backgroundColor: theme === "light" ? "white" : "#111827",
+          color: theme === "light" ? "black" : "#8a94a7",
+          maxHeight: 400,
+        }}
+      >
+        <Table aria-label="collapsible table ">
+          <TableHead
+            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
+          >
+            <TableRow>
+              <TableCell />
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                #
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Name
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                EMP Code
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Role
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Email
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Mobile
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Reporting Manager
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                {`${canUpdateUser ? "Action" : ""}`}
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                {isDefault === false ? "Delete" : ""}
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user, index) => (
+              <Row
+                key={user._id}
+                row={{ ...user, index: index + 1 }}
+                canAddUser={canAddUser}
+                canUpdateUser={canUpdateUser}
+                addUser={addUser}
+                updateUser={updateUser}
+                openSheet={openSheet}
+                navigate={navigate}
+                deleteUser={deleteUser}
+                sheetopen={sheetopen}
+                currentId={userid}
+                isDefault={isDefault}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }
