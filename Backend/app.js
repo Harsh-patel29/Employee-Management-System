@@ -20,6 +20,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 import userRoute from "./Routes/userRoute.js";
+import attendanceRoute from "./Routes/attendanceRoute.js";
 app.use("/api/v1/user", userRoute);
-
+app.use("/api/v2/attendance", attendanceRoute);
 export { app };

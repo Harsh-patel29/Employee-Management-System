@@ -15,6 +15,8 @@ import PrivateRoute from "./PrivateRoute.jsx";
 import Settings from "./pages/Settings.jsx";
 import Master from "./pages/Master.jsx";
 import Roles from "./pages/Roles.jsx";
+import Leave from "./pages/Leave.jsx";
+import Attendance from "./pages/Attendance.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +30,8 @@ const router = createBrowserRouter(
           <Route path="/users/roles/:id" element={<Roles />} />
           <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/leave" element={<Leave />} />
         </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>

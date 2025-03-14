@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
-import bcryptjs from "bcryptjs";
 import { User } from "../Models/user.model.js";
 import { UserAccess } from "../Models/Role_Access.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { Role } from "../Models/Role.model.js";
-import { PassThrough } from "stream";
-import { PasswordInput } from "@mantine/core";
+
 const generateAccessandRefreshToken = async (UserID) => {
   try {
     const user = await User.findById(UserID);

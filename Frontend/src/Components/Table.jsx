@@ -15,7 +15,7 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router";
+import { replace, useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
   Sheet,

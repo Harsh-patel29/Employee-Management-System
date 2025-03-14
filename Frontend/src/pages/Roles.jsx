@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, replace } from "react-router";
 import axios from "axios";
 import { Button } from "../Components/components/ui/button.js";
 import { Switch } from "../Components/components/ui/switch.js";
