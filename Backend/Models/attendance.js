@@ -20,6 +20,12 @@ const AttendanceSchema = new Schema(
       type: String,
       default: "00:00:00",
     },
+    Latitude: {
+      type: Number,
+    },
+    Longitude: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

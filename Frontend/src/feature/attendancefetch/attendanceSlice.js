@@ -3,15 +3,26 @@ import axios from "axios";
 
 export const markAttendance = createAsyncThunk(
   "auth/markAttendance",
-  async (image, { rejectWithValue, dispatch }) => {
+  async (
+    { attendance, latitude, longitude },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
+      const formData = new FormData();
+      formData.append("attendance", attendance);
+      formData.append("Latitude", latitude);
+      formData.append("Longitude", longitude);
       const res = await axios.post(
         "http://localhost:8000/api/v2/attendance/attendance",
-        image,
-        { withCredentials: true }
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "mutipart/form-data",
+          },
+        }
       );
       dispatch(getUserDetails());
-      console.log(res.data);
       return res.data;
     } catch (error) {
       return rejectWithValue(error);

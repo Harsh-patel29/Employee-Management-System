@@ -15,7 +15,10 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
+import {
+  getUserDetails,
+  markAttendance,
+} from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -52,11 +55,10 @@ function convertSecondsToTimeString(totalSeconds) {
   return timeString;
 }
 
-function Row({ row }) {
+function Row({ row, openMap }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
-
-  // Group otherAttendances by date
+  const { user } = useSelector((state) => state.auth);
   const attendancesByDate = React.useMemo(() => {
     return (
       row.otherAttendances?.reduce((acc, attendance) => {
@@ -106,7 +108,23 @@ function Row({ row }) {
         <TableCell sx={{ color: "inherit" }}>{row.AttendAt}</TableCell>
         <TableCell sx={{ color: "inherit" }}>{row.TimeOut}</TableCell>
         <TableCell sx={{ color: "inherit" }}>{row.formattedLogHours}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.Location}</TableCell>
+        <TableCell sx={{ color: "inherit" }}>
+          {
+            <Button
+              onClick={() => {
+                openMap();
+              }}
+              className={`${
+                theme === "light"
+                  ? "text-black hover:bg-gray-50"
+                  : "hover:bg-[#313b49]"
+              } bg-transparent `}
+            >
+              Map View
+            </Button>
+          }
+        </TableCell>
+        <TableCell sx={{ color: "inherit" }}></TableCell>
       </TableRow>
       <TableRow>
         <TableCell
@@ -155,17 +173,7 @@ function Row({ row }) {
                         <TableCell
                           sx={{ fontWeight: "bold", fontSize: "medium" }}
                         >
-                          User
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
                           Time In
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Time Out
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: "bold", fontSize: "medium" }}
@@ -176,11 +184,6 @@ function Row({ row }) {
                           sx={{ fontWeight: "bold", fontSize: "medium" }}
                         >
                           Location
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Regularization
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -205,28 +208,26 @@ function Row({ row }) {
                             />
                           </TableCell>
                           <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {attendance.User}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
                             {new Date(attendance.AttendAt).toLocaleTimeString()}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {attendance.TimeOut
-                              ? new Date(
-                                  attendance.TimeOut
-                                ).toLocaleTimeString()
-                              : new Date(
-                                  attendance.AttendAt
-                                ).toLocaleTimeString()}
                           </TableCell>
                           <TableCell sx={{ color: "inherit", padding: "16px" }}>
                             {formatTime(attendance.LogHours)}
                           </TableCell>
                           <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {attendance.Location || "N/A"}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            N/A
+                            {
+                              <Button
+                                onClick={() => {
+                                  openMap();
+                                }}
+                                className={`${
+                                  theme === "light"
+                                    ? "text-black hover:bg-gray-50"
+                                    : "hover:bg-[#313b49]"
+                                } bg-transparent `}
+                              >
+                                Map View
+                              </Button>
+                            }
                           </TableCell>
                         </TableRow>
                       ))}
@@ -267,6 +268,8 @@ export default function CollapsibleTable() {
     (state) => state.markAttendance
   );
 
+  const { user } = useSelector((state) => state.auth);
+
   const theme = useSelector((state) => state.theme.theme);
 
   React.useEffect(() => {
@@ -303,12 +306,35 @@ export default function CollapsibleTable() {
     const response = await fetch(base64);
     const blob = await response.blob();
 
-    const file = new File([blob], "attendance.png", { type: "image/png" });
+    const file = new File([blob], "attendance.png", {
+      type: "image/png",
+    });
 
-    const formData = new FormData();
-    formData.append("attendance", file);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const formData = new FormData();
+          formData.append("attendance", file);
+          formData.append("Latitude", latitude);
+          formData.append("Longitude", longitude);
 
-    dispatch(markAttendance(formData));
+          for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+          }
+
+          dispatch(markAttendance({ attendance: file, latitude, longitude }));
+        },
+        (error) => console.log("Error in getting location", error.message)
+      );
+    } else {
+      alert("GeoLocation is not supported");
+    }
+  };
+
+  const openMap = () => {
+    const url = `https://www.google.com/maps?q=${attendances[0].Latitude},${attendances[0].Longitude}`;
+    window.open(url, "_blank");
   };
 
   React.useEffect(() => {
@@ -327,10 +353,8 @@ export default function CollapsibleTable() {
     }
     fetchAttendance();
   }, []);
-  console.log(attendances);
 
   const isOdd = attendances.length % 2 === 1;
-  console.log(attendances.length == 1);
 
   const lastTimeIn = attendances.findLast((e) => {
     return e;
@@ -444,7 +468,7 @@ export default function CollapsibleTable() {
                       className="w-12 h-12 object-cover rounded-3xl"
                     />
                   ),
-                  User: first.User,
+                  User: user.user.Name,
                   Date: new Date(first.AttendAt).toLocaleDateString(),
                   AttendAt: isOdd
                     ? new Date(first.AttendAt).toLocaleTimeString()
@@ -465,6 +489,7 @@ export default function CollapsibleTable() {
                   Location: first.Location || "N/A",
                   otherAttendances: others,
                 }}
+                openMap={openMap}
               />
             ))}
           </TableBody>

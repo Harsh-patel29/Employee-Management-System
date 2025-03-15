@@ -21,10 +21,17 @@ const formatSecondsToHHMMSS = (totalSeconds) => {
 };
 
 const uploadAttendance = AsyncHandler(async (req, res) => {
+  console.log(req.files);
+  const body = JSON.parse(JSON.stringify(req.body));
+  console.log(body);
+
   const userId = new mongoose.Types.ObjectId(req.user._id);
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
+
+  const { Latitude, Longitude } = body;
+
   if (!ImageLocalPath) {
-    throw new ApiError(404, "Image is required for attendance ");
+    throw new ApiError(404, "Image is required for attendance");
   }
 
   let Image;
@@ -78,18 +85,19 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
       User: userId,
       AttendAt: isOdd || isEmpty ? currentTime : todayAttendance[0].AttendAt,
       LogHours: formattedLogHours,
+      Latitude: Latitude ? Number(Latitude) : undefined,
+      Longitude: Longitude ? Number(Longitude) : undefined,
     });
+    console.log(attendance);
+
     return res
       .status(200)
       .json(
-        new ApiResponse(
-          200,
-          { attendance, formattedLogHours },
-          "Attendance recorded successfully"
-        )
+        new ApiResponse(200, attendance, "Attendance recorded successfully")
       );
   } catch (error) {
-    throw new ApiError(404, error, "Failed to save Attendance");
+    console.error("Error creating attendance:", error);
+    throw new ApiError(404, "Failed to save Attendance");
   }
 });
 
