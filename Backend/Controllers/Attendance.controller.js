@@ -47,8 +47,9 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
   const todayAttendance = await Attendance.find({
     User: userId,
     AttendAt: { $gte: todayStart, $lte: todayEnd },
-  }).sort({ AttendAt: 1 });
-  console.log("today Attendance", todayAttendance);
+  }).sort({ AttendAt: -1 });
+  const isOdd = todayAttendance.length % 2 !== 1;
+  const isEmpty = todayAttendance.length !== 0;
 
   let lastAttendanceTime = null;
 
@@ -75,7 +76,7 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     const attendance = await Attendance.create({
       Image: Image.url,
       User: userId,
-      AttendAt: currentTime,
+      AttendAt: isOdd || isEmpty ? currentTime : todayAttendance[0].AttendAt,
       LogHours: formattedLogHours,
     });
     return res
@@ -98,16 +99,12 @@ const getAttendanceById = AsyncHandler(async (req, res) => {
 });
 
 const getAttendance = AsyncHandler(async (req, res) => {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  let AllAttendance = await Attendance.find({
-    AttendAt: { $gte: todayStart, $lte: todayEnd },
-  }).sort({ AttendAt: 1 });
+  let AllAttendance = await Attendance.find({ User: req.user._id }).sort({
+    AttendAt: -1,
+  });
 
   const userAttendances = {};
+
   AllAttendance.forEach((attendance) => {
     if (!userAttendances[attendance.User]) {
       userAttendances[attendance.User] = [];
@@ -116,19 +113,32 @@ const getAttendance = AsyncHandler(async (req, res) => {
   });
 
   AllAttendance = AllAttendance.map((attendance) => {
+    // console.log("userAttendances", attendance);
     const userAttendanceList = userAttendances[attendance.User];
+    const firstAttendance = userAttendanceList.findLast((e) => {
+      return e;
+    });
+    // console.log("First Attendance ", firstAttendance);
+
     const isFirstAttendance =
-      userAttendanceList[0]._id.toString() === attendance._id.toString();
-    const lastAttendance = userAttendanceList[userAttendanceList.length - 1];
+      firstAttendance._id.toString() === attendance._id.toString();
+    // console.log(isFirstAttendance);
+    // console.log("Attendanceid", attendance._id.toString());
+
+    const lastAttendance = userAttendanceList[0];
+    // console.log("Last Attendance", lastAttendance);
 
     if (isFirstAttendance) {
       const currentTime = new Date();
       let logHours = lastAttendance.LogHours;
-
-      if (userAttendanceList.length % 2 === 1) {
-        const lastAttendTime = new Date(lastAttendance.AttendAt);
+      if (userAttendanceList.length % 2 !== 1) {
+        const lastAttendanceTime = new Date(lastAttendance.AttendAt);
+        const TimeOut = lastAttendanceTime.toLocaleTimeString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        });
+      } else {
         const additionalSeconds = calculateTimeDifferenceInSeconds(
-          lastAttendTime,
+          lastAttendance,
           currentTime
         );
         const [hours, minutes, seconds] =
@@ -136,23 +146,41 @@ const getAttendance = AsyncHandler(async (req, res) => {
         const totalSeconds =
           hours * 3600 + minutes * 60 + seconds + additionalSeconds;
         logHours = formatSecondsToHHMMSS(totalSeconds);
+        const TimeOut = "19:00:00";
       }
-
-      return {
-        ...attendance._doc,
-        TimeOut: lastAttendance.AttendAt,
-        LogHours: logHours,
-      };
     }
 
-    return attendance;
+    const values = Object.values(userAttendances);
+
+    // AllAttendance = AllAttendance.map((attendance) => {
+    //   const userAttendanceList = userAttendances[attendance.User];
+    //   const isFirstAttendance =
+    //     userAttendanceList[0]._id.toString() === attendance._id.toString();
+    //   const lastAttendance = userAttendanceList[userAttendanceList.length - 1];
+
+    //   if (isFirstAttendance) {
+    //     const currentTime = new Date();
+    //     let logHours = lastAttendance.LogHours;
+
+    //     if (userAttendanceList.length % 2 === 1) {
+    //       const lastAttendTime = new Date(lastAttendance.AttendAt);
+    //       const additionalSeconds = calculateTimeDifferenceInSeconds(
+    //         lastAttendTime,
+    //         currentTime
+    //       );
+
+    //     return {
+    //       ...attendance._doc,
+    //       TimeOut: lastAttendance.AttendAt,
+    //       LogHours: logHours,
+    //     };
+    //   }
+
+    // return attendance;
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, values[0], "Attendance fetched Successfully"));
   });
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, AllAttendance, "Attendance fetched Successfully")
-    );
 });
-
 export { uploadAttendance, getAttendance };

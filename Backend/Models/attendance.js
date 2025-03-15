@@ -14,7 +14,7 @@ const AttendanceSchema = new Schema(
     },
     AttendAt: {
       type: Date,
-      default: Date.now,
+      default: "19:00:00",
     },
     LogHours: {
       type: String,

@@ -35,9 +35,41 @@ const formatTime = (timeString) => {
   )}:${seconds.padStart(2, "0")}`;
 };
 
+const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
+  const diffMs = endTime - startTime;
+  return Math.floor(diffMs / 1000);
+};
+
+function convertSecondsToTimeString(totalSeconds) {
+  totalSeconds = Math.abs(totalSeconds);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const timeString = `${hours}:${minutes}:${seconds}`;
+
+  return timeString;
+}
+
 function Row({ row }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
+
+  // Group otherAttendances by date
+  const attendancesByDate = React.useMemo(() => {
+    return (
+      row.otherAttendances?.reduce((acc, attendance) => {
+        const date = new Date(attendance.AttendAt).toLocaleDateString();
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(attendance);
+        return acc;
+      }, {}) || {}
+    );
+  }, [row.otherAttendances]);
+
   return (
     <React.Fragment>
       <TableRow
@@ -87,101 +119,121 @@ function Row({ row }) {
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                sx={{
-                  fontSize: "1.5rem",
-                  marginBottom: "1rem",
-                  paddingLeft: "0.5rem",
-                }}
-              >
-                Additional Attendances
-              </Typography>
-              <Table size="medium">
-                <TableHead
-                  sx={{
-                    backgroundColor: theme === "light" ? "#bfdbfe" : "#374151",
-                  }}
-                >
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      #
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Image
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      User
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Date
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Time In
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Time Out
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Log Hours
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Location
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                      Regularization
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {row.otherAttendances?.map((attendance, index) => (
-                    <TableRow
-                      key={index}
+              {Object.entries(attendancesByDate).map(([date, records]) => (
+                <div key={date}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    component="div"
+                    sx={{
+                      fontSize: "1.5rem",
+                      marginTop: "1.5rem",
+                      marginBottom: "1rem",
+                      paddingLeft: "0.5rem",
+                    }}
+                  >
+                    {date}
+                  </Typography>
+                  <Table size="medium">
+                    <TableHead
                       sx={{
                         backgroundColor:
-                          theme === "light" ? "white" : "#161b22",
-                        color: theme === "light" ? "black" : "#f8f9fa",
+                          theme === "light" ? "#bfdbfe" : "#374151",
                       }}
                     >
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {index + 1}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        <img
-                          src={attendance.Image}
-                          alt="Attendance"
-                          className="w-12 h-12 object-cover rounded-3xl"
-                        />
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {attendance.User}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {new Date(attendance.AttendAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {new Date(attendance.AttendAt).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {attendance.TimeOut
-                          ? new Date(attendance.TimeOut).toLocaleTimeString()
-                          : new Date(attendance.AttendAt).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {formatTime(attendance.LogHours)}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        {attendance.Location || "N/A"}
-                      </TableCell>
-                      <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                        N/A
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      <TableRow>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Image
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          User
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Time In
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Time Out
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Log Hours
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Location
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                        >
+                          Regularization
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {records.map((attendance, idx) => (
+                        <TableRow
+                          key={idx}
+                          sx={{
+                            backgroundColor:
+                              theme === "light" ? "white" : "#161b22",
+                            color: theme === "light" ? "black" : "#f8f9fa",
+                          }}
+                        >
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            <img
+                              src={attendance.Image}
+                              alt="Attendance"
+                              className="w-12 h-12 object-cover rounded-3xl"
+                            />
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {attendance.User}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {new Date(attendance.AttendAt).toLocaleTimeString()}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {attendance.TimeOut
+                              ? new Date(
+                                  attendance.TimeOut
+                                ).toLocaleTimeString()
+                              : new Date(
+                                  attendance.AttendAt
+                                ).toLocaleTimeString()}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {formatTime(attendance.LogHours)}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            {attendance.Location || "N/A"}
+                          </TableCell>
+                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
+                            N/A
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
             </Box>
           </Collapse>
         </TableCell>
@@ -275,6 +327,14 @@ export default function CollapsibleTable() {
     }
     fetchAttendance();
   }, []);
+  console.log(attendances);
+
+  const isOdd = attendances.length % 2 === 1;
+  console.log(attendances.length == 1);
+
+  const lastTimeIn = attendances.findLast((e) => {
+    return e;
+  });
 
   return loading ? (
     <div>Loading....</div>
@@ -386,11 +446,22 @@ export default function CollapsibleTable() {
                   ),
                   User: first.User,
                   Date: new Date(first.AttendAt).toLocaleDateString(),
-                  AttendAt: new Date(first.AttendAt).toLocaleTimeString(),
-                  TimeOut: first.TimeOut
-                    ? new Date(first.TimeOut).toLocaleTimeString()
+                  AttendAt: isOdd
+                    ? new Date(first.AttendAt).toLocaleTimeString()
+                    : new Date(lastTimeIn.AttendAt).toLocaleTimeString(),
+                  TimeOut: isOdd
+                    ? new Date().toLocaleTimeString()
                     : new Date(first.AttendAt).toLocaleTimeString(),
-                  formattedLogHours: formatTime(first.LogHours),
+                  formattedLogHours: isOdd
+                    ? formatTime(
+                        convertSecondsToTimeString(
+                          calculateTimeDifferenceInSeconds(
+                            new Date(first.AttendAt),
+                            new Date()
+                          )
+                        )
+                      )
+                    : formatTime(first.LogHours),
                   Location: first.Location || "N/A",
                   otherAttendances: others,
                 }}
