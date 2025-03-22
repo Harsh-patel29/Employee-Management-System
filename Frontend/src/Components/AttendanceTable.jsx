@@ -28,14 +28,22 @@ import {
 } from "../Components/components/ui/sheet";
 import { Button } from "../Components/components/ui/button";
 import axios from "axios";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import TextField from "@mui/material/TextField";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+
+function convertDateFormat(dateStr) {
+  const [month, day, year] = dateStr.split("/");
+  return `${day}/${month}/${year}`;
+}
 
 const formatTime = (timeString) => {
   if (!timeString) return "N/A";
   const [hours, minutes, seconds] = timeString.split(":");
-  return `${hours.padStart(2, "0")}:${minutes.padStart(
-    2,
-    "0"
-  )}:${seconds.padStart(2, "0")}`;
+  return `${hours.padStart(2, "0")}:${minutes}:${seconds.padStart(2, "0")}`;
 };
 
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
@@ -58,22 +66,10 @@ function convertSecondsToTimeString(totalSeconds) {
 function Row({ row, openMap }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
-  const { user } = useSelector((state) => state.auth);
-  const attendancesByDate = React.useMemo(() => {
-    return (
-      row.otherAttendances?.reduce((acc, attendance) => {
-        const date = new Date(attendance.AttendAt).toLocaleDateString();
-        if (!acc[date]) {
-          acc[date] = [];
-        }
-        acc[date].push(attendance);
-        return acc;
-      }, {}) || {}
-    );
-  }, [row.otherAttendances]);
 
   return (
     <React.Fragment>
+      {/* Main row for the specific date */}
       <TableRow
         sx={{
           backgroundColor: theme === "light" ? "white" : "#161b22",
@@ -97,144 +93,93 @@ function Row({ row, openMap }) {
             )}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
-          {row.index}
+        <TableCell>{row.index}</TableCell>
+        <TableCell>{row.Image}</TableCell>
+        <TableCell>{row.Date}</TableCell>
+        <TableCell>{row.User}</TableCell>
+        <TableCell>{row.AttendAt}</TableCell>
+        <TableCell>{row.TimeOut}</TableCell>
+        <TableCell>{row.formattedLogHours}</TableCell>
+        <TableCell>
+          <Button
+            onClick={() => openMap()}
+            className={`${
+              theme === "light"
+                ? "text-black hover:bg-gray-50"
+                : "hover:bg-[#313b49]"
+            } bg-transparent`}
+          >
+            Map View
+          </Button>
         </TableCell>
-        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
-          {row.Image}
-        </TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.User}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.Date}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.AttendAt}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.TimeOut}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.formattedLogHours}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>
-          {
-            <Button
-              onClick={() => {
-                openMap();
-              }}
-              className={`${
-                theme === "light"
-                  ? "text-black hover:bg-gray-50"
-                  : "hover:bg-[#313b49]"
-              } bg-transparent `}
-            >
-              Map View
-            </Button>
-          }
-        </TableCell>
-        <TableCell sx={{ color: "inherit" }}></TableCell>
+        <TableCell></TableCell>
       </TableRow>
+      {/* Collapsible component for the history of the specific date */}
       <TableRow>
         <TableCell
           style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={10}
+          colSpan={8}
           sx={{
             backgroundColor: theme === "light" ? "white" : "#161b22",
             color: theme === "light" ? "black" : "#f8f9fa",
           }}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              {Object.entries(attendancesByDate).map(([date, records]) => (
-                <div key={date}>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    component="div"
-                    sx={{
-                      fontSize: "1.5rem",
-                      marginTop: "1.5rem",
-                      marginBottom: "1rem",
-                      paddingLeft: "0.5rem",
-                    }}
-                  >
-                    {date}
-                  </Typography>
-                  <Table size="medium">
-                    <TableHead
+            <Box
+              sx={{
+                margin: 1,
+              }}
+            >
+              <Table size="medium" className="ml-36">
+                <TableHead
+                  sx={{
+                    backgroundColor: theme === "light" ? "#bfdbfe" : "#374151",
+                  }}
+                >
+                  <TableRow>
+                    <TableCell>#</TableCell>
+                    <TableCell>Image</TableCell>
+                    <TableCell>Time In</TableCell>
+                    <TableCell>Location</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {row.otherAttendances.map((attendance, idx) => (
+                    <TableRow
+                      key={idx}
                       sx={{
                         backgroundColor:
-                          theme === "light" ? "#bfdbfe" : "#374151",
+                          theme === "light" ? "white" : "#161b22",
+                        color: theme === "light" ? "black" : "#f8f9fa",
                       }}
                     >
-                      <TableRow>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>
+                        <img
+                          src={attendance.Image}
+                          alt="Attendance"
+                          className="w-12 h-12 object-cover rounded-3xl"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {new Date(attendance.AttendAt).toLocaleTimeString()}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => openMap()}
+                          className={`${
+                            theme === "light"
+                              ? "text-black hover:bg-gray-50"
+                              : "hover:bg-[#313b49]"
+                          } bg-transparent`}
                         >
-                          #
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Image
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Time In
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Log Hours
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: "bold", fontSize: "medium" }}
-                        >
-                          Location
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {records.map((attendance, idx) => (
-                        <TableRow
-                          key={idx}
-                          sx={{
-                            backgroundColor:
-                              theme === "light" ? "white" : "#161b22",
-                            color: theme === "light" ? "black" : "#f8f9fa",
-                          }}
-                        >
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            <img
-                              src={attendance.Image}
-                              alt="Attendance"
-                              className="w-12 h-12 object-cover rounded-3xl"
-                            />
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {new Date(attendance.AttendAt).toLocaleTimeString()}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {formatTime(attendance.LogHours)}
-                          </TableCell>
-                          <TableCell sx={{ color: "inherit", padding: "16px" }}>
-                            {
-                              <Button
-                                onClick={() => {
-                                  openMap();
-                                }}
-                                className={`${
-                                  theme === "light"
-                                    ? "text-black hover:bg-gray-50"
-                                    : "hover:bg-[#313b49]"
-                                } bg-transparent `}
-                              >
-                                Map View
-                              </Button>
-                            }
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ))}
+                          Map View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Box>
           </Collapse>
         </TableCell>
@@ -242,7 +187,6 @@ function Row({ row, openMap }) {
     </React.Fragment>
   );
 }
-
 Row.propTypes = {
   row: PropTypes.shape({
     index: PropTypes.number,
@@ -256,11 +200,14 @@ Row.propTypes = {
     otherAttendances: PropTypes.array,
   }).isRequired,
 };
-
 export default function CollapsibleTable() {
   const dispatch = useDispatch();
-  const [openSheet, setOpenSheet] = React.useState(false);
-  const [attendances, setattendances] = React.useState([]);
+  const [openFilterSheet, setOpenFilterSheet] = React.useState(false);
+  const [openAttendanceSheet, setOpenAttendanceSheet] = React.useState(false);
+  const [fromDate, setFromDate] = React.useState(null);
+  const [toDate, setToDate] = React.useState(null);
+  const [attendances, setAttendances] = React.useState([]);
+  const [filteredAttendances, setFilteredAttendances] = React.useState([]); // State for filtered attendances
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
 
@@ -273,7 +220,7 @@ export default function CollapsibleTable() {
   const theme = useSelector((state) => state.theme.theme);
 
   React.useEffect(() => {
-    if (openSheet) {
+    if (openAttendanceSheet) {
       navigator.mediaDevices
         .getUserMedia({ video: true })
         .then((stream) => {
@@ -289,7 +236,7 @@ export default function CollapsibleTable() {
         tracks.forEach((track) => track.stop());
       }
     }
-  }, [openSheet]);
+  }, [openAttendanceSheet]);
 
   const captureImage = async () => {
     if (!videoRef.current) return;
@@ -332,11 +279,6 @@ export default function CollapsibleTable() {
     }
   };
 
-  const openMap = () => {
-    const url = `https://www.google.com/maps?q=${attendances[0].Latitude},${attendances[0].Longitude}`;
-    window.open(url, "_blank");
-  };
-
   React.useEffect(() => {
     async function fetchAttendance() {
       try {
@@ -344,8 +286,8 @@ export default function CollapsibleTable() {
           "http://localhost:8000/api/v2/attendance/attendanceDetail",
           { withCredentials: true }
         );
-        setattendances(res.data.message);
-
+        setAttendances(res.data.message);
+        setFilteredAttendances(res.data.message); // Initialize filtered attendances
         return res.data;
       } catch (error) {
         console.log(error);
@@ -354,11 +296,41 @@ export default function CollapsibleTable() {
     fetchAttendance();
   }, []);
 
-  const isOdd = attendances.length % 2 === 1;
+  React.useEffect(() => {
+    if (!fromDate && !toDate) {
+      setFilteredAttendances(attendances);
+    } else {
+      const currentDate = new Date();
+      const from = fromDate ? new Date(fromDate) : currentDate;
+      const to = toDate ? new Date(toDate) : currentDate;
 
-  const lastTimeIn = attendances.findLast((e) => {
-    return e;
-  });
+      const filtered = attendances.filter((attendance) => {
+        const attendanceDate = new Date(attendance.AttendAt);
+        return attendanceDate >= from && attendanceDate <= to;
+      });
+
+      setFilteredAttendances(filtered);
+    }
+  }, [fromDate, toDate, attendances]);
+
+  const groupedAttendances = React.useMemo(() => {
+    return filteredAttendances.reduce((acc, attendance) => {
+      const date = new Date(attendance.AttendAt).toLocaleDateString();
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(attendance);
+      return acc;
+    }, {});
+  }, [filteredAttendances]);
+
+  const sortedDates = Object.keys(groupedAttendances).sort(
+    (a, b) => new Date(b) - new Date(a)
+  );
+
+  const applyFilter = () => {
+    setOpenFilterSheet(false); // Close the filter sheet
+  };
 
   return loading ? (
     <div>Loading....</div>
@@ -366,20 +338,67 @@ export default function CollapsibleTable() {
     <>
       <div className="inline-flex justify-between w-full pb-3 mt-2 ">
         <div className="text-3xl flex ml-2">Attendance</div>
-        <div className="text-3xl flex gap-10">
+        <div className="flex">
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-xl mr-8"
-            onClick={() => setOpenSheet(true)}
+            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8"
+            onClick={() => setOpenFilterSheet(true)}
+          >
+            Filter
+          </button>
+          <button
+            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8"
+            onClick={() => setOpenAttendanceSheet(true)}
           >
             Attendance
           </button>
         </div>
       </div>
 
-      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+      <Sheet open={openFilterSheet} onOpenChange={setOpenFilterSheet}>
+        <SheetContent className="min-w-2xl">
+          <SheetHeader>
+            <SheetTitle>Filter Attendance</SheetTitle>
+            <div className="flex w-full justify-between mt-2">
+              <h1 className="ml-30">From</h1>
+              <h1 className="mr-30">To</h1>
+            </div>
+          </SheetHeader>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DemoContainer components={["DateRangeCalendar"]}>
+              <div className="flex flex-row gap-4 mt-4">
+                <DateCalendar
+                  label="From Date"
+                  value={fromDate}
+                  onChange={(value) => {
+                    setFromDate(value);
+                  }}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+                <DateCalendar
+                  label="To Date"
+                  value={toDate}
+                  onChange={(newValue) => setToDate(newValue)}
+                  slots={(params) => <TextField {...params} />}
+                />
+              </div>
+            </DemoContainer>
+          </LocalizationProvider>
+          <div className="flex justify-end mt-4">
+            <Button
+              onClick={applyFilter}
+              className="px-6 py-2 bg-blue-500 text-white hover:bg-blue-600 w-full ml-40 mr-40 "
+            >
+              Apply Filter
+            </Button>
+          </div>
+          <SheetFooter></SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={openAttendanceSheet} onOpenChange={setOpenAttendanceSheet}>
         <SheetContent className="min-w-xl">
           <SheetHeader>
-            <SheetTitle>Attendance</SheetTitle>
+            <SheetTitle>Mark Attendance</SheetTitle>
           </SheetHeader>
           <div className="w-full flex justify-center mt-4">
             <video
@@ -400,6 +419,7 @@ export default function CollapsibleTable() {
           <SheetFooter></SheetFooter>
         </SheetContent>
       </Sheet>
+
       <TableContainer
         component={Paper}
         sx={{
@@ -421,10 +441,10 @@ export default function CollapsibleTable() {
                 Image
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                User
+                Date
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Date
+                User
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
                 Time In
@@ -444,54 +464,54 @@ export default function CollapsibleTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(
-              attendances.reduce((acc, attendance) => {
-                if (!acc[attendance.User]) {
-                  acc[attendance.User] = {
-                    first: attendance,
-                    others: [],
-                  };
-                } else {
-                  acc[attendance.User].others.push(attendance);
-                }
-                return acc;
-              }, {})
-            ).map(({ first, others }, index) => (
-              <Row
-                key={first._id}
-                row={{
-                  index: index + 1,
-                  Image: (
-                    <img
-                      src={first.Image}
-                      alt="Attendance"
-                      className="w-12 h-12 object-cover rounded-3xl"
-                    />
-                  ),
-                  User: user.user.Name,
-                  Date: new Date(first.AttendAt).toLocaleDateString(),
-                  AttendAt: isOdd
-                    ? new Date(first.AttendAt).toLocaleTimeString()
-                    : new Date(lastTimeIn.AttendAt).toLocaleTimeString(),
-                  TimeOut: isOdd
-                    ? new Date().toLocaleTimeString()
-                    : new Date(first.AttendAt).toLocaleTimeString(),
-                  formattedLogHours: isOdd
-                    ? formatTime(
-                        convertSecondsToTimeString(
-                          calculateTimeDifferenceInSeconds(
-                            new Date(first.AttendAt),
-                            new Date()
+            {sortedDates.map((date, index) => {
+              const records = groupedAttendances[date];
+              const firstRecord = records[0];
+              const otherRecords = records.slice(1);
+              const lastTimeIn = otherRecords.findLast((e) => {
+                return e;
+              });
+              const isOdd = records.length % 2 === 1;
+
+              return (
+                <Row
+                  key={date}
+                  row={{
+                    index: index + 1,
+                    Image: (
+                      <img
+                        src={firstRecord.Image}
+                        alt="Attendance"
+                        className="w-12 h-12 object-cover rounded-3xl"
+                      />
+                    ),
+                    Date: convertDateFormat(date),
+                    User: user.user.Name,
+                    AttendAt: new Date(
+                      lastTimeIn.AttendAt
+                    ).toLocaleTimeString(),
+                    TimeOut: isOdd
+                      ? new Date().toLocaleTimeString()
+                      : new Date(firstRecord.AttendAt).toLocaleTimeString(),
+                    formattedLogHours: isOdd
+                      ? formatTime(
+                          convertSecondsToTimeString(
+                            calculateTimeDifferenceInSeconds(
+                              new Date(firstRecord.AttendAt),
+                              new Date()
+                            )
                           )
                         )
-                      )
-                    : formatTime(first.LogHours),
-                  Location: first.Location || "N/A",
-                  otherAttendances: others,
-                }}
-                openMap={openMap}
-              />
-            ))}
+                      : formatTime(firstRecord.LogHours),
+                    otherAttendances: otherRecords,
+                  }}
+                  openMap={() => {
+                    const url = `https://www.google.com/maps?q=${firstRecord.Latitude},${firstRecord.Longitude}`;
+                    window.open(url, "_blank");
+                  }}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

@@ -38,7 +38,6 @@ export const getUserDetails = createAsyncThunk(
         "http://localhost:8000/api/v2/attendance/attendance",
         { withCredentials: true }
       );
-      console.log(res.data);
       return res.data;
     } catch (error) {
       return rejectWithValue(error);

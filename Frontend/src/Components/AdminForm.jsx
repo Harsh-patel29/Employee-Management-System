@@ -264,7 +264,7 @@ export default function AdminForm({ onSubmit, mode }) {
                   <select
                     id="Gender"
                     {...field}
-                    className="flex border w-[90%] h-9 rounded-md shadow "
+                    className="flex border w-[90%] h-9 rounded-md shadow pl-2"
                   >
                     <option
                       value=""
@@ -399,7 +399,7 @@ export default function AdminForm({ onSubmit, mode }) {
                   <FormControl>
                     <select
                       id="role"
-                      className="flex border w-[90%] h-9 rounded-md shadow"
+                      className="flex border w-[90%] h-9 rounded-md shadow pl-2"
                       {...field}
                     >
                       <option

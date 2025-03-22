@@ -21,9 +21,7 @@ const formatSecondsToHHMMSS = (totalSeconds) => {
 };
 
 const uploadAttendance = AsyncHandler(async (req, res) => {
-  console.log(req.files);
   const body = JSON.parse(JSON.stringify(req.body));
-  console.log(body);
 
   const userId = new mongoose.Types.ObjectId(req.user._id);
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
@@ -56,10 +54,11 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     AttendAt: { $gte: todayStart, $lte: todayEnd },
   }).sort({ AttendAt: -1 });
   const isOdd = todayAttendance.length % 2 !== 1;
+
   const isEmpty = todayAttendance.length !== 0;
 
   let lastAttendanceTime = null;
-
+  let formattedLogHours = formatSecondsToHHMMSS(logHours);
   if (todayAttendance.length > 0) {
     if (todayAttendance.length % 2 === 1) {
       lastAttendanceTime = new Date(
@@ -73,12 +72,24 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
 
     for (let i = 0; i < todayAttendance.length - 1; i += 2) {
       const inTime = new Date(todayAttendance[i].AttendAt);
+
       const outTime = new Date(todayAttendance[i + 1].AttendAt);
+
       logHours += calculateTimeDifferenceInSeconds(inTime, outTime);
+      formattedLogHours = formatSecondsToHHMMSS(logHours);
+    }
+  } else {
+    for (let i = 0; i < todayAttendance.length - 1; i += 1) {
+      console.log(i);
+      const inTime = new Date(todayAttendance[i].AttendAt);
+      console.log("inTime", inTime.toLocaleString());
+      const outTime = new Date(todayAttendance[i + 1].AttendAt);
+      console.log("outTime", outTime.toLocaleString());
+      logHours += calculateTimeDifferenceInSeconds(outTime, inTime);
+      formattedLogHours = formatSecondsToHHMMSS(logHours);
     }
   }
 
-  const formattedLogHours = formatSecondsToHHMMSS(logHours);
   try {
     const attendance = await Attendance.create({
       Image: Image.url,
@@ -88,7 +99,6 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
       Latitude: Latitude ? Number(Latitude) : undefined,
       Longitude: Longitude ? Number(Longitude) : undefined,
     });
-    console.log(attendance);
 
     return res
       .status(200)
@@ -99,11 +109,6 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     console.error("Error creating attendance:", error);
     throw new ApiError(404, "Failed to save Attendance");
   }
-});
-
-const getAttendanceById = AsyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  const AttendanceById = await Attendance.findById();
 });
 
 const getAttendance = AsyncHandler(async (req, res) => {
@@ -120,75 +125,10 @@ const getAttendance = AsyncHandler(async (req, res) => {
     userAttendances[attendance.User].push(attendance);
   });
 
-  AllAttendance = AllAttendance.map((attendance) => {
-    // console.log("userAttendances", attendance);
-    const userAttendanceList = userAttendances[attendance.User];
-    const firstAttendance = userAttendanceList.findLast((e) => {
-      return e;
-    });
-    // console.log("First Attendance ", firstAttendance);
+  const values = Object.values(userAttendances);
 
-    const isFirstAttendance =
-      firstAttendance._id.toString() === attendance._id.toString();
-    // console.log(isFirstAttendance);
-    // console.log("Attendanceid", attendance._id.toString());
-
-    const lastAttendance = userAttendanceList[0];
-    // console.log("Last Attendance", lastAttendance);
-
-    if (isFirstAttendance) {
-      const currentTime = new Date();
-      let logHours = lastAttendance.LogHours;
-      if (userAttendanceList.length % 2 !== 1) {
-        const lastAttendanceTime = new Date(lastAttendance.AttendAt);
-        const TimeOut = lastAttendanceTime.toLocaleTimeString("en-IN", {
-          timeZone: "Asia/Kolkata",
-        });
-      } else {
-        const additionalSeconds = calculateTimeDifferenceInSeconds(
-          lastAttendance,
-          currentTime
-        );
-        const [hours, minutes, seconds] =
-          lastAttendance.LogHours.split(":").map(Number);
-        const totalSeconds =
-          hours * 3600 + minutes * 60 + seconds + additionalSeconds;
-        logHours = formatSecondsToHHMMSS(totalSeconds);
-        const TimeOut = "19:00:00";
-      }
-    }
-
-    const values = Object.values(userAttendances);
-
-    // AllAttendance = AllAttendance.map((attendance) => {
-    //   const userAttendanceList = userAttendances[attendance.User];
-    //   const isFirstAttendance =
-    //     userAttendanceList[0]._id.toString() === attendance._id.toString();
-    //   const lastAttendance = userAttendanceList[userAttendanceList.length - 1];
-
-    //   if (isFirstAttendance) {
-    //     const currentTime = new Date();
-    //     let logHours = lastAttendance.LogHours;
-
-    //     if (userAttendanceList.length % 2 === 1) {
-    //       const lastAttendTime = new Date(lastAttendance.AttendAt);
-    //       const additionalSeconds = calculateTimeDifferenceInSeconds(
-    //         lastAttendTime,
-    //         currentTime
-    //       );
-
-    //     return {
-    //       ...attendance._doc,
-    //       TimeOut: lastAttendance.AttendAt,
-    //       LogHours: logHours,
-    //     };
-    //   }
-
-    // return attendance;
-
-    return res
-      .status(200)
-      .json(new ApiResponse(200, values[0], "Attendance fetched Successfully"));
-  });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, values[0], "Attendance fetched Successfully"));
 });
 export { uploadAttendance, getAttendance };
