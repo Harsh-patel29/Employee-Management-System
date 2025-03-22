@@ -9,16 +9,12 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import {
-  getUserDetails,
-  markAttendance,
-} from "../feature/attendancefetch/attendanceSlice.js";
+import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -28,7 +24,6 @@ import {
 } from "../Components/components/ui/sheet";
 import { Button } from "../Components/components/ui/button";
 import axios from "axios";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import TextField from "@mui/material/TextField";
@@ -69,7 +64,6 @@ function Row({ row, openMap }) {
 
   return (
     <React.Fragment>
-      {/* Main row for the specific date */}
       <TableRow
         sx={{
           backgroundColor: theme === "light" ? "white" : "#161b22",
@@ -114,7 +108,6 @@ function Row({ row, openMap }) {
         </TableCell>
         <TableCell></TableCell>
       </TableRow>
-      {/* Collapsible component for the history of the specific date */}
       <TableRow>
         <TableCell
           style={{ paddingBottom: 0, paddingTop: 0 }}
@@ -207,7 +200,7 @@ export default function CollapsibleTable() {
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
-  const [filteredAttendances, setFilteredAttendances] = React.useState([]); // State for filtered attendances
+  const [filteredAttendances, setFilteredAttendances] = React.useState([]);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
 
