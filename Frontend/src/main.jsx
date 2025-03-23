@@ -18,6 +18,7 @@ import Roles from "./pages/Roles.jsx";
 import Leave from "./pages/Leave.jsx";
 import Attendance from "./pages/Attendance.jsx";
 import Project from "./pages/Project.jsx";
+import ProjectDetail from "./pages/ProjectDetail.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +34,11 @@ const router = createBrowserRouter(
           <Route path="/settings" element={<Settings />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/productivity" element={<Project />} />
+          <Route path="/productivity/project/:id" element={<ProjectDetail />} />
+          <Route
+            path="/productivity/project/:id/:userId/:roleId"
+            element={<ProjectDetail />}
+          />
           <Route path="/leave" element={<Leave />} />
         </Route>
       </Route>

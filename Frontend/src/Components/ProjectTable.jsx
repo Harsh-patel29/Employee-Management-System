@@ -1,8 +1,5 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,7 +9,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -20,7 +16,6 @@ import {
   SheetTrigger,
   SheetDescription,
 } from "../Components/components/ui/sheet";
-import { Button } from "../Components/components/ui/button";
 import ProjectForm from "./ProjectForm.jsx";
 import axios from "axios";
 
@@ -40,7 +35,10 @@ function Row({ row, openMap }) {
         <TableCell>
           <div className="flex items-center gap-2">
             {row.logo}
-            <a href="ProjectDetails" style={{ color: "#408cb6" }}>
+            <a
+              href={`/productivity/project/${row._id}`}
+              style={{ color: "#408cb6" }}
+            >
               {row.name}
             </a>
           </div>
@@ -60,7 +58,7 @@ Row.propTypes = {
     Status: PropTypes.string,
   }).isRequired,
 };
-export default function CollapsibleTable() {
+export default function ProjectTable() {
   const [Projects, setProjects] = React.useState([]);
 
   const dispatch = useDispatch();
@@ -94,7 +92,6 @@ export default function CollapsibleTable() {
           },
         }
       );
-      console.log(res.data);
 
       if (res.data.success === true) {
         window.location.assign("/project");

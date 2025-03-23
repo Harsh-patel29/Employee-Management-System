@@ -1,14 +1,18 @@
 import { Router } from "express";
 import { upload } from "../Middlewares/multer.Middleware.js";
 import {
+  AssignUser,
   createProject,
+  deleteAssignedUser,
   getAllProject,
+  getAssignUserName,
+  getProjectbyId,
+  getProjectRoles,
 } from "../Controllers/Project.controller.js";
 import { authenticate } from "../Middlewares/AuthorizeMiddleware.js";
-import multer from "multer";
+import { roleid, userid } from "../Middlewares/userroleMiddleware.js";
 
 const router = Router();
-const UploadText = multer();
 
 router
   .route("/project")
@@ -28,5 +32,15 @@ router
       user: req.user,
     });
   });
-
+router.route("/project/:id").get(authenticate, getProjectbyId);
+router.route("/project/roles/details").get(authenticate, getProjectRoles);
+router
+  .route("/project/roles/update/:id")
+  .patch(authenticate, userid, roleid, AssignUser);
+router
+  .route("/project/roles/details/name/:id")
+  .get(authenticate, getAssignUserName);
+router
+  .route("/project/roles/details/name/delete/role/:id/:userid/:roleid")
+  .delete(authenticate, deleteAssignedUser);
 export default router;

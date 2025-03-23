@@ -15,7 +15,7 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useSelector } from "react-redux";
-import { replace, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
   Sheet,
@@ -36,7 +36,6 @@ import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
-import { getLoginDetail } from "../feature/datafetch/datafetchSlice.js";
 function Row({
   row,
   canAddUser,
