@@ -37,11 +37,6 @@ const createProject = AsyncHandler(async (req, res) => {
     const project = await Project.create({
       name,
       logo: logophoto?.url,
-      users: [
-        {
-          user_id: user._id,
-        },
-      ],
       progress_status,
       status,
       createdBy: user._id,

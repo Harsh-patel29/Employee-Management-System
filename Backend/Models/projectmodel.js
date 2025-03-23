@@ -9,12 +9,18 @@ const ProjectSchema = new Schema(
     logo: {
       type: String,
     },
-    users: {
-      user_id: {
-        type: Schema.Types.ObjectId,
-        ref: "Users",
+    users: [
+      {
+        user_id: {
+          type: Schema.Types.ObjectId,
+          ref: "Users",
+        },
+        role_id: {
+          type: Schema.Types.ObjectId,
+          ref: "Project_Roles",
+        },
       },
-    },
+    ],
     progress_status: {
       type: String,
       enum: ["Pending", "In-Progress", "Hold", "Completed", "Scrapped"],

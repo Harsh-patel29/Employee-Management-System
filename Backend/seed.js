@@ -15,7 +15,12 @@ dotenv.config({
 const seedData = async () => {
   // const id = new mongoose.Types.ObjectId("67cc0615b3974b238cfae99b");
   try {
-    const AdminRole = await Project_Roles.create({});
+    const AdminRole = await Project_Roles.create({
+      name: "Developer",
+      access: [],
+      is_deleted: false,
+      is_visible: true,
+    });
     // const manageUser = await UserAccess.deleteOne({
     //   manageUser: 0,
     //   manageUserAccess: 0,

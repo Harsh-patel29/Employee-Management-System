@@ -8,10 +8,6 @@ const Project_RolesSchema = new Schema(
       unique: true,
       required: true,
     },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "Users",
-    },
     access: {
       type: Schema.Types.Mixed,
     },
