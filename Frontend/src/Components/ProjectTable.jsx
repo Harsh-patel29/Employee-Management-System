@@ -107,12 +107,12 @@ export default function ProjectTable() {
       <div className="inline-flex justify-between w-full pb-3 mt-2 ">
         <div className="text-3xl flex ml-2">Project</div>
         <div className="flex">
-          <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8">
+          <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg h-10 mr-8">
             Filter
           </button>
           <Sheet>
             <SheetTrigger>
-              <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8">
+              <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 h-10 text-lg mr-8">
                 Create Project
               </button>
             </SheetTrigger>

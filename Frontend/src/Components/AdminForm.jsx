@@ -127,6 +127,7 @@ export default function AdminForm({ onSubmit, mode }) {
             render={({ field }) => (
               <FormItem className="w-[90%]">
                 <FormLabel>Name</FormLabel>
+                <div>{errors?.Name && <span>{errors.Name.message}</span>}</div>
                 <FormControl>
                   <Input
                     className="shadow"
@@ -182,8 +183,8 @@ export default function AdminForm({ onSubmit, mode }) {
             control={control}
             name="Date_of_Birth"
             render={({ field }) => (
-              <FormItem className="w-[90%] flex flex-col">
-                <FormLabel>DOB</FormLabel>
+              <FormItem className="w-[90%] flex flex-col ">
+                <FormLabel className="h-2">DOB</FormLabel>
                 <div>
                   {errors?.Date_of_Birth && (
                     <span>{errors.Date_of_Birth.message}</span>
@@ -303,7 +304,7 @@ export default function AdminForm({ onSubmit, mode }) {
               name="DATE_OF_JOINING"
               render={({ field }) => (
                 <FormItem className="w-[90%] flex flex-col ">
-                  <FormLabel>Date Of Joining</FormLabel>
+                  <FormLabel className="h-2">Date Of Joining</FormLabel>
                   <div>
                     {errors?.DATE_OF_JOINING && (
                       <span>{errors.DATE_OF_JOINING.message}</span>
@@ -356,8 +357,9 @@ export default function AdminForm({ onSubmit, mode }) {
             control={control}
             name="Designation"
             render={({ field }) => (
-              <FormItem className="w-[90%] ">
+              <FormItem className="w-[90%] flex flex-col ">
                 <FormLabel>Designation</FormLabel>
+
                 <FormControl>
                   <Input
                     type="text"
@@ -373,7 +375,7 @@ export default function AdminForm({ onSubmit, mode }) {
             control={control}
             name="WeekOff"
             render={({ field }) => (
-              <FormItem className="w-[90%] ">
+              <FormItem className="w-[90%] flex flex-col">
                 <FormLabel>Week Off</FormLabel>
                 <FormControl>
                   <Input
@@ -391,7 +393,7 @@ export default function AdminForm({ onSubmit, mode }) {
               control={control}
               name="role"
               render={({ field }) => (
-                <FormItem className="mb-2.5">
+                <FormItem className="">
                   <FormLabel htmlFor="role">Role</FormLabel>
                   <div>
                     {errors?.role && <span>{errors.role.message}</span>}
@@ -454,12 +456,12 @@ export default function AdminForm({ onSubmit, mode }) {
             control={control}
             name="ReportingManager"
             render={({ field }) => (
-              <FormItem className="">
-                <FormLabel>Reporting Manager</FormLabel>
+              <FormItem className="w-[90%] mt-0.5 flex flex-col">
+                <FormLabel className="">Reporting Manager</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
-                    className="shadow w-[90%]"
+                    className="shadow"
                     placeholder="Enter Name of ReportingManager"
                     {...field}
                   />
@@ -473,6 +475,10 @@ export default function AdminForm({ onSubmit, mode }) {
             <Button
               type="submit"
               className="w-[90%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"
+              onClick={(e) => {
+                e.stop.Proporgation();
+                window.location.assign("/users");
+              }}
             >
               {mode === "update" ? "Update" : "Create"}
             </Button>

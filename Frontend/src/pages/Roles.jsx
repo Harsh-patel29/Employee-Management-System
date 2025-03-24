@@ -88,7 +88,7 @@ const Roles = () => {
   return (
     <>
       <div
-        className={`absolute flex flex-col justify-evenly rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow-xl  min-w-0 xl:w-[80%] xl:h-[75%]
+        className={`absolute flex flex-col w-full gap-2 overflow-auto  mx-auto p-4 rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-6 shadow-xl  xl:w-[80%] h-screen  
         lg:h-[80%] lg:w-[85%] md:h-[85%] md:w-[80%] sm:h-[80%] sm:w-[80%] transition-all duration-300 ${
           isExpanded
             ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
@@ -105,7 +105,7 @@ const Roles = () => {
         >
           Go Back
         </Button>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full h-screen">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -126,7 +126,7 @@ const Roles = () => {
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac6426aef8063f23746a75" && (
-              <AccordionContent className="max-h-[200px] overflow-y-auto">
+              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
@@ -158,7 +158,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full h-screen">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -179,7 +179,7 @@ const Roles = () => {
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67accbab2e409938d0ce" && (
-              <AccordionContent className="max-h-[200px] overflow-y-auto">
+              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
@@ -211,7 +211,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full h-screen">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -232,7 +232,7 @@ const Roles = () => {
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67db190f041e27634fb3" && (
-              <AccordionContent className="max-h-[200px] overflow-y-auto">
+              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
@@ -264,7 +264,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full h-screen">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -285,7 +285,7 @@ const Roles = () => {
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67fe40c38b9cb8e3186e" && (
-              <AccordionContent className="max-h-[200px] overflow-y-auto">
+              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>

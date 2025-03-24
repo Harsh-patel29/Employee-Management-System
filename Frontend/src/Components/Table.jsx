@@ -48,6 +48,8 @@ function Row({
   sheetopen,
   currentId,
   isDefault,
+  dialogOpen,
+  openDialog,
 }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
@@ -90,10 +92,9 @@ function Row({
         <TableCell sx={{ color: "inherit" }}>
           {
             <Sheet
-              open={sheetopen && row._id === currentId}
               onOpenChange={(open) => {
                 if (!open) {
-                  window.location.assign("/users");
+                  navigate("/users");
                 }
               }}
             >
@@ -133,7 +134,7 @@ function Row({
           >
             <DialogTrigger
               onClick={() => {
-                navigate(row._id);
+                openDialog(row._id);
               }}
               asChild
             >
@@ -273,11 +274,19 @@ export default function CollapsibleTable() {
 
   const [sheetopen, setsheetopen] = React.useState(false);
   const [userid, setuserid] = React.useState(id);
+  const [dialogOpen, setdialogOpen] = React.useState(false);
 
   const openSheet = (id) => {
     navigate(`/users/${id}`);
     setTimeout(() => {
       setsheetopen(true);
+    }, 0);
+  };
+
+  const openDialog = (id) => {
+    navigate(`/users/${id}`);
+    setTimeout(() => {
+      setdialogOpen(true);
     }, 0);
   };
 
@@ -338,6 +347,7 @@ export default function CollapsibleTable() {
   };
 
   const deleteUser = async () => {
+    setdialogOpen(false);
     const res = await axios.delete(
       `http://localhost:8000/api/v1/user/${userid}`,
       {
@@ -371,7 +381,7 @@ export default function CollapsibleTable() {
         <div className="text-3xl flex ml-2">Users</div>
         <div className="text-3xl flex gap-10">
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-xl "
+            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg"
             onClick={() => navigate("/users/roles")}
           >
             Manage Users
@@ -457,9 +467,11 @@ export default function CollapsibleTable() {
                 addUser={addUser}
                 updateUser={updateUser}
                 openSheet={openSheet}
+                openDialog={openDialog}
                 navigate={navigate}
                 deleteUser={deleteUser}
                 sheetopen={sheetopen}
+                dialogOpen={dialogOpen}
                 currentId={userid}
                 isDefault={isDefault}
               />
