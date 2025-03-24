@@ -481,7 +481,7 @@ export default function CollapsibleTable() {
                     Date: convertDateFormat(date),
                     User: user.user.Name,
                     AttendAt: new Date(
-                      lastTimeIn.AttendAt
+                      lastTimeIn?.AttendAt
                     ).toLocaleTimeString(),
                     TimeOut: isOdd
                       ? new Date().toLocaleTimeString()
