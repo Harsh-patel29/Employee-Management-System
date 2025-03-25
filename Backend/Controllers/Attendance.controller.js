@@ -60,34 +60,26 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
   let lastAttendanceTime = null;
   let formattedLogHours = formatSecondsToHHMMSS(logHours);
   if (todayAttendance.length > 0) {
-    if (todayAttendance.length % 2 === 1) {
-      lastAttendanceTime = new Date(
-        todayAttendance[todayAttendance.length - 1].AttendAt
-      );
-      logHours = calculateTimeDifferenceInSeconds(
-        lastAttendanceTime,
-        currentTime
-      );
+    if (todayAttendance.length === 1) {
+      const inTime = new Date(todayAttendance[0].AttendAt);
+      logHours = calculateTimeDifferenceInSeconds(inTime, currentTime);
+    } else {
+      if (todayAttendance.length % 2 === 1) {
+        const lastAttendanceTime = new Date(
+          todayAttendance[todayAttendance.length - 1].AttendAt
+        );
+        logHours = calculateTimeDifferenceInSeconds(
+          lastAttendanceTime,
+          currentTime
+        );
+      }
+      for (let i = 0; i < todayAttendance.length - 1; i += 2) {
+        const inTime = new Date(todayAttendance[i].AttendAt);
+        const outTime = new Date(todayAttendance[i + 1].AttendAt);
+        logHours += calculateTimeDifferenceInSeconds(inTime, outTime);
+      }
     }
-
-    for (let i = 0; i < todayAttendance.length - 1; i += 2) {
-      const inTime = new Date(todayAttendance[i].AttendAt);
-
-      const outTime = new Date(todayAttendance[i + 1].AttendAt);
-
-      logHours += calculateTimeDifferenceInSeconds(inTime, outTime);
-      formattedLogHours = formatSecondsToHHMMSS(logHours);
-    }
-  } else {
-    for (let i = 0; i < todayAttendance.length - 1; i += 1) {
-      console.log(i);
-      const inTime = new Date(todayAttendance[i].AttendAt);
-      console.log("inTime", inTime.toLocaleString());
-      const outTime = new Date(todayAttendance[i + 1].AttendAt);
-      console.log("outTime", outTime.toLocaleString());
-      logHours += calculateTimeDifferenceInSeconds(outTime, inTime);
-      formattedLogHours = formatSecondsToHHMMSS(logHours);
-    }
+    formattedLogHours = formatSecondsToHHMMSS(logHours);
   }
 
   try {

@@ -1,15 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+
 export const getUser = createAsyncThunk(
   "getuser/fetch",
-
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.get(`http://localhost:8000/api/v1/user/${id}`, {
         withCredentials: true,
       });
       console.log(res.data);
-
       return res.data;
     } catch (error) {
       rejectWithValue(

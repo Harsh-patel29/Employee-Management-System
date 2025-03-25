@@ -15,6 +15,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
+import { fetchAttendance } from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -29,6 +30,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import TextField from "@mui/material/TextField";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { useNavigate } from "react-router-dom";
 
 function convertDateFormat(dateStr) {
   const [month, day, year] = dateStr.split("/");
@@ -203,6 +205,7 @@ export default function CollapsibleTable() {
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
+  const navigate = useNavigate();
 
   const { attendance, loading, error } = useSelector(
     (state) => state.markAttendance
@@ -222,14 +225,31 @@ export default function CollapsibleTable() {
           }
         })
         .catch((error) => console.error("Error accessing camera:", error));
-    } else {
-      if (videoRef.current?.srcObject) {
-        let stream = videoRef.current.srcObject;
-        let tracks = stream.getTracks();
-        tracks.forEach((track) => track.stop());
-      }
+    }
+    if (!openAttendanceSheet) {
+      stopCamera();
     }
   }, [openAttendanceSheet]);
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      let stream = videoRef.current.srcObject;
+      let tracks = stream.getTracks();
+      tracks.forEach((track) => {
+        track.stop();
+      });
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  React.useEffect(() => {
+    if (attendance?.success === true) {
+      stopCamera();
+      setOpenAttendanceSheet(false);
+      navigate("/attendance");
+      dispatch(fetchAttendance());
+    }
+  }, [attendance?.success, navigate]);
 
   const captureImage = async () => {
     if (!videoRef.current) return;
@@ -259,11 +279,9 @@ export default function CollapsibleTable() {
           formData.append("Latitude", latitude);
           formData.append("Longitude", longitude);
 
-          for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-          }
-
           dispatch(markAttendance({ attendance: file, latitude, longitude }));
+          setOpenAttendanceSheet(false);
+          stopCamera();
         },
         (error) => console.log("Error in getting location", error.message)
       );
@@ -280,14 +298,14 @@ export default function CollapsibleTable() {
           { withCredentials: true }
         );
         setAttendances(res.data.message);
-        setFilteredAttendances(res.data.message); // Initialize filtered attendances
+        setFilteredAttendances(res.data.message);
         return res.data;
       } catch (error) {
         console.log(error);
       }
     }
     fetchAttendance();
-  }, []);
+  }, [attendance?.success, dispatch]);
 
   React.useEffect(() => {
     if (!fromDate && !toDate) {
@@ -322,7 +340,7 @@ export default function CollapsibleTable() {
   );
 
   const applyFilter = () => {
-    setOpenFilterSheet(false); // Close the filter sheet
+    setOpenFilterSheet(false);
   };
 
   return loading ? (
@@ -340,7 +358,7 @@ export default function CollapsibleTable() {
           </button>
           <button
             className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8"
-            onClick={() => setOpenAttendanceSheet(true)}
+            onClick={() => setOpenAttendanceSheet(!openAttendanceSheet)}
           >
             Attendance
           </button>
@@ -378,10 +396,13 @@ export default function CollapsibleTable() {
           </LocalizationProvider>
           <div className="flex justify-end mt-4">
             <Button
-              onClick={applyFilter}
-              className="px-6 py-2 bg-blue-500 text-white hover:bg-blue-600 w-full ml-40 mr-40 "
+              onClick={() => {
+                setFromDate(null);
+                setToDate(null);
+              }}
+              className="px-6 py-2 bg-red-500 text-white hover:bg-red-600 w-full ml-40 mr-40 "
             >
-              Apply Filter
+              Clear Filter
             </Button>
           </div>
           <SheetFooter></SheetFooter>
@@ -460,7 +481,7 @@ export default function CollapsibleTable() {
             {sortedDates.map((date, index) => {
               const records = groupedAttendances[date];
               const firstRecord = records[0];
-              const otherRecords = records.slice(1);
+              const otherRecords = records.slice(0);
               const lastTimeIn = otherRecords.findLast((e) => {
                 return e;
               });

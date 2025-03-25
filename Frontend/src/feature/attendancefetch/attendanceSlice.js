@@ -30,6 +30,22 @@ export const markAttendance = createAsyncThunk(
   }
 );
 
+export const fetchAttendance = createAsyncThunk(
+  "auth/getAttendance",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/api/v2/attendance/attendanceDetail",
+        { withCredentials: true }
+      );
+      console.log(res.data.message);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const getUserDetails = createAsyncThunk(
   "auth/getUserDetails",
   async (_, { rejectWithValue }) => {
@@ -44,7 +60,6 @@ export const getUserDetails = createAsyncThunk(
     }
   }
 );
-
 const markattendanceSlice = createSlice({
   name: "markAttendance",
   initialState: {
@@ -76,6 +91,18 @@ const markattendanceSlice = createSlice({
         state.loading = false;
       })
       .addCase(getUserDetails.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAttendance.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(fetchAttendance.fulfilled, (state, action) => {
+        state.attendance = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAttendance.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });
