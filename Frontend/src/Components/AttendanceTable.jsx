@@ -207,13 +207,24 @@ export default function CollapsibleTable() {
   const canvasRef = React.useRef(null);
   const navigate = useNavigate();
 
-  const { attendance, loading, error } = useSelector(
+  const { attendance, newattendance, loading, error } = useSelector(
     (state) => state.markAttendance
   );
 
   const { user } = useSelector((state) => state.auth);
 
   const theme = useSelector((state) => state.theme.theme);
+
+  React.useEffect(() => {
+    dispatch(fetchAttendance());
+  }, []);
+
+  React.useEffect(() => {
+    if (newattendance?.message) {
+      setAttendances(newattendance.message);
+      setFilteredAttendances(newattendance.message);
+    }
+  }, [newattendance]);
 
   React.useEffect(() => {
     if (openAttendanceSheet) {
@@ -244,10 +255,10 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     if (attendance?.success === true) {
+      dispatch(fetchAttendance());
+      navigate("/attendance");
       stopCamera();
       setOpenAttendanceSheet(false);
-      navigate("/attendance");
-      dispatch(fetchAttendance());
     }
   }, [attendance?.success, navigate]);
 
@@ -291,23 +302,6 @@ export default function CollapsibleTable() {
   };
 
   React.useEffect(() => {
-    async function fetchAttendance() {
-      try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v2/attendance/attendanceDetail",
-          { withCredentials: true }
-        );
-        setAttendances(res.data.message);
-        setFilteredAttendances(res.data.message);
-        return res.data;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchAttendance();
-  }, [attendance?.success, dispatch]);
-
-  React.useEffect(() => {
     if (!fromDate && !toDate) {
       setFilteredAttendances(attendances);
     } else {
@@ -325,7 +319,7 @@ export default function CollapsibleTable() {
   }, [fromDate, toDate, attendances]);
 
   const groupedAttendances = React.useMemo(() => {
-    return filteredAttendances.reduce((acc, attendance) => {
+    return filteredAttendances?.reduce((acc, attendance) => {
       const date = new Date(attendance.AttendAt).toLocaleDateString();
       if (!acc[date]) {
         acc[date] = [];
