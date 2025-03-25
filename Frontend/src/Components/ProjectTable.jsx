@@ -18,7 +18,9 @@ import {
 } from "../Components/components/ui/sheet";
 import ProjectForm from "./ProjectForm.jsx";
 import axios from "axios";
-
+import { Link, useNavigate } from "react-router";
+import { createproject } from "../feature/projectfetch/createproject.js";
+import { getProjects } from "../feature/projectfetch/createproject.js";
 function Row({ row, openMap }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
@@ -35,12 +37,12 @@ function Row({ row, openMap }) {
         <TableCell>
           <div className="flex items-center gap-2">
             {row.logo}
-            <a
-              href={`/productivity/project/${row._id}`}
+            <Link
+              to={`/productivity/project/${row._id}`}
               style={{ color: "#408cb6" }}
             >
               {row.name}
-            </a>
+            </Link>
           </div>
         </TableCell>
         <TableCell>{row.progress_status}</TableCell>
@@ -59,50 +61,40 @@ Row.propTypes = {
   }).isRequired,
 };
 export default function ProjectTable() {
+  const navigate = useNavigate();
   const [Projects, setProjects] = React.useState([]);
+  const [sheetopen, setsheetopen] = React.useState(false);
 
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
 
+  const { project, projects, loading, error } = useSelector(
+    (state) => state.project
+  );
+
   React.useEffect(() => {
-    async function fetchProjects() {
-      try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v3/project/project",
-          { withCredentials: true }
-        );
-        setProjects(res?.data?.message);
-        return res?.data;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchProjects();
+    dispatch(getProjects());
   }, []);
+  console.log(projects);
 
-  const createProject = async (formData) => {
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v3/project/project",
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (res.data.success === true) {
-        window.location.assign("/project");
-      }
-      return res.data;
-    } catch (error) {
-      console.log("Something went wrong while creating Project", error);
+  React.useEffect(() => {
+    if (projects?.message) {
+      setProjects(projects.message);
+    } else {
+      setProjects([]);
     }
-  };
+  }, [projects]);
 
-  return (
+  React.useEffect(() => {
+    if (project?.success == true) {
+      dispatch(getProjects());
+      setsheetopen(false);
+    }
+  }, [project?.success]);
+
+  return loading ? (
+    <div>Loading...</div>
+  ) : (
     <>
       <div className="inline-flex justify-between w-full pb-3 mt-2 ">
         <div className="text-3xl flex ml-2">Project</div>
@@ -110,7 +102,7 @@ export default function ProjectTable() {
           <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg h-10 mr-8">
             Filter
           </button>
-          <Sheet>
+          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger>
               <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 h-10 text-lg mr-8">
                 Create Project
@@ -125,7 +117,9 @@ export default function ProjectTable() {
                   Create Project
                 </h1>
                 <SheetDescription>
-                  <ProjectForm onSubmit={createProject} />
+                  <ProjectForm
+                    onSubmit={(formdata) => dispatch(createproject(formdata))}
+                  />
                 </SheetDescription>
               </SheetHeader>
             </SheetContent>
@@ -178,7 +172,6 @@ export default function ProjectTable() {
                     />
                   ),
                 }}
-                createProject={createProject}
               />
             ))}
           </TableBody>

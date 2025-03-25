@@ -43,6 +43,7 @@ export default function ProjectForm({ onSubmit }) {
   } = form;
 
   const [users, setusers] = useState([]);
+  const [preview, setpreview] = useState(null);
   useEffect(() => {
     const getAllUsers = async () => {
       try {
@@ -82,6 +83,17 @@ export default function ProjectForm({ onSubmit }) {
             <FormItem className="mt-4">
               <FormLabel>Project Logo</FormLabel>
               <div> {errors?.logo && <span>{errors.logo.message}</span>}</div>
+              {preview && (
+                <span className="text-sm text-gray-600 font-medium">
+                  Uploaded: {preview}
+                </span>
+              )}
+              <label
+                htmlFor="file-upload"
+                className="w-60 h-60 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50"
+              >
+                Upload
+              </label>
               <FormControl>
                 <Input
                   className="hidden"
@@ -90,16 +102,15 @@ export default function ProjectForm({ onSubmit }) {
                   onChange={(e) => {
                     const files = e.target.files;
                     field.onChange(files);
+                    if (files.length > 0) {
+                      setpreview(files[0].name);
+                    } else {
+                      setpreview("");
+                    }
                   }}
                   id="file-upload"
                 />
               </FormControl>
-              <label
-                htmlFor="file-upload"
-                className="w-60 h-60 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50"
-              >
-                Upload
-              </label>
             </FormItem>
           )}
         />
