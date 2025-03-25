@@ -9,14 +9,20 @@ import {
 } from "../Components/components/ui/sheet";
 import AssignUserTable from "./AssignUserTable";
 import { useParams } from "react-router";
+import { useDispatch } from "react-redux";
+import { assignuser } from "../feature/projectfetch/assignuser.js";
+import { getname } from "../feature/projectfetch/assignuser.js";
 
 const AssignSheet = () => {
   const { id } = useParams();
   const [users, setusers] = useState();
   const [roles, setroles] = useState();
   const [userid, setuserid] = useState(id);
+  const [sheetopen, setsheetopen] = useState(false);
   const [selectedUser, setSelectedUser] = useState();
   const [selectedRole, setSelectedRole] = useState();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function fetchUsers() {
@@ -49,34 +55,13 @@ const AssignSheet = () => {
     fetchRoles();
   }, []);
 
-  const assignUser = async () => {
-    if (!selectedUser || !selectedRole) {
-      console.log("User and Role are required");
-      return;
-    }
-
-    const data = {
-      user: selectedUser,
-      role: selectedRole,
-    };
-
-    try {
-      const res = await axios.patch(
-        `http://localhost:8000/api/v3/project/project/roles/update/${userid}`,
-        data,
-        { withCredentials: true }
-      );
-      if (res.data.success === true) {
-        window.location.assign(`/productivity/project/${id}`);
-      }
-      return res.data;
-    } catch (error) {
-      console.log("Something went wrong while Assigning role");
-    }
+  const data = {
+    user: selectedUser,
+    role: selectedRole,
   };
 
   return (
-    <Sheet>
+    <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger className="w-35">Assign User</SheetTrigger>
       <SheetContent className="min-w-2xl">
         <SheetHeader>
@@ -137,7 +122,12 @@ const AssignSheet = () => {
 
               <button
                 className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 w-[49%]"
-                onClick={assignUser}
+                onClick={() => {
+                  if (sheetopen) {
+                    dispatch(assignuser({ data, userid }));
+                    dispatch(getname(userid));
+                  }
+                }}
               >
                 Assign
               </button>

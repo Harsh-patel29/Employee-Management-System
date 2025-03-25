@@ -25,7 +25,6 @@ export const getProjects = createAsyncThunk(
         "http://localhost:8000/api/v3/project/project",
         { withCredentials: true }
       );
-      console.log(res.data);
       return res.data;
     } catch (error) {
       return rejectWithValue(error);

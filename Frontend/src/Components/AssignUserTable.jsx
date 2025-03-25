@@ -10,7 +10,6 @@ import Paper from "@mui/material/Paper";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router";
 import { MdDelete } from "react-icons/md";
-import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +19,10 @@ import {
   DialogTrigger,
 } from "../Components/components/ui/dialog";
 import { Button } from "../Components/components/ui/button.tsx";
+import { getname } from "../feature/projectfetch/assignuser.js";
+import { deleteassignuser } from "../feature/projectfetch/assignuser.js";
 
-function Row({ row, handleDelete, userId, roleId }) {
+function Row({ row, handleDelete }) {
   const navigate = useNavigate();
   const theme = useSelector((state) => state.theme.theme);
   const { id } = useParams();
@@ -59,7 +60,7 @@ function Row({ row, handleDelete, userId, roleId }) {
                   user's account and remove their data from servers.
                   <Button
                     className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => handleDelete(row.userid, row.roleId)}
+                    onClick={() => handleDelete(id, row.userid, row.roleId)}
                   >
                     Delete
                   </Button>
@@ -83,52 +84,46 @@ export default function AssignUserTable() {
   const [name, setname] = React.useState([]);
   const [userid, setuserid] = React.useState(id);
 
+  const navigate = useNavigate();
+
   const theme = useSelector((state) => state.theme.theme);
 
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    const getname = async (id) => {
-      try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v3/project/project/roles/details/name/${userid}`,
-          { withCredentials: true }
-        );
-        setname(res.data.message);
-        return res.data;
-      } catch (error) {
-        console.log("Something wrong while fetching username", error);
-      }
-    };
-    getname();
-  }, [id]);
-
-  React.useEffect(() => {
     setuserid(id);
   }, []);
 
-  const handleDelete = async (userId, roleId) => {
-    try {
-      await deleteAssignedUser(userId, roleId);
-    } catch (error) {
-      console.log("Error in handleDelete:", error);
-    }
-  };
+  const { totalassignedusers, assigneduser, deleteuser } = useSelector(
+    (state) => state.assignusers
+  );
 
-  const deleteAssignedUser = async (userId, roleId) => {
+  React.useEffect(() => {
+    if (totalassignedusers?.message) {
+      setname(totalassignedusers?.message);
+    }
+  }, [totalassignedusers]);
+
+  React.useEffect(() => {
+    if (assigneduser?.success === true) {
+      dispatch(getname(userid));
+    }
+  }, [assigneduser, userid, dispatch]);
+
+  const handleDelete = async (projectId, userId, roleId) => {
     try {
-      const res = await axios.delete(
-        `http://localhost:8000/api/v3/project/project/roles/details/name/delete/role/${id}/${userId}/${roleId}`,
-        { withCredentials: true }
-      );
-      if (res.data.success === true) {
-        window.location.assign(`/productivity/project/${id}`);
-      }
-      return res.data;
+      dispatch(deleteassignuser({ id: projectId, userId, roleId }));
+      setname((prev) => prev.filter((item) => item.userid !== userId));
     } catch (error) {
-      console.log("Something went wrong while deleting assigned user", error);
+      console.log("Something went wrong while deleting user", error);
     }
   };
+  React.useEffect(() => {
+    if (deleteuser?.success === true) {
+      navigate(`/productivity/project/${id}`, { replace: true });
+      dispatch(getname(userid));
+    }
+  }, [deleteuser, userid, dispatch]);
 
   return (
     <>
@@ -157,7 +152,7 @@ export default function AssignUserTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {name.map((name) => (
+            {name?.map((name) => (
               <Row
                 key={name?.userid}
                 row={{

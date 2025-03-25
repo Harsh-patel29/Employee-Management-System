@@ -1,15 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTrigger,
-} from "../Components/components/ui/sheet";
+import { useSelector, useDispatch } from "react-redux";
 import AssignSheet from "../Components/AssignSheet.jsx";
+import { getname } from "../feature/projectfetch/assignuser.js";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -17,23 +11,25 @@ const ProjectDetail = () => {
   const [detail, setdetail] = useState();
   const [name, setname] = useState([]);
 
+  useEffect(() => {
+    setuserid(id);
+  }, [id]);
+
+  const { totalassignedusers } = useSelector((state) => state.assignusers);
+
+  const dispatch = useDispatch();
+
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
 
   useEffect(() => {
-    const getname = async (id) => {
-      try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v3/project/project/roles/details/name/${userid}`,
-          { withCredentials: true }
-        );
-        setname(res.data.message);
-        return res.data;
-      } catch (error) {
-        console.log("Something wrong while fetching username", error);
-      }
-    };
-    getname();
-  }, [id]);
+    dispatch(getname(userid));
+  }, []);
+
+  useEffect(() => {
+    if (totalassignedusers) {
+      setname(totalassignedusers?.message);
+    }
+  }, [totalassignedusers]);
 
   useEffect(() => {
     const getDetails = async (id) => {
@@ -51,10 +47,6 @@ const ProjectDetail = () => {
     getDetails(id);
   }, [id]);
 
-  useEffect(() => {
-    setuserid(id);
-  }, [id]);
-
   return (
     <div
       className={`absolute rounded-md h-screen lg:ml-30 md:ml-25 sm:ml-30 mt-5 shadow  xl:w-[full] xl:h-[78%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%] transition-all duration-300 bg-gray-50 overflow-hidden flex flex-col ${
@@ -67,8 +59,13 @@ const ProjectDetail = () => {
       <div className="bg-gray-50 p-6 h-screen overflow-hidden flex flex-col">
         <div className="bg-[#6eaffe] rounded-lg p-4 mb-6 flex items-center justify-between flex-shrink-0 ">
           <div className="flex items-center">
-            <div className="bg-white p-3 rounded-md mr-4">
-              <svg
+            <div className=" p-2 rounded-md mr-2">
+              <img
+                src={detail?.logo}
+                alt="Project_Logo"
+                className="w-10 h-10 rounded-4xl"
+              />
+              {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 text-sky-500"
                 fill="none"
@@ -81,7 +78,7 @@ const ProjectDetail = () => {
                   stroke-width="2"
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
-              </svg>
+              </svg> */}
             </div>
             <div className="text-white">
               <h1 className="text-2xl font-bold">{detail?.name}</h1>
@@ -319,7 +316,7 @@ const ProjectDetail = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Team Members</p>
                 <p className="text-gray-800 font-semibold">
-                  {name.map((name) => name.username).join(", ")}
+                  {name?.map((name) => name.username).join(", ")}
                 </p>
               </div>
             </div>

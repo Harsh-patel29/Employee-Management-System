@@ -75,7 +75,6 @@ export default function ProjectTable() {
   React.useEffect(() => {
     dispatch(getProjects());
   }, []);
-  console.log(projects);
 
   React.useEffect(() => {
     if (projects?.message) {

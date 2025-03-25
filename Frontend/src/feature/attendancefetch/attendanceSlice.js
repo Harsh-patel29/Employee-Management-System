@@ -38,7 +38,6 @@ export const fetchAttendance = createAsyncThunk(
         "http://localhost:8000/api/v2/attendance/attendanceDetail",
         { withCredentials: true }
       );
-      console.log(res.data.message);
       return res.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -56,7 +55,7 @@ export const getUserDetails = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -64,6 +63,7 @@ const markattendanceSlice = createSlice({
   name: "markAttendance",
   initialState: {
     attendance: null,
+    newattendance: [],
     error: null,
     loading: false,
   },
@@ -99,7 +99,7 @@ const markattendanceSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAttendance.fulfilled, (state, action) => {
-        state.attendance = action.payload;
+        state.newattendance = action.payload;
         state.loading = false;
       })
       .addCase(fetchAttendance.rejected, (state, action) => {
