@@ -43,7 +43,6 @@ import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
 
 function Row({
   row,
-  updateUser,
   canUpdateUser,
   openSheet,
   navigate,

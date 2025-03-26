@@ -33,7 +33,16 @@ const router = createBrowserRouter(
           <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/attendance" element={<Attendance />} />
-          <Route path="/productivity/project" element={<Project />} />
+          <Route path="/productivity/project" element={<Project />}>
+            <Route
+              path="/productivity/project/delete/:id"
+              element={<Project />}
+            />
+            <Route
+              path="/productivity/project/update/:id"
+              element={<Project />}
+            />
+          </Route>
           <Route path="/productivity/project/:id" element={<ProjectDetail />} />
           <Route
             path="/productivity/project/:id/:userId/:roleId"

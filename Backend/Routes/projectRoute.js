@@ -4,10 +4,12 @@ import {
   AssignUser,
   createProject,
   deleteAssignedUser,
+  deleteProject,
   getAllProject,
   getAssignUserName,
   getProjectbyId,
   getProjectRoles,
+  updateProject,
 } from "../Controllers/Project.controller.js";
 import { authenticate } from "../Middlewares/AuthorizeMiddleware.js";
 import { roleid, userid } from "../Middlewares/userroleMiddleware.js";
@@ -34,6 +36,14 @@ router
   });
 router.route("/project/:id").get(authenticate, getProjectbyId);
 router.route("/project/roles/details").get(authenticate, getProjectRoles);
+router.route("/projects/delete/:id").delete(authenticate, deleteProject);
+router
+  .route("/projects/update/:id")
+  .put(
+    upload.fields([{ name: "logo", maxCount: 1 }]),
+    authenticate,
+    updateProject
+  );
 router
   .route("/project/roles/update/:id")
   .patch(authenticate, userid, roleid, AssignUser);
@@ -43,4 +53,5 @@ router
 router
   .route("/project/roles/details/name/delete/role/:id/:userid/:roleid")
   .delete(authenticate, deleteAssignedUser);
+
 export default router;

@@ -76,6 +76,61 @@ const getProjectbyId = AsyncHandler(async (req, res) => {
   }
 });
 
+const updateProject = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  const project = await Project.findById(id);
+  const logoLocalPath = req.files?.logo?.[0]?.path;
+
+  let logophoto;
+  try {
+    logophoto = await uploadOnCloudinary(logoLocalPath);
+    console.log("logo uploaded");
+  } catch (error) {
+    console.log("Error in uploading logo", error);
+    throw new ApiError(500, "Failed to upload logo");
+  }
+  try {
+    if (!project) {
+      throw new ApiError(404, "Project not found");
+    }
+
+    project.name = req.body.name;
+    project.logo = logophoto?.url || project.logo;
+    project.progress_status = req.body.progress_status;
+    project.status = req.body.status;
+    project.createdBy = req.user._id;
+    project.updatedBy = req.user._id;
+
+    const updatedProject = await project.save();
+
+    const newProject = {
+      name: updatedProject.name,
+      logo: updatedProject.logo,
+      progress_status: updatedProject.progress_status,
+      status: updatedProject.status,
+      createdBy: updatedProject.createdBy,
+      updatedBy: updatedProject.updatedBy,
+    };
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newProject, "Project updated Successfully"));
+  } catch (error) {
+    throw new ApiError(
+      500,
+      error,
+      "Something went wrong while updating project"
+    );
+  }
+});
+
+const deleteProject = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  await Project.findByIdAndDelete(id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Project deleted successfully"));
+});
+
 const getProjectRoles = AsyncHandler(async (req, res) => {
   const Roles = await Project_Roles.find({});
   return res
@@ -202,4 +257,6 @@ export {
   AssignUser,
   getAssignUserName,
   deleteAssignedUser,
+  deleteProject,
+  updateProject,
 };

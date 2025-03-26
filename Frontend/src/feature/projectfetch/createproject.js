@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { getParsedType } from "zod";
 
 export const createproject = createAsyncThunk(
   "auth/createproject",
@@ -32,11 +33,60 @@ export const getProjects = createAsyncThunk(
   }
 );
 
+export const getProjectbyId = createAsyncThunk(
+  "auth/getprojectbyid",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8000/api/v3/project/project/${id}`,
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const updateproject = createAsyncThunk(
+  "auth/updateproject",
+  async ({ data, id }, { rejectWithValue }) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:8000/api/v3/project/projects/update/${id}`,
+        data,
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteProject = createAsyncThunk(
+  "auth/deleteproject",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8000/api/v3/project/projects/delete/${id}`,
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 const createProjectSlice = createSlice({
   name: "project",
   initialState: {
     project: null,
     projects: [],
+    projectbyid: null,
+    deletedproject: null,
+    updatedproject: null,
     loading: false,
     error: null,
   },
@@ -44,7 +94,7 @@ const createProjectSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createproject.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = false;
       })
       .addCase(createproject.fulfilled, (state, action) => {
@@ -56,7 +106,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjects.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = false;
       })
       .addCase(getProjects.fulfilled, (state, action) => {
@@ -64,6 +114,42 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjects.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(deleteProject.pending, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteProject.fulfilled, (state, action) => {
+        state.deletedproject = action.payload;
+        state.loading = false;
+      })
+      .addCase(deleteProject.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateproject.pending, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(updateproject.fulfilled, (state, action) => {
+        state.updatedproject = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateproject.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(getProjectbyId.pending, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(getProjectbyId.fulfilled, (state, action) => {
+        state.projectbyid = action.payload;
+        state.loading = false;
+      })
+      .addCase(getProjectbyId.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

@@ -10,14 +10,21 @@ import {
   FormControl,
   FormField,
 } from "../Components/components/ui/form";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { getProjectbyId } from "../feature/projectfetch/createproject.js";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   logo: z
-    .instanceof(FileList)
-    .refine((files) => files.length > 0, { message: "Logo is required" }),
+    .union([
+      z.instanceof(FileList).refine((files) => files.length > 0, {
+        message: "Logo is required",
+      }),
+      z.string().url({ message: "Invalid logo URL" }).optional(),
+    ])
+    .optional(),
   progress_status: z.enum(
     ["Pending", "In-Progress", "Hold", "Completed", "Scrapped"],
     { message: "Select status" }
@@ -25,7 +32,16 @@ const formSchema = z.object({
   status: z.enum(["Active", "In-Active"], { message: "Select status" }),
 });
 
-export default function ProjectForm({ onSubmit }) {
+export default function ProjectForm({ onSubmit, mode }) {
+  const { projectbyid } = useSelector((state) => state.project);
+  const dispatch = useDispatch();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (mode === "update" && id) {
+      dispatch(getProjectbyId(id));
+    }
+  }, [dispatch, id, mode]);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,29 +56,31 @@ export default function ProjectForm({ onSubmit }) {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = form;
 
-  const [users, setusers] = useState([]);
-  const [preview, setpreview] = useState(null);
   useEffect(() => {
-    const getAllUsers = async () => {
-      try {
-        const res = await axios.get("http://localhost:8000/api/v1/user/", {
-          withCredentials: true,
-        });
-        setusers(res.data.message);
-        return res.data;
-      } catch (error) {
-        console.log("Something went wrong while fetching users", error);
-      }
-    };
-    getAllUsers();
-  }, []);
+    if (mode === "update" && projectbyid?.message) {
+      const detail = projectbyid.message;
+      reset({
+        name: detail?.name || "",
+        logo: detail?.logo || "",
+        progress_status: detail?.progress_status || "",
+        status: detail?.status || "",
+      });
+    }
+  }, [mode, projectbyid, reset]);
+
+  const [preview, setpreview] = useState(null);
 
   const handleFormSubmit = (data) => {
     const formData = new FormData();
     formData.append("name", data.name);
-    formData.append("logo", data.logo[0]);
+    if (data.logo instanceof FileList && data.logo.length > 0) {
+      formData.append("logo", data.logo[0]);
+    } else if (typeof data.logo === "string") {
+      formData.append("logo", data.logo);
+    }
     formData.append("progress_status", data.progress_status);
     formData.append("status", data.status);
 
@@ -71,6 +89,9 @@ export default function ProjectForm({ onSubmit }) {
 
   return (
     <Form {...form}>
+      <h2 className="w-full flex h-6 justify-center text-2xl font-semibold mt-0">
+        {mode === "update" ? "Update Project" : "Create Project"}
+      </h2>
       <form
         onSubmit={handleSubmit(handleFormSubmit)}
         className=""
@@ -103,9 +124,9 @@ export default function ProjectForm({ onSubmit }) {
                     const files = e.target.files;
                     field.onChange(files);
                     if (files.length > 0) {
-                      setpreview(files[0].name);
+                      setpreview(URL.createObjectURL(files[0].name));
                     } else {
-                      setpreview("");
+                      setpreview(projectbyid?.message.logo);
                     }
                   }}
                   id="file-upload"
@@ -189,7 +210,7 @@ export default function ProjectForm({ onSubmit }) {
           type="submit"
           className="w-[40%] ml-50 focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg mt-6"
         >
-          Submit
+          {mode === "update" ? "Update" : "Create"}
         </Button>
       </form>
     </Form>

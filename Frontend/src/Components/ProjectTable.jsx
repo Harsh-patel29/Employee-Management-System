@@ -16,14 +16,28 @@ import {
   SheetTrigger,
   SheetDescription,
 } from "../Components/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../Components/components/ui/dialog";
+import { Button } from "../Components/components/ui/button.tsx";
 import ProjectForm from "./ProjectForm.jsx";
-import axios from "axios";
 import { Link, useNavigate } from "react-router";
 import { createproject } from "../feature/projectfetch/createproject.js";
 import { getProjects } from "../feature/projectfetch/createproject.js";
-function Row({ row, openMap }) {
-  const [open, setOpen] = React.useState(false);
+import { deleteProject } from "../feature/projectfetch/createproject.js";
+import { updateproject } from "../feature/projectfetch/createproject.js";
+import { MdDelete } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
+
+function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);
+  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+  const dispatch = useDispatch();
 
   return (
     <React.Fragment>
@@ -47,7 +61,75 @@ function Row({ row, openMap }) {
         </TableCell>
         <TableCell>{row.progress_status}</TableCell>
         <TableCell>{row.status}</TableCell>
-        <TableCell></TableCell>
+        <TableCell>
+          {
+            <Sheet
+              open={updatesheetopen}
+              onOpenChange={(open) => {
+                setupdatesheetopen(open);
+                if (!open) {
+                  navigate("/productivity/project");
+                }
+              }}
+            >
+              <SheetTrigger
+                onClick={() => {
+                  openSheet(row._id);
+                }}
+                asChild
+              >
+                <FaEdit className="font-semibold text-lg" />
+              </SheetTrigger>
+              <SheetContent className="min-w-2xl">
+                <SheetHeader>
+                  <SheetDescription>
+                    <ProjectForm
+                      mode="update"
+                      onSubmit={(data) => {
+                        dispatch(updateproject({ data, id: row._id }));
+                        setupdatesheetopen(false);
+                      }}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          }
+        </TableCell>
+        <TableCell sx={{ color: "#ff3b30" }}>
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) navigate("/productivity/project");
+            }}
+          >
+            <DialogTrigger
+              onClick={() => {
+                openDialog(row._id);
+              }}
+              asChild
+            >
+              <MdDelete className="font-semibold text-lg" />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  user's account and remove their data from servers.
+                  <Button
+                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                    onClick={() => {
+                      dispatch(deleteProject(row._id));
+                      navigate("/productivity/project", { replace: true });
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -64,13 +146,28 @@ export default function ProjectTable() {
   const navigate = useNavigate();
   const [Projects, setProjects] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
+  const [dialogOpen, setdialogOpen] = React.useState(false);
+  const [updatesheet, setupdatesheet] = React.useState(false);
 
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
 
-  const { project, projects, loading, error } = useSelector(
-    (state) => state.project
-  );
+  const { project, projects, loading, error, deletedproject, updatedproject } =
+    useSelector((state) => state.project);
+
+  const openDialog = (id) => {
+    navigate(`/productivity/project/delete/${id}`);
+    setTimeout(() => {
+      setdialogOpen(true);
+    }, 0);
+  };
+
+  const openSheet = (id) => {
+    navigate(`/productivity/project/update/${id}`);
+    setTimeout(() => {
+      setupdatesheet(true);
+    }, 0);
+  };
 
   React.useEffect(() => {
     dispatch(getProjects());
@@ -90,6 +187,21 @@ export default function ProjectTable() {
       setsheetopen(false);
     }
   }, [project?.success]);
+
+  React.useEffect(() => {
+    if (deletedproject?.success === true) {
+      navigate(`/productivity/project`, { replace: true });
+      dispatch(getProjects());
+    }
+  }, [deletedproject, dispatch]);
+
+  React.useEffect(() => {
+    if (updatedproject?.success === true) {
+      setupdatesheet(false);
+      navigate("/productivity/project");
+      dispatch(getProjects());
+    }
+  }, [updatedproject]);
 
   return loading ? (
     <div>Loading...</div>
@@ -112,11 +224,9 @@ export default function ProjectTable() {
             min-w-2xl`}
             >
               <SheetHeader>
-                <h1 className="text-2xl font-semibold w-full flex justify-center">
-                  Create Project
-                </h1>
                 <SheetDescription>
                   <ProjectForm
+                    mode="create"
                     onSubmit={(formdata) => dispatch(createproject(formdata))}
                   />
                 </SheetDescription>
@@ -152,7 +262,10 @@ export default function ProjectTable() {
                 Status
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Action
+                Update
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+                Delete
               </TableCell>
             </TableRow>
           </TableHead>
@@ -171,6 +284,9 @@ export default function ProjectTable() {
                     />
                   ),
                 }}
+                navigate={navigate}
+                openDialog={openDialog}
+                openSheet={openSheet}
               />
             ))}
           </TableBody>

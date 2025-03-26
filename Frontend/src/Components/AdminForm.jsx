@@ -27,8 +27,8 @@ const formSchema = z.object({
   Email: z.string().email({ message: "Please enter correct Email" }),
   Password: z
     .union([
-      z.string().min(6, { message: "Password must be 6 characters" }), // If provided, it must be at least 6 chars
-      z.string().length(0), // Allow an empty string (""), meaning the user didn’t change the password
+      z.string().min(6, { message: "Password must be 6 characters" }),
+      z.string().length(0),
     ])
     .optional(),
   Date_of_Birth: z.string().min(1, { message: "Date of Birth is Required" }),
