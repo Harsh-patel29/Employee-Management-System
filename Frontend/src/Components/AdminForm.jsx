@@ -19,7 +19,7 @@ import {
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import { useEffect } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { getUser } from "../feature/datafetch/userfetchSlice";
 
 const formSchema = z.object({
@@ -475,10 +475,6 @@ export default function AdminForm({ onSubmit, mode }) {
             <Button
               type="submit"
               className="w-[90%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"
-              onClick={(e) => {
-                e.stop.Proporgation();
-                window.location.assign("/users");
-              }}
             >
               {mode === "update" ? "Update" : "Create"}
             </Button>

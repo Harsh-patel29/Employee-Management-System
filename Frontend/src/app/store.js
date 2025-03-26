@@ -8,6 +8,8 @@ import ChangeDetailSliceReducer from "../feature/datafetch/ChangeFetch.js";
 import markattendanceSliceReducer from "../feature/attendancefetch/attendanceSlice.js";
 import createProjectSliceReducer from "../feature/projectfetch/createproject.js";
 import assignuserSliceReducer from "../feature/projectfetch/assignuser.js";
+import createuserSliceReducer from "../feature/createuserfetch/createuserSlice.js";
+
 export default configureStore({
   reducer: {
     theme: themeReducer,
@@ -19,5 +21,6 @@ export default configureStore({
     markAttendance: markattendanceSliceReducer,
     project: createProjectSliceReducer,
     assignusers: assignuserSliceReducer,
+    createuser: createuserSliceReducer,
   },
 });

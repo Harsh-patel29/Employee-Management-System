@@ -14,8 +14,7 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router";
+import { data, useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
   Sheet,
@@ -36,23 +35,26 @@ import AdminForm from "./AdminForm";
 import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
+import { useSelector, useDispatch } from "react-redux";
+import { createuser } from "../feature/createuserfetch/createuserSlice.js";
+import { fetchuser } from "../feature/createuserfetch/createuserSlice.js";
+import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
+import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
+
 function Row({
   row,
-  canAddUser,
   updateUser,
   canUpdateUser,
-  canDeleteUser,
   openSheet,
   navigate,
-  deleteUser,
-  sheetopen,
-  currentId,
   isDefault,
-  dialogOpen,
   openDialog,
 }) {
   const [open, setOpen] = React.useState(false);
+  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+
   const theme = useSelector((state) => state.theme.theme);
+  const dispatch = useDispatch();
   return (
     <React.Fragment>
       <TableRow
@@ -91,13 +93,7 @@ function Row({
         <TableCell sx={{ color: "inherit" }}>{row.ReportingManager}</TableCell>
         <TableCell sx={{ color: "inherit" }}>
           {
-            <Sheet
-              onOpenChange={(open) => {
-                if (!open) {
-                  navigate("/users");
-                }
-              }}
-            >
+            <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
               <SheetTrigger
                 onClick={() => {
                   openSheet(row._id);
@@ -116,7 +112,13 @@ function Row({
               >
                 <SheetHeader>
                   <SheetDescription>
-                    <AdminForm mode="update" onSubmit={updateUser} />
+                    <AdminForm
+                      mode="update"
+                      onSubmit={(data) => {
+                        dispatch(updateuser({ data, userid: row._id }));
+                        setupdatesheetopen(false);
+                      }}
+                    />
                   </SheetDescription>
                 </SheetHeader>
               </SheetContent>
@@ -153,7 +155,8 @@ function Row({
                   <Button
                     className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
                     onClick={() => {
-                      deleteUser();
+                      dispatch(deleteuser(row._id));
+                      navigate("/users");
                     }}
                   >
                     Delete
@@ -211,6 +214,7 @@ Row.propTypes = {
 };
 
 export default function CollapsibleTable() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [users, setUsers] = React.useState([]);
@@ -218,6 +222,33 @@ export default function CollapsibleTable() {
   const [canAddUser, setcanAddUser] = React.useState(false);
   const [canUpdateUser, setcanUpdateUser] = React.useState(false);
   const [isDefault, setisDefault] = React.useState(false);
+  const [sheetopen, setsheetopen] = React.useState(false);
+  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+  const [userid, setuserid] = React.useState(id);
+  const [dialogOpen, setdialogOpen] = React.useState(false);
+  const dispatch = useDispatch();
+
+  const { createduser, fetchusers, deleteduser, updateduser } = useSelector(
+    (state) => state.createuser
+  );
+
+  React.useEffect(() => {
+    setuserid(id);
+  }, [id]);
+
+  const openSheet = (id) => {
+    navigate(`/users/${id}`);
+    setTimeout(() => {
+      setupdatesheetopen(true);
+    }, 0);
+  };
+
+  const openDialog = (id) => {
+    navigate(`/users/${id}`);
+    setTimeout(() => {
+      setdialogOpen(true);
+    }, 0);
+  };
 
   React.useEffect(() => {
     async function getDetail() {
@@ -241,135 +272,71 @@ export default function CollapsibleTable() {
     getDetail();
   }, []);
 
+  // Fetch users
   React.useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const res = await axios.get("http://localhost:8000/api/v1/user/", {
-          withCredentials: true,
-        });
-        setUsers(res.data.message);
-      } catch (error) {
-        console.error(
-          "Error fetching users:",
-          error?.response?.data || error.message
-        );
-      } finally {
-        setLoading(false);
-      }
-      const createrole = user.permission.can_add_user;
-      if (createrole === true) {
-        setcanAddUser(true);
-      } else setcanAddUser(false);
-      const updateRole = user.permission.can_update_user;
-      if (updateRole === true) {
-        setcanUpdateUser(true);
-      } else {
-        setcanUpdateUser(false);
-      }
-    }
-    fetchUsers();
+    dispatch(fetchuser());
   }, []);
 
-  const { id } = useParams();
+  React.useEffect(() => {
+    if (fetchusers?.message) {
+      setUsers(fetchusers.message);
+    }
+    const createrole = user.permission.can_add_user;
+    if (createrole === true) {
+      setcanAddUser(true);
+    } else setcanAddUser(false);
+    const updateRole = user.permission.can_update_user;
+    if (updateRole === true) {
+      setcanUpdateUser(true);
+    } else {
+      setcanUpdateUser(false);
+    }
+  }, [fetchusers]);
 
-  const [sheetopen, setsheetopen] = React.useState(false);
-  const [userid, setuserid] = React.useState(id);
-  const [dialogOpen, setdialogOpen] = React.useState(false);
-
-  const openSheet = (id) => {
-    navigate(`/users/${id}`);
-    setTimeout(() => {
-      setsheetopen(true);
-    }, 0);
-  };
-
-  const openDialog = (id) => {
-    navigate(`/users/${id}`);
-    setTimeout(() => {
-      setdialogOpen(true);
-    }, 0);
-  };
+  // Create Users
 
   React.useEffect(() => {
-    setuserid(id);
-  }, [id]);
-
-  const addUser = async (data) => {
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/user/createUser",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      if (res.data.success === true) {
-        window.location.assign("/users");
-        setTimeout(() => {
-          toast.success("User Created Successfully", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            transition: Bounce,
-          });
-        }, 2000);
-      }
-    } catch (error) {
-      console.log("Something went wrong while creating user");
+    if (sheetopen === true) {
+      dispatch(createuser());
     }
-  };
+  }, [sheetopen, dispatch]);
 
-  const updateUser = async (data) => {
-    setsheetopen(false);
-    const res = await axios.put(
-      `http://localhost:8000/api/v1/user/${userid}`,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
-    if (res.data.success === true) {
-      window.location.assign("/users");
+  React.useEffect(() => {
+    if (createduser?.success === true) {
+      dispatch(fetchuser());
+      setsheetopen(false);
     }
+  }, [createduser]);
 
-    return res.data;
-  };
+  // Update Users
 
-  const deleteUser = async () => {
-    setdialogOpen(false);
-    const res = await axios.delete(
-      `http://localhost:8000/api/v1/user/${userid}`,
-      {
-        withCredentials: true,
-      }
-    );
-    if (res.data.success === true) {
-      toast.success("User Deleted Successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      });
-      window.location.assign("/users");
+  React.useEffect(() => {
+    if (updatesheetopen === true) {
+      dispatch(updateuser());
     }
-    return res.data;
-  };
+  }, [updatesheetopen, dispatch]);
+
+  React.useEffect(() => {
+    if (updateduser?.success === true) {
+      setupdatesheetopen(false);
+      dispatch(fetchuser());
+    }
+  }, [updateduser]);
+
+  React.useEffect(() => {
+    if (updatesheetopen === false) {
+      navigate("/users");
+    }
+  }, [updatesheetopen]);
+
+  // Delete Users
+
+  React.useEffect(() => {
+    if (deleteduser?.success === true) {
+      navigate(`/users`, { replace: true });
+      dispatch(fetchuser());
+    }
+  }, [deleteduser, dispatch]);
 
   const theme = useSelector((state) => state.theme.theme);
 
@@ -386,27 +353,30 @@ export default function CollapsibleTable() {
           >
             Manage Users
           </button>
-          <Sheet>
+          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
               className={`${
                 theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
               } 
-            ${
-              canAddUser
-                ? "h-10 w-10 rounded-3xl justify-center flex"
-                : "hidden"
-            }
-            `}
+              ${
+                canAddUser
+                  ? "h-10 w-10 rounded-3xl justify-center flex"
+                  : "hidden"
+              }
+              `}
             >
               +
             </SheetTrigger>
             <SheetContent
               className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
-            min-w-6xl`}
+              min-w-6xl`}
             >
               <SheetHeader>
                 <SheetDescription>
-                  <AdminForm mode="create" onSubmit={addUser} />
+                  <AdminForm
+                    mode="create"
+                    onSubmit={(data) => dispatch(createuser(data))}
+                  />
                 </SheetDescription>
               </SheetHeader>
             </SheetContent>
@@ -458,18 +428,15 @@ export default function CollapsibleTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => (
+            {users?.map((user, index) => (
               <Row
                 key={user._id}
                 row={{ ...user, index: index + 1 }}
                 canAddUser={canAddUser}
                 canUpdateUser={canUpdateUser}
-                addUser={addUser}
-                updateUser={updateUser}
                 openSheet={openSheet}
                 openDialog={openDialog}
                 navigate={navigate}
-                deleteUser={deleteUser}
                 sheetopen={sheetopen}
                 dialogOpen={dialogOpen}
                 currentId={userid}
