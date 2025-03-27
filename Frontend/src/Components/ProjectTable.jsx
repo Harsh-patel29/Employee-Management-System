@@ -33,6 +33,7 @@ import { deleteProject } from "../feature/projectfetch/createproject.js";
 import { updateproject } from "../feature/projectfetch/createproject.js";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
+import TablePagination from "@mui/material/TablePagination";
 
 function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);
@@ -148,6 +149,8 @@ export default function ProjectTable() {
   const [sheetopen, setsheetopen] = React.useState(false);
   const [dialogOpen, setdialogOpen] = React.useState(false);
   const [updatesheet, setupdatesheet] = React.useState(false);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
@@ -186,7 +189,7 @@ export default function ProjectTable() {
       dispatch(getProjects());
       setsheetopen(false);
     }
-  }, [project?.success]);
+  }, [project]);
 
   React.useEffect(() => {
     if (deletedproject?.success === true) {
@@ -202,6 +205,20 @@ export default function ProjectTable() {
       dispatch(getProjects());
     }
   }, [updatedproject]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedProjects = Projects.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   return loading ? (
     <div>Loading...</div>
@@ -270,12 +287,12 @@ export default function ProjectTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Projects.map((project, index) => (
+            {paginatedProjects.map((project, index) => (
               <Row
                 key={project._id}
                 row={{
                   ...project,
-                  index: index + 1,
+                  index: page * rowsPerPage + index + 1,
                   logo: (
                     <img
                       src={project.logo}
@@ -292,6 +309,15 @@ export default function ProjectTable() {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        className="flex w-full justify-center"
+        component="div"
+        count={Projects.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </>
   );
 }

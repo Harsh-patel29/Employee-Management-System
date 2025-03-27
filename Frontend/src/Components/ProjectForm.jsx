@@ -124,7 +124,7 @@ export default function ProjectForm({ onSubmit, mode }) {
                     const files = e.target.files;
                     field.onChange(files);
                     if (files.length > 0) {
-                      setpreview(URL.createObjectURL(files[0].name));
+                      setpreview(files[0].name);
                     } else {
                       setpreview(projectbyid?.message.logo);
                     }

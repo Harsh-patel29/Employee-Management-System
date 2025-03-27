@@ -24,13 +24,13 @@ import {
   SheetTitle,
 } from "../Components/components/ui/sheet";
 import { Button } from "../Components/components/ui/button";
-import axios from "axios";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import TextField from "@mui/material/TextField";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { useNavigate } from "react-router-dom";
+import TablePagination from "@mui/material/TablePagination";
 
 function convertDateFormat(dateStr) {
   const [month, day, year] = dateStr.split("/");
@@ -203,6 +203,8 @@ export default function CollapsibleTable() {
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(3);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const navigate = useNavigate();
@@ -333,9 +335,19 @@ export default function CollapsibleTable() {
     (a, b) => new Date(b) - new Date(a)
   );
 
-  const applyFilter = () => {
-    setOpenFilterSheet(false);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedDates = sortedDates.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   return loading ? (
     <div>Loading....</div>
@@ -472,7 +484,7 @@ export default function CollapsibleTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedDates.map((date, index) => {
+            {paginatedDates.map((date, index) => {
               const records = groupedAttendances[date];
               const firstRecord = records[0];
               const otherRecords = records.slice(0);
@@ -485,7 +497,7 @@ export default function CollapsibleTable() {
                 <Row
                   key={date}
                   row={{
-                    index: index + 1,
+                    index: page * rowsPerPage + index + 1,
                     Image: (
                       <img
                         src={firstRecord.Image}
@@ -523,6 +535,15 @@ export default function CollapsibleTable() {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        className="flex w-full justify-center"
+        component="div"
+        count={sortedDates.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </>
   );
 }

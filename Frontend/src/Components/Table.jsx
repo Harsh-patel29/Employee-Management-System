@@ -40,7 +40,7 @@ import { createuser } from "../feature/createuserfetch/createuserSlice.js";
 import { fetchuser } from "../feature/createuserfetch/createuserSlice.js";
 import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
 import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
-
+import TablePagination from "@mui/material/TablePagination";
 function Row({
   row,
   canUpdateUser,
@@ -225,6 +225,8 @@ export default function CollapsibleTable() {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [userid, setuserid] = React.useState(id);
   const [dialogOpen, setdialogOpen] = React.useState(false);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const dispatch = useDispatch();
 
   const { createduser, fetchusers, deleteduser, updateduser } = useSelector(
@@ -337,6 +339,20 @@ export default function CollapsibleTable() {
     }
   }, [deleteduser, dispatch]);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedUsers = users.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   const theme = useSelector((state) => state.theme.theme);
 
   return loading ? (
@@ -427,10 +443,10 @@ export default function CollapsibleTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users?.map((user, index) => (
+            {paginatedUsers?.map((user, index) => (
               <Row
                 key={user._id}
-                row={{ ...user, index: index + 1 }}
+                row={{ ...user, index: page * rowsPerPage + index + 1 }}
                 canAddUser={canAddUser}
                 canUpdateUser={canUpdateUser}
                 openSheet={openSheet}
@@ -445,6 +461,15 @@ export default function CollapsibleTable() {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        className="flex w-full justify-center"
+        component="div"
+        count={users.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </>
   );
 }
