@@ -92,7 +92,7 @@ const Roles = () => {
         lg:h-[80%] lg:w-[85%] md:h-[85%] md:w-[80%] sm:h-[80%] sm:w-[80%] transition-all duration-300 ${
           isExpanded
             ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
-            : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100 "
+            : "xl:scale-x-100 xl:left-23 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
         } 
         ${theme === "light" ? "bg-white" : "bg-[#0b0d12]"}
         `}
@@ -116,25 +116,25 @@ const Roles = () => {
                 theme === "light"
                   ? "bg-[#bfdbfe]"
                   : "bg-[#161b22] border-[#374151]"
-              } h-20 text-xl`}
+              } h-20 text-2xl `}
             >
               <div
                 variant="outline"
-                className="w-full flex justify-center items-center ml-8 "
+                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5 "
               >
                 Admin
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac6426aef8063f23746a75" && (
-              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center">
+              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
+                <div className="flex text-2xl font-semibold justify-center ">
                   Users
                 </div>
                 {Object.keys(permissions).length > 0 ? (
                   Object.entries(permissions).map(([key, value]) => (
                     <AccordionContent
                       key={key}
-                      className="flex justify-between items-center"
+                      className="flex justify-between items-start "
                     >
                       <strong className="text-sm">
                         {key.replace(/_/g, " ")}
@@ -145,7 +145,7 @@ const Roles = () => {
                         onCheckedChange={(checked) =>
                           handleToggle(key, checked)
                         }
-                        className="data-[state=checked]:bg-blue-500"
+                        className="data-[state=checked]:bg-blue-500 "
                       />
                     </AccordionContent>
                   ))
@@ -169,17 +169,17 @@ const Roles = () => {
                 theme === "light"
                   ? "bg-[#bfdbfe]"
                   : "bg-[#161b22] border-[#374151]"
-              } h-20 text-xl`}
+              } h-20 text-2xl`}
             >
               <div
                 variant="outline"
-                className="w-full flex justify-center items-center ml-8 "
+                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5 "
               >
                 Developer
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67accbab2e409938d0ce" && (
-              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
+              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
@@ -222,17 +222,17 @@ const Roles = () => {
                 theme === "light"
                   ? "bg-[#bfdbfe]"
                   : "bg-[#161b22] border-[#374151]"
-              } h-20 text-xl`}
+              } h-20 text-2xl`}
             >
               <div
                 variant="outline"
-                className="w-full flex justify-center items-center ml-8 "
+                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
               >
                 HR
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67db190f041e27634fb3" && (
-              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
+              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
@@ -275,17 +275,17 @@ const Roles = () => {
                 theme === "light"
                   ? "bg-[#bfdbfe]"
                   : "bg-[#161b22] border-[#374151]"
-              } h-20 text-xl`}
+              } h-20 text-2xl`}
             >
               <div
                 variant="outline"
-                className="w-full flex justify-center items-center ml-8 "
+                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
               >
                 Product_Manager
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac67fe40c38b9cb8e3186e" && (
-              <AccordionContent className="max-h-[300px] overflow-y-auto max-w-[550px] ml-80">
+              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
                 <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>

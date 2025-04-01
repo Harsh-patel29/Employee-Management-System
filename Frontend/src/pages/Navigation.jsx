@@ -200,7 +200,7 @@ const Navigation = () => {
     <div style={{ position: "sticky" }}>
       <nav className="transform transition-all translate-x-0 duration-45 delay-0 w-[114px] left-0 top-[78px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px] shadow-[4px_11px_12px_#8a8f93b8]  bg-[#fff] h-[100vh] fixed z-[11] border-r-[solid] border-r-[1px] ">
         <ul
-          className="max-h-[calc(100vh-70px)] list-none block  mx-0"
+          className="max-h-[calc(100vh-70px)] list-none block mx-0"
           style={{ unicodeBidi: "isolate" }}
         >
           {menuItems.map((item) => (
@@ -210,7 +210,7 @@ const Navigation = () => {
                   ? "bg-[rgba(178,223,244,0.643)] border-l-[4px] border-l-[rgb(51,141,181)]"
                   : ""
               }
-              relative box-border list-item h-[80px] pb-[10px] pl-[1px] pr-[14px] pt-[14px] w-[113.2px] font-[400px] border-b-[0.8px] 
+              relative box-border list-item h-[80px] w-full font-[400px] border-b-[0.8px] pt-[14px]
               `}
               onClick={() => {
                 setActive(item.key);
@@ -227,7 +227,7 @@ const Navigation = () => {
                   }}
                 >
                   <div
-                    className={`pr-[30%] pl-[35%] h-[26px] box-border mb-2 w-[26px] text-[28px] `}
+                    className={` flex w-full justify-center items-center h-[26px] text-[28px] `}
                     style={{
                       color:
                         active === item.key
@@ -250,10 +250,10 @@ const Navigation = () => {
                   <Link
                     to={`/${item.key}`}
                     className="
-                    block items-center text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center "
+                    block items-center justify-center w-full text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center"
                   >
                     <div
-                      className={`pr-[30%] pl-[35%] h-[26px] box-border mb-2 w-[26px] text-[28px] `}
+                      className={`flex w-full justify-center items-center h-[26px] text-[28px] `}
                       style={{
                         color:
                           active === item.key
@@ -277,7 +277,7 @@ const Navigation = () => {
                 <ul
                   className={`${
                     isExpanded
-                      ? "fixed left-full top-0 bg-white shadow-md w-[200px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer "
+                      ? "fixed left-full top-0 bg-white shadow-md w-[170px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer "
                       : "hidden"
                   }`}
                 >
@@ -291,7 +291,7 @@ const Navigation = () => {
                         onClick={() => dispatch(collapedSideBar())}
                       >
                         {
-                          <div className="box-border items-center  flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[199.2px] ">
+                          <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
                             <svg
                               stroke="currentColor"
                               fill="currentColor"

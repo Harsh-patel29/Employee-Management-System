@@ -6,7 +6,7 @@ const DashBoard = () => {
   const theme = useSelector((state) => state.theme.theme);
   return (
     <div
-      className={`absolute rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow min-w-0 xl:w-[80%] xl:h-[40%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%]   transition-all duration-300 ${
+      className={`absolute rounded-md lg:ml-42.5 md:ml-25 sm:ml-30 mt-20 shadow min-w-0 xl:w-[80%] xl:h-[40%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%]   transition-all duration-300 ${
         isExpanded
           ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
           : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"

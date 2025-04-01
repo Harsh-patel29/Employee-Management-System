@@ -20,6 +20,7 @@ const uploadlogo = AsyncHandler(async (req, res, next) => {
     throw new ApiError(500, "Failed to upload logo");
   }
   req.logo = logophoto?.url;
+  req.logodetail = logophoto;
   next();
 });
 

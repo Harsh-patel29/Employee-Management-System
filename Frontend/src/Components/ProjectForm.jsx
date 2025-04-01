@@ -166,7 +166,6 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                       field.onChange(file);
                       if (file) {
                         dispatch(uploadLogo(file));
-                        setlogos(logo?.message);
                       }
                     }}
                     id="file-upload"
