@@ -4,12 +4,10 @@ import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { Project } from "../Models/projectmodel.js";
 import { Project_Roles } from "../Models/projectRoles.js";
 import { User } from "../Models/user.model.js";
-import { uploadOnCloudinary } from "../Utils/cloudinary.js";
 import mongoose from "mongoose";
-import { roleid, userid } from "../Middlewares/userroleMiddleware.js";
 
 const createProject = AsyncHandler(async (req, res) => {
-  const { name, progress_status, status } = req.body;
+  const { name, progress_status, status, logo } = req.body;
 
   if (!req.body) {
     throw new ApiError(404, "All fields are required");
@@ -22,30 +20,36 @@ const createProject = AsyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  const logoLocalPath = req.files?.logo?.[0]?.path;
-  if (!logoLocalPath) {
-    throw new ApiError(404, "Logo is required");
-  }
-
-  let logophoto;
-  try {
-    logophoto = await uploadOnCloudinary(logoLocalPath);
-    console.log("logo uploaded");
-  } catch (error) {
-    console.log("Error in uploading logo", error);
-    throw new ApiError(500, "Failed to upload logo");
-  }
+  const role_id = await Project_Roles.aggregate([
+    {
+      $match: {
+        name: "Project_Admin",
+      },
+    },
+    {
+      $project: {
+        _id: "$_id",
+      },
+    },
+  ]);
 
   try {
     const project = await Project.create({
       name,
-      logo: logophoto?.url,
+      logo,
       progress_status,
       status,
       createdBy: user._id,
       updatedBy: user._id,
+      users: [
+        {
+          user_id: user._id,
+          role_id: role_id[0],
+        },
+      ],
     });
     await project.save();
+
     return res
       .status(200)
       .json(new ApiResponse(200, project, "Project created Successfully"));
@@ -79,23 +83,14 @@ const getProjectbyId = AsyncHandler(async (req, res) => {
 const updateProject = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
   const project = await Project.findById(id);
-  const logoLocalPath = req.files?.logo?.[0]?.path;
 
-  let logophoto;
-  try {
-    logophoto = await uploadOnCloudinary(logoLocalPath);
-    console.log("logo uploaded");
-  } catch (error) {
-    console.log("Error in uploading logo", error);
-    throw new ApiError(500, "Failed to upload logo");
-  }
   try {
     if (!project) {
       throw new ApiError(404, "Project not found");
     }
 
     project.name = req.body.name;
-    project.logo = logophoto?.url || project.logo;
+    project.logo = req.body.logo || project.logo;
     project.progress_status = req.body.progress_status;
     project.status = req.body.status;
     project.createdBy = req.user._id;
@@ -249,6 +244,10 @@ const deleteAssignedUser = AsyncHandler(async (req, res) => {
   }
 });
 
+const logoUpload = AsyncHandler(async (req, res) => {
+  return res.status(200).json(new ApiResponse(200, req.logo, "Logo Uploaded "));
+});
+
 export {
   createProject,
   getAllProject,
@@ -259,4 +258,5 @@ export {
   deleteAssignedUser,
   deleteProject,
   updateProject,
+  logoUpload,
 };

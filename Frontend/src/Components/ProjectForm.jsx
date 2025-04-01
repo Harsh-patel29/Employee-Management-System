@@ -13,15 +13,16 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router";
-import { getProjectbyId } from "../feature/projectfetch/createproject.js";
+import {
+  getProjectbyId,
+  uploadLogo,
+} from "../feature/projectfetch/createproject.js";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   logo: z
     .union([
-      z.instanceof(FileList).refine((files) => files.length > 0, {
-        message: "Logo is required",
-      }),
+      z.instanceof(File).optional(),
       z.string().url({ message: "Invalid logo URL" }).optional(),
     ])
     .optional(),
@@ -32,16 +33,24 @@ const formSchema = z.object({
   status: z.enum(["Active", "In-Active"], { message: "Select status" }),
 });
 
-export default function ProjectForm({ onSubmit, mode }) {
-  const { projectbyid } = useSelector((state) => state.project);
+export default function ProjectForm({ onSubmit, mode, onClose }) {
+  const { projectbyid, logo, project } = useSelector((state) => state.project);
   const dispatch = useDispatch();
   const { id } = useParams();
+  const [logos, setlogos] = useState(null);
+
+  useEffect(() => {
+    if (logo?.success) {
+      setlogos(logo?.message);
+    }
+  }, [logo]);
 
   useEffect(() => {
     if (mode === "update" && id) {
       dispatch(getProjectbyId(id));
     }
   }, [dispatch, id, mode]);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,21 +80,20 @@ export default function ProjectForm({ onSubmit, mode }) {
     }
   }, [mode, projectbyid, reset]);
 
-  const [preview, setpreview] = useState(null);
-
   const handleFormSubmit = (data) => {
     const formData = new FormData();
     formData.append("name", data.name);
-    if (data.logo instanceof FileList && data.logo.length > 0) {
-      formData.append("logo", data.logo[0]);
-    } else if (typeof data.logo === "string") {
-      formData.append("logo", data.logo);
-    }
+    formData.append("logo", logos);
     formData.append("progress_status", data.progress_status);
     formData.append("status", data.status);
 
     onSubmit(formData);
+    setlogos(null);
   };
+
+  useEffect(() => {
+    setlogos(null);
+  }, [onClose]);
 
   return (
     <Form {...form}>
@@ -104,33 +112,66 @@ export default function ProjectForm({ onSubmit, mode }) {
             <FormItem className="mt-4">
               <FormLabel>Project Logo</FormLabel>
               <div> {errors?.logo && <span>{errors.logo.message}</span>}</div>
-              {preview && (
-                <span className="text-sm text-gray-600 font-medium">
-                  Uploaded: {preview}
-                </span>
-              )}
               <label
+                id="label"
                 htmlFor="file-upload"
-                className="w-60 h-60 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50"
+                className="w-80 h-60 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50"
               >
-                Upload
+                {mode === "update" ? (
+                  <>
+                    {logos ? (
+                      <img src={logos} alt="" className="h-60 w-80" />
+                    ) : (
+                      <img
+                        src={projectbyid?.message?.logo}
+                        alt=""
+                        className="h-60 w-80 rounded-md"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {logos ? (
+                      <>
+                        <img src={logos} alt="" className="h-60 w-80" />
+                      </>
+                    ) : (
+                      <>Upload</>
+                    )}
+                  </>
+                )}
               </label>
               <FormControl>
-                <Input
-                  className="hidden"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const files = e.target.files;
-                    field.onChange(files);
-                    if (files.length > 0) {
-                      setpreview(files[0].name);
-                    } else {
-                      setpreview(projectbyid?.message.logo);
-                    }
-                  }}
-                  id="file-upload"
-                />
+                {mode === "update" ? (
+                  <Input
+                    className="hidden"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = e.target.files[0];
+                      field.onChange(files);
+                      if (files) {
+                        dispatch(uploadLogo(files));
+                      }
+                    }}
+                    id="file-upload"
+                  />
+                ) : (
+                  <Input
+                    className="hidden"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      field.onChange(file);
+                      if (file) {
+                        dispatch(uploadLogo(file));
+                        setlogos(logo?.message);
+                      }
+                    }}
+                    id="file-upload"
+                  />
+                )}
               </FormControl>
             </FormItem>
           )}

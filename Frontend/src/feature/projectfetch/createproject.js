@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { getParsedType } from "zod";
 
 export const createproject = createAsyncThunk(
   "auth/createproject",
@@ -79,6 +78,28 @@ export const deleteProject = createAsyncThunk(
   }
 );
 
+export const uploadLogo = createAsyncThunk(
+  "auth/upload-logo",
+  async (file, { rejectWithValue }) => {
+    const formdata = new FormData();
+    formdata.append("logo", file);
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v3/project/upload-logo",
+        formdata,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 const createProjectSlice = createSlice({
   name: "project",
   initialState: {
@@ -87,6 +108,7 @@ const createProjectSlice = createSlice({
     projectbyid: null,
     deletedproject: null,
     updatedproject: null,
+    logo: null,
     loading: false,
     error: null,
   },
@@ -150,6 +172,18 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjectbyId.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(uploadLogo.pending, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(uploadLogo.fulfilled, (state, action) => {
+        state.logo = action.payload;
+        state.loading = false;
+      })
+      .addCase(uploadLogo.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });
