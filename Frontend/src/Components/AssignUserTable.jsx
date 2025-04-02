@@ -130,23 +130,25 @@ export default function AssignUserTable() {
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#111827",
-          color: theme === "light" ? "black" : "#8a94a7",
-          maxHeight: 400,
+          backgroundColor: "white",
+          marginTop: 0.5,
+          color: "black",
+          maxHeight: 500,
+          width: "98%",
+          marginLeft: 1.7,
+          borderRadius: 2,
         }}
       >
         <Table>
-          <TableHead
-            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
-          >
+          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 User
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Role
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Action
               </TableCell>
             </TableRow>

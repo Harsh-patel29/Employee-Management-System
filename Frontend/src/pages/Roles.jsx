@@ -36,7 +36,6 @@ const updateAccess = (userId, key, value) => {
 };
 
 const Roles = () => {
-  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   const theme = useSelector((state) => state.theme.theme);
 
   const dispatch = useDispatch();
@@ -88,14 +87,8 @@ const Roles = () => {
   return (
     <>
       <div
-        className={`absolute flex flex-col w-full gap-2 overflow-auto  mx-auto p-4 rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-6 shadow-xl  xl:w-[80%] h-screen  
-        lg:h-[80%] lg:w-[85%] md:h-[85%] md:w-[80%] sm:h-[80%] sm:w-[80%] transition-all duration-300 ${
-          isExpanded
-            ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
-            : "xl:scale-x-100 xl:left-23 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
-        } 
-        ${theme === "light" ? "bg-white" : "bg-[#0b0d12]"}
-        `}
+        className="overflow-auto shadow-xl   
+           transition-all duration-300"
       >
         <Button
           className="bg-[#60a6fd] hover:bg-[#a6cdfe] w-20 ml-3"
@@ -105,7 +98,7 @@ const Roles = () => {
         >
           Go Back
         </Button>
-        <Accordion type="single" collapsible className="w-full h-screen">
+        <Accordion type="single" collapsible className="">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -120,14 +113,14 @@ const Roles = () => {
             >
               <div
                 variant="outline"
-                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5 "
+                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
               >
                 Admin
               </div>
             </AccordionTrigger>
             {activeAccordion === "67ac6426aef8063f23746a75" && (
               <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center ">
+                <div className="flex text-2xl font-semibold justify-center">
                   Users
                 </div>
                 {Object.keys(permissions).length > 0 ? (
@@ -158,7 +151,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full h-screen">
+        <Accordion type="single" collapsible className="">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -211,7 +204,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full h-screen">
+        <Accordion type="single" collapsible className="">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {
@@ -264,7 +257,7 @@ const Roles = () => {
             )}
           </AccordionItem>
         </Accordion>
-        <Accordion type="single" collapsible className="w-full h-screen">
+        <Accordion type="single" collapsible className="">
           <AccordionItem value="item-1">
             <AccordionTrigger
               onClick={(e) => {

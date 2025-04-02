@@ -197,7 +197,7 @@ const Navigation = () => {
   const value = localStorage.getItem("theme");
 
   return (
-    <div style={{ position: "sticky" }}>
+    <div style={{ position: "absolute" }}>
       <nav className="transform transition-all translate-x-0 duration-45 delay-0 w-[114px] left-0 top-[78px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px] shadow-[4px_11px_12px_#8a8f93b8]  bg-[#fff] h-[100vh] fixed z-[11] border-r-[solid] border-r-[1px] ">
         <ul
           className="max-h-[calc(100vh-70px)] list-none block mx-0"
@@ -210,7 +210,7 @@ const Navigation = () => {
                   ? "bg-[rgba(178,223,244,0.643)] border-l-[4px] border-l-[rgb(51,141,181)]"
                   : ""
               }
-              relative box-border list-item h-[80px] w-full font-[400px] border-b-[0.8px] pt-[14px]
+              relative box-border list-item h-[80px] w-full font-[400px] border-b-[0.8px] pt-[14px] 
               `}
               onClick={() => {
                 setActive(item.key);
@@ -226,34 +226,9 @@ const Navigation = () => {
                     dispatch(isExpanded ? collapedSideBar() : expandSideBar());
                   }}
                 >
-                  <div
-                    className={` flex w-full justify-center items-center h-[26px] text-[28px] `}
-                    style={{
-                      color:
-                        active === item.key
-                          ? "rgb(51,141,181)"
-                          : "rgb(126, 126, 126)",
-                    }}
-                  >
-                    {item.icon}
-                  </div>
-                  <span
-                    className={`${
-                      active === item.key ? "text-[rgb(51,141,181)]" : ""
-                    }`}
-                  >
-                    {item.name}
-                  </span>
-                </div>
-              ) : (
-                <div>
-                  <Link
-                    to={`/${item.key}`}
-                    className="
-                    block items-center justify-center w-full text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center"
-                  >
+                  <div className="flex flex-col gap-y-1.5">
                     <div
-                      className={`flex w-full justify-center items-center h-[26px] text-[28px] `}
+                      className={`flex w-full justify-center items-center h-[26px] text-[28px]`}
                       style={{
                         color:
                           active === item.key
@@ -270,6 +245,35 @@ const Navigation = () => {
                     >
                       {item.name}
                     </span>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <Link
+                    to={`/${item.key}`}
+                    className="
+                    block items-center justify-center w-full text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center"
+                  >
+                    <div className="flex flex-col gap-1.5">
+                      <div
+                        className={`flex w-full justify-center items-center h-[26px] text-[28px] `}
+                        style={{
+                          color:
+                            active === item.key
+                              ? "rgb(51,141,181)"
+                              : "rgb(126, 126, 126)",
+                        }}
+                      >
+                        {item.icon}
+                      </div>
+                      <span
+                        className={`${
+                          active === item.key ? "text-[rgb(51,141,181)]" : ""
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                    </div>
                   </Link>
                 </div>
               )}

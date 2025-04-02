@@ -1,3 +1,10 @@
+body.loading {
+  visibility: hidden;
+}
+body:not(.loading) {
+  visibility: visible;
+}
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";

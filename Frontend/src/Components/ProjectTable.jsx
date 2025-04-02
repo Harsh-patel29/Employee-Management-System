@@ -34,7 +34,7 @@ import { updateproject } from "../feature/projectfetch/createproject.js";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import TablePagination from "@mui/material/TablePagination";
-
+import Loader from "../Components/Loader.jsx";
 function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -79,7 +79,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
                 }}
                 asChild
               >
-                <FaEdit className="font-semibold text-lg" />
+                <FaEdit className="font-[200] text-lg" />
               </SheetTrigger>
               <SheetContent className="min-w-2xl">
                 <SheetHeader>
@@ -109,7 +109,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
               }}
               asChild
             >
-              <MdDelete className="font-semibold text-lg" />
+              <MdDelete className="font-[200] text-lg" />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -221,20 +221,54 @@ export default function ProjectTable() {
   );
 
   return loading ? (
-    <div>Loading...</div>
+    <Loader />
   ) : (
     <>
-      <div className="inline-flex justify-between w-full pb-3 mt-2 ">
-        <div className="text-3xl flex ml-2">Project</div>
-        <div className="flex">
-          <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg h-10 mr-8">
-            Filter
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+          Project
+        </h5>
+        <div className="flex items-center">
+          <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300">
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 512 512"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+            >
+              <title>filters</title>
+              <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
+            </svg>
+            Filters
           </button>
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger>
-              <button className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 h-10 text-lg mr-8">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                <svg
+                  class="w-6 h-6 text-[#338DB5]"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <title>Create Project</title>
+
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  ></path>
+                </svg>
                 Create Project
-              </button>
+              </div>
             </SheetTrigger>
             <SheetContent
               className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
@@ -256,32 +290,40 @@ export default function ProjectTable() {
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#111827",
-          color: theme === "light" ? "black" : "#8a94a7",
-          maxHeight: 400,
+          backgroundColor: "white",
+          marginTop: 0.5,
+          color: "black",
+          maxHeight: 500,
+          width: "98%",
+          marginLeft: 1.7,
+          borderRadius: 2,
         }}
       >
-        <Table>
-          <TableHead
-            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
-          >
+        <Table
+          sx={{
+            "& .MuiTableCell-root": {
+              padding: 0.4,
+            },
+          }}
+        >
+          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 #
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Project
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Progress
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Status
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Update
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Delete
               </TableCell>
             </TableRow>
@@ -297,7 +339,7 @@ export default function ProjectTable() {
                     <img
                       src={project.logo}
                       alt="Project"
-                      className="w-12 h-12 object-cover rounded-3xl"
+                      className="w-8 h-8 object-cover rounded-3xl"
                     />
                   ),
                 }}

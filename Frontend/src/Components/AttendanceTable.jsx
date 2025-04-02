@@ -11,7 +11,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
@@ -29,8 +29,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import TextField from "@mui/material/TextField";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import TablePagination from "@mui/material/TablePagination";
+import Loader from "./Loader.jsx";
 
 function convertDateFormat(dateStr) {
   const [month, day, year] = dateStr.split("/");
@@ -68,8 +69,8 @@ function Row({ row, openMap }) {
     <React.Fragment>
       <TableRow
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#161b22",
-          color: theme === "light" ? "black" : "#f8f9fa",
+          backgroundColor: "white",
+          color: "black",
         }}
       >
         <TableCell>
@@ -79,11 +80,11 @@ function Row({ row, openMap }) {
             onClick={() => setOpen(!open)}
           >
             {open ? (
-              <KeyboardArrowUpIcon
+              <KeyboardArrowDownIcon
                 sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
               />
             ) : (
-              <KeyboardArrowDownIcon
+              <KeyboardArrowRightIcon
                 sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
               />
             )}
@@ -97,16 +98,12 @@ function Row({ row, openMap }) {
         <TableCell>{row.TimeOut}</TableCell>
         <TableCell>{row.formattedLogHours}</TableCell>
         <TableCell>
-          <Button
+          <Link
             onClick={() => openMap()}
-            className={`${
-              theme === "light"
-                ? "text-black hover:bg-gray-50"
-                : "hover:bg-[#313b49]"
-            } bg-transparent`}
+            className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
           >
-            Map View
-          </Button>
+            View
+          </Link>
         </TableCell>
         <TableCell></TableCell>
       </TableRow>
@@ -115,8 +112,8 @@ function Row({ row, openMap }) {
           style={{ paddingBottom: 0, paddingTop: 0 }}
           colSpan={8}
           sx={{
-            backgroundColor: theme === "light" ? "white" : "#161b22",
-            color: theme === "light" ? "black" : "#f8f9fa",
+            backgroundColor: "white",
+            color: "black",
           }}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -128,7 +125,7 @@ function Row({ row, openMap }) {
               <Table size="medium" className="ml-36">
                 <TableHead
                   sx={{
-                    backgroundColor: theme === "light" ? "#bfdbfe" : "#374151",
+                    backgroundColor: "#c1dde9",
                   }}
                 >
                   <TableRow>
@@ -143,9 +140,8 @@ function Row({ row, openMap }) {
                     <TableRow
                       key={idx}
                       sx={{
-                        backgroundColor:
-                          theme === "light" ? "white" : "#161b22",
-                        color: theme === "light" ? "black" : "#f8f9fa",
+                        backgroundColor: "white",
+                        color: "black",
                       }}
                     >
                       <TableCell>{idx + 1}</TableCell>
@@ -160,16 +156,13 @@ function Row({ row, openMap }) {
                         {new Date(attendance.AttendAt).toLocaleTimeString()}
                       </TableCell>
                       <TableCell>
-                        <Button
+                        <Link
                           onClick={() => openMap()}
-                          className={`${
-                            theme === "light"
-                              ? "text-black hover:bg-gray-50"
-                              : "hover:bg-[#313b49]"
-                          } bg-transparent`}
+                          className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
                         >
+                          {" "}
                           Map View
-                        </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -350,22 +343,51 @@ export default function CollapsibleTable() {
   );
 
   return loading ? (
-    <div>Loading....</div>
+    <Loader />
   ) : (
     <>
-      <div className="inline-flex justify-between w-full pb-3 mt-2 ">
-        <div className="text-3xl flex ml-2">Attendance</div>
-        <div className="flex">
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+          Attendance
+        </h5>
+        <div className="flex items-center">
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
             onClick={() => setOpenFilterSheet(true)}
           >
-            Filter
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 512 512"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+            >
+              <title>filters</title>
+              <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
+            </svg>
+            Filters
           </button>
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg mr-8"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
             onClick={() => setOpenAttendanceSheet(!openAttendanceSheet)}
           >
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 512 512"
+              class="theme-btn-color"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+            >
+              <title>Attendace</title>
+              <path d="M256 48C141.6 48 48 141.6 48 256s93.6 208 208 208 208-93.6 208-208S370.4 48 256 48zm-42.7 318.9L106.7 260.3l29.9-29.9 76.8 76.8 162.1-162.1 29.9 29.9-192.1 191.9z"></path>
+            </svg>
             Attendance
           </button>
         </div>
@@ -443,42 +465,51 @@ export default function CollapsibleTable() {
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#111827",
-          color: theme === "light" ? "black" : "#8a94a7",
-          maxHeight: 400,
+          backgroundColor: "white",
+          marginTop: 0.5,
+          color: "black",
+          maxHeight: 500,
+          width: "98%",
+          marginLeft: 1.7,
+          borderRadius: 2,
         }}
       >
-        <Table aria-label="collapsible table ">
-          <TableHead
-            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
-          >
-            <TableRow>
+        <Table
+          aria-label="collapsible table"
+          sx={{
+            "& .MuiTableCell-root": {
+              padding: 0.4,
+            },
+          }}
+        >
+          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
+            <TableRow className="h-2">
               <TableCell />
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 #
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Image
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Date
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 User
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Time In
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Time Out
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Log Hours
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Location
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Regularization
               </TableCell>
             </TableRow>
@@ -502,7 +533,7 @@ export default function CollapsibleTable() {
                       <img
                         src={firstRecord.Image}
                         alt="Attendance"
-                        className="w-12 h-12 object-cover rounded-3xl"
+                        className="w-8 h-8 object-cover rounded-3xl"
                       />
                     ),
                     Date: convertDateFormat(date),

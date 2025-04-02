@@ -1,9 +1,10 @@
-import { Project } from "../Models/projectmodel.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { uploadOnCloudinary } from "../Utils/cloudinary.js";
 
 const uploadlogo = AsyncHandler(async (req, res, next) => {
+  console.log(req.files);
+
   const logoLocalPath = req.files?.logo?.[0]?.path;
 
   if (!logoLocalPath) {
@@ -21,6 +22,7 @@ const uploadlogo = AsyncHandler(async (req, res, next) => {
   }
   req.logo = logophoto?.url;
   req.logodetail = logophoto;
+
   next();
 });
 

@@ -62,7 +62,7 @@ const assignuserSlice = createSlice({
     builder
       .addCase(assignuser.pending, (state) => {
         state.error = null;
-        state.loading = false;
+        state.loading = true;
       })
       .addCase(assignuser.fulfilled, (state, action) => {
         state.assigneduser = action.payload;
@@ -73,7 +73,7 @@ const assignuserSlice = createSlice({
         state.loading = false;
       })
       .addCase(getname.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = null;
       })
       .addCase(getname.fulfilled, (state, action) => {
@@ -85,7 +85,7 @@ const assignuserSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteassignuser.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = false;
       })
       .addCase(deleteassignuser.fulfilled, (state, action) => {

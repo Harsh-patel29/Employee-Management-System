@@ -116,7 +116,7 @@ const createProjectSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createproject.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = false;
       })
       .addCase(createproject.fulfilled, (state, action) => {
@@ -128,7 +128,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjects.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = false;
       })
       .addCase(getProjects.fulfilled, (state, action) => {
@@ -140,7 +140,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteProject.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = null;
       })
       .addCase(deleteProject.fulfilled, (state, action) => {
@@ -152,7 +152,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(updateproject.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = null;
       })
       .addCase(updateproject.fulfilled, (state, action) => {
@@ -164,7 +164,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjectbyId.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = null;
       })
       .addCase(getProjectbyId.fulfilled, (state, action) => {
@@ -176,7 +176,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(uploadLogo.pending, (state) => {
-        state.loading = false;
+        state.loading = true;
         state.error = null;
       })
       .addCase(uploadLogo.fulfilled, (state, action) => {

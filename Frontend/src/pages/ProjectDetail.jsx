@@ -48,16 +48,9 @@ const ProjectDetail = () => {
   }, [id]);
 
   return (
-    <div
-      className={`absolute rounded-md h-screen lg:ml-30 md:ml-25 sm:ml-30 mt-5 shadow  xl:w-[full] xl:h-[78%] lg:h-[50%] lg:w-[85%] md:h-[55%] sm:h-[60%] sm:w-[80%] transition-all duration-300 bg-gray-50 overflow-hidden flex flex-col ${
-        isExpanded
-          ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
-          : "lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
-      } 
-        `}
-    >
-      <div className="bg-gray-50 p-6 h-screen overflow-hidden flex flex-col">
-        <div className="bg-[#6eaffe] rounded-lg p-4 mb-6 flex items-center justify-between flex-shrink-0 ">
+    <div className="rounded-md ml-28 top-26 shadow   lg:w-[90%]  transition-all duration-300 bg-gray-50">
+      <div className="bg-gray-50  flex flex-col h-full">
+        <div className="bg-[#6eaffe] rounded-lg p-4 mb-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">
             <div className=" p-2 rounded-md mr-2">
               <img
@@ -81,7 +74,7 @@ const ProjectDetail = () => {
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-grow transform">
+        <div className="overflow-y-auto flex-grow ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-6 rounded-lg shadow-sm hover:-translate-y-2 transition-transform duration-300">
               <div className="flex items-center mb-4">

@@ -22,7 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 import userRoute from "./Routes/userRoute.js";
 import attendanceRoute from "./Routes/attendanceRoute.js";
 import projectRoute from "./Routes/projectRoute.js";
+import taskRoute from "./Routes/taskRoute.js";
+
 app.use("/api/v1/user", userRoute);
 app.use("/api/v2/attendance", attendanceRoute);
 app.use("/api/v3/project", projectRoute);
+app.use("/api/v4/tasks", taskRoute);
 export { app };

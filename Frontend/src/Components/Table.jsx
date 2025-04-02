@@ -13,7 +13,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { data, useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
@@ -41,6 +41,7 @@ import { fetchuser } from "../feature/createuserfetch/createuserSlice.js";
 import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
 import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
 import TablePagination from "@mui/material/TablePagination";
+import Loader from "../Components/Loader.jsx";
 function Row({
   row,
   canUpdateUser,
@@ -58,8 +59,8 @@ function Row({
     <React.Fragment>
       <TableRow
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#161b22",
-          color: theme === "light" ? "black" : "#f8f9fa",
+          backgroundColor: "white",
+          color: "black",
         }}
       >
         <TableCell>
@@ -69,11 +70,11 @@ function Row({
             onClick={() => setOpen(!open)}
           >
             {open ? (
-              <KeyboardArrowUpIcon
+              <KeyboardArrowDownIcon
                 sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
               />
             ) : (
-              <KeyboardArrowDownIcon
+              <KeyboardArrowRightIcon
                 sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
               />
             )}
@@ -171,8 +172,8 @@ function Row({
           style={{ paddingBottom: 0, paddingTop: 0 }}
           colSpan={10}
           sx={{
-            backgroundColor: theme === "light" ? "white" : "#161b22",
-            color: theme === "light" ? "black" : "#f8f9fa",
+            backgroundColor: "white",
+            color: "black",
           }}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -217,7 +218,7 @@ export default function CollapsibleTable() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [users, setUsers] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  // const [loading, setLoading] = React.useState(true);
   const [canAddUser, setcanAddUser] = React.useState(false);
   const [canUpdateUser, setcanUpdateUser] = React.useState(false);
   const [isDefault, setisDefault] = React.useState(false);
@@ -229,9 +230,8 @@ export default function CollapsibleTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const dispatch = useDispatch();
 
-  const { createduser, fetchusers, deleteduser, updateduser } = useSelector(
-    (state) => state.createuser
-  );
+  const { createduser, fetchusers, deleteduser, updateduser, loading } =
+    useSelector((state) => state.createuser);
 
   React.useEffect(() => {
     setuserid(id);
@@ -267,7 +267,7 @@ export default function CollapsibleTable() {
           error?.response?.data || error.message
         );
       } finally {
-        setLoading(false);
+        setLoading(true);
       }
     }
     getDetail();
@@ -310,7 +310,6 @@ export default function CollapsibleTable() {
   }, [createduser]);
 
   // Update Users
-
   React.useEffect(() => {
     if (updatesheetopen === true) {
       dispatch(updateuser());
@@ -356,35 +355,67 @@ export default function CollapsibleTable() {
   const theme = useSelector((state) => state.theme.theme);
 
   return loading ? (
-    <div>Loading....</div>
+    <Loader />
   ) : (
     <>
-      <div className="inline-flex justify-between w-full pb-3 mt-2 ">
-        <div className="text-3xl flex ml-2">Users</div>
-        <div className="text-3xl flex gap-10">
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+          Users
+        </h5>
+        <div className="flex items-center">
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
             onClick={() => navigate("/users/roles")}
           >
+            <svg
+              className="w-6 h-6 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#338DB5"
+              viewBox="0 0 24 24"
+              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+            >
+              <title>Manage User</title>
+              <path
+                fill-rule="evenodd"
+                d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
             Manage Users
           </button>
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
-              className={`${
-                theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
-              } 
-              ${
-                canAddUser
-                  ? "h-10 w-10 rounded-3xl justify-center flex"
-                  : "hidden"
-              }
-              `}
+              className={`
+                  ${canAddUser ? "flex" : "hidden"}
+                  `}
             >
-              +
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                <svg
+                  className="w-6 h-6 flex"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="#338DB5"
+                  viewBox="0 0 24 24"
+                  style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+                >
+                  <title>Add User</title>
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                Add user
+              </div>
             </SheetTrigger>
             <SheetContent
               className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
-              min-w-6xl`}
+                min-w-6xl`}
             >
               <SheetHeader>
                 <SheetDescription>
@@ -402,42 +433,51 @@ export default function CollapsibleTable() {
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#111827",
-          color: theme === "light" ? "black" : "#8a94a7",
-          maxHeight: 400,
+          backgroundColor: "white",
+          marginTop: 0.5,
+          color: "black",
+          maxHeight: 500,
+          width: "98%",
+          marginLeft: 1.7,
+          borderRadius: 2,
         }}
       >
-        <Table aria-label="collapsible table ">
-          <TableHead
-            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
-          >
-            <TableRow>
+        <Table
+          aria-label="collapsible table"
+          sx={{
+            "& .MuiTableCell-root": {
+              padding: 0.4,
+            },
+          }}
+        >
+          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
+            <TableRow className="h-2">
               <TableCell />
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 #
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Name
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 EMP Code
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Role
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Email
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Mobile
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 Reporting Manager
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 {`${canUpdateUser ? "Action" : ""}`}
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
+              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
                 {isDefault === false ? "Delete" : ""}
               </TableCell>
             </TableRow>

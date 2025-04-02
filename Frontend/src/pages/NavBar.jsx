@@ -41,7 +41,7 @@ const NavBar = () => {
   const value = localStorage.getItem("theme");
   return (
     <div
-      style={{ top: 0 }}
+      style={{ top: 0, position: "sticky" }}
       className={` ${
         value === "light" ? "bg-white " : "bg-black"
       }w-full sm:w-full flex flex-row  text-white h-20 border  ${
@@ -57,7 +57,6 @@ const NavBar = () => {
       <div
         className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11 `}
       >
-        <ThemeToggle />
         <div className={`${value === "light" ? "text-black" : "text-white"}`}>
           <FiPlus size={26} style={{ fontWeight: "bold" }} />
         </div>

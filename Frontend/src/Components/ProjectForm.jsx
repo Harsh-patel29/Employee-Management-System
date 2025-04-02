@@ -28,7 +28,7 @@ const formSchema = z.object({
     .optional(),
   progress_status: z.enum(
     ["Pending", "In-Progress", "Hold", "Completed", "Scrapped"],
-    { message: "Select status" }
+    { message: "Select Progress status" }
   ),
   status: z.enum(["Active", "In-Active"], { message: "Select status" }),
 });
@@ -110,8 +110,9 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           name="logo"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel>Project Logo</FormLabel>
-              <div> {errors?.logo && <span>{errors.logo.message}</span>}</div>
+              <FormLabel className={errors?.logo ? "text-[#737373]" : ""}>
+                Project Logo
+              </FormLabel>
               <label
                 id="label"
                 htmlFor="file-upload"
@@ -141,6 +142,14 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                   </>
                 )}
               </label>
+              <div>
+                {" "}
+                {errors?.logo && (
+                  <span className="text-red-600 font-semibold">
+                    {errors.logo.message}
+                  </span>
+                )}
+              </div>
               <FormControl>
                 {mode === "update" ? (
                   <Input
@@ -180,8 +189,9 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           name="name"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel>Project Name</FormLabel>
-              <div> {errors?.name && <span>{errors.name.message}</span>}</div>
+              <FormLabel className={errors?.logo ? "text-[#737373]" : ""}>
+                Project Name
+              </FormLabel>
               <FormControl>
                 <Input
                   className="w-[90%]"
@@ -190,6 +200,14 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                   {...field}
                 />
               </FormControl>
+              <div>
+                {" "}
+                {errors?.name && (
+                  <span className="text-red-600 font-semibold">
+                    {errors.name.message}
+                  </span>
+                )}
+              </div>
             </FormItem>
           )}
         />
@@ -198,12 +216,9 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           name="progress_status"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel>Project Progress</FormLabel>
-              <div>
-                {errors?.progress_status && (
-                  <span>{errors.progress_status.message}</span>
-                )}
-              </div>
+              <FormLabel className={errors?.logo ? "text-[#737373]" : ""}>
+                Project Progress
+              </FormLabel>
               <FormControl>
                 <select
                   className="flex border w-[90%] h-9 rounded-md shadow pl-2"
@@ -219,6 +234,13 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                   <option value="Scrapped">Scrapped</option>
                 </select>
               </FormControl>
+              <div>
+                {errors?.progress_status && (
+                  <span className="text-red-600 font-semibold">
+                    {errors.progress_status.message}
+                  </span>
+                )}
+              </div>
             </FormItem>
           )}
         />
@@ -227,10 +249,9 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           name="status"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel>Project Status</FormLabel>
-              <div>
-                {errors?.status && <span>{errors.status.message}</span>}
-              </div>
+              <FormLabel className={errors?.logo ? "text-[#737373] " : ""}>
+                Project Status
+              </FormLabel>
               <FormControl>
                 <select
                   className="flex border w-[90%] h-9 rounded-md shadow pl-2"
@@ -243,6 +264,13 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                   <option value="In-Active">In-Active</option>
                 </select>
               </FormControl>
+              <div>
+                {errors?.status && (
+                  <span className="text-red-600 font-semibold">
+                    {errors.status.message}
+                  </span>
+                )}
+              </div>
             </FormItem>
           )}
         />

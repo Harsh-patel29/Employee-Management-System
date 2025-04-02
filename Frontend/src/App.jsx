@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Navigation from "./pages/Navigation";
 import "../src/index.css";
@@ -5,21 +6,36 @@ import NavBar from "./pages/NavBar";
 import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "./Components/Loader.jsx";
 function App() {
-  const theme = useSelector((state) => state.theme.theme);
+  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+      document.body.classList.remove("loading");
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <>
-      <div
-        className={
-          theme === "dark" ? "bg-[#121212] text-white" : "bg-white text-black"
-        }
-      >
-        <main className="h-screen">
-          <NavBar />
-          <Outlet />
+      <div>
+        <NavBar />
+        <div className="flex ">
           <Navigation />
-          <ToastContainer />
-        </main>
+          <main
+            className={`${
+              isExpanded ? "ml-42 overflow-hidden " : ""
+            } transition-all duration-600 flex w-full h-full justify-center mt-5`}
+          >
+            <Outlet />
+          </main>
+        </div>
+        <ToastContainer />
       </div>
     </>
   );
