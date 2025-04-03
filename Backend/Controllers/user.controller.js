@@ -359,28 +359,93 @@ const createRole = AsyncHandler(async (req, res) => {
   }
 
   try {
+    // Get all available permission keys from the database
+    const allKeys = await keysSchema.findOne({ is_deleted: false });
+    if (!allKeys || !allKeys.access_key || !allKeys.access_key.user) {
+      throw new ApiError(404, "No permission keys found in database");
+    }
+
+    // Create a complete permission structure with all permissions set to false
+    const completeAccess = {
+      user: {}
+    };
+    
+    // Initialize all permissions from the schema
+    Object.keys(allKeys.access_key.user).forEach(key => {
+      completeAccess.user[key] = false;
+    });
+
+    // Update permissions based on provided access
+    if (access && access.user) {
+      Object.keys(access.user).forEach(key => {
+        if (key in completeAccess.user) {
+          completeAccess.user[key] = access.user[key];
+        }
+      });
+    }
+
     const newrole = await Role.create({
       name,
-      access,
+      access: completeAccess,
     });
+    
     await newrole.save();
     return res
       .status(200)
       .json(new ApiResponse(200, newrole, "New Role created Successfully"));
   } catch (error) {
-    throw new ApiError(500, "Something went wrong while creating new role");
+    throw new ApiError(
+      500,
+      error,
+      "Something went wrong while creating new role"
+    );
   }
 });
 
 const getkeyroles = AsyncHandler(async (req, res) => {
   const result = await keysSchema.find({});
-  const keys = result[0].access_key;
-  console.log(keys);
-
+  const keys = result;
   return res
     .status(200)
     .json(new ApiResponse(200, keys, "Fetched Successfully"));
 });
+
+const updateRole = AsyncHandler(async (req, res) => {
+  const id  = new mongoose.Types.ObjectId(req.params.id);
+  console.log(id);
+  const role = await Role.findById(id);
+  try{
+    if(!role){
+      throw new ApiError(404, "Role not found");
+    }
+    role.name = req.body.name;
+    role.access = req.body.access;
+    await role.save();
+    const newRole = {
+      name: role.name,
+    access: role.access,
+    };
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newRole, "Role updated Successfully"));
+  } catch (error) {
+    throw new ApiError(500, error, "Something went wrong while updating role");
+  }
+});
+
+const getRoleById = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  const role = await Role.findById(id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, role, "Role fetched Successfully"));
+});
+
+  const deleteRole = AsyncHandler(async (req, res) => {
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    await Role.findByIdAndDelete(id);
+    return res.status(200).json(new ApiResponse(200, {}, "Role deleted Successfully"));
+  });
 
 export {
   createUser,
@@ -398,4 +463,7 @@ export {
   getkeysRoles,
   createRole,
   getkeyroles,
+  updateRole,
+  getRoleById,  
+  deleteRole,
 };

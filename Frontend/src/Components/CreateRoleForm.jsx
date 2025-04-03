@@ -11,70 +11,175 @@ import {
   FormField,
 } from "../Components/components/ui/form";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "../Components/components/ui/popover";
+import { Switch } from "../Components/components/ui/switch";
 import "react-datepicker/dist/react-datepicker.css";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getKeys } from "../feature/rolesfetch/getrolesSlice.js";
+import { getKeys ,getRoleById} from "../feature/rolesfetch/getrolesSlice.js";
+
 
 const formSchema = z.object({
-  Name: z.string().min(1, { message: "Name is Required" }),
+  name: z.string().min(1, { message: "Name is Required" }),
+  access: z.record(z.record(z.boolean())).default({}),
 });
 
-export default function AdminForm({ onSubmit, mode }) {
-  const [data, setdata] = useState([]);
+export default function AdminForm({ onSubmit,mode }) {
+  const {id} = useParams();
+  const [accessData, setAccessData] = useState({});
+  const [roleData, setRoleData] = useState({});
   const dispatch = useDispatch();
-  const { keys } = useSelector((state) => state.keys);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      Name: "",
-    },
-  });
+  const { keys ,roleById} = useSelector((state) => state.getrole);
 
   useEffect(() => {
     dispatch(getKeys());
   }, []);
-  console.log(keys);
+  
+  
+  useEffect(() => {
+    if ( mode === "update" && id) {
+      dispatch(getRoleById(id));
+    }
+  }, [dispatch, id, mode]);
+  
+  useEffect(() => {
+    if (keys?.message?.[0]?.access_key) {
+      setAccessData(keys.message[0].access_key);
+    } else {
+      setAccessData([]);
+    }
+  }, [keys?.message]);
+  
 
+   const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      access: {},
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = form;
+
+  useEffect(() => {
+    if (mode === "update" && roleById?.message) {
+      const detail = roleById.message;
+      reset({
+        name: detail?.name || "", 
+        access: detail?.access || {},
+      });
+    }
+  }, [roleById?.message, reset, mode]);
+  
   return (
     <>
       <Form {...control}>
-        <h2>Create Role</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormField
-            control={control}
-            name="Name"
-            render={({ field }) => (
-              <FormItem className="">
-                <FormLabel>Name</FormLabel>
-                <div>{errors?.Name && <span>{errors.Name.message}</span>}</div>
-                <FormControl>
-                  <Input
-                    className="shadow"
-                    type="text"
-                    placeholder="Enter Your Name"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <Button
-            type="submit"
-            className="w-[100%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"
-          >
-            Create
-          </Button>
-        </form>
+        <div className="max-w-4xl mx-auto bg-[#cce7f2] rounded-xl shadow-lg">
+          <div className="p-6 sm:p-8">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              {mode === "update" ? "Update Role" : "Create Role" }
+            </h2>
+            <form
+              onSubmit={handleSubmit((data) => {
+                onSubmit(data);
+                reset();
+              })}
+              className="space-y-6"
+            >
+              <FormField
+                control={control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e4f2f7] focus:border-[#e4f2f7] transition-all"
+                        type="text"
+                        placeholder="Enter Role Name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <div>
+                      {errors?.name && (
+                        <span className="text-red-500 text-sm">
+                          {errors.name.message}
+                        </span>
+                      )}
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="access"
+                render={({ field }) => (
+                  <FormItem className="space-y-6">
+                    <FormLabel className="text-lg font-semibold text-gray-800">
+                      Access Keys
+                    </FormLabel>
+                    <div className="space-y-4">
+                      {Object.entries(accessData).map(
+                        ([category, permissions]) => (
+                          <div
+                            key={category}
+                            className="bg-[#e4f2f7] p-4 rounded-lg border border-gray-200 shadow-sm"
+                          >
+                            <h3 className="font-semibold capitalize text-gray-700 mb-4 text-lg">
+                              {category}
+                            </h3>
+                            <div className="grid gap-3">
+                              {Object.entries(permissions).map(
+                                ([key, value]) => (
+                                  <div
+                                    key={`${category}-${key}`}
+                                    className="flex items-center justify-between py-3 px-4 bg-[#e4f2f7] rounded-md shadow-sm hover:bg-[#cce7f2] transition-colors duration-200"
+                                  >
+                                    <span className="text-sm font-medium text-gray-600 capitalize">
+                                      {key.replace(/_/g, " ")}
+                                    </span>
+                                    <Switch
+                                      checked={
+                                        field.value?.[category]?.[key] || false
+                                      }
+                                      onCheckedChange={(checked) => {
+                                        const updatedValue = {
+                                          ...field.value,
+                                          [category]: {
+                                            ...(field.value?.[category] || {}),
+                                            [key]: checked,
+                                          },
+                                        };
+                                        field.onChange(updatedValue);
+                                      }}
+                                      className="data-[state=checked]:bg-[#78adc4] data-[state=unchecked]:bg-gray-200"
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full py-3 bg-[#e4f2f7] text-gray-800 font-medium rounded-lg hover:bg-[#cce7f2] transition-colors duration-200 focus:ring-1 focus:ring-[#cce7f2] focus:ring-opacity-50"
+              >
+                {mode === "update" ? "Update" : "Create"}
+              </Button>
+            </form>
+          </div>
+        </div>
       </Form>
     </>
   );

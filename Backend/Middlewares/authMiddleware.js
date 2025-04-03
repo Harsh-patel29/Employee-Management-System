@@ -20,7 +20,6 @@ const isAuth = AsyncHandler(async (req, res, next) => {
   ]);
 
   req.permission = result[0].access;
-
   next();
 });
 

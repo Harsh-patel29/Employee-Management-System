@@ -14,6 +14,9 @@ import {
   getroles,
   createRole,
   getkeyroles,
+  updateRole,
+  getRoleById,
+  deleteRole,
 } from "../Controllers/user.controller.js";
 import {
   accessAllowed,
@@ -55,4 +58,7 @@ router.route("/roles/all").get(authenticate, getroles);
 router.route("/keys/all").get(authenticate, getroles);
 router.route("/create/role").post(authenticate, createRole);
 router.route("/get/keyroles").get(authenticate, getkeyroles);
+router.route("/update/keyroles/:id").patch(authenticate, updateRole);
+router.route("/get/role/:id").get(authenticate, getRoleById);
+router.route("/delete/role/:id").delete(authenticate, deleteRole);
 export default router;

@@ -11,7 +11,17 @@ import {
   AccordionTrigger,
 } from "../Components/components/ui/accordion";
 import { getChangeDetail } from "../feature/datafetch/ChangeFetch";
-import { getRoles } from "../feature/rolesfetch/getrolesSlice";
+import { getRoles, deleteRole } from "../feature/rolesfetch/getrolesSlice";
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../Components/components/ui/dialog";    
 
 const updateAccess = (userId, key, value) => {
   return axios.put(
@@ -28,8 +38,8 @@ const updateAccess = (userId, key, value) => {
 const Roles = () => {
   const theme = useSelector((state) => state.theme.theme);
   const [Roles, setRoles] = useState([]);
-
-  const { roles } = useSelector((state) => state.getrole);
+const [dialogOpen, setdialogOpen] = useState(false);
+  const { roles ,deletedRole} = useSelector((state) => state.getrole);
 
   useEffect(() => {
     dispatch(getRoles());
@@ -89,30 +99,40 @@ const Roles = () => {
     }
   };
 
+  const openDialog = (id) => {
+    navigate(`/users/roles/delete/${id}`);
+    setTimeout(() => {
+      setdialogOpen(true);
+    }, 0);
+  };
+
   return (
     <>
-      <div className=" absolute flex flex-col h-[80%]  bg-[#ffffff] rounded-xl  xl:w-[80%] xl:ml-30 mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
-        <Button
-          className="bg-[#338DB5] hover:bg-[#338eb5d6] w-20 ml-3"
-          onClick={() => {
-            navigate("/users");
-          }}
-        >
-          Go Back
-        </Button>
-        <div
-          className="flex flex-col h-screen overflow-y-auto  bg-[#ffffff] rounded-xl xl:w-[90%]  mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300
-        "
-        >
-          <div className="flex w-full justify-between">
-            <h1 className="text-2xl font-semibold">Manage Access</h1>
-            <button
-              className="text-2xl font-semibold"
-              onClick={() => navigate("/create/roles/")}
-            >
-              New Role
-            </button>
-          </div>
+      <div className="absolute flex flex-col h-[80%]  bg-[#ffffff] rounded-xl  xl:w-[80%] xl:ml-30 mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <Button
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => {
+              navigate("/users");
+            }}
+          >
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"></path>
+            </svg>
+            Go back
+          </Button>
+          <h1 className="text-2xl font-semibold">Manage Access</h1>
+          <button
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300" 
+            onClick={() => navigate("/create/roles/")}
+          >
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#338DB5" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"></path>
+            </svg>
+            New Role
+          </button>
+        </div>
+        <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl xl:w-[90%] mr-1.5 lg:w-[100%] md:w-[90%] sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
           <Accordion type="single" collapsible className="w-[100%]">
             {Roles.map((role) => (
               <AccordionItem key={role._id} value={role._id}>
@@ -121,18 +141,14 @@ const Roles = () => {
                     e.stopPropagation();
                     toggleAccordion(role._id);
                   }}
-                  className={`${
-                    theme === "light"
-                      ? "bg-[#cce7f2]"
-                      : "bg-[#161b22] border-[#374151]"
-                  } h-20 mt-4 text-2xl`}
+                  className="bg-[#cce7f2] border-[#374151]h-20 mt-4 text-2xl"
                 >
                   <div
                     variant="outline"
                     className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
                   >
                     <svg
-                      class="w-6 h-6"
+                      class="w-8 h-8"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -143,30 +159,81 @@ const Roles = () => {
                       <path d="M12.356 3.066a1 1 0 0 0-.712 0l-7 2.666A1 1 0 0 0 4 6.68a17.695 17.695 0 0 0 2.022 7.98 17.405 17.405 0 0 0 5.403 6.158 1 1 0 0 0 1.15 0 17.406 17.406 0 0 0 5.402-6.157A17.694 17.694 0 0 0 20 6.68a1 1 0 0 0-.644-.949l-7-2.666Z" />
                     </svg>
 
-                    <span className="font-semibold">{role.name}</span>
+                    <span className="font-semibold">{role.name}
+                    </span>
+                    <div className="flex justify-end w-full items-center gap-5 text-2xl">
+                      <FaEdit className=" font-semibold text-[#338DB5]" onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/update/roles/${role._id}`);
+                      }}/>
+                    <Dialog
+            onOpenChange={(open) => {
+              if (!open) navigate("/users/roles");
+            }}
+          >
+            <DialogTrigger
+              onClick={() => {
+                openDialog(role._id);
+              }}
+              asChild
+            >
+              <MdDelete
+                className="font-semibold text-[#FD6E6E]" onClick={(e) => {
+                  e.stopPropagation();
+                }} 
+              />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                This action cannot be undone. This will permanently delete the role.
+                  <Button
+                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                    onClick={() => {
+                      dispatch(deleteRole(role._id));
+                      if (deletedRole?.success === true) {
+                        dispatch(deleteRole(role._id)).then((result) => {
+                          if (result.payload?.success === true) {
+                            setdialogOpen(false);
+                            navigate("/users/roles");
+                            dispatch(getRoles());
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+                    </div>
                   </div>
                 </AccordionTrigger>
                 {activeAccordion === role._id && (
-                  <AccordionContent className="mt-2 rounded-sm  bg-[#d1f0fd]">
-                    <div className="flex text-2xl font-semibold justify-center ">
+                  <AccordionContent className="relative mt-2 w-[100%]  rounded-sm  bg-[#edf7fb] mb-2">
+                    <div className="flex text-2xl font-semibold justify-center capitalize">
                       {Object.keys(role.access)}
                     </div>
                     {Object.keys(permissions).length > 0 ? (
-                      Object.entries(permissions).map(([key, value]) => (
+                      Object.entries(permissions).map(([key, value,index]) => (
                         <AccordionContent
                           key={key}
-                          className="flex w-full justify-between h-full items-start"
+                          index={index}
+                          className="flex w-full justify-between p-2 pl-32 pr-32 h-full items-start capitalize font-medium"
                         >
-                          <strong className="text-sm">
-                            {key.replace(/_/g, " ")}
-                          </strong>
+                          <h6 className="text-md">
+                            {Object.keys(permissions).indexOf(key) + 1} . {key.replace(/_/g, " ")}
+                          </h6>
                           <Switch
                             onClick={(e) => e.stopPropagation()}
                             checked={value}
                             onCheckedChange={(checked) =>
                               handleToggle(key, checked)
                             }
-                            className="data-[state=checked]:bg-blue-500 "
+                            className="data-[state=checked]:bg-[#78adc4]"
                           />
                         </AccordionContent>
                       ))

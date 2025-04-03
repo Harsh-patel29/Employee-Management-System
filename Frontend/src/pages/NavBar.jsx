@@ -8,7 +8,6 @@ import { BsClock } from "react-icons/bs";
 import { CiCircleInfo } from "react-icons/ci";
 import { IoExitOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
-import ThemeToggle from "../Components/ThemeToggle.jsx";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import {
@@ -42,11 +41,7 @@ const NavBar = () => {
   return (
     <div
       style={{ top: 0, position: "sticky" }}
-      className={` ${
-        value === "light" ? "bg-white " : "bg-black"
-      }w-full sm:w-full flex flex-row  text-white h-20 border  ${
-        value === "light" ? "border-white" : "border-black"
-      } shadow `}
+      className=" bg-white w-full sm:w-full flex flex-row  text-white h-20 border border-white shadow" 
     >
       <Link to="/dashboard">
         <img
@@ -57,10 +52,10 @@ const NavBar = () => {
       <div
         className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11 `}
       >
-        <div className={`${value === "light" ? "text-black" : "text-white"}`}>
+        <div className="text-black" >
           <FiPlus size={26} style={{ fontWeight: "bold" }} />
         </div>
-        <div className={`${value === "light" ? "text-black" : "text-white"}`}>
+        <div className="text-black">
           <IoMdNotificationsOutline size={26} />
         </div>
         <div>
@@ -72,9 +67,7 @@ const NavBar = () => {
                   flex flex-row border h-8 w-auto border-black pr-[0.5rem] rounded-2xl  cursor-pointer `}
               >
                 <div
-                  className={`${
-                    value === "light" ? "text-black" : "text-white"
-                  } flex space-x-2.5 items-center `}
+                  className="text-black  flex space-x-2.5 items-center"
                 >
                   <FaUser size={26} className="ml-2" />
                   <h1 className="text-sm">
@@ -92,11 +85,7 @@ const NavBar = () => {
                 </div>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className={`${theme === "light" ? "bg-white " : "bg-[#1e2939] "}
-                    ${theme === "light" ? "text-black" : "text-white"}
-              `}
-            >
+            <DropdownMenuContent className="bg-white">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>

@@ -268,15 +268,23 @@ export default function CollapsibleTable() {
 
       <TableContainer
         component={Paper}
-        sx={{
-          backgroundColor: theme === "light" ? "white" : "#111827",
-          color: theme === "light" ? "black" : "#8a94a7",
-          maxHeight: 400,
+          sx={{
+          backgroundColor: "white",
+          marginTop: 0.5,
+          color: "black",
+          maxHeight: 500,
+          width: "98%",
+          marginLeft: 1.7,
+          borderRadius: 2,
         }}
       >
-        <Table aria-label="collapsible table ">
+        <Table aria-label="collapsible table"   sx={{
+            "& .MuiTableCell-root": {
+              padding: 0.5,
+            },
+          }}>
           <TableHead
-            sx={{ backgroundColor: theme === "light" ? "#bfdbfe" : "#374151" }}
+           sx={{ backgroundColor: "#c1dde9" }}
           >
             <TableRow>
               <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>

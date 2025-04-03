@@ -20,7 +20,7 @@ import Attendance from "./pages/Attendance.jsx";
 import Project from "./pages/Project.jsx";
 import ProjectDetail from "./pages/ProjectDetail.jsx";
 import Task from "./pages/Task.jsx";
-
+import NewRoles from "./pages/NewRoles.jsx";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -29,8 +29,12 @@ const router = createBrowserRouter(
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<Users />} />
-          <Route path="/users/roles" element={<Roles />} />
+          <Route path="/users/roles" element={<Roles />} >
           <Route path="/users/roles/:id" element={<Roles />} />
+          <Route path="/users/roles/delete/:id" element={<Roles />} />
+          </Route>
+          <Route path="/create/roles" element={<NewRoles />} />
+          <Route path="/update/roles/:id" element={<NewRoles />} />
           <Route path="/master" element={<Master />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/attendance" element={<Attendance />} />
