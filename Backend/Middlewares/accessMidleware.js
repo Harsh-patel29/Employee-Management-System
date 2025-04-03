@@ -15,6 +15,7 @@ const roles = AsyncHandler(async (req, res, next) => {
   ]);
 
   req.rolesResult = results;
+
   next();
 });
 

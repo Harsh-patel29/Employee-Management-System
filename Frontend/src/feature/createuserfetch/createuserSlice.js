@@ -76,7 +76,7 @@ const createuserSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createuser.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(createuser.fulfilled, (state, action) => {
@@ -100,7 +100,7 @@ const createuserSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteuser.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = false;
       })
       .addCase(deleteuser.fulfilled, (state, action) => {

@@ -298,7 +298,7 @@ export default function AdminForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          {user.permission.can_update_user_roles === true ? (
+          {user.permission.user.can_update_user_roles === true ? (
             <FormField
               control={control}
               name="DATE_OF_JOINING"
@@ -388,7 +388,7 @@ export default function AdminForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          {user.permission.can_update_user_roles === true ? (
+          {user.permission.user.can_update_user_roles === true ? (
             <FormField
               control={control}
               name="role"

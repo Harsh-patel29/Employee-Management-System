@@ -11,6 +11,9 @@ import {
   chageAccess,
   getAllowedSettingsById,
   getDefaultValue,
+  getroles,
+  createRole,
+  getkeyroles,
 } from "../Controllers/user.controller.js";
 import {
   accessAllowed,
@@ -48,4 +51,8 @@ router
   .route("/settings/fetch/:id")
   .get(getAllowedSettingsById)
   .put(chageAccess);
+router.route("/roles/all").get(authenticate, getroles);
+router.route("/keys/all").get(authenticate, getroles);
+router.route("/create/role").post(authenticate, createRole);
+router.route("/get/keyroles").get(authenticate, getkeyroles);
 export default router;

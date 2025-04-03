@@ -3,10 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const RolekeysSchmea = new Schema(
   {
     access_key: {
-      user: {
-        type: Array,
-        required: true,
-      },
+      type: Schema.Types.Mixed,
     },
     is_deleted: {
       type: Boolean,

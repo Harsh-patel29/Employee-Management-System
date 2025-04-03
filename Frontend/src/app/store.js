@@ -10,6 +10,8 @@ import createProjectSliceReducer from "../feature/projectfetch/createproject.js"
 import assignuserSliceReducer from "../feature/projectfetch/assignuser.js";
 import createuserSliceReducer from "../feature/createuserfetch/createuserSlice.js";
 import taskSliceReducer from "../feature/taskfetch/taskfetchSlice.js";
+import roleSliceReducer from "../feature/rolesfetch/getrolesSlice.js";
+
 export default configureStore({
   reducer: {
     theme: themeReducer,
@@ -23,5 +25,6 @@ export default configureStore({
     assignusers: assignuserSliceReducer,
     createuser: createuserSliceReducer,
     task: taskSliceReducer,
+    getrole: roleSliceReducer,
   },
 });

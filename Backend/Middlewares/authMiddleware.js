@@ -8,31 +8,18 @@ dotenv.config({
 const isAuth = AsyncHandler(async (req, res, next) => {
   const result = await Role.aggregate([
     {
-      $lookup: {
-        from: "useraccesses",
-        localField: "_id",
-        foreignField: "role",
-        as: "ok",
-      },
-    },
-    {
       $match: {
         name: req.user.role,
       },
     },
     {
-      $unwind: {
-        path: "$ok",
-      },
-    },
-    {
       $project: {
-        ok: "$ok",
+        access: "$access",
       },
     },
   ]);
 
-  req.permission = result[0].ok.access_keys.user;
+  req.permission = result[0].access;
 
   next();
 });

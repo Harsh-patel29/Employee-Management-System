@@ -5,7 +5,6 @@ const roleSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    enum: ["Admin", "Developer", "HR", "Product_Manager"],
   },
   is_default: {
     type: Boolean,

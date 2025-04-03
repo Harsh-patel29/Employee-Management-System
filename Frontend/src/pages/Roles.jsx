@@ -1,27 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, replace } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import axios from "axios";
-import { Button } from "../Components/components/ui/button.js";
-import { Switch } from "../Components/components/ui/switch.js";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../Components/components/ui/dropdown.js";
+import { Button } from "../Components/components/ui/button";
+import { Switch } from "../Components/components/ui/switch";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../Components/components/ui/accordion";
-
-import { getChangeDetail } from "../feature/datafetch/ChangeFetch.js";
-import { AccordionHeader } from "@radix-ui/react-accordion";
+import { getChangeDetail } from "../feature/datafetch/ChangeFetch";
+import { getRoles } from "../feature/rolesfetch/getrolesSlice";
 
 const updateAccess = (userId, key, value) => {
   return axios.put(
@@ -37,6 +27,21 @@ const updateAccess = (userId, key, value) => {
 
 const Roles = () => {
   const theme = useSelector((state) => state.theme.theme);
+  const [Roles, setRoles] = useState([]);
+
+  const { roles } = useSelector((state) => state.getrole);
+
+  useEffect(() => {
+    dispatch(getRoles());
+  }, []);
+
+  useEffect(() => {
+    if (roles?.message) {
+      setRoles(roles.message);
+    } else {
+      setRoles([]);
+    }
+  }, [roles]);
 
   const dispatch = useDispatch();
 
@@ -86,230 +91,96 @@ const Roles = () => {
 
   return (
     <>
-      <div
-        className="overflow-auto shadow-xl   
-           transition-all duration-300"
-      >
+      <div className=" absolute flex flex-col h-[80%]  bg-[#ffffff] rounded-xl  xl:w-[80%] xl:ml-30 mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
         <Button
-          className="bg-[#60a6fd] hover:bg-[#a6cdfe] w-20 ml-3"
+          className="bg-[#338DB5] hover:bg-[#338eb5d6] w-20 ml-3"
           onClick={() => {
             navigate("/users");
           }}
         >
           Go Back
         </Button>
-        <Accordion type="single" collapsible className="">
-          <AccordionItem value="item-1">
-            <AccordionTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleAccordion("67ac6426aef8063f23746a75");
-              }}
-              className={`${
-                theme === "light"
-                  ? "bg-[#bfdbfe]"
-                  : "bg-[#161b22] border-[#374151]"
-              } h-20 text-2xl `}
+        <div
+          className="flex flex-col h-screen overflow-y-auto  bg-[#ffffff] rounded-xl xl:w-[90%]  mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300
+        "
+        >
+          <div className="flex w-full justify-between">
+            <h1 className="text-2xl font-semibold">Manage Access</h1>
+            <button
+              className="text-2xl font-semibold"
+              onClick={() => navigate("/create/roles/")}
             >
-              <div
-                variant="outline"
-                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
-              >
-                Admin
-              </div>
-            </AccordionTrigger>
-            {activeAccordion === "67ac6426aef8063f23746a75" && (
-              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center">
-                  Users
-                </div>
-                {Object.keys(permissions).length > 0 ? (
-                  Object.entries(permissions).map(([key, value]) => (
-                    <AccordionContent
-                      key={key}
-                      className="flex justify-between items-start "
+              New Role
+            </button>
+          </div>
+          <Accordion type="single" collapsible className="w-[100%]">
+            {Roles.map((role) => (
+              <AccordionItem key={role._id} value={role._id}>
+                <AccordionTrigger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleAccordion(role._id);
+                  }}
+                  className={`${
+                    theme === "light"
+                      ? "bg-[#cce7f2]"
+                      : "bg-[#161b22] border-[#374151]"
+                  } h-20 mt-4 text-2xl`}
+                >
+                  <div
+                    variant="outline"
+                    className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="#338DB5"
+                      viewBox="0 0 24 24"
                     >
-                      <strong className="text-sm">
-                        {key.replace(/_/g, " ")}
-                      </strong>
-                      <Switch
-                        onClick={(e) => e.stopPropagation()}
-                        checked={value}
-                        onCheckedChange={(checked) =>
-                          handleToggle(key, checked)
-                        }
-                        className="data-[state=checked]:bg-blue-500 "
-                      />
-                    </AccordionContent>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No permissions found
-                  </p>
+                      <path d="M12.356 3.066a1 1 0 0 0-.712 0l-7 2.666A1 1 0 0 0 4 6.68a17.695 17.695 0 0 0 2.022 7.98 17.405 17.405 0 0 0 5.403 6.158 1 1 0 0 0 1.15 0 17.406 17.406 0 0 0 5.402-6.157A17.694 17.694 0 0 0 20 6.68a1 1 0 0 0-.644-.949l-7-2.666Z" />
+                    </svg>
+
+                    <span className="font-semibold">{role.name}</span>
+                  </div>
+                </AccordionTrigger>
+                {activeAccordion === role._id && (
+                  <AccordionContent className="mt-2 rounded-sm  bg-[#d1f0fd]">
+                    <div className="flex text-2xl font-semibold justify-center ">
+                      {Object.keys(role.access)}
+                    </div>
+                    {Object.keys(permissions).length > 0 ? (
+                      Object.entries(permissions).map(([key, value]) => (
+                        <AccordionContent
+                          key={key}
+                          className="flex w-full justify-between h-full items-start"
+                        >
+                          <strong className="text-sm">
+                            {key.replace(/_/g, " ")}
+                          </strong>
+                          <Switch
+                            onClick={(e) => e.stopPropagation()}
+                            checked={value}
+                            onCheckedChange={(checked) =>
+                              handleToggle(key, checked)
+                            }
+                            className="data-[state=checked]:bg-blue-500 "
+                          />
+                        </AccordionContent>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500">
+                        No permissions found
+                      </p>
+                    )}
+                  </AccordionContent>
                 )}
-              </AccordionContent>
-            )}
-          </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible className="">
-          <AccordionItem value="item-1">
-            <AccordionTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleAccordion("67ac67accbab2e409938d0ce");
-              }}
-              className={`${
-                theme === "light"
-                  ? "bg-[#bfdbfe]"
-                  : "bg-[#161b22] border-[#374151]"
-              } h-20 text-2xl`}
-            >
-              <div
-                variant="outline"
-                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5 "
-              >
-                Developer
-              </div>
-            </AccordionTrigger>
-            {activeAccordion === "67ac67accbab2e409938d0ce" && (
-              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center">
-                  Users
-                </div>
-                {Object.keys(permissions).length > 0 ? (
-                  Object.entries(permissions).map(([key, value]) => (
-                    <AccordionContent
-                      key={key}
-                      className="flex justify-between items-center"
-                    >
-                      <strong className="text-sm">
-                        {key.replace(/_/g, " ")}
-                      </strong>
-                      <Switch
-                        onClick={(e) => e.stopPropagation()}
-                        checked={value}
-                        onCheckedChange={(checked) =>
-                          handleToggle(key, checked)
-                        }
-                        className="data-[state=checked]:bg-blue-500"
-                      />
-                    </AccordionContent>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No permissions found
-                  </p>
-                )}
-              </AccordionContent>
-            )}
-          </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible className="">
-          <AccordionItem value="item-1">
-            <AccordionTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleAccordion("67ac67db190f041e27634fb3");
-              }}
-              className={`${
-                theme === "light"
-                  ? "bg-[#bfdbfe]"
-                  : "bg-[#161b22] border-[#374151]"
-              } h-20 text-2xl`}
-            >
-              <div
-                variant="outline"
-                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
-              >
-                HR
-              </div>
-            </AccordionTrigger>
-            {activeAccordion === "67ac67db190f041e27634fb3" && (
-              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center">
-                  Users
-                </div>
-                {Object.keys(permissions).length > 0 ? (
-                  Object.entries(permissions).map(([key, value]) => (
-                    <AccordionContent
-                      key={key}
-                      className="flex justify-between items-center"
-                    >
-                      <strong className="text-sm">
-                        {key.replace(/_/g, " ")}
-                      </strong>
-                      <Switch
-                        onClick={(e) => e.stopPropagation()}
-                        checked={value}
-                        onCheckedChange={(checked) =>
-                          handleToggle(key, checked)
-                        }
-                        className="data-[state=checked]:bg-blue-500"
-                      />
-                    </AccordionContent>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No permissions found
-                  </p>
-                )}
-              </AccordionContent>
-            )}
-          </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible className="">
-          <AccordionItem value="item-1">
-            <AccordionTrigger
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleAccordion("67ac67fe40c38b9cb8e3186e");
-              }}
-              className={`${
-                theme === "light"
-                  ? "bg-[#bfdbfe]"
-                  : "bg-[#161b22] border-[#374151]"
-              } h-20 text-2xl`}
-            >
-              <div
-                variant="outline"
-                className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
-              >
-                Product_Manager
-              </div>
-            </AccordionTrigger>
-            {activeAccordion === "67ac67fe40c38b9cb8e3186e" && (
-              <AccordionContent className="max-h-[400px] overflow-y-auto max-w-[550px] ml-80">
-                <div className="flex text-2xl font-semibold justify-center">
-                  Users
-                </div>
-                {Object.keys(permissions).length > 0 ? (
-                  Object.entries(permissions).map(([key, value]) => (
-                    <AccordionContent
-                      key={key}
-                      className="flex justify-between items-center"
-                    >
-                      <strong className="text-sm">
-                        {key.replace(/_/g, " ")}
-                      </strong>
-                      <Switch
-                        onClick={(e) => e.stopPropagation()}
-                        checked={value}
-                        onCheckedChange={(checked) =>
-                          handleToggle(key, checked)
-                        }
-                        className="data-[state=checked]:bg-blue-500"
-                      />
-                    </AccordionContent>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No permissions found
-                  </p>
-                )}
-              </AccordionContent>
-            )}
-          </AccordionItem>
-        </Accordion>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </div>
     </>
   );

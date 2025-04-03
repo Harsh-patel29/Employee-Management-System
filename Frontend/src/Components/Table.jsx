@@ -266,8 +266,6 @@ export default function CollapsibleTable() {
           "Error fetching users:",
           error?.response?.data || error.message
         );
-      } finally {
-        setLoading(true);
       }
     }
     getDetail();
@@ -282,11 +280,11 @@ export default function CollapsibleTable() {
     if (fetchusers?.message) {
       setUsers(fetchusers.message);
     }
-    const createrole = user.permission.can_add_user;
+    const createrole = user.permission.user.can_add_user;
     if (createrole === true) {
       setcanAddUser(true);
     } else setcanAddUser(false);
-    const updateRole = user.permission.can_update_user;
+    const updateRole = user.permission.user.can_update_user;
     if (updateRole === true) {
       setcanUpdateUser(true);
     } else {

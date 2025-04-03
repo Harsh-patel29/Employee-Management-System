@@ -5,6 +5,7 @@ import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { Role } from "../Models/Role.model.js";
+import { keysSchema } from "../Models/Roles_keys.js";
 
 const generateAccessandRefreshToken = async (UserID) => {
   try {
@@ -213,7 +214,7 @@ const deleteUser = AsyncHandler(async (req, res) => {
 
 const getAllUsers = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
-  const ViewAccess = rolesPermission.can_view_other_users;
+  const ViewAccess = rolesPermission.user.can_view_other_users;
   if (ViewAccess === true) {
     const user = await User.find({});
     return res
@@ -272,8 +273,8 @@ const ManageDetails = AsyncHandler(async (req, res) => {
 
 const getAllowedSettingsById = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params);
-  const Permissions = await UserAccess.findById(id);
-  const AllowedPermissions = Permissions.access_keys.user;
+  const Permissions = await Role.findById(id);
+  const AllowedPermissions = Permissions.access.user;
 
   return res
     .status(200)
@@ -292,22 +293,22 @@ const chageAccess = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid permissions id");
   }
 
-  const permissions = await UserAccess.findById(id);
+  const permissions = await Role.findById(id);
 
   if (!permissions) {
     throw new ApiError(404, "Permissions not found");
   }
 
-  if (!permissions.access_keys || !permissions.access_keys.user) {
+  if (!permissions.access || !permissions.access.user) {
     throw new ApiError(500, "Invalid permissions structure");
   }
-  if (!(key in permissions.access_keys.user)) {
+  if (!(key in permissions.access.user)) {
     throw new ApiError(400, `Permission key "${key}" does not exist`);
   }
 
-  await UserAccess.findByIdAndUpdate(
+  await Role.findByIdAndUpdate(
     id,
-    { $set: { [`access_keys.user.${key}`]: value } },
+    { $set: { [`access.user.${key}`]: value } },
     { new: true }
   );
 
@@ -330,6 +331,57 @@ const getDefaultValue = AsyncHandler(async (req, res) => {
     .json(new ApiResponse(200, isDefaultFlag, "Fetched Successfully!!"));
 });
 
+const getroles = AsyncHandler(async (req, res) => {
+  const roles = await Role.find({});
+  return res
+    .status(200)
+    .json(new ApiResponse(200, roles, "Roles Fetched Successfully"));
+});
+
+const getkeysRoles = AsyncHandler(async (req, res) => {
+  const keys = await keysSchema.find({});
+  return res
+    .status(200)
+    .json(new ApiResponse(200, keys, "Keys Fetched Successfully"));
+});
+
+const createRole = AsyncHandler(async (req, res) => {
+  const { name, access } = req.body;
+
+  if (!req.body) {
+    throw new ApiError(405, "All fields are required");
+  }
+
+  const isRoleExists = await Role.findOne({ name });
+
+  if (isRoleExists) {
+    throw new ApiError(404, "Role Already Exists");
+  }
+
+  try {
+    const newrole = await Role.create({
+      name,
+      access,
+    });
+    await newrole.save();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newrole, "New Role created Successfully"));
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong while creating new role");
+  }
+});
+
+const getkeyroles = AsyncHandler(async (req, res) => {
+  const result = await keysSchema.find({});
+  const keys = result[0].access_key;
+  console.log(keys);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, keys, "Fetched Successfully"));
+});
+
 export {
   createUser,
   loginUser,
@@ -342,4 +394,8 @@ export {
   getAllowedSettingsById,
   chageAccess,
   getDefaultValue,
+  getroles,
+  getkeysRoles,
+  createRole,
+  getkeyroles,
 };
