@@ -16,7 +16,11 @@ import { useParams } from "react-router";
 import {
   getProjectbyId,
   uploadLogo,
+  resetProject,
+  deleteLogo,
 } from "../feature/projectfetch/createproject.js";
+import { Bounce,toast } from "react-toastify";
+import Loader from "./Loader.jsx";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -34,16 +38,77 @@ const formSchema = z.object({
 });
 
 export default function ProjectForm({ onSubmit, mode, onClose }) {
-  const { projectbyid, logo, project } = useSelector((state) => state.project);
+  const { projectbyid, logo, project, loading, logoloading ,updatedproject,error} = useSelector(
+    (state) => state.project
+  );
   const dispatch = useDispatch();
   const { id } = useParams();
   const [logos, setlogos] = useState(null);
+ const[publicid,setpublicid]= useState(null);
+
+  useEffect(()=>{
+    if(project?.success){
+      toast.success("Project created successfully",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+      })
+    }
+    return ()=>{
+      dispatch(resetProject())
+    }
+  },[project?.success])
+
+  useEffect(()=>{
+    if(updatedproject?.success){
+      toast.success("Project updated successfully",{
+        position: "top-right",
+        autoClose: 3000,
+      })
+    }
+    return ()=>{
+      dispatch(resetProject())
+    }
+    },[updatedproject?.success])
+
+  useEffect(()=>{
+    if(error){
+      const errorMessage = error.response?.data?.message || error.message || error;
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      })
+    }
+    },[error])
+
+
 
   useEffect(() => {
     if (logo?.success) {
-      setlogos(logo?.message);
+      setlogos(logo?.message?.url);
+      setpublicid(logo?.message?.public_id);
     }
   }, [logo]);
+
+  // Cleanup on unmount if form is closed without submission
+  useEffect(() => {
+    return () => {
+      if (logos && !project?.success && !updatedproject?.success) {
+        if (mode === "create") {
+          dispatch(deleteLogo(publicid));
+        } else if (mode === "update" && projectbyid?.message?.logo?.public_id !== publicid) {
+          dispatch(deleteLogo(publicid));
+        }
+      }
+    };
+  }, [logos, project?.success, updatedproject?.success, publicid, mode, projectbyid?.message?.logo?.public_id]);
 
   useEffect(() => {
     if (mode === "update" && id) {
@@ -70,10 +135,10 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
 
   useEffect(() => {
     if (mode === "update" && projectbyid?.message) {
-      const detail = projectbyid.message;
+      const detail = projectbyid.message;     
       reset({
         name: detail?.name || "",
-        logo: detail?.logo || "",
+        logo: detail?.logo.url || "",
         progress_status: detail?.progress_status || "",
         status: detail?.status || "",
       });
@@ -81,19 +146,29 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
   }, [mode, projectbyid, reset]);
 
   const handleFormSubmit = (data) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("logo", logos);
-    formData.append("progress_status", data.progress_status);
-    formData.append("status", data.status);
+    const formData = {
+      name: data.name,
+      logo: logos ? {
+        secure_url: logos,
+        public_id: publicid,
+      } : undefined,
+      progress_status: data.progress_status,
+      status: data.status
+    };
 
     onSubmit(formData);
-    setlogos(null);
   };
 
   useEffect(() => {
-    setlogos(null);
+    if(mode==="create"){
+      setlogos(null);
+      return()=>{
+        dispatch(resetProject())
+      }
+    }
   }, [onClose]);
+
+ 
 
   return (
     <Form {...form}>
@@ -116,15 +191,22 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
               <label
                 id="label"
                 htmlFor="file-upload"
-                className="w-80 h-60 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50"
+                className={`${logoloading ? "w-80 h-60 flex items-center justify-center" : "w-80 h-60"} flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50`}
               >
-                {mode === "update" ? (
+                {logoloading ? (
+                 <Loader />
+                ) : 
+                mode === "update" ? (
                   <>
                     {logos ? (
-                      <img src={logos} alt="" className="h-60 w-80" />
+                      <img
+                        src={logos}
+                        alt=""
+                        className={`${logoloading ? "hidden" : ""} h-60 w-80`}
+                      />
                     ) : (
                       <img
-                        src={projectbyid?.message?.logo}
+                        src={projectbyid?.message?.logo.url}
                         alt=""
                         className="h-60 w-80 rounded-md"
                       />
@@ -164,9 +246,9 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                       }
                     }}
                     id="file-upload"
-                  />
-                ) : (
-                  <Input
+                    />
+                  ) : (
+                    <Input
                     className="hidden"
                     type="file"
                     accept="image/*"
@@ -188,8 +270,8 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           control={control}
           name="name"
           render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel className={errors?.logo ? "text-[#737373]" : ""}>
+            <FormItem className={`${logoloading?"opacity-50 cursor-not-allowed":""} mt-4`}>
+              <FormLabel className={errors?.name ? "text-[#737373]" : ""}>
                 Project Name
               </FormLabel>
               <FormControl>
@@ -215,8 +297,8 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           control={control}
           name="progress_status"
           render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel className={errors?.logo ? "text-[#737373]" : ""}>
+            <FormItem className={`${logoloading?"opacity-50 cursor-not-allowed":""} mt-4`}>
+              <FormLabel className={errors?.progress_status ? "text-[#737373]" : ""}>
                 Project Progress
               </FormLabel>
               <FormControl>
@@ -248,13 +330,13 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           control={control}
           name="status"
           render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel className={errors?.logo ? "text-[#737373] " : ""}>
+            <FormItem className={`${logoloading?"opacity-50 cursor-not-allowed":""} mt-4`}>
+              <FormLabel className={errors?.status ? "text-[#737373] " : ""}>
                 Project Status
               </FormLabel>
               <FormControl>
                 <select
-                  className="flex border w-[90%] h-9 rounded-md shadow pl-2"
+                  className={`flex border w-[90%] h-9 rounded-md shadow pl-2`}
                   {...field}
                 >
                   <option value="" disabled selected>
@@ -276,7 +358,7 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
         />
         <Button
           type="submit"
-          className="w-[40%] ml-50 focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg mt-6"
+          className={`${logoloading ? "opacity-50 cursor-not-allowed" : ""} w-[40%] ml-50 focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg mt-6`}
         >
           {mode === "update" ? "Update" : "Create"}
         </Button>

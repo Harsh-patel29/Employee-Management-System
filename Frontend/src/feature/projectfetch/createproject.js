@@ -12,7 +12,7 @@ export const createproject = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -27,7 +27,7 @@ export const getProjects = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -42,7 +42,7 @@ export const getProjectbyId = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -58,7 +58,7 @@ export const updateproject = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -73,7 +73,7 @@ export const deleteProject = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -95,10 +95,23 @@ export const uploadLogo = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
+
+export const deleteLogo = createAsyncThunk("auth/deletelogo",async(data,{rejectWithValue})=>{
+  try {
+    const res = await axios.delete(`http://localhost:8000/api/v3/project/project/logo/delete`,{
+      data: { public_id: data },
+      withCredentials: true
+    });
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+})
 
 const createProjectSlice = createSlice({
   name: "project",
@@ -110,14 +123,29 @@ const createProjectSlice = createSlice({
     updatedproject: null,
     logo: null,
     loading: false,
-    error: null,
+    logoloading: false,
+    error: null,  
+    deletedlogo: null,
+    deletedlogoloading: false,
   },
-  reducers: {},
+  reducers: {
+    resetProject: (state) => {
+      state.project = null;
+      state.deletedproject = null;
+      state.updatedproject = null;
+      state.logoloading = false;
+      state.loading = false;
+      state.deletedlogo = null;
+      state.deletedlogoloading = false;
+      state.error = null;
+      state.logo = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createproject.pending, (state) => {
-        state.loading = true;
-        state.error = false;
+        state.loading = false;
+        state.error = null;
       })
       .addCase(createproject.fulfilled, (state, action) => {
         state.project = action.payload;
@@ -129,7 +157,7 @@ const createProjectSlice = createSlice({
       })
       .addCase(getProjects.pending, (state) => {
         state.loading = true;
-        state.error = false;
+        state.error = null;
       })
       .addCase(getProjects.fulfilled, (state, action) => {
         state.projects = action.payload;
@@ -140,7 +168,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteProject.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(deleteProject.fulfilled, (state, action) => {
@@ -152,7 +180,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(updateproject.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(updateproject.fulfilled, (state, action) => {
@@ -164,7 +192,7 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(getProjectbyId.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(getProjectbyId.fulfilled, (state, action) => {
@@ -176,18 +204,30 @@ const createProjectSlice = createSlice({
         state.loading = false;
       })
       .addCase(uploadLogo.pending, (state) => {
-        state.loading = true;
+        state.logoloading = true;
         state.error = null;
       })
       .addCase(uploadLogo.fulfilled, (state, action) => {
         state.logo = action.payload;
-        state.loading = false;
+        state.logoloading = false;
       })
       .addCase(uploadLogo.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
-      });
+        state.logoloading = false;
+      })
+      .addCase(deleteLogo.pending, (state) => {
+        state.deletedlogoloading = true;
+        state.error = null;
+      })
+      .addCase(deleteLogo.fulfilled, (state, action) => {
+        state.deletedlogo = action.payload;
+        state.deletedlogoloading = false;
+      })
+      .addCase(deleteLogo.rejected, (state, action) => {
+        state.error = action.payload;
+        state.deletedlogoloading = false;
+      })
   },
 });
-
+export const { resetProject } = createProjectSlice.actions;
 export default createProjectSlice.reducer;

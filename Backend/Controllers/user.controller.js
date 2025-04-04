@@ -345,37 +345,33 @@ const getkeysRoles = AsyncHandler(async (req, res) => {
     .json(new ApiResponse(200, keys, "Keys Fetched Successfully"));
 });
 
-const createRole = AsyncHandler(async (req, res) => {
+const createRole = AsyncHandler(async (req, res,err) => {
   const { name, access } = req.body;
 
-  if (!req.body) {
+  if (!name) {
     throw new ApiError(405, "All fields are required");
   }
 
   const isRoleExists = await Role.findOne({ name });
 
   if (isRoleExists) {
-    throw new ApiError(404, "Role Already Exists");
+    throw new ApiError(404,  "Role Already Exists");
   }
 
   try {
-    // Get all available permission keys from the database
     const allKeys = await keysSchema.findOne({ is_deleted: false });
     if (!allKeys || !allKeys.access_key || !allKeys.access_key.user) {
       throw new ApiError(404, "No permission keys found in database");
     }
 
-    // Create a complete permission structure with all permissions set to false
     const completeAccess = {
       user: {}
     };
     
-    // Initialize all permissions from the schema
     Object.keys(allKeys.access_key.user).forEach(key => {
       completeAccess.user[key] = false;
     });
 
-    // Update permissions based on provided access
     if (access && access.user) {
       Object.keys(access.user).forEach(key => {
         if (key in completeAccess.user) {
@@ -394,6 +390,7 @@ const createRole = AsyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, newrole, "New Role created Successfully"));
   } catch (error) {
+    console.log(error);
     throw new ApiError(
       500,
       error,
@@ -412,8 +409,15 @@ const getkeyroles = AsyncHandler(async (req, res) => {
 
 const updateRole = AsyncHandler(async (req, res) => {
   const id  = new mongoose.Types.ObjectId(req.params.id);
-  console.log(id);
   const role = await Role.findById(id);
+
+  if (req.body.name && req.body.name !== role.name) {
+    const nameexists = await Role.findOne({name: req.body.name});
+    if(nameexists){
+      throw new ApiError(404, "Role name already exists");
+    }
+  }
+
   try{
     if(!role){
       throw new ApiError(404, "Role not found");

@@ -16,7 +16,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { getKeys ,getRoleById} from "../feature/rolesfetch/getrolesSlice.js";
-
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is Required" }),
@@ -25,16 +25,30 @@ const formSchema = z.object({
 
 export default function AdminForm({ onSubmit,mode }) {
   const {id} = useParams();
+  const navigate = useNavigate();
   const [accessData, setAccessData] = useState({});
   const [roleData, setRoleData] = useState({});
   const dispatch = useDispatch();
-  const { keys ,roleById} = useSelector((state) => state.getrole);
-
+  const { keys ,roleById , updatedRole , createdRole} = useSelector((state) => state.getrole);
+  console.log(updatedRole);
+  console.log(createdRole);
+  
   useEffect(() => {
     dispatch(getKeys());
   }, []);
+
+  useEffect(() => {
+    if(createdRole?.success){
+      navigate("/users/roles");
+    }
+  }, [createdRole]);
   
-  
+  useEffect(() => {
+    if(updatedRole?.success){
+      navigate("/users/roles");
+    }
+  }, [updatedRole]);
+
   useEffect(() => {
     if ( mode === "update" && id) {
       dispatch(getRoleById(id));
@@ -86,7 +100,14 @@ export default function AdminForm({ onSubmit,mode }) {
             <form
               onSubmit={handleSubmit((data) => {
                 onSubmit(data);
-                reset();
+                if(mode === "create" && createdRole?.success){
+                  navigate("/user/roles");
+                  reset();
+                }
+                if(mode === "update" && updatedRole?.success){
+                  reset();
+                  navigate("/user/roles");
+                }
               })}
               className="space-y-6"
             >

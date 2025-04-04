@@ -9,9 +9,9 @@ import {
 } from "../Components/components/ui/sheet";
 import AssignUserTable from "./AssignUserTable";
 import { useParams } from "react-router";
-import { useDispatch } from "react-redux";
-import { assignuser } from "../feature/projectfetch/assignuser.js";
-import { getname } from "../feature/projectfetch/assignuser.js";
+import { useDispatch ,useSelector} from "react-redux";
+import { assignuser,getname,resetAssigneduser,resetDeleteuser } from "../feature/projectfetch/assignuser.js";
+import { Bounce, toast } from "react-toastify";
 
 const AssignSheet = () => {
   const { id } = useParams();
@@ -23,7 +23,51 @@ const AssignSheet = () => {
   const [selectedRole, setSelectedRole] = useState();
 
   const dispatch = useDispatch();
+  const { assigneduser, deleteuser,error } = useSelector((state) => state.assignusers);
+  console.log(assigneduser?.success);
+  console.log(deleteuser?.success);
 
+  
+useEffect(()=>{
+  if(assigneduser?.success){
+    toast.success("User assigned successfully", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+    });
+  }
+  return () => {
+    dispatch(resetAssigneduser());
+    dispatch(resetDeleteuser());
+  }
+},[assigneduser?.success])
+
+useEffect(()=>{
+  if(deleteuser?.success){
+    toast.success("User deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+    });
+  }
+},[deleteuser?.success]) 
+
+useEffect(() => {
+    if (error) {
+      const errorMessage = error.response?.data?.message || error.message || error;
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  },[error])
   useEffect(() => {
     async function fetchUsers() {
       try {

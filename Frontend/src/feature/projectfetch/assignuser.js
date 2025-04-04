@@ -43,7 +43,7 @@ export const deleteassignuser = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -57,12 +57,23 @@ const assignuserSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    resetAssigneduser: (state) => {
+      state.assigneduser = null;
+    },
+    resetTotalassignedusers: (state) => {
+      state.totalassignedusers = [];
+    },
+    resetDeleteuser: (state) => {
+      state.deleteuser = null;
+    },
+    
+  },
   extraReducers: (builder) => {
     builder
       .addCase(assignuser.pending, (state) => {
-        state.error = null;
         state.loading = true;
+        state.error = null;
       })
       .addCase(assignuser.fulfilled, (state, action) => {
         state.assigneduser = action.payload;
@@ -99,4 +110,5 @@ const assignuserSlice = createSlice({
   },
 });
 
+export const { resetAssigneduser, resetTotalassignedusers, resetDeleteuser } = assignuserSlice.actions; 
 export default assignuserSlice.reducer;

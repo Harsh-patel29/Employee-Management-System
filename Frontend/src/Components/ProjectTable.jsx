@@ -27,18 +27,19 @@ import {
 import { Button } from "../Components/components/ui/button.tsx";
 import ProjectForm from "./ProjectForm.jsx";
 import { Link, useNavigate } from "react-router";
-import { createproject } from "../feature/projectfetch/createproject.js";
-import { getProjects } from "../feature/projectfetch/createproject.js";
-import { deleteProject } from "../feature/projectfetch/createproject.js";
-import { updateproject } from "../feature/projectfetch/createproject.js";
+import { createproject,getProjects,deleteProject,updateproject ,resetProject,deleteLogo} from "../feature/projectfetch/createproject.js";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import TablePagination from "@mui/material/TablePagination";
 import Loader from "../Components/Loader.jsx";
+import { Bounce,toast } from "react-toastify";
 function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+
   const dispatch = useDispatch();
+  const { logo ,updatedproject} = useSelector((state) => state.project);
+
 
   return (
     <React.Fragment>
@@ -155,9 +156,8 @@ export default function ProjectTable() {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
 
-  const { project, projects, loading, error, deletedproject, updatedproject } =
+  const { project, projects, logo, loading,  deletedproject, updatedproject,deletedlogo } =
     useSelector((state) => state.project);
-
   const openDialog = (id) => {
     navigate(`/productivity/project/delete/${id}`);
     setTimeout(() => {
@@ -206,6 +206,26 @@ export default function ProjectTable() {
     }
   }, [updatedproject]);
 
+React.useEffect(()=>{
+  if(deletedproject?.success){
+    toast.success("Project deleted successfully",{
+      position: "top-right",
+      autoClose: 3000,
+    })
+  }
+  return ()=>{
+    dispatch(resetProject())
+  }
+},[deletedproject?.success])
+  
+React.useEffect(()=>{
+  if(!sheetopen &&!project?.success){
+    dispatch(deleteLogo(logo?.message?.public_id))
+  }
+},[sheetopen])
+
+
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -246,7 +266,7 @@ export default function ProjectTable() {
             Filters
           </button>
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
+            <SheetTrigger >
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   class="w-6 h-6 text-[#338DB5]"
@@ -337,7 +357,7 @@ export default function ProjectTable() {
                   index: page * rowsPerPage + index + 1,
                   logo: (
                     <img
-                      src={project.logo}
+                      src={project.logo.url}
                       alt="Project"
                       className="w-8 h-8 object-cover rounded-3xl"
                     />

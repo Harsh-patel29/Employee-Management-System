@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from "../Components/components/ui/accordion";
 import { getChangeDetail } from "../feature/datafetch/ChangeFetch";
-import { getRoles, deleteRole } from "../feature/rolesfetch/getrolesSlice";
+import { getRoles, deleteRole,resetDeletedRole } from "../feature/rolesfetch/getrolesSlice";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import {
@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Components/components/ui/dialog";    
+import { Bounce, toast } from "react-toastify";
 
 const updateAccess = (userId, key, value) => {
   return axios.put(
@@ -105,6 +106,27 @@ const [dialogOpen, setdialogOpen] = useState(false);
       setdialogOpen(true);
     }, 0);
   };
+
+  useEffect(() => {
+    if (deletedRole?.success === true) {
+      setdialogOpen(false);
+      dispatch(getRoles());
+      navigate("/users/roles");
+    }
+    return () => {
+      dispatch(resetDeletedRole());
+    }
+  }, [deletedRole]);
+
+  if(deletedRole?.success){
+    toast.success("Role deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+    });
+  }
 
   return (
     <>
@@ -190,17 +212,9 @@ const [dialogOpen, setdialogOpen] = useState(false);
                 This action cannot be undone. This will permanently delete the role.
                   <Button
                     className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       dispatch(deleteRole(role._id));
-                      if (deletedRole?.success === true) {
-                        dispatch(deleteRole(role._id)).then((result) => {
-                          if (result.payload?.success === true) {
-                            setdialogOpen(false);
-                            navigate("/users/roles");
-                            dispatch(getRoles());
-                          }
-                        });
-                      }
                     }}
                   >
                     Delete

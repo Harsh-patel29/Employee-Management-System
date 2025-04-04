@@ -5,10 +5,17 @@ import { Project } from "../Models/projectmodel.js";
 import { Project_Roles } from "../Models/projectRoles.js";
 import { User } from "../Models/user.model.js";
 import mongoose from "mongoose";
+import { deleteFromCloudinary } from "../Utils/cloudinary.js";
+const cleanup = async(public_id)=>{
+  try{
+    await deleteFromCloudinary(public_id);
+  }catch(cleanupError){
+    console.log("Failed to delete logo from cloudinary", cleanupError);
+  }
+}
 
 const createProject = AsyncHandler(async (req, res) => {
   const { name, progress_status, status, logo } = req.body;
-
   if (!req.body) {
     throw new ApiError(404, "All fields are required");
   }
@@ -36,7 +43,10 @@ const createProject = AsyncHandler(async (req, res) => {
   try {
     const project = await Project.create({
       name,
-      logo,
+      logo:{
+        url:logo.secure_url,
+        public_id:logo.public_id,
+      },
       progress_status,
       status,
       createdBy: user._id,
@@ -49,12 +59,13 @@ const createProject = AsyncHandler(async (req, res) => {
       ],
     });
     await project.save();
-
+    
     return res
       .status(200)
       .json(new ApiResponse(200, project, "Project created Successfully"));
   } catch (error) {
     throw new ApiError(500, error, "Project creation failed");
+
   }
 });
 
@@ -84,16 +95,40 @@ const updateProject = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
   const project = await Project.findById(id);
 
+  if(req.body.name && req.body.name !== project.name){
+    const nameexists = await Project.findOne({name: req.body.name});
+    if(nameexists){
+      throw new ApiError(404, "Project name already exists");
+    }
+  }
+
   try {
     if (!project) {
       throw new ApiError(404, "Project not found");
     }
 
+    // Only update logo if a new one is provided and it's different from the current one
+    if (req.body.logo && req.body.logo.secure_url && req.body.logo.public_id) {
+      // Check if the new logo is different from the current one
+      if (req.body.logo.public_id !== project.logo?.public_id) {
+        const oldLogoPublicId = project.logo?.public_id;
+        
+        // Update with new logo
+        project.logo = {
+          url: req.body.logo.secure_url,
+          public_id: req.body.logo.public_id,
+        };
+
+        // Delete old logo from Cloudinary if it exists and is different from the new one
+        if (oldLogoPublicId && oldLogoPublicId !== req.body.logo.public_id) {
+          await cleanup(oldLogoPublicId);
+        }
+      }
+    }
+
     project.name = req.body.name;
-    project.logo = req.body.logo || project.logo;
     project.progress_status = req.body.progress_status;
     project.status = req.body.status;
-    project.createdBy = req.user._id;
     project.updatedBy = req.user._id;
 
     const updatedProject = await project.save();
@@ -106,6 +141,7 @@ const updateProject = AsyncHandler(async (req, res) => {
       createdBy: updatedProject.createdBy,
       updatedBy: updatedProject.updatedBy,
     };
+    
     return res
       .status(200)
       .json(new ApiResponse(200, newProject, "Project updated Successfully"));
@@ -120,7 +156,10 @@ const updateProject = AsyncHandler(async (req, res) => {
 
 const deleteProject = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
-  await Project.findByIdAndDelete(id);
+  const deletedProject = await Project.findByIdAndDelete(id);
+  if(deletedProject.logo){
+    await cleanup(deletedProject.logo.public_id);
+  }
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Project deleted successfully"));
@@ -146,21 +185,56 @@ const AssignUser = AsyncHandler(async (req, res) => {
   const roleid = req.roleid;
   const role_id = Object.values(roleid);
 
-  const AssignedUser = await Project.findByIdAndUpdate(
-    id,
-    {
-      $push: {
-        users: {
-          user_id,
-          role_id,
+  
+  const project = await Project.findById(id);
+  if (!project) {
+    throw new ApiError(404, "Project not found");
+  }
+
+  const userExists = project.users.some(user => user.user_id.toString() === user_id[0].toString());
+  const roleExists = project.users.some(user => 
+    user.user_id.toString() === user_id[0].toString() && 
+    user.role_id.toString() === role_id[0].toString()
+  );
+
+  if (roleExists) {
+    throw new ApiError(404, "User with this role already exists in this project");
+  }
+
+  let updatedProject;
+  
+  if (userExists) {
+
+    updatedProject = await Project.findOneAndUpdate(
+      {
+        _id: id,
+        "users.user_id": user_id[0]
+      },
+      {
+        $set: {
+          "users.$.role_id": role_id[0]
+        }
+      },
+      { new: true }
+    );
+  } else {
+    updatedProject = await Project.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          users: {
+            user_id,
+            role_id,
+          },
         },
       },
-    },
-    { new: true, upsert: true }
-  );
+      { new: true }
+    );
+  }
+
   return res
     .status(200)
-    .json(new ApiResponse(200, AssignedUser, "Updated Successfully"));
+    .json(new ApiResponse(200, updatedProject, "Updated Successfully"));
 });
 
 const getAssignUserName = AsyncHandler(async (req, res) => {
@@ -245,7 +319,28 @@ const deleteAssignedUser = AsyncHandler(async (req, res) => {
 });
 
 const logoUpload = AsyncHandler(async (req, res) => {
-  return res.status(200).json(new ApiResponse(200, req.logo, "Logo Uploaded "));
+  const logo = req.logodetail;
+  return res.status(200).json(new ApiResponse(200, logo, "Logo Uploaded Successfully"));
+});
+
+const deleteLogo = AsyncHandler(async (req, res) => {
+  const { public_id } = req.body;
+  
+  if (!public_id) {
+    console.log("Logo public_id is required");
+  }
+ const existingProject = await Project.findOne({ "logo.public_id": public_id });
+  if (existingProject) {
+    // If this logo is currently being used by a project, don't delete it
+    return res.status(200).json(new ApiResponse(200, {}, "Logo is in use, skipping deletion"));
+  }
+
+  try {
+    await cleanup(public_id);
+    return res.status(200).json(new ApiResponse(200, {}, "Logo Deleted Successfully"));
+  } catch (error) {
+    throw new ApiError(500, error, "Failed to delete logo");
+  }
 });
 
 export {
@@ -259,4 +354,5 @@ export {
   deleteProject,
   updateProject,
   logoUpload,
+  deleteLogo,
 };

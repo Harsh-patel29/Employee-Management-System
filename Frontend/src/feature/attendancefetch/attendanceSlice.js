@@ -67,7 +67,14 @@ const markattendanceSlice = createSlice({
     error: null,
     loading: false,
   },
-  reducers: {},
+  reducers: {
+    resetAttendance: (state) => {
+      state.attendance = null;
+      state.newattendance = [];
+      state.error = null;
+      state.loading = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(markAttendance.pending, (state) => {
@@ -96,7 +103,7 @@ const markattendanceSlice = createSlice({
       })
       .addCase(fetchAttendance.pending, (state) => {
         state.error = null;
-        state.loading = true;
+        state.loading = false;
       })
       .addCase(fetchAttendance.fulfilled, (state, action) => {
         state.newattendance = action.payload;
@@ -108,5 +115,5 @@ const markattendanceSlice = createSlice({
       });
   },
 });
-
+export const { resetAttendance } = markattendanceSlice.actions;
 export default markattendanceSlice.reducer;

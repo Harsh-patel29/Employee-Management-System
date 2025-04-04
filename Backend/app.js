@@ -19,6 +19,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+
 import userRoute from "./Routes/userRoute.js";
 import attendanceRoute from "./Routes/attendanceRoute.js";
 import projectRoute from "./Routes/projectRoute.js";
@@ -28,4 +29,11 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v2/attendance", attendanceRoute);
 app.use("/api/v3/project", projectRoute);
 app.use("/api/v4/tasks", taskRoute);
+
+app.use((err,req,res,next)=>{
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  console.log(err.message);
+  res.status(statusCode).json({message})
+})
 export { app };

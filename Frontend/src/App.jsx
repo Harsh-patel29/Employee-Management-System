@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Components/Loader.jsx";
 function App() {
-  console.log("App");
+
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   const [loading, setLoading] = useState(true);
 

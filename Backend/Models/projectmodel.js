@@ -7,7 +7,8 @@ const ProjectSchema = new Schema(
       required: true,
     },
     logo: {
-      type: String,
+      url:String,
+      public_id:String,
     },
     users: [
       {

@@ -11,6 +11,7 @@ import {
   getProjectRoles,
   logoUpload,
   updateProject,
+  deleteLogo,
 } from "../Controllers/Project.controller.js";
 import { authenticate } from "../Middlewares/AuthorizeMiddleware.js";
 import { roleid, userid } from "../Middlewares/userroleMiddleware.js";
@@ -55,6 +56,7 @@ router
     authenticate,
     updateProject
   );
+router.route("/project/logo/delete").delete(authenticate,deleteLogo);
 router
   .route("/project/roles/update/:id")
   .patch(authenticate, userid, roleid, AssignUser);
@@ -64,5 +66,4 @@ router
 router
   .route("/project/roles/details/name/delete/role/:id/:userid/:roleid")
   .delete(authenticate, deleteAssignedUser);
-
 export default router;

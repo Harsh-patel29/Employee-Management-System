@@ -11,7 +11,7 @@ export const getRoles = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -26,7 +26,7 @@ export const getKeys = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -42,7 +42,7 @@ export const createRole = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -58,7 +58,7 @@ export const updateRole = createAsyncThunk(
       );
       return res.data;
     }catch(error){
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -74,10 +74,11 @@ export const deleteRole = createAsyncThunk(
       console.log(res.data);  
       return res.data;
     }catch(error){
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
+
 export const getRoleById = createAsyncThunk(
   "auth/getRoleById",
   async (id, { rejectWithValue }) => {
@@ -86,10 +87,9 @@ export const getRoleById = createAsyncThunk(
         `http://localhost:8000/api/v1/user/get/role/${id}`, 
         { withCredentials: true }
       );
-
       return res.data;
     }catch(error){
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
