@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Components/Loader.jsx";
+
 function App() {
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
@@ -24,6 +25,7 @@ function App() {
   }
   return (
     <>
+      <ToastContainer />
       <div>
         <NavBar />
         <div className="flex ">
@@ -36,7 +38,6 @@ function App() {
             <Outlet />
           </main>
         </div>
-        <ToastContainer/>
       </div>
     </>
   );

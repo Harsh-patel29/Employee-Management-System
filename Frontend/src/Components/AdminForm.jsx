@@ -19,8 +19,9 @@ import {
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import { useEffect } from "react";
-import { Link, useParams } from "react-router";
+import {  useParams } from "react-router";
 import { getUser } from "../feature/datafetch/userfetchSlice";
+"react-redux";
 
 const formSchema = z.object({
   Name: z.string().min(1, { message: "Name is Required" }),
@@ -53,6 +54,8 @@ export default function AdminForm({ onSubmit, mode }) {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { id } = useParams();
+  
+
 
   useEffect(() => {
     if (mode === "update" && id) {
@@ -126,16 +129,16 @@ export default function AdminForm({ onSubmit, mode }) {
             name="Name"
             render={({ field }) => (
               <FormItem className="w-[90%]">
-                <FormLabel>Name</FormLabel>
-                <div>{errors?.Name && <span>{errors.Name.message}</span>}</div>
+                <FormLabel className={errors?.Name ? "text-[#737373]":""}>Name</FormLabel>
                 <FormControl>
                   <Input
                     className="shadow"
                     type="text"
                     placeholder="Enter Your Name"
                     {...field}
-                  />
+                    />
                 </FormControl>
+                  <div>{errors?.Name && <span className="text-red-500 font-semibold">{errors.Name.message}</span>}</div>
               </FormItem>
             )}
           />
@@ -144,38 +147,38 @@ export default function AdminForm({ onSubmit, mode }) {
             name="Email"
             render={({ field }) => (
               <FormItem className="w-[90%]">
-                <FormLabel>Email</FormLabel>
-                <div>
-                  {errors?.Email && <span>{errors.Email.message}</span>}
-                </div>
+                <FormLabel className={errors?.Email ? "text-[#737373]":""}>Email</FormLabel>
                 <FormControl>
                   <Input
                     className="shadow"
                     type="email"
                     placeholder="Enter Your Email"
                     {...field}
-                  />
+                    />
                 </FormControl>
+            <div>
+              {errors?.Email && <span className="text-red-500 font-semibold">{errors.Email.message}</span>}
+            </div>
               </FormItem>
             )}
-          />
+            />
           <FormField
             control={control}
             name="Password"
             render={({ field }) => (
               <FormItem className="w-[90%]">
                 <FormLabel>Password</FormLabel>
-                <div>
-                  {errors?.Password && <span>{errors.Password.message}</span>}
-                </div>
                 <FormControl>
                   <Input
                     className="shadow"
                     type="password"
                     placeholder="Enter Password"
                     {...field}
-                  />
+                    />
                 </FormControl>
+                    <div>
+                      {errors?.Password && <span>{errors.Password.message}</span>}
+                    </div>
               </FormItem>
             )}
           />
@@ -184,12 +187,7 @@ export default function AdminForm({ onSubmit, mode }) {
             name="Date_of_Birth"
             render={({ field }) => (
               <FormItem className="w-[90%] flex flex-col ">
-                <FormLabel className="h-2">DOB</FormLabel>
-                <div>
-                  {errors?.Date_of_Birth && (
-                    <span>{errors.Date_of_Birth.message}</span>
-                  )}
-                </div>
+                <FormLabel className={`${errors?.Date_of_Birth ? "text-[#737373] h-2" : ""}`}>DOB</FormLabel>
                 <FormControl>
                   <Popover>
                     <PopoverTrigger>
@@ -203,7 +201,7 @@ export default function AdminForm({ onSubmit, mode }) {
                         }
                         onChange={field.onChange}
                         placeholder="Select Date"
-                      ></Input>
+                        ></Input>
                     </PopoverTrigger>
                     <PopoverContent>
                       <DatePicker
@@ -223,10 +221,15 @@ export default function AdminForm({ onSubmit, mode }) {
                         showMonthDropdown
                         scrollableYearDropdown
                         yearDropdownItemNumber={100}
-                      />
+                        />
                     </PopoverContent>
                   </Popover>
                 </FormControl>
+            <div>
+              {errors?.Date_of_Birth && (
+                <span className="text-red-500 font-semibold">{errors.Date_of_Birth.message}</span>
+              )}
+            </div>
               </FormItem>
             )}
           />
@@ -235,20 +238,20 @@ export default function AdminForm({ onSubmit, mode }) {
             name="Mobile_Number"
             render={({ field }) => (
               <FormItem className="w-[90%]">
-                <FormLabel>Mobile Number</FormLabel>
-                <div>
-                  {errors?.Mobile_Number && (
-                    <span>{errors.Mobile_Number.message}</span>
-                  )}
-                </div>
+                <FormLabel className={errors?.Mobile_Number ? "text-[#737373]":""}>Mobile Number</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
                     className="shadow"
                     placeholder="Enter Your Mobile Number"
                     {...field}
-                  />
+                    />
                 </FormControl>
+                    <div>
+                      {errors?.Mobile_Number && (
+                        <span className="text-red-500 font-semibold">{errors.Mobile_Number.message}</span>
+                      )}
+                    </div>
               </FormItem>
             )}
           />
@@ -257,16 +260,13 @@ export default function AdminForm({ onSubmit, mode }) {
             name="Gender"
             render={({ field }) => (
               <FormItem>
-                <FormLabel htmlFor="Gender">Select Gender</FormLabel>
-                <div>
-                  {errors?.Gender && <span>{errors.Gender.message}</span>}
-                </div>
+                <FormLabel htmlFor="Gender" className={errors?.Gender ? "text-[#737373]":""}>Select Gender</FormLabel>
                 <FormControl>
                   <select
                     id="Gender"
                     {...field}
                     className="flex border w-[90%] h-9 rounded-md shadow pl-2"
-                  >
+                    >
                     <option
                       value=""
                       className={`${
@@ -274,7 +274,7 @@ export default function AdminForm({ onSubmit, mode }) {
                       } `}
                       disabled
                       selected
-                    >
+                      >
                       Select
                     </option>
                     <option
@@ -282,7 +282,7 @@ export default function AdminForm({ onSubmit, mode }) {
                       className={`${
                         theme === "light" ? "bg-white" : "bg-[#121212]"
                       }`}
-                    >
+                      >
                       MALE
                     </option>
                     <option
@@ -290,11 +290,14 @@ export default function AdminForm({ onSubmit, mode }) {
                       className={`${
                         theme === "light" ? "bg-white" : "bg-[#121212]"
                       }`}
-                    >
+                      >
                       FEMALE
                     </option>
                   </select>
                 </FormControl>
+                      <div>
+                        {errors?.Gender && <span className="text-red-500 font-semibold">{errors.Gender.message}</span>}
+                      </div>
               </FormItem>
             )}
           />
@@ -303,13 +306,8 @@ export default function AdminForm({ onSubmit, mode }) {
               control={control}
               name="DATE_OF_JOINING"
               render={({ field }) => (
-                <FormItem className="w-[90%] flex flex-col ">
-                  <FormLabel className="h-2">Date Of Joining</FormLabel>
-                  <div>
-                    {errors?.DATE_OF_JOINING && (
-                      <span>{errors.DATE_OF_JOINING.message}</span>
-                    )}
-                  </div>
+                <FormItem className="w-[90%] flex flex-col h-16">
+                  <FormLabel className={`${errors?.DATE_OF_JOINING ? "text-[#737373] h-10" : ""}`}>Date Of Joining</FormLabel>
                   <FormControl>
                     <Popover>
                       <PopoverTrigger>
@@ -345,13 +343,18 @@ export default function AdminForm({ onSubmit, mode }) {
                           showYearDropdown
                           scrollableYearDropdown
                           yearDropdownItemNumber={100}
-                        />
+                          />
                       </PopoverContent>
                     </Popover>
                   </FormControl>
+            <div>
+              {errors?.DATE_OF_JOINING && (
+                <span className="text-red-500 font-semibold">{errors.DATE_OF_JOINING.message}</span>
+              )}
+            </div>
                 </FormItem>
               )}
-            />
+              />
           ) : null}
           <FormField
             control={control}
@@ -359,18 +362,17 @@ export default function AdminForm({ onSubmit, mode }) {
             render={({ field }) => (
               <FormItem className="w-[90%] flex flex-col ">
                 <FormLabel>Designation</FormLabel>
-
                 <FormControl>
                   <Input
                     type="text"
                     className="shadow"
                     placeholder="Enter Designation"
                     {...field}
-                  />
+                    />
                 </FormControl>
               </FormItem>
             )}
-          />
+            />
           <FormField
             control={control}
             name="WeekOff"
@@ -391,19 +393,16 @@ export default function AdminForm({ onSubmit, mode }) {
           {user.permission.user.can_update_user_roles === true ? (
             <FormField
               control={control}
-              name="role"
+              name="role" 
               render={({ field }) => (
-                <FormItem className="">
-                  <FormLabel htmlFor="role">Role</FormLabel>
-                  <div>
-                    {errors?.role && <span>{errors.role.message}</span>}
-                  </div>
+                <FormItem>
+                  <FormLabel htmlFor="role" className={errors?.role ? "text-[#737373]" : ""}>Role</FormLabel>
                   <FormControl>
                     <select
                       id="role"
                       className="flex border w-[90%] h-9 rounded-md shadow pl-2"
                       {...field}
-                    >
+                      >
                       <option
                         value=""
                         className={`${
@@ -411,7 +410,7 @@ export default function AdminForm({ onSubmit, mode }) {
                         }`}
                         disabled
                         selected
-                      >
+                        >
                         Select
                       </option>
                       <option
@@ -419,7 +418,7 @@ export default function AdminForm({ onSubmit, mode }) {
                         className={`${
                           theme === "light" ? "bg-white" : "bg-[#121212]"
                         }`}
-                      >
+                        >
                         Admin
                       </option>
                       <option
@@ -427,7 +426,7 @@ export default function AdminForm({ onSubmit, mode }) {
                         className={`${
                           theme === "light" ? "bg-white" : "bg-[#121212]"
                         }`}
-                      >
+                        >
                         HR
                       </option>
                       <option
@@ -435,7 +434,7 @@ export default function AdminForm({ onSubmit, mode }) {
                         className={`${
                           theme === "light" ? "bg-white" : "bg-[#121212]"
                         }`}
-                      >
+                        >
                         Product_Manager
                       </option>
                       <option
@@ -443,11 +442,14 @@ export default function AdminForm({ onSubmit, mode }) {
                         className={`${
                           theme === "light" ? "bg-white" : "bg-[#121212]"
                         }`}
-                      >
+                        >
                         Developer
                       </option>
                     </select>
                   </FormControl>
+                        <div>
+                          {errors?.role && <span className="text-red-500 font-semibold">{errors.role.message}</span>}
+                        </div>
                 </FormItem>
               )}
             />

@@ -107,19 +107,15 @@ const updateProject = AsyncHandler(async (req, res) => {
       throw new ApiError(404, "Project not found");
     }
 
-    // Only update logo if a new one is provided and it's different from the current one
     if (req.body.logo && req.body.logo.secure_url && req.body.logo.public_id) {
-      // Check if the new logo is different from the current one
       if (req.body.logo.public_id !== project.logo?.public_id) {
         const oldLogoPublicId = project.logo?.public_id;
         
-        // Update with new logo
         project.logo = {
           url: req.body.logo.secure_url,
           public_id: req.body.logo.public_id,
         };
 
-        // Delete old logo from Cloudinary if it exists and is different from the new one
         if (oldLogoPublicId && oldLogoPublicId !== req.body.logo.public_id) {
           await cleanup(oldLogoPublicId);
         }
@@ -331,7 +327,6 @@ const deleteLogo = AsyncHandler(async (req, res) => {
   }
  const existingProject = await Project.findOne({ "logo.public_id": public_id });
   if (existingProject) {
-    // If this logo is currently being used by a project, don't delete it
     return res.status(200).json(new ApiResponse(200, {}, "Logo is in use, skipping deletion"));
   }
 

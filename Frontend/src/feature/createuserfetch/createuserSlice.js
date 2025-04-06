@@ -12,7 +12,7 @@ export const createuser = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response.data.message || error.message);
     }
   }
 );
@@ -26,7 +26,7 @@ export const fetchuser = createAsyncThunk(
       });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response.data||error.message);
     }
   }
 );
@@ -42,7 +42,7 @@ export const updateuser = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response.data||error.message);
     }
   }
 );
@@ -72,7 +72,23 @@ const createuserSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    resetCreatedUser:(state)=>{
+      state.createduser=null
+    },
+    resetUpdatedUser:(state)=>{
+      state.updateduser=null
+    },
+    resetDeletedUser:(state)=>{
+      state.deleteduser=null
+    },
+    reseterror:(state)=>{
+      state.error=null
+    },
+    resetLoading:(state)=>{
+      state.loading=null
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createuser.pending, (state) => {
@@ -88,7 +104,7 @@ const createuserSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchuser.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(fetchuser.fulfilled, (state, action) => {
@@ -126,4 +142,5 @@ const createuserSlice = createSlice({
   },
 });
 
+export const { resetCreatedUser, resetUpdatedUser, resetDeletedUser, reseterror, resetLoading } = createuserSlice.actions;
 export default createuserSlice.reducer;

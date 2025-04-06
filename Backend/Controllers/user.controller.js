@@ -38,7 +38,6 @@ const createUser = AsyncHandler(async (req, res) => {
     Date_of_Birth,
     Mobile_Number,
     Gender,
-    EMP_CODE,
     DATE_OF_JOINING,
     Designation,
     WeekOff,
@@ -47,8 +46,9 @@ const createUser = AsyncHandler(async (req, res) => {
   } = req.body;
 
   const userExist = await User.findOne({
-    $or: [{ Email }, { EMP_CODE }],
+    $or: [{ Email }, { Name }],
   });
+
   if (userExist) {
     throw new ApiError(404, "User already exists");
   }
@@ -147,6 +147,13 @@ const updateUser = AsyncHandler(async (req, res) => {
   const result = req.rolesResult;
   const roleid = result[0]._id;
 
+  if(req.body.Name && req.body.Name !== user.Name){
+    const nameexists = await User.findOne({Name: req.body.Name});
+    if(nameexists){
+      throw new ApiError(404, "User name already exists");
+    }
+  }
+
   if (!user) {
     throw new ApiError(404, "User not found");
   } else {
@@ -182,6 +189,7 @@ const updateUser = AsyncHandler(async (req, res) => {
       role: updatedUser.role,
       ReportingManager: updatedUser.ReportingManager,
     };
+
 
     return res
       .status(200)

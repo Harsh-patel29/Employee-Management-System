@@ -4,22 +4,22 @@ import * as z from "zod";
 import { Button } from "../Components/components/ui/button";
 import { Input } from "../Components/components/ui/input";
 import {
-  useFormField,
   Form,
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
-  FormMessage,
   FormField,
 } from "../Components/components/ui/form";
-
+import { useSelector } from "react-redux";
 const formSchema = z.object({
   Email: z.string().email({ message: "Please enter correct Email" }),
   Password: z.string().min(6, { message: "Passoword must be 6 characters" }),
 });
 
 export default function LoginForm({ onSubmit }) {
+  const { loading } = useSelector((state) => state.auth);
+
+
   const {
     control,
     handleSubmit,
@@ -43,11 +43,11 @@ export default function LoginForm({ onSubmit }) {
           name="Email"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel>Email:</FormLabel>
+              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">Email:</FormLabel>
               <div>{errors?.Email && <span>{errors.Email.message}</span>}</div>
               <FormControl>
                 <Input
-                  className="w-70"
+                  className="w-80 p-[6px] rounded-sm"
                   type="email"
                   placeholder="Enter Your Email"
                   {...field}
@@ -61,13 +61,13 @@ export default function LoginForm({ onSubmit }) {
           name="Password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password:</FormLabel>
+              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">Password:</FormLabel>
               <div>
                 {errors?.Password && <span>{errors.Password.message}</span>}
               </div>
               <FormControl>
                 <Input
-                  className="w-70"
+                  className="w-80 p-[6px] rounded-sm"
                   type="password"
                   placeholder="Enter Password"
                   {...field}
@@ -78,9 +78,9 @@ export default function LoginForm({ onSubmit }) {
         />
         <Button
           type="submit"
-          className="w-[80%] bg-blue-600 hover:bg-blue-700 xl:mt-10 lg:mt-8 md:mt-4 sm:w-[80%] sm:mt-5"
+          className="w-80 bg-blue-600 hover:bg-blue-700 mt-[15px] font-[Inter,sans-serif]"
         >
-          Login
+          {loading ? "Signing In..." : "Sign In"}
         </Button>
       </form>
     </Form>

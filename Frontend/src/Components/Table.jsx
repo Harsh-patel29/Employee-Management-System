@@ -9,7 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { data, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
   Sheet,
@@ -31,11 +31,7 @@ import { MdDelete } from "react-icons/md";
 import { Button } from "../Components/components/ui/button.tsx";
 import { Bounce, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
-import { createuser } from "../feature/createuserfetch/createuserSlice.js";
-import { fetchuser } from "../feature/createuserfetch/createuserSlice.js";
-import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
-import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
-import TablePagination from "@mui/material/TablePagination";
+import { createuser ,fetchuser,deleteuser,updateuser,resetCreatedUser,resetUpdatedUser,reseterror,resetDeletedUser} from "../feature/createuserfetch/createuserSlice.js";
 import Loader from "../Components/Loader.jsx";
 import ReusableTable from "./ReusableTable.jsx";
 function Row({
@@ -48,7 +44,13 @@ function Row({
 }) {
   const [open, setOpen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+  const {updateduser} = useSelector((state)=>state.createuser)
 
+  React.useEffect(()=>{
+    if(updateduser?.success === true){
+      setupdatesheetopen(false);
+    }
+  },[updateduser])
   const theme = useSelector((state) => state.theme.theme);
   const dispatch = useDispatch();
   return (
@@ -112,7 +114,6 @@ function Row({
                       mode="update"
                       onSubmit={(data) => {
                         dispatch(updateuser({ data, userid: row._id }));
-                        setupdatesheetopen(false);
                       }}
                     />
                   </SheetDescription>
@@ -224,7 +225,7 @@ export default function CollapsibleTable() {
 
   const dispatch = useDispatch();
 
-  const { createduser, fetchusers, deleteduser, updateduser, loading } =
+  const { createduser, fetchusers, deleteduser, updateduser, loading ,error} =
     useSelector((state) => state.createuser);
 
   React.useEffect(() => {
@@ -296,8 +297,15 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     if (createduser?.success === true) {
+       toast.success("User Created Successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       dispatch(fetchuser());
       setsheetopen(false);
+      return()=>{
+        dispatch(resetCreatedUser())
+      }
     }
   }, [createduser]);
 
@@ -310,10 +318,34 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     if (updateduser?.success === true) {
-      setupdatesheetopen(false);
+       toast.success("User updated Successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       dispatch(fetchuser());
+      return()=>{
+        dispatch(resetUpdatedUser())
+      }
     }
   }, [updateduser]);
+
+  React.useEffect(() => {
+    if (error) {
+      const errorMessage = error.response?.data?.message || error.message || error;
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      dispatch(reseterror());
+    }
+  },[error])
 
   React.useEffect(() => {
     if (updatesheetopen === false) {
@@ -326,13 +358,19 @@ export default function CollapsibleTable() {
   React.useEffect(() => {
     if (deleteduser?.success === true) {
       navigate(`/users`, { replace: true });
+       toast.success("User Deleted Successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       dispatch(fetchuser());
+      return()=>{
+        dispatch(resetDeletedUser())
+      }
     }
   }, [deleteduser, dispatch]);
 
-
 const columns = [
-  { field: "expand", headerName: "", width: 50 },  // Column for expand/collapse arrow
+  { field: "expand", headerName: "", width: 50 },  
   { field: "index", headerName: "#" },
   { field: "Name", headerName: "Name" },
   { field: "EMP_CODE", headerName: "Employee Code" },
@@ -343,6 +381,10 @@ const columns = [
   { field: "edit", headerName: "Edit" },
   { field: "delete", headerName: "Delete" }
 ];
+
+if (loading) {
+  return <Loader />;
+}
 
 return(
   <>
