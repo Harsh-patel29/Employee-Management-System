@@ -91,7 +91,7 @@ const markattendanceSlice = createSlice({
       })
       .addCase(getUserDetails.pending, (state) => {
         state.error = null;
-        state.loading = true;
+        state.loading = false;
       })
       .addCase(getUserDetails.fulfilled, (state, action) => {
         state.attendance = action.payload;
@@ -103,7 +103,7 @@ const markattendanceSlice = createSlice({
       })
       .addCase(fetchAttendance.pending, (state) => {
         state.error = null;
-        state.loading = false;
+        state.loading = true;
       })
       .addCase(fetchAttendance.fulfilled, (state, action) => {
         state.newattendance = action.payload;

@@ -4,14 +4,9 @@ import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { data, useNavigate, useParams } from "react-router";
@@ -42,6 +37,7 @@ import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
 import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
 import TablePagination from "@mui/material/TablePagination";
 import Loader from "../Components/Loader.jsx";
+import ReusableTable from "./ReusableTable.jsx";
 function Row({
   row,
   canUpdateUser,
@@ -218,7 +214,6 @@ export default function CollapsibleTable() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [users, setUsers] = React.useState([]);
-  // const [loading, setLoading] = React.useState(true);
   const [canAddUser, setcanAddUser] = React.useState(false);
   const [canUpdateUser, setcanUpdateUser] = React.useState(false);
   const [isDefault, setisDefault] = React.useState(false);
@@ -226,8 +221,7 @@ export default function CollapsibleTable() {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [userid, setuserid] = React.useState(id);
   const [dialogOpen, setdialogOpen] = React.useState(false);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
   const dispatch = useDispatch();
 
   const { createduser, fetchusers, deleteduser, updateduser, loading } =
@@ -336,27 +330,23 @@ export default function CollapsibleTable() {
     }
   }, [deleteduser, dispatch]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+const columns = [
+  { field: "expand", headerName: "", width: 50 },  // Column for expand/collapse arrow
+  { field: "index", headerName: "#" },
+  { field: "Name", headerName: "Name" },
+  { field: "EMP_CODE", headerName: "Employee Code" },
+  { field: "role", headerName: "Role" },
+  { field: "Email", headerName: "Email" },
+  { field: "Mobile_Number", headerName: "Mobile Number" },
+  { field: "ReportingManager", headerName: "Reporting Manager" },
+  { field: "edit", headerName: "Edit" },
+  { field: "delete", headerName: "Delete" }
+];
 
-  const paginatedUsers = users.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const theme = useSelector((state) => state.theme.theme);
-
-  return loading ? (
-    <Loader />
-  ) : (
-    <>
-      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1">
+return(
+  <>
+  <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Users
         </h5>
@@ -412,8 +402,7 @@ export default function CollapsibleTable() {
               </div>
             </SheetTrigger>
             <SheetContent
-              className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
-                min-w-6xl`}
+              className="bg-white min-w-6xl"
             >
               <SheetHeader>
                 <SheetDescription>
@@ -427,87 +416,20 @@ export default function CollapsibleTable() {
           </Sheet>
         </div>
       </div>
+  <ReusableTable
+    columns={columns}
+    data={users}
+    RowComponent={Row}
+    pagination={true}
+    rowProps={{
+      canUpdateUser,
+      openSheet,
+      navigate,
+      isDefault,
+      openDialog
+    }}
+  />
+  </>
+)
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "white",
-          marginTop: 0.5,
-          color: "black",
-          maxHeight: 500,
-          width: "98%",
-          marginLeft: 1.7,
-          borderRadius: 2,
-        }}
-      >
-        <Table
-          aria-label="collapsible table"
-          sx={{
-            "& .MuiTableCell-root": {
-              padding: 0.4,
-            },
-          }}
-        >
-          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
-            <TableRow className="h-2">
-              <TableCell />
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                #
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Name
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                EMP Code
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Role
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Email
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Mobile
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Reporting Manager
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                {`${canUpdateUser ? "Action" : ""}`}
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                {isDefault === false ? "Delete" : ""}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedUsers?.map((user, index) => (
-              <Row
-                key={user._id}
-                row={{ ...user, index: page * rowsPerPage + index + 1 }}
-                canAddUser={canAddUser}
-                canUpdateUser={canUpdateUser}
-                openSheet={openSheet}
-                openDialog={openDialog}
-                navigate={navigate}
-                sheetopen={sheetopen}
-                dialogOpen={dialogOpen}
-                currentId={userid}
-                isDefault={isDefault}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        className="flex w-full justify-center"
-        component="div"
-        count={users.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </>
-  );
 }

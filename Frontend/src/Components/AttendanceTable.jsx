@@ -6,16 +6,13 @@ import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { markAttendance } from "../feature/attendancefetch/attendanceSlice.js";
-import { fetchAttendance } from "../feature/attendancefetch/attendanceSlice.js";
+import { markAttendance,fetchAttendance,resetAttendance } from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -30,8 +27,10 @@ import TextField from "@mui/material/TextField";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { Link, useNavigate } from "react-router-dom";
-import TablePagination from "@mui/material/TablePagination";
 import Loader from "./Loader.jsx";
+import ReusableTable from "./ReusableTable.jsx";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function convertDateFormat(dateStr) {
   const [month, day, year] = dateStr.split("/");
@@ -105,7 +104,6 @@ function Row({ row, openMap }) {
             View
           </Link>
         </TableCell>
-        <TableCell></TableCell>
       </TableRow>
       <TableRow>
         <TableCell
@@ -196,8 +194,6 @@ export default function CollapsibleTable() {
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(3);
   const videoRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const navigate = useNavigate();
@@ -208,74 +204,87 @@ export default function CollapsibleTable() {
 
   const { user } = useSelector((state) => state.auth);
 
-  const theme = useSelector((state) => state.theme.theme);
+  React.useEffect(()=>{
+    if(error){
+      toast.error("Error fetching attendance",{
+        position: "top-right",
+        autoClose: 3000,
+      })
+    }
+  },[error])
 
+  
   React.useEffect(() => {
     dispatch(fetchAttendance());
   }, []);
-
+  
   React.useEffect(() => {
     if (newattendance?.message) {
       setAttendances(newattendance.message);
       setFilteredAttendances(newattendance.message);
     }
   }, [newattendance]);
-
+  
   React.useEffect(() => {
     if (openAttendanceSheet) {
       navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
           }
         })
         .catch((error) => console.error("Error accessing camera:", error));
-    }
-    if (!openAttendanceSheet) {
-      stopCamera();
-    }
-  }, [openAttendanceSheet]);
-
-  const stopCamera = () => {
-    if (videoRef.current?.srcObject) {
-      let stream = videoRef.current.srcObject;
-      let tracks = stream.getTracks();
-      tracks.forEach((track) => {
-        track.stop();
-      });
-      videoRef.current.srcObject = null;
-    }
-  };
-
-  React.useEffect(() => {
-    if (attendance?.success === true) {
-      dispatch(fetchAttendance());
-      navigate("/attendance");
-      stopCamera();
-      setOpenAttendanceSheet(false);
-    }
-  }, [attendance?.success, navigate]);
-
+      }
+      if (!openAttendanceSheet) {
+        stopCamera();
+      }
+    }, [openAttendanceSheet]);
+    
+    const stopCamera = () => {
+      if (videoRef.current?.srcObject) {
+        let stream = videoRef.current.srcObject;
+        let tracks = stream.getTracks();
+        tracks.forEach((track) => {
+          track.stop();
+        });
+        videoRef.current.srcObject = null;
+      }
+    };
+    
+    React.useEffect(() => {
+      if (attendance?.success === true) {
+        toast.success("Attendance marked successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        dispatch(fetchAttendance());
+        navigate("/attendance");
+        stopCamera();
+        setOpenAttendanceSheet(false);
+        dispatch(resetAttendance());
+      }
+    }, [attendance?.success, navigate, dispatch]);
+  
   const captureImage = async () => {
     if (!videoRef.current) return;
-
+    
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
-
+    
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
-
+    
     context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
+    
     const base64 = canvas.toDataURL("image/png");
     const response = await fetch(base64);
     const blob = await response.blob();
-
+    
     const file = new File([blob], "attendance.png", {
       type: "image/png",
     });
-
+    
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -284,7 +293,7 @@ export default function CollapsibleTable() {
           formData.append("attendance", file);
           formData.append("Latitude", latitude);
           formData.append("Longitude", longitude);
-
+          
           dispatch(markAttendance({ attendance: file, latitude, longitude }));
           setOpenAttendanceSheet(false);
           stopCamera();
@@ -295,7 +304,7 @@ export default function CollapsibleTable() {
       alert("GeoLocation is not supported");
     }
   };
-
+  
   React.useEffect(() => {
     if (!fromDate && !toDate) {
       setFilteredAttendances(attendances);
@@ -303,16 +312,16 @@ export default function CollapsibleTable() {
       const currentDate = new Date();
       const from = fromDate ? new Date(fromDate) : currentDate;
       const to = toDate ? new Date(toDate) : currentDate;
-
+      
       const filtered = attendances.filter((attendance) => {
         const attendanceDate = new Date(attendance.AttendAt);
         return attendanceDate >= from && attendanceDate <= to;
       });
-
+      
       setFilteredAttendances(filtered);
     }
   }, [fromDate, toDate, attendances]);
-
+  
   const groupedAttendances = React.useMemo(() => {
     return filteredAttendances?.reduce((acc, attendance) => {
       const date = new Date(attendance.AttendAt).toLocaleDateString();
@@ -323,24 +332,61 @@ export default function CollapsibleTable() {
       return acc;
     }, {});
   }, [filteredAttendances]);
-
+  
   const sortedDates = Object.keys(groupedAttendances).sort(
     (a, b) => new Date(b) - new Date(a)
   );
+  
+  const formattedData = sortedDates.map((date, index) => {
+    const records = groupedAttendances[date];
+    const firstRecord = records[0];
+    const otherRecords = records.slice(0);
+    const lastTimeIn = otherRecords.findLast((e) => e);
+    const isOdd = records.length % 2 === 1;
+    
+    return {
+      index: index + 1,
+      Image: (
+        <img
+          src={firstRecord.Image}
+          alt="Attendance"
+          className="w-8 h-8 object-cover rounded-3xl"
+        />
+      ),
+      Date: convertDateFormat(date),
+      User: user.user.Name,
+      AttendAt: new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
+      TimeOut: isOdd
+        ? new Date().toLocaleTimeString()
+        : new Date(firstRecord.AttendAt).toLocaleTimeString(),
+      formattedLogHours: isOdd
+        ? formatTime(
+            convertSecondsToTimeString(
+              calculateTimeDifferenceInSeconds(
+                new Date(firstRecord.AttendAt),
+                new Date()
+              )
+            )
+          )
+        : formatTime(firstRecord.LogHours),
+      otherAttendances: otherRecords,
+      Location: firstRecord.Location,
+      Latitude: firstRecord.Latitude,
+      Longitude: firstRecord.Longitude
+    };
+  });
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const paginatedDates = sortedDates.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const columns=[
+    { field: "expand", headerName: "", width: 50 },
+    { field: "index", headerName: "#" },
+    { field: "image", headerName: "Image" },
+    { field: "date", headerName: "Date" },
+    { field: "user", headerName: "User" },
+    { field: "attendAt", headerName: "Attend At" },
+    { field: "timeOut", headerName: "Time Out" },
+    { field: "logHours", headerName: "Log Hours" },
+    { field: "location", headerName: "Location" },
+  ];
 
   return loading ? (
     <Loader />
@@ -462,118 +508,17 @@ export default function CollapsibleTable() {
         </SheetContent>
       </Sheet>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "white",
-          marginTop: 0.5,
-          color: "black",
-          maxHeight: 500,
-          width: "98%",
-          marginLeft: 1.7,
-          borderRadius: 2,
+      <ReusableTable 
+        columns={columns} 
+        data={formattedData} 
+        RowComponent={Row}
+        pagination={true}
+        rowProps={{
+          openMap: () => {
+            const url = `https://www.google.com/maps?q=${formattedData[0]?.Latitude},${formattedData[0]?.Longitude}`;
+            window.open(url, "_blank");
+          }
         }}
-      >
-        <Table
-          aria-label="collapsible table"
-          sx={{
-            "& .MuiTableCell-root": {
-              padding: 0.4,
-            },
-          }}
-        >
-          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
-            <TableRow className="h-2">
-              <TableCell />
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                #
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Image
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Date
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                User
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Time In
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Time Out
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Log Hours
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Location
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Regularization
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedDates.map((date, index) => {
-              const records = groupedAttendances[date];
-              const firstRecord = records[0];
-              const otherRecords = records.slice(0);
-              const lastTimeIn = otherRecords.findLast((e) => {
-                return e;
-              });
-              const isOdd = records.length % 2 === 1;
-
-              return (
-                <Row
-                  key={date}
-                  row={{
-                    index: page * rowsPerPage + index + 1,
-                    Image: (
-                      <img
-                        src={firstRecord.Image}
-                        alt="Attendance"
-                        className="w-8 h-8 object-cover rounded-3xl"
-                      />
-                    ),
-                    Date: convertDateFormat(date),
-                    User: user.user.Name,
-                    AttendAt: new Date(
-                      lastTimeIn?.AttendAt
-                    ).toLocaleTimeString(),
-                    TimeOut: isOdd
-                      ? new Date().toLocaleTimeString()
-                      : new Date(firstRecord.AttendAt).toLocaleTimeString(),
-                    formattedLogHours: isOdd
-                      ? formatTime(
-                          convertSecondsToTimeString(
-                            calculateTimeDifferenceInSeconds(
-                              new Date(firstRecord.AttendAt),
-                              new Date()
-                            )
-                          )
-                        )
-                      : formatTime(firstRecord.LogHours),
-                    otherAttendances: otherRecords,
-                  }}
-                  openMap={() => {
-                    const url = `https://www.google.com/maps?q=${firstRecord.Latitude},${firstRecord.Longitude}`;
-                    window.open(url, "_blank");
-                  }}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        className="flex w-full justify-center"
-        component="div"
-        count={sortedDates.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </>
   );

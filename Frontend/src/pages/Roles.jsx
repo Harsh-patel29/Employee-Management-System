@@ -154,7 +154,7 @@ const [dialogOpen, setdialogOpen] = useState(false);
             New Role
           </button>
         </div>
-        <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl xl:w-[90%] mr-1.5 lg:w-[100%] md:w-[90%] sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
+        <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl xl:w-[100%]  pl-14 pr-14 lg:w-[100%] md:w-[90%] sm:w-[88%] max-sm:w-[86%] transition-all duration-300">
           <Accordion type="single" collapsible className="w-[100%]">
             {Roles.map((role) => (
               <AccordionItem key={role._id} value={role._id}>

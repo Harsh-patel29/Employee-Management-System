@@ -21,6 +21,7 @@ import {
 import { Button } from "../Components/components/ui/button.tsx";
 import { getname } from "../feature/projectfetch/assignuser.js";
 import { deleteassignuser } from "../feature/projectfetch/assignuser.js";
+import ReusableTable from "./ReusableTable.jsx";
 
 function Row({ row, handleDelete }) {
   const navigate = useNavigate();
@@ -34,8 +35,8 @@ function Row({ row, handleDelete }) {
           color: theme === "light" ? "black" : "#f8f9fa",
         }}
       >
-        <TableCell>{row.user}</TableCell>
-        <TableCell>{row.Role}</TableCell>
+        <TableCell>{row.username}</TableCell>
+        <TableCell>{row.rolesName}</TableCell>
         <TableCell sx={{ color: "#ff3b30" }} className="flex">
           <Dialog
             onOpenChange={(open) => {
@@ -73,37 +74,41 @@ function Row({ row, handleDelete }) {
     </React.Fragment>
   );
 }
+
 Row.propTypes = {
   row: PropTypes.shape({
-    user: PropTypes.number,
-    Role: PropTypes.string,
+    username: PropTypes.string,
+    rolesName: PropTypes.string,
+    userid: PropTypes.string,
+    roleId: PropTypes.string,
   }).isRequired,
 };
+
 export default function AssignUserTable() {
   const { id } = useParams();
   const [name, setname] = React.useState([]);
   const [userid, setuserid] = React.useState(id);
-
   const navigate = useNavigate();
-
   const theme = useSelector((state) => state.theme.theme);
-
   const dispatch = useDispatch();
-
-  React.useEffect(() => {
-    setuserid(id);
-  }, []);
 
   const { totalassignedusers, assigneduser, deleteuser } = useSelector(
     (state) => state.assignusers
   );
 
+  // Initial data fetch
+  React.useEffect(() => {
+    dispatch(getname(id));
+  }, [dispatch, id]);
+
+  // Update local state when totalassignedusers changes
   React.useEffect(() => {
     if (totalassignedusers?.message) {
-      setname(totalassignedusers?.message);
+      setname(totalassignedusers.message);
     }
   }, [totalassignedusers]);
 
+  // Handle user assignment
   React.useEffect(() => {
     if (assigneduser?.success === true) {
       dispatch(getname(userid));
@@ -118,56 +123,41 @@ export default function AssignUserTable() {
       console.log("Something went wrong while deleting user", error);
     }
   };
+
+  // Handle user deletion
   React.useEffect(() => {
     if (deleteuser?.success === true) {
       navigate(`/productivity/project/${id}`, { replace: true });
       dispatch(getname(userid));
     }
-  }, [deleteuser, userid, dispatch]);
+  }, [deleteuser, userid, dispatch, id, navigate]);
+
+  const columns = [
+    { field: "username", headerName: "User" },
+    { field: "rolesName", headerName: "Role" },
+    { field: "delete", headerName: "Delete" },
+  ];
 
   return (
     <>
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "white",
-          marginTop: 0.5,
-          color: "black",
-          maxHeight: 500,
-          width: "98%",
-          marginLeft: 1.7,
-          borderRadius: 2,
+      <ReusableTable
+        columns={columns}
+        data={name}
+        RowComponent={Row}
+        pagination={false}
+        tableStyle={{
+          "& .MuiTableCell-root": {
+            padding: "10px",
+          },
+
         }}
-      >
-        <Table>
-          <TableHead sx={{ backgroundColor: "#c1dde9" }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                User
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Role
-              </TableCell>
-              <TableCell sx={{ fontWeight: "200", fontSize: "medium" }}>
-                Action
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {name?.map((name) => (
-              <Row
-                key={name?.userid}
-                row={{
-                  ...name,
-                  user: name?.username,
-                  Role: name?.rolesName,
-                }}
-                handleDelete={handleDelete}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        rowStyle={{
+          padding: "10px",
+        }}
+        rowProps={{
+          handleDelete,
+        }}
+      />
     </>
   );
 }

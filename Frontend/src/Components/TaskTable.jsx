@@ -1,16 +1,7 @@
 import * as React from "react";
-import axios from "axios";
 import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
 import {
@@ -29,22 +20,18 @@ import {
   DialogTrigger,
 } from "../Components/components/ui/dialog";
 import AdminForm from "./AdminForm";
-import { MdDelete } from "react-icons/md";
-import { Button } from "../Components/components/ui/button.tsx";
-import { Bounce, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteuser } from "../feature/createuserfetch/createuserSlice.js";
-import { updateuser } from "../feature/createuserfetch/createuserSlice.js";
-import TablePagination from "@mui/material/TablePagination";
 import {
   createTask,
   getAllTasks,
 } from "../feature/taskfetch/taskfetchSlice.js";
+import ReusableTable from "./ReusableTable";
+
 function Row({ row }) {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-
   const theme = useSelector((state) => state.theme.theme);
   const dispatch = useDispatch();
+  
   return (
     <React.Fragment>
       <TableRow
@@ -97,40 +84,6 @@ function Row({ row }) {
             </Sheet>
           }
         </TableCell>
-        <TableCell sx={{ color: "#ff3b30" }} className="flex">
-          <Dialog
-            onOpenChange={(open) => {
-              if (!open) navigate("/users");
-            }}
-          >
-            <DialogTrigger
-              onClick={() => {
-                openDialog(row._id);
-              }}
-              asChild
-            >
-              <MdDelete className="font-semibold text-lg" />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  user's account and remove their data from servers.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
-                      dispatch(deleteuser(row._id));
-                      navigate("/users");
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        </TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -139,23 +92,21 @@ function Row({ row }) {
 Row.propTypes = {
   row: PropTypes.shape({
     index: PropTypes.number,
-    Code: PropTypes.number,
-    Task: PropTypes.string,
+    CODE: PropTypes.string,
+    title: PropTypes.string,
     StartDate: PropTypes.string,
     EndDate: PropTypes.string,
     Project: PropTypes.string,
-    TotalTime: PropTypes.string,
+    Totatime: PropTypes.string,
     createdBy: PropTypes.string,
     Status: PropTypes.string,
     Asignee: PropTypes.string,
   }).isRequired,
 };
 
-export default function CollapsibleTable() {
+export default function TaskTable() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const dispatch = useDispatch();
   const [Tasks, setTasks] = React.useState([]);
   const [taskid, settaskid] = React.useState();
@@ -206,143 +157,57 @@ export default function CollapsibleTable() {
     dispatch(createTask());
   };
 
-  console.log(createtask?.message?.CODE);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const paginatedTasks = Tasks?.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const theme = useSelector((state) => state.theme.theme);
+  const columns = [
+    { field: "index", headerName: "#" },
+    { field: "CODE", headerName: "Code" },
+    { field: "title", headerName: "Task" },
+    { field: "StartDate", headerName: "Start Date" },
+    { field: "EndDate", headerName: "End Date" },
+    { field: "Project", headerName: "Project" },
+    { field: "Totatime", headerName: "Total Time" },
+    { field: "createdBy", headerName: "Created By" },
+    { field: "Status", headerName: "Status" },
+    { field: "Asignee", headerName: "Asignee" },
+    { field: "action", headerName: "Update" },
+  ];
 
   return (
-    <>
-      <div className="inline-flex justify-between w-full pb-3 mt-2 ">
-        <div className="text-3xl flex ml-2">Tasks</div>
-        <div className="text-3xl flex gap-10">
+  <>
+  <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+          Tasks
+        </h5>
+        <div className="flex items-center">
           <button
-            className="bg-[#bfdbfe] cursor-pointer rounded-lg w-35 text-lg"
-            onClick={() => handleCreateTask()}
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
+            onClick={() => navigate("/users/roles")}
           >
-            + Tasks
+            <svg
+              className="w-6 h-6 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#338DB5"
+              viewBox="0 0 24 24"
+              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+            >
+              <title>Manage User</title>
+              <path
+                fill-rule="evenodd"
+                d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            Manage Users
           </button>
-          {/* <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger
-              className={`${
-                theme === "light" ? "hover:bg-gray-200" : "hover:bg-gray-700"
-              } 
-              ${
-                canAddUser
-                  ? "h-10 w-10 rounded-3xl justify-center flex"
-                  : "hidden"
-              }
-              `}
-            >
-              +
-            </SheetTrigger>
-            <SheetContent
-              className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
-              min-w-6xl`}
-            >
-              <SheetHeader>
-                <SheetDescription>
-                  <AdminForm
-                    mode="create"
-                    onSubmit={(data) => dispatch(createuser(data))}
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet> */}
         </div>
       </div>
-
-      <TableContainer
-        component={Paper}
-          sx={{
-          backgroundColor: "white",
-          marginTop: 0.5,
-          color: "black",
-          maxHeight: 500,
-          width: "98%",
-          marginLeft: 1.7,
-          borderRadius: 2,
-        }}
-      >
-        <Table aria-label="collapsible table"   sx={{
-            "& .MuiTableCell-root": {
-              padding: 0.5,
-            },
-          }}>
-          <TableHead
-           sx={{ backgroundColor: "#c1dde9" }}
-          >
-            <TableRow>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                #
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Code
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Task
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Start Date
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                End Date
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Project
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Total Time
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Created By
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Status
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Asignee
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Update
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", fontSize: "medium" }}>
-                Delete
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedTasks?.map((task, index) => (
-              <Row
-                key={task._id}
-                row={{ ...task, index: page * rowsPerPage + index + 1 }}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        className="flex w-full justify-center"
-        component="div"
-        count={Tasks?.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+      <ReusableTable
+        columns={columns}
+        data={Tasks}
+        RowComponent={Row}
+        pagination={true}
       />
     </>
   );

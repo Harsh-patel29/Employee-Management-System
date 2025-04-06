@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -54,7 +55,7 @@ const ProjectDetail = () => {
           <div className="flex items-center">
             <div className=" p-2 rounded-md mr-2">
               <img
-                src={detail?.logo}
+                src={detail?.logo.url}
                 alt="Project_Logo"
                 className="w-10 h-10 rounded-4xl"
               />
