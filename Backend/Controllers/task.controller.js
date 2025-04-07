@@ -56,7 +56,7 @@ const createTask = AsyncHandler(async (req, res) => {
       description,
       todo: [],
       comments: [],
-      Project,
+      Project:"",
       Totatime: "00:00:00",
       Status: "Backlog",
       Asignee: user.Name,
@@ -83,4 +83,11 @@ const getAlltasks = AsyncHandler(async (req, res) => {
     .json(new ApiResponse(200, allTasks, "All Tasks fetched successfully"));
 });
 
-export { createTask, getAlltasks };
+const updateTaskStatus = AsyncHandler(async (req,res)=>{
+  const {taskId,status} = req.body
+  const task = await Task.findByIdAndUpdate(taskId,{Status:status},{new:true})
+  return res.status(200).json(new ApiResponse(200,task,"Task status updated successfully"))
+})
+
+
+export { createTask, getAlltasks,updateTaskStatus };

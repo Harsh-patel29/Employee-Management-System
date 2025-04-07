@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTask, getAlltasks } from "../Controllers/task.controller.js";
+import { createTask, getAlltasks,updateTaskStatus } from "../Controllers/task.controller.js";
 import { authenticate } from "../Middlewares/AuthorizeMiddleware.js";
 import { upload } from "../Middlewares/multer.Middleware.js";
 
@@ -16,5 +16,5 @@ router.route("/createtask").post(
   createTask
 );
 router.route("/gettask").get(authenticate, getAlltasks);
-
+router.route("/updatetaskstatus").put(authenticate, updateTaskStatus);
 export default router;

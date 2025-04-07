@@ -45,7 +45,7 @@ const taskSchema = new Schema(
     },
     Status: {
       type: String,
-      enum: ["Backlog", "In-Progress", "DONE", "Completed", "Deployes"],
+      enum: ["Backlog", "In-Progress", "DONE", "Completed", "Deployes","OverDue"],
       default: "Backlog",
     },
     Asignee: {

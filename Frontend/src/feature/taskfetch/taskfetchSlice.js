@@ -33,10 +33,27 @@ export const getAllTasks = createAsyncThunk(
   }
 );
 
+export const updateTaskStatus = createAsyncThunk(
+  "auth/updateTaskStatus",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await axios.put(
+        "http://localhost:8000/api/v4/tasks/updatetaskstatus",
+        data,
+        { withCredentials: true }
+      );
+      console.log(res.data)
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 const taskSlice = createSlice({
   name: "task",
   initialState: {
     tasks: [],
+    updateTaskStatus: null,
     createtask: null,
     loading: false,
     error: null,
@@ -67,6 +84,15 @@ const taskSlice = createSlice({
       .addCase(createTask.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      }).addCase(updateTaskStatus.pending,(state)=>{
+        state.loading = true
+        state.error = null
+      }).addCase(updateTaskStatus.fulfilled,(state,action)=>{
+        state.updateTaskStatus = action.payload
+        state.loading = false
+      }).addCase(updateTaskStatus.rejected,(state,action)=>{
+        state.error = action.payload
+        state.loading = false
       });
   },
 });

@@ -16,9 +16,11 @@ import { defaultVariantColorsResolver } from "@mantine/core";
 import { keyframes } from "@emotion/react";
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
-  const [active, setActive] = useState("dashboard");
+  const [active, setActive] = useState(()=>{
+    return localStorage.getItem("active") || "dashboard";
+  });
   const [expanded, setexpanded] = useState(null);
-
+  
   const menuItems = [
     {
       key: "dashboard",
@@ -183,18 +185,18 @@ const Navigation = () => {
     },
   ];
 
-  const toggleExpand = (key) => {
-    setexpanded(expanded === key ? null : key);
-  };
-
-  const toggeldropdown = () => {
-    setdropdown(!dropdown);
-  };
-
   const dispatch = useDispatch();
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
 
-  const value = localStorage.getItem("theme");
+  const [value, setValue] = useState(()=>{
+    return localStorage.getItem("val") ||"Dashboard";
+  });
+
+  React.useEffect(()=>{
+    localStorage.setItem("active", active);
+  },[active])
+
+
 
   return (
     <div style={{ position: "absolute" }}>
@@ -214,6 +216,7 @@ const Navigation = () => {
               `}
               onClick={() => {
                 setActive(item.key);
+                setValue(item.key);
                 if (!item.childern) {
                   dispatch(collapedSideBar());
                 }

@@ -26,7 +26,7 @@ import {
   getAllTasks,
 } from "../feature/taskfetch/taskfetchSlice.js";
 import ReusableTable from "./ReusableTable";
-
+import KanbanView from "./KanbanView";
 function Row({ row }) {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
@@ -110,7 +110,14 @@ export default function TaskTable() {
   const dispatch = useDispatch();
   const [Tasks, setTasks] = React.useState([]);
   const [taskid, settaskid] = React.useState();
+  const [viewMode, setViewMode] = React.useState(()=>{
+    return localStorage.getItem("viewMode") || "list";
+  });
   const { tasks, createtask } = useSelector((state) => state.task);
+
+  React.useEffect(()=>{
+    localStorage.setItem("viewMode", viewMode);
+  },[viewMode])
 
   React.useEffect(() => {
     dispatch(getAllTasks());
@@ -157,6 +164,12 @@ export default function TaskTable() {
     dispatch(createTask());
   };
 
+  const handleViewChange = (mode) => {
+    setViewMode(mode);
+  };
+
+  
+
   const columns = [
     { field: "index", headerName: "#" },
     { field: "CODE", headerName: "Code" },
@@ -172,43 +185,79 @@ export default function TaskTable() {
   ];
 
   return (
-  <>
-  <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+    <>
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
           Tasks
         </h5>
         <div className="flex items-center">
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
-            onClick={() => navigate("/users/roles")}
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() =>handleCreateTask()}
           >
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <title>New Task</title>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+            </svg>
+            Task
+          </button>
+          <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
             <svg
-              className="w-6 h-6 text-gray-800 dark:text-white"
-              aria-hidden="true"
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 512 512"
+              height="1em"
+              width="1em"
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="#338DB5"
-              viewBox="0 0 24 24"
               style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
             >
-              <title>Manage User</title>
-              <path
-                fill-rule="evenodd"
-                d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
-                clip-rule="evenodd"
-              ></path>
+              <title>Filters</title>
+              <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
             </svg>
-            Manage Users
+            Filters
+          </button>
+          <button 
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => handleViewChange('list')}
+          >
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <title>List View</title>
+              <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"></path>
+            </svg>
+          </button>
+          <button 
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => handleViewChange('board')}
+          >
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <title>Board View</title>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"></path>
+            </svg>
+          </button>
+          <button 
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => handleViewChange('kanban')}
+          >
+            <svg className="w-6 h-6" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <title>Kanban View</title>
+              <path fill="none" d="M0 0h24v24H0z"></path>
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h6v14H5zm14 0h-6v-7h6v7zm0-9h-6V5h6v5z"></path>
+            </svg>
           </button>
         </div>
       </div>
-      <ReusableTable
-        columns={columns}
-        data={Tasks}
-        RowComponent={Row}
-        pagination={true}
-      />
+
+        {viewMode === 'list' && (
+          <ReusableTable
+            columns={columns}
+            data={Tasks}
+            RowComponent={Row}
+            pagination={true}
+          />
+        )}
+        {viewMode === 'kanban' && <KanbanView  />}
+      
     </>
   );
 }
