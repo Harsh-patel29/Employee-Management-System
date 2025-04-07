@@ -21,6 +21,7 @@ import Project from "./pages/Project.jsx";
 import ProjectDetail from "./pages/ProjectDetail.jsx";
 import Task from "./pages/Task.jsx";
 import NewRoles from "./pages/NewRoles.jsx";
+import TaskUpdate from "./pages/TaskUpdate.jsx";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -53,9 +54,8 @@ const router = createBrowserRouter(
             path="/productivity/project/:id/:userId/:roleId"
             element={<ProjectDetail />}
           />
-          <Route path="/productivity/tasks" element={<Task />}>
-            <Route path="productivity/tasks/:id" element={<Task />} />
-          </Route>
+          <Route path="/productivity/tasks" element={<Task />}/>
+            <Route path="productivity/tasks/:id" element={<TaskUpdate />} />
           <Route path="/leave" element={<Leave />} />
         </Route>
       </Route>

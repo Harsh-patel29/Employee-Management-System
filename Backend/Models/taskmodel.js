@@ -54,12 +54,16 @@ const taskSchema = new Schema(
     EstimatedTime: {
       type: String,
     },
-    Users: {
-      type: "String",
-    },
-    Attachments: {
-      type: String,
-    },
+    Users: [
+      {
+        type: String,
+      },
+    ],
+    Attachments: [
+      {
+        type: String,
+      },
+    ],
     createdBy: {
       type: String,
     },

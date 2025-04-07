@@ -13,7 +13,7 @@ export const createTask = createAsyncThunk(
       console.log(res.data);
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error?.response?.data?.message||error?.message||error)
     }
   }
 );
@@ -28,7 +28,7 @@ export const getAllTasks = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error?.response?.data?.message||error?.message||error)
     }
   }
 );
@@ -45,15 +45,32 @@ export const updateTaskStatus = createAsyncThunk(
       console.log(res.data)
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error?.response?.data?.message||error?.message||error)
     }
   }
 );
+
+export const updateTask = createAsyncThunk(
+  "auth/updateTask",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await axios.put(`http://localhost:8000/api/v4/tasks/updatetask/${data.code}`,data,{withCredentials:true})
+      console.log(res.data)
+      return res.data
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message||error?.message||error)
+    }
+  }
+)
+
+
+
 const taskSlice = createSlice({
   name: "task",
   initialState: {
     tasks: [],
     updateTaskStatus: null,
+    updateTask: null,
     createtask: null,
     loading: false,
     error: null,
@@ -91,6 +108,15 @@ const taskSlice = createSlice({
         state.updateTaskStatus = action.payload
         state.loading = false
       }).addCase(updateTaskStatus.rejected,(state,action)=>{
+        state.error = action.payload
+        state.loading = false
+      }).addCase(updateTask.pending,(state)=>{
+        state.loading = true
+        state.error = null
+      }).addCase(updateTask.fulfilled,(state,action)=>{
+        state.updateTask = action.payload
+        state.loading = false
+      }).addCase(updateTask.rejected,(state,action)=>{
         state.error = action.payload
         state.loading = false
       });
