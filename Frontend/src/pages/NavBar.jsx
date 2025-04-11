@@ -40,7 +40,7 @@ const NavBar = () => {
   const value = localStorage.getItem("theme");
   return (
     <div
-      style={{ top: 0, position: "sticky" }}
+      style={{ top: 0, position: "sticky",zIndex:"50" }}
       className=" bg-white w-full sm:w-full flex flex-row  text-white h-20 border border-white shadow" 
     >
       <Link to="/dashboard">

@@ -38,7 +38,7 @@ const formSchema = z.object({
 });
 
 export default function ProjectForm({ onSubmit, mode, onClose }) {
-  const { projectbyid, logo, project, loading, logoloading ,updatedproject,error} = useSelector(
+  const { projectbyid, logo, project, logoloading ,updatedproject,error} = useSelector(
     (state) => state.project
   );
   const dispatch = useDispatch();

@@ -13,20 +13,35 @@ const taskSchema = new Schema(
       type: String,
       default: "",
     },
-    todo: [
+     todo: [
       {
         todoTitle: {
           type: String,
         },
-      },
+        todoStatus: {
+          type: Boolean,
+          default: false,
+        },
+      }
     ],
     comments: [
       {
-        Attachments: {
-          type: String,
-        },
+        Attachments: [
+          {
+            url:{
+              type:String,
+            },
+            public_id:{
+              type:String,
+            }
+          }
+        ],
         comment: {
           type: String,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
         },
       },
     ],
@@ -45,7 +60,7 @@ const taskSchema = new Schema(
     },
     Status: {
       type: String,
-      enum: ["Backlog", "In-Progress", "DONE", "Completed", "Deployes","OverDue"],
+      enum: ["Backlog", "In_Progress", "Done", "Completed", "Deployed"],
       default: "Backlog",
     },
     Asignee: {
@@ -61,7 +76,18 @@ const taskSchema = new Schema(
     ],
     Attachments: [
       {
-        type: String,
+        url:{
+          type:String,
+        },
+        public_id:{
+          type:String,
+        },
+        orignalname:{
+          type:String,
+        },
+        format:{
+          type:String,
+        }
       },
     ],
     createdBy: {

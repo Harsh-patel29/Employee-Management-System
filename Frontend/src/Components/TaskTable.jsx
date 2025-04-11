@@ -4,6 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { useNavigate, useParams } from "react-router";
 import { FaEdit } from "react-icons/fa";
+import {MdDelete} from "react-icons/md";
+import { Button } from "../Components/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -19,19 +21,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Components/components/ui/dialog";
-import AdminForm from "./AdminForm";
+import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import {
   createTask,
   getAllTasks,
+  deleteTask,
 } from "../feature/taskfetch/taskfetchSlice.js";
 import ReusableTable from "./ReusableTable";
 import KanbanView from "./KanbanView";
-function Row({ row }) {
+import TaskUpdateForm from "./TaskForm.jsx"
+function Row({ row ,openDialog,navigate}) {
+  const { id } = useParams();
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
   const dispatch = useDispatch();
-  
   return (
     <React.Fragment>
       <TableRow
@@ -44,7 +48,11 @@ function Row({ row }) {
           {row.index}
         </TableCell>
         <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
-          {row.CODE}
+          <p className="text-[rgb(64,140,182)] cursor-pointer" onClick={()=>{
+            navigate(`/productivity/tasks/${row.CODE}`)
+          }}>  
+            {row.CODE}
+          </p>
         </TableCell>
         <TableCell sx={{ color: "inherit" }}>{row.title}</TableCell>
         <TableCell sx={{ color: "inherit" }}>{row.StartDate}</TableCell>
@@ -63,7 +71,9 @@ function Row({ row }) {
                 }}
                 asChild
               >
-                <FaEdit className="font-semibold text-lg" />
+                <FaEdit className="font-semibold text-lg"  onClick={()=>{
+                  navigate(`/productivity/tasks/${row.CODE}`);
+                  }}/>
               </SheetTrigger>
               <SheetContent
                 className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
@@ -71,11 +81,10 @@ function Row({ row }) {
               >
                 <SheetHeader>
                   <SheetDescription>
-                    <AdminForm
+                    <TaskUpdateForm
                       mode="update"
                       onSubmit={(data) => {
-                        dispatch(updateuser({ data, userid: row._id }));
-                        setupdatesheetopen(false);
+                        dispatch(updateTask(data));
                       }}
                     />
                   </SheetDescription>
@@ -83,6 +92,43 @@ function Row({ row }) {
               </SheetContent>
             </Sheet>
           }
+        </TableCell>
+        <TableCell
+          sx={{ color: "#ff3b30" }}
+          className= "flex"
+        >
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) navigate("/productivity/tasks");
+            }}
+          >
+            <DialogTrigger
+              onClick={() => {
+                openDialog(row.CODE);
+              }}
+              asChild
+            >
+              <MdDelete className="font-semibold text-lg"  />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  task.
+                  <Button
+                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                    onClick={() => {
+                      navigate("/productivity/tasks");
+                      dispatch(deleteTask(row.CODE));
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -113,11 +159,19 @@ export default function TaskTable() {
   const [viewMode, setViewMode] = React.useState(()=>{
     return localStorage.getItem("viewMode") || "list";
   });
-  const { tasks, createtask } = useSelector((state) => state.task);
+    const [dialogOpen, setdialogOpen] = React.useState(false);
+  const { tasks, createtask ,deletedTask} = useSelector((state) => state.task);
 
   React.useEffect(()=>{
     localStorage.setItem("viewMode", viewMode);
   },[viewMode])
+
+   const openDialog = (id) => {
+    navigate(`/productivity/tasks/delete/${id}`);
+    setTimeout(() => {
+      setdialogOpen(true);
+    }, 0); 
+  };
 
   React.useEffect(() => {
     dispatch(getAllTasks());
@@ -160,6 +214,18 @@ export default function TaskTable() {
     }
   }, [id, dispatch]);
 
+ React.useEffect(() => {
+    if (deletedTask?.success === true) {
+      setdialogOpen(false)
+      toast.success("Task Deleted Successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      navigate(`/productivity/tasks`, { replace: true });
+      dispatch(getAllTasks());
+    }
+  }, [deletedTask, dispatch]);
+
   const handleCreateTask = () => {
     dispatch(createTask());
   };
@@ -182,6 +248,7 @@ export default function TaskTable() {
     { field: "Status", headerName: "Status" },
     { field: "Asignee", headerName: "Asignee" },
     { field: "action", headerName: "Update" },
+    { field: "delete", headerName: "Delete" },
   ];
 
   return (
@@ -219,7 +286,10 @@ export default function TaskTable() {
           </button>
           <button 
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
-            onClick={() => handleViewChange('list')}
+            onClick={() => {
+              handleViewChange('list')
+               dispatch(getAllTasks())
+            }}
           >
             <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <title>List View</title>
@@ -253,10 +323,12 @@ export default function TaskTable() {
             columns={columns}
             data={Tasks}
             RowComponent={Row}
+            rowProps={{openDialog,navigate}}
             pagination={true}
           />
         )}
-        {viewMode === 'kanban' && <KanbanView  />}
+        {viewMode === 'kanban' && <KanbanView viewType="kanban" />}
+        {viewMode === 'board' && <KanbanView viewType="board" />}
       
     </>
   );

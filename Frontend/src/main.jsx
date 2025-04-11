@@ -54,8 +54,10 @@ const router = createBrowserRouter(
             path="/productivity/project/:id/:userId/:roleId"
             element={<ProjectDetail />}
           />
-          <Route path="/productivity/tasks" element={<Task />}/>
-            <Route path="productivity/tasks/:id" element={<TaskUpdate />} />
+          <Route path="/productivity/tasks" element={<Task />}>
+            <Route path="/productivity/tasks/delete/:id" element={<Task />} />
+          </Route>
+            <Route path="/productivity/tasks/:id" element={<TaskUpdate />} />
           <Route path="/leave" element={<Leave />} />
         </Route>
       </Route>

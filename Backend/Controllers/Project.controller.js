@@ -329,7 +329,6 @@ const deleteLogo = AsyncHandler(async (req, res) => {
   if (existingProject) {
     return res.status(200).json(new ApiResponse(200, {}, "Logo is in use, skipping deletion"));
   }
-
   try {
     await cleanup(public_id);
     return res.status(200).json(new ApiResponse(200, {}, "Logo Deleted Successfully"));

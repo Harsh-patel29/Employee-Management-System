@@ -24,8 +24,6 @@ const AssignSheet = () => {
 
   const dispatch = useDispatch();
   const { assigneduser, deleteuser,error } = useSelector((state) => state.assignusers);
-  console.log(assigneduser?.success);
-  console.log(deleteuser?.success);
 
   
 useEffect(()=>{
