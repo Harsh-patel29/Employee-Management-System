@@ -59,7 +59,7 @@ const ReusableTable = ({
             ...tableStyle,
           }}
         >
-          <TableHead sx={{ backgroundColor: "#c1dde9", ...headStyle }}>
+          <TableHead sx={{ backgroundColor: "#c1dde9",height: "40px",position: "sticky",top: 0,zIndex: 40, ...headStyle }}>
             <TableRow>
               {columns.map((column) => (
                 <TableCell

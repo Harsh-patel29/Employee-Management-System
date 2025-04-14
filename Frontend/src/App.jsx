@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Components/Loader.jsx";
 import "./scrollbar.css";
+import AttendanceShortcut from "./pages/AttendanceShortcut";
 function App() {
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
@@ -28,6 +29,7 @@ function App() {
       <ToastContainer />
       <div>
         <NavBar />
+        <AttendanceShortcut />
         <div className="flex ">
           <Navigation />
           <main

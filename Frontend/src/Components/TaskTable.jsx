@@ -31,6 +31,7 @@ import {
 import ReusableTable from "./ReusableTable";
 import KanbanView from "./KanbanView";
 import TaskUpdateForm from "./TaskForm.jsx"
+import TasksFilterSheet from "./TasksFilterSheet.jsx";
 function Row({ row ,openDialog,navigate}) {
   const { id } = useParams();
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -150,7 +151,7 @@ Row.propTypes = {
   }).isRequired,
 };
 
-export default function TaskTable() {
+export default function TaskTable({data}) {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -160,19 +161,22 @@ export default function TaskTable() {
     return localStorage.getItem("viewMode") || "list";
   });
     const [dialogOpen, setdialogOpen] = React.useState(false);
-  const { tasks, createtask ,deletedTask} = useSelector((state) => state.task);
 
+  const { tasks, createtask ,deletedTask} = useSelector((state) => state.task);
+  const  filterValue = useSelector((state)=>state.filter.filterValue)
+
+  
   React.useEffect(()=>{
     localStorage.setItem("viewMode", viewMode);
   },[viewMode])
-
-   const openDialog = (id) => {
+  
+  const openDialog = (id) => {
     navigate(`/productivity/tasks/delete/${id}`);
     setTimeout(() => {
       setdialogOpen(true);
     }, 0); 
   };
-
+  
   React.useEffect(() => {
     dispatch(getAllTasks());
   }, []);
@@ -184,6 +188,17 @@ export default function TaskTable() {
       setTasks([]);
     }
   }, [tasks]);
+  
+  const filteredData = tasks?.message?.filter((item)=>{
+    if(filterValue === undefined||filterValue === null || Object?.keys(filterValue).length === 0) return true;
+    const asigneeMatch = !filterValue.Asignee || item.Asignee === filterValue.Asignee;
+    const projectMatch = !filterValue.Project || item.Project === filterValue.Project;
+    const taskMatch = !filterValue.Task || item.CODE === filterValue.Task;
+    const startDateMatch = !filterValue.StartDate || item.StartDate === filterValue.StartDate;
+    const endDateMatch = !filterValue.EndDate || item.EndDate === filterValue.EndDate;
+    const statusMatch = !filterValue.Status || item.Status === filterValue.Status;
+    return asigneeMatch && projectMatch && taskMatch && startDateMatch && endDateMatch && statusMatch;
+  })
 
   React.useEffect(() => {
     if (createtask?.message?.CODE) {
@@ -268,21 +283,8 @@ export default function TaskTable() {
             </svg>
             Task
           </button>
-          <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-            <svg
-              stroke="currentColor"
-              fill="currentColor"
-              stroke-width="0"
-              viewBox="0 0 512 512"
-              height="1em"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
-            >
-              <title>Filters</title>
-              <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
-            </svg>
-            Filters
+          <button>
+          <TasksFilterSheet />
           </button>
           <button 
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
@@ -321,7 +323,7 @@ export default function TaskTable() {
         {viewMode === 'list' && (
           <ReusableTable
             columns={columns}
-            data={Tasks}
+            data={filteredData}
             RowComponent={Row}
             rowProps={{openDialog,navigate}}
             pagination={true}

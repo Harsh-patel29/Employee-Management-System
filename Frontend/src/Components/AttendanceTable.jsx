@@ -206,11 +206,12 @@ export default function CollapsibleTable() {
 
   React.useEffect(()=>{
     if(error){
-      toast.error("Error fetching attendance",{
+      toast.error(error.response.data.message,{
         position: "top-right",
         autoClose: 3000,
       })
     }
+    dispatch(resetAttendance());
   },[error])
 
   
@@ -234,7 +235,10 @@ export default function CollapsibleTable() {
           videoRef.current.srcObject = stream;
           }
         })
-        .catch((error) => console.error("Error accessing camera:", error));
+        .catch((error) =>  toast.error("Error accessing camera",{
+          position: "top-right",
+          autoClose: 3000,
+        }));
       }
       if (!openAttendanceSheet) {
         stopCamera();
@@ -266,6 +270,7 @@ export default function CollapsibleTable() {
       }
     }, [attendance?.success, navigate, dispatch]);
   
+    
   const captureImage = async () => {
     if (!videoRef.current) return;
     
@@ -283,8 +288,8 @@ export default function CollapsibleTable() {
     
     const file = new File([blob], "attendance.png", {
       type: "image/png",
-    });
-    
+    }); 
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -298,11 +303,12 @@ export default function CollapsibleTable() {
           setOpenAttendanceSheet(false);
           stopCamera();
         },
-        (error) => console.log("Error in getting location", error.message)
+        (error) => toast.error("Error in getting location",{
+          position: "top-right",
+          autoClose: 3000,
+        })
       );
-    } else {
-      alert("GeoLocation is not supported");
-    }
+    } 
   };
   
   React.useEffect(() => {
@@ -461,6 +467,7 @@ export default function CollapsibleTable() {
                 />
                 <DateCalendar
                   label="To Date"
+                  minDate={fromDate}
                   value={toDate}
                   onChange={(newValue) => setToDate(newValue)}
                   slots={(params) => <TextField {...params} />}
@@ -499,7 +506,7 @@ export default function CollapsibleTable() {
           <div className="flex justify-center mt-4">
             <Button
               onClick={captureImage}
-              className="px-6 py-2 mt-6 bg-white text-black hover:bg-gray-50 border-black border"
+              className="px-6 py-2 mt-6 bg-white text-black hover:bg-gray-50 border-black border disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Mark Attendance
             </Button>

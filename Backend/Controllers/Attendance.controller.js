@@ -82,6 +82,12 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     formattedLogHours = formatSecondsToHHMMSS(logHours);
   }
 
+  if(todayAttendance.length>0){
+    if(new Date() - new Date(todayAttendance[0].AttendAt)<1000*60*1){
+      throw new ApiError(404, "Attendance can be marked only after 1 minute of time out");
+    }
+  }
+
   try {
     const attendance = await Attendance.create({
       Image: Image.url,

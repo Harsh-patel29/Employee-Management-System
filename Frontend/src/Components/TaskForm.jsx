@@ -636,8 +636,6 @@ const deleteUser = (userToDelete)=>{
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-
-                      {/* Delete Todo Alert */}
                 <AlertDialog open={openTodoDialog} onOpenChange={setOpenTodoDialog}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -1526,12 +1524,12 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                     </FormLabel>
                     {
                     showdropDown===true&& Tasks?.Attachments?.length>0 &&(
-                    <div className="h-auto min-h-11 items-center  rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                    <div className="h-auto p-2 rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                     {Tasks?.Attachments?.length>0 && showAttachmentField===false &&(
-                      <div className="flex flex-col justify-end font-light text-[15px] font-[rgb(115,115,115)] gap-2">
+                      <div className="flex flex-col  justify-end font-light text-[15px] font-[rgb(115,115,115)] gap-2">
                               {
                                 Tasks?.Attachments?.map((file,index)=>(
-                                  <div key={index} className="cursor-pointer flex justify-between items-center pr-2 h-auto pb-0.5">
+                                  <div key={index} className="cursor-pointer flex justify-between items-center pr-2 h-auto pb-0.5 ">
                                       <span className="flex items-center gap-4"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 384 512" class=" tasks-item-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
       <path d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm64 236c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12v8zm0-64c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12v8zm0-72v8c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm96-114.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"></path>
       </svg>   <h6 className="hover:text-[rgb(51,141,181)]" onClick={()=>{
@@ -1542,7 +1540,7 @@ setOpenImageDialog(true)
         </h6>
         </span>
                                       <svg
-                                       className="cursor-pointer"
+                                       className="cursor-pointer flex"
                                        onClick={() => {
                                          setCurrentPublicId(file.public_id);
                                          setOpenTaskAttachmentDialog(true);
@@ -1578,7 +1576,7 @@ setOpenImageDialog(true)
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete Attachment</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you sure you want to delete this attachment? This action cannot be undone.
+                      Are you sure you want to delete this attachment?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
