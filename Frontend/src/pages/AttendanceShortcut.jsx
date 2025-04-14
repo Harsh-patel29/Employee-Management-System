@@ -110,7 +110,7 @@ import { toast } from "react-toastify";
     } 
   };
   return (
-    <div className="flex justify-end  h-full w-screen absolute -top-25 z-50">
+    <div className="flex justify-end h-10 w-10 right-0 absolute bottom-110 z-50">
         <div className="flex h-auto w-auto justify-center items-center p-0">
      <button className="bg-transparent border-l  border-t border-b border-[rgb(120,173,196)] border-l-2  border-t-2 border-b-2 rounded cursor-pointer"
     onClick={() => setOpenAttendanceSheet(true)} >

@@ -33,6 +33,7 @@ import { FaEdit } from "react-icons/fa";
 import TablePagination from "@mui/material/TablePagination";
 import Loader from "../Components/Loader.jsx";
 import { Bounce,toast } from "react-toastify";
+import ExporttoExcel from "./Export.jsx";
 function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -304,6 +305,7 @@ React.useEffect(()=>{
               </SheetHeader>
             </SheetContent>
           </Sheet>
+        <ExporttoExcel data={paginatedProjects} fileName="Projects" className="bg-blue-500 text-white px-4 py-2 rounded-md"/>
         </div>
       </div>
 
