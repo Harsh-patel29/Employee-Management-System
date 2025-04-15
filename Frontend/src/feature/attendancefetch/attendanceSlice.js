@@ -62,7 +62,11 @@ export const getUserDetails = createAsyncThunk(
 const markattendanceSlice = createSlice({
   name: "markAttendance",
   initialState: {
+     isSheetOpen: false,
+    isSubmitting: false,
+    lastOperation: null,
     attendance: null,
+    userDetails: null,
     newattendance: [],
     error: null,
     loading: false,
@@ -74,18 +78,37 @@ const markattendanceSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    openAttendanceSheet: (state) => {
+      state.isSheetOpen = true;
+    },
+    closeAttendanceSheet: (state) => {
+      state.isSheetOpen = false;
+    },
+    setLastOperation: (state, action) => {
+      state.lastOperation = action.payload;
+    },
+    
   },
   extraReducers: (builder) => {
     builder
       .addCase(markAttendance.pending, (state) => {
+        const now = Date.now();
+        if(state.lastOperation && now - state.lastOperation < 1000){
+          return;
+        }
+        state.isSubmitting = true;
+        state.lastOperation = now;
         state.error = null;
         state.loading = true;
       })
       .addCase(markAttendance.fulfilled, (state, action) => {
+        state.isSubmitting = false;
+        state.isSheetOpen = false;
         state.attendance = action.payload;
         state.loading = false;
       })
       .addCase(markAttendance.rejected, (state, action) => {
+        state.isSubmitting = false;
         state.error = action.payload;
         state.loading = false;
       })
@@ -94,7 +117,7 @@ const markattendanceSlice = createSlice({
         state.loading = false;
       })
       .addCase(getUserDetails.fulfilled, (state, action) => {
-        state.attendance = action.payload;
+        state.userDetails = action.payload;
         state.loading = false;
       })
       .addCase(getUserDetails.rejected, (state, action) => {
@@ -115,5 +138,5 @@ const markattendanceSlice = createSlice({
       });
   },
 });
-export const { resetAttendance } = markattendanceSlice.actions;
+export const { resetAttendance, openAttendanceSheet, closeAttendanceSheet, setLastOperation } = markattendanceSlice.actions;
 export default markattendanceSlice.reducer;

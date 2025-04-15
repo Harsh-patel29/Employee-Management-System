@@ -88,6 +88,22 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     }
   }
 
+  const nowIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+const currentDateIST = new Date(nowIST);
+
+// Set 7:00 PM for today in IST
+const sevenPMIST = new Date(nowIST);
+sevenPMIST.setHours(19, 0, 0, 0); // 19:00:00.000
+
+// Comparison
+if (currentDateIST >= sevenPMIST) {
+  logHours = calculateTimeDifferenceInSeconds(todayAttendance[0].AttendAt, sevenPMIST);
+  formattedLogHours=formatSecondsToHHMMSS(logHours);
+  console.log(logHours);
+  
+}
+
+
   try {
     const attendance = await Attendance.create({
       Image: Image.url,

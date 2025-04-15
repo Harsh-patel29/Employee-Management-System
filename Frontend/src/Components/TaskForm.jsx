@@ -153,6 +153,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     }
   }, [uploadedImage]);
 
+  console.log(user.user.Name);
+  
   const {
     control,
     handleSubmit,
@@ -895,7 +897,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           }),
                         }}
                         className="text-[rgb(120, 122, 126)] text-[14px]"
-                        placeholder={Tasks?.Project}
+                        placeholder={Tasks?.Project || "Select Project"}
                         {...field}
                         onChange={(selectedOption)=>{
                           field.onChange(selectedOption.value)
@@ -1025,7 +1027,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           }),
                         }}
                         className="text-[rgb(120, 122, 126)] text-[14px]"
-                        placeholder={Tasks?.Asignee}
+                        placeholder={Tasks?.Asignee || "Select Asignee"}
                         {...field}
                         onChange={(selectedOption)=>{
                           field.onChange(selectedOption.value)
@@ -1318,7 +1320,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                         Users:
                       </h2>
                       <div className="flex gap-1">
-                        {Tasks?.Users?.map((user, index) => {
+                        {Tasks?.Project && Tasks?.Users?.map((user, index) => {
                           const initials = user?.split(" ").map(name => name[0]).join("").toUpperCase();
                           return (
                             <p key={index} className="ml-1 bg-[rgba(61,66,179,0.92)] text-white rounded-full w-8 h-8 flex items-center justify-center">  
@@ -1363,6 +1365,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                         }}
                         className="text-[rgb(120, 122, 126)] text-[14px]"
                         {...field}
+                        isDisabled={!Tasks?.Project}
                         onChange={(selectedOption)=>{
                           const updatedUsers = selectedOption 
                             ? [...Tasks.Users.filter(user => user !== selectedOption.value), selectedOption.value]

@@ -46,6 +46,15 @@ export const deleteLeave = createAsyncThunk("leave/delete",async(id,{rejectWithV
     }
 })
 
+    export const createNewLeave = createAsyncThunk("leave/createNew",async(data,{rejectWithValue})=>{
+        try {
+            const res = await axios.post("http://localhost:8000/api/v5/leave/create-new-leave",data,{withCredentials:true})     
+            return res.data
+        } catch (error) {
+            return rejectWithValue(error)
+        }
+    })
+
 const createleaveSlice = createSlice({
     name:"leave",
     initialState:{
@@ -54,6 +63,7 @@ const createleaveSlice = createSlice({
         leaveById:null,
         deletedLeave:null,
         updatedLeave:null,
+        newLeave:null,
         loading:false,
         error:null
     },
@@ -69,6 +79,9 @@ const createleaveSlice = createSlice({
         },
         resetError: (state) => {
             state.error = null;
+        },
+        resetNewLeave: (state) => {
+            state.newLeave = null;
         },
     },
     extraReducers:(builder)=>{
@@ -118,9 +131,18 @@ const createleaveSlice = createSlice({
         }).addCase(getLeaveById.rejected,(state,action)=>{
             state.loading = false
             state.error = action.payload
+        }).addCase(createNewLeave.pending,(state)=>{
+            state.loading = true
+            state.error = null
+        }).addCase(createNewLeave.fulfilled,(state,action)=>{
+            state.loading = false
+            state.newLeave = action.payload 
+        }).addCase(createNewLeave.rejected,(state,action)=>{
+            state.loading = false
+            state.error = action.payload
         })
     }
 })
 
-export const {resetLeave,resetError} = createleaveSlice.actions
+export const {resetLeave,resetError,resetNewLeave} = createleaveSlice.actions
 export default createleaveSlice.reducer

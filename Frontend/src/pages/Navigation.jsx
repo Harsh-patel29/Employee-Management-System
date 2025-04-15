@@ -14,6 +14,7 @@ import {
 } from "../feature/ToggelSideBar/ToggleSideBarSlice.js";
 import { defaultVariantColorsResolver } from "@mantine/core";
 import { keyframes } from "@emotion/react";
+
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
   const [active, setActive] = useState(()=>{
@@ -21,8 +22,23 @@ const Navigation = () => {
   });
   const [expanded, setexpanded] = useState(null);
   
+const productivityChildren = [
+  {
+          key: "project",
+          name: "Projects",
+          link: "productivity/project",
+        },
+        { key: "tasks", name: "Tasks", link: "productivity/tasks" },
+        {
+          key: "task timer",
+          name: "Task Timer",
+          link: "productivity/taskTimer",
+        },
+]
+
   const menuItems = [
     {
+      id: 1,
       key: "dashboard",
       name: "Dashboard",
       style: " rounded-tr-[10px]",
@@ -46,6 +62,7 @@ const Navigation = () => {
       ),
     },
     {
+      id: 2,
       key: "productivity",
       name: "Productivity",
       icon: (
@@ -66,8 +83,8 @@ const Navigation = () => {
           ></path>
         </svg>
       ),
-      childern: [
-        {
+      children: [
+  {
           key: "project",
           name: "Projects",
           link: "productivity/project",
@@ -78,9 +95,10 @@ const Navigation = () => {
           name: "Task Timer",
           link: "productivity/taskTimer",
         },
-      ],
+]
     },
     {
+      id: 3,
       key: "attendance",
       name: "Attendance",
       icon: (
@@ -98,8 +116,22 @@ const Navigation = () => {
           <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path>
         </svg>
       ),
+       children: [
+  {
+          key: "attendance",
+          name: "Attendance",
+          link: "attendance",
+        },
+        { key: "Regularization", name: "Regularization", link: "attendance/regularization" },
+        {
+          key: "Monthly Report",
+          name: "Monthly Report",
+          link: "attendance/monthlyReport",
+        },
+]
     },
     {
+      id: 4,
       key: "leave",
       name: "Leave",
       icon: (
@@ -117,8 +149,21 @@ const Navigation = () => {
           <path d="M17 10H7v2h10v-2zm2-7h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 002 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-5-5H7v2h7v-2z"></path>
         </svg>
       ),
+      children: [
+        {
+          key: "leave",
+          name: "Leave",
+          link: "leave",
+        },
+        {
+          key: "leaveType",
+          name: "Leave Type",
+          link: "leave/leaveType",
+        },
+      ],
     },
     {
+      id: 5,
       key: "master",
       name: "Master",
       icon: (
@@ -137,8 +182,17 @@ const Navigation = () => {
           <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"></path>
         </svg>
       ),
+       children: [
+  {
+          key: "Holiday",
+          name: "Holiday",
+          link: "master/holiday",
+        },
+        { key: "Weekoff", name: "Weekoff", link: "master/weekoff" },
+]
     },
     {
+      id: 6,
       key: "users",
       name: "Users",
       icon: (
@@ -162,6 +216,7 @@ const Navigation = () => {
       ),
     },
     {
+      id: 7,
       key: "settings",
       name: "Settings",
       icon: (
@@ -207,7 +262,7 @@ const Navigation = () => {
         >
           {menuItems.map((item) => (
             <li
-            key={item.key}
+            key={item.id}
               className={`${item.style} ${
                 active === item.key
                   ? "bg-[rgba(178,223,244,0.643)] border-l-[4px] border-l-[rgb(51,141,181)]"
@@ -218,12 +273,12 @@ const Navigation = () => {
               onClick={() => {
                 setActive(item.key);
                 setValue(item.key);
-                if (!item.childern) {
+                if (!item.children) {
                   dispatch(collapedSideBar());
                 }
               }}
             >
-              {item.childern ? (
+                {item.children ? (
                 <div
                   className="block items-center text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center cursor-pointer "
                   onClick={(e) => {
@@ -281,7 +336,7 @@ const Navigation = () => {
                   </Link>
                 </div>
               )}
-              {isExpanded && item.childern && (
+              {isExpanded && item.children && active===item.key && (
                 <ul
                   className={`${
                     isExpanded
@@ -289,15 +344,16 @@ const Navigation = () => {
                       : "hidden"
                   }`}
                 >
-                  {item.childern.map((subItem) => (
+                  {item.children &&active===item.key &&item.children.map((subItem) => (
                     <li
-                      key={subItem.link}
-                      className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
+                    key={subItem.link}
+                    className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
                     >
                       <Link
                         to={`/${subItem.link}`}
                         onClick={() => dispatch(collapedSideBar())}
-                      >
+                        >
+                        {console.log("Rendering:", item.name, "with children:", item.children)}
                         {
                           <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
                             <svg

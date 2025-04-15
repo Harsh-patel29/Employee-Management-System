@@ -12,7 +12,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { markAttendance,fetchAttendance,resetAttendance } from "../feature/attendancefetch/attendanceSlice.js";
+import { fetchAttendance,openAttendanceSheet } from "../feature/attendancefetch/attendanceSlice.js";
 import {
   Sheet,
   SheetContent,
@@ -26,12 +26,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import TextField from "@mui/material/TextField";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Loader from "./Loader.jsx";
 import ReusableTable from "./ReusableTable.jsx";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 function convertDateFormat(dateStr) {
   const [month, day, year] = dateStr.split("/");
   return `${day}/${month}/${year}`;
@@ -189,31 +186,17 @@ Row.propTypes = {
 export default function CollapsibleTable() {
   const dispatch = useDispatch();
   const [openFilterSheet, setOpenFilterSheet] = React.useState(false);
-  const [openAttendanceSheet, setOpenAttendanceSheet] = React.useState(false);
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
-  const videoRef = React.useRef(null);
-  const canvasRef = React.useRef(null);
-  const navigate = useNavigate();
+  
 
-  const { attendance, newattendance, loading, error } = useSelector(
+  const { newattendance, loading } = useSelector(
     (state) => state.markAttendance
   );
 
   const { user } = useSelector((state) => state.auth);
-
-  React.useEffect(()=>{
-    if(error){
-      toast.error(error.response.data.message,{
-        position: "top-right",
-        autoClose: 3000,
-      })
-    }
-    dispatch(resetAttendance());
-  },[error])
-
   
   React.useEffect(() => {
     dispatch(fetchAttendance());
@@ -225,91 +208,6 @@ export default function CollapsibleTable() {
       setFilteredAttendances(newattendance.message);
     }
   }, [newattendance]);
-  
-  React.useEffect(() => {
-    if (openAttendanceSheet) {
-      navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          }
-        })
-        .catch((error) =>  toast.error("Error accessing camera",{
-          position: "top-right",
-          autoClose: 3000,
-        }));
-      }
-      if (!openAttendanceSheet) {
-        stopCamera();
-      }
-    }, [openAttendanceSheet]);
-    
-    const stopCamera = () => {
-      if (videoRef.current?.srcObject) {
-        let stream = videoRef.current.srcObject;
-        let tracks = stream.getTracks();
-        tracks.forEach((track) => {
-          track.stop();
-        });
-        videoRef.current.srcObject = null;
-      }
-    };
-    
-    React.useEffect(() => {
-      if (attendance?.success === true) {
-        toast.success("Attendance marked successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        dispatch(fetchAttendance());
-        navigate("/attendance");
-        stopCamera();
-        setOpenAttendanceSheet(false);
-        dispatch(resetAttendance());
-      }
-    }, [attendance?.success, navigate, dispatch]);
-  
-    
-  const captureImage = async () => {
-    if (!videoRef.current) return;
-    
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    
-    context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    
-    const base64 = canvas.toDataURL("image/png");
-    const response = await fetch(base64);
-    const blob = await response.blob();
-    
-    const file = new File([blob], "attendance.png", {
-      type: "image/png",
-    }); 
-
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const formData = new FormData();
-          formData.append("attendance", file);
-          formData.append("Latitude", latitude);
-          formData.append("Longitude", longitude);
-          
-          dispatch(markAttendance({ attendance: file, latitude, longitude }));
-          setOpenAttendanceSheet(false);
-          stopCamera();
-        },
-        (error) => toast.error("Error in getting location",{
-          position: "top-right",
-          autoClose: 3000,
-        })
-      );
-    } 
-  };
   
   React.useEffect(() => {
     if (!fromDate && !toDate) {
@@ -423,10 +321,9 @@ export default function CollapsibleTable() {
             Filters
           </button>
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
-            onClick={() => setOpenAttendanceSheet(!openAttendanceSheet)}
-          >
-            <svg
+          onClick={()=>dispatch(openAttendanceSheet())}
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300">
+               <svg
               stroke="currentColor"
               fill="currentColor"
               stroke-width="0"
@@ -484,31 +381,6 @@ export default function CollapsibleTable() {
               className="px-6 py-2 bg-red-500 text-white hover:bg-red-600 w-full ml-40 mr-40 "
             >
               Clear Filter
-            </Button>
-          </div>
-          <SheetFooter></SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      <Sheet open={openAttendanceSheet} onOpenChange={setOpenAttendanceSheet}>
-        <SheetContent className="min-w-xl">
-          <SheetHeader>
-            <SheetTitle>Mark Attendance</SheetTitle>
-          </SheetHeader>
-          <div className="w-full flex justify-center mt-4">
-            <video
-              ref={videoRef}
-              autoPlay
-              className="w-full max-w-md rounded-lg border shadow-lg"
-            ></video>
-          </div>
-          <canvas ref={canvasRef} className="hidden"></canvas>
-          <div className="flex justify-center mt-4">
-            <Button
-              onClick={captureImage}
-              className="px-6 py-2 mt-6 bg-white text-black hover:bg-gray-50 border-black border disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Mark Attendance
             </Button>
           </div>
           <SheetFooter></SheetFooter>

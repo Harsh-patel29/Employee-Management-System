@@ -32,7 +32,7 @@ import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import TablePagination from "@mui/material/TablePagination";
 import Loader from "../Components/Loader.jsx";
-import { Bounce,toast } from "react-toastify";
+import { toast } from "react-toastify";
 import ExporttoExcel from "./Export.jsx";
 function Row({ row, openDialog, navigate, openSheet }) {
   const theme = useSelector((state) => state.theme.theme);

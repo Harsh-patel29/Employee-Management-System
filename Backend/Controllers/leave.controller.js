@@ -1,5 +1,6 @@
 import {Leave} from "../Models/leavemodel.js"
 import {User} from "../Models/user.model.js"
+import {CreateLeave} from "../Models/createleavemodel.js"
 import {AsyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -110,4 +111,21 @@ const updateLeave = AsyncHandler(async(req,res)=>{
     }
     return res.status(200).json(new ApiResponse(200,newLeave,"Leave Updated Successfully"))
 })
-export {createLeave,getAllLeave,deleteLeave,updateLeave,getLeaveById}
+
+const createnewLeave = AsyncHandler(async(req,res)=>{
+    const {Leave_Reason,Leave_Code}= req.body
+
+    try {
+        const leaveReason = await CreateLeave.create({
+            Leave_Reason,
+            Leave_Code
+        })
+        await leaveReason.save()
+        return res.status(200).json(new ApiResponse(200,leaveReason,"Leave Reason Created Successfully"))
+    } catch (error) {
+        throw new ApiError(500,error,"Leave Reason creation failed")
+    }
+
+})
+
+export {createLeave,getAllLeave,deleteLeave,updateLeave,getLeaveById,createnewLeave}

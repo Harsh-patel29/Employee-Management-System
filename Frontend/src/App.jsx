@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Components/Loader.jsx";
 import "./scrollbar.css";
 import AttendanceShortcut from "./pages/AttendanceShortcut";
+import MarkAttendance from "./Components/MarkAttendance";
 function App() {
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
@@ -30,6 +31,7 @@ function App() {
       <div>
         <NavBar />
         <AttendanceShortcut />
+        <MarkAttendance />
         <div className="flex ">
           <Navigation />
           <main

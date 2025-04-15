@@ -34,11 +34,11 @@ const createTask = AsyncHandler(async (req, res) => {
       Project:"",
       Totatime: "00:00:00",
       Status: "Backlog",
-      Asignee: user.Name,
+      Asignee: 
       StartDate,
       EndDate,
       EstimatedTime,
-      Users,
+      Users:user.Name,
       Attachments,
       createdBy: user.Name,
     });
