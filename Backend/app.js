@@ -24,11 +24,13 @@ import userRoute from "./Routes/userRoute.js";
 import attendanceRoute from "./Routes/attendanceRoute.js";
 import projectRoute from "./Routes/projectRoute.js";
 import taskRoute from "./Routes/taskRoute.js";
+import leaveRoute from "./Routes/leaveRoute.js"
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v2/attendance", attendanceRoute);
 app.use("/api/v3/project", projectRoute);
 app.use("/api/v4/tasks", taskRoute);
+app.use("/api/v5/leave",leaveRoute)
 
 app.use((err,req,res,next)=>{
   const statusCode = err.statusCode || 500;

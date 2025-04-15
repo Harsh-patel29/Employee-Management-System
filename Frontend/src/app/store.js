@@ -12,6 +12,7 @@ import createuserSliceReducer from "../feature/createuserfetch/createuserSlice.j
 import taskSliceReducer from "../feature/taskfetch/taskfetchSlice.js";
 import roleSliceReducer from "../feature/rolesfetch/getrolesSlice.js";
 import filterSliceReducer from "../feature/filterSlice/filterSlice.js";
+import createleaveSliceReducer from "../feature/leavefetch/createleaveSlice.js";
 export default configureStore({
   reducer: {
     theme: themeReducer,
@@ -26,6 +27,7 @@ export default configureStore({
     createuser: createuserSliceReducer,
     task: taskSliceReducer,
     getrole: roleSliceReducer,
-    filter:filterSliceReducer
+    filter:filterSliceReducer,
+    leave:createleaveSliceReducer
   },
 });

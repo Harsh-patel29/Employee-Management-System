@@ -19,7 +19,6 @@ import {
   deleteRole,
 } from "../Controllers/user.controller.js";
 import {
-  accessAllowed,
   authenticate,
   Authorized,
 } from "../Middlewares/AuthorizeMiddleware.js";
