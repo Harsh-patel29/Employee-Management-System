@@ -42,7 +42,7 @@ export default function LeaveForm({ onSubmit, mode,id }) {
   useEffect(()=>{
     dispatch(getCreatedLeave())
   },[dispatch])
-  console.log(createdLeaves)
+
     useEffect(()=>{
       if(createdLeaves?.message){
         setLeaveType(createdLeaves?.message)

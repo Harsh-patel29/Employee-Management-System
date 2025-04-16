@@ -65,7 +65,7 @@ function Row({row,openSheet,openDialog,navigate}){
             </Sheet>
           }
         </TableCell>
-            <TableCell sx={{ color: "#ff3b30" }}>
+            <TableCell>
           <Dialog
           >
             <DialogTrigger
@@ -74,7 +74,7 @@ function Row({row,openSheet,openDialog,navigate}){
               }}
               asChild
             >
-              <MdDelete className="font-[200] text-lg" />
+              <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

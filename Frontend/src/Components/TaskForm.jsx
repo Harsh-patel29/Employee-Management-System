@@ -1027,8 +1027,10 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             backgroundColor: 'white'
                           }),
                         }}
+                        value={field.value}
+                        isDisabled={!Tasks?.Project}
                         className="text-[rgb(120, 122, 126)] text-[14px]"
-                        placeholder={Tasks?.Asignee || "Select Asignee"}
+                        placeholder={Tasks?.Project? Tasks?.Asignee : "Select Asignee"}
                         {...field}
                         onChange={(selectedOption)=>{
                           field.onChange(selectedOption.value)
@@ -1374,7 +1376,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           field.onChange(updatedUsers);
                           handleUpdateTask("Users", updatedUsers);
                           setSelectedUsers(updatedUsers);
-                        }}
+                      }}
                         options={asigneeOptions}/>
                       </FormControl>
                        <div className=" flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">

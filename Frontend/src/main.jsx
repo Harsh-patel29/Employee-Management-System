@@ -26,6 +26,7 @@ import CreateLeave from "./pages/CreateLeave.jsx";
 import Regularization from "./pages/Regularization.jsx";
 import MonthlyReport from "./pages/MonthlyReport.jsx";
 import LeaveApprove from "./pages/LeaveApprove.jsx";
+import TaskTimerPage from "./pages/TaskTimerPage.jsx";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -64,6 +65,7 @@ const router = createBrowserRouter(
             <Route path="/productivity/tasks/delete/:id" element={<Task />} />
           </Route>
             <Route path="/productivity/tasks/:id" element={<TaskUpdate />} />
+            <Route path="/productivity/tasktimer" element={<TaskTimerPage />} />
           <Route path="/leave" element={<Leave />} />
             <Route path="/leave/leaveType" element={<CreateLeave />} />
             <Route path="/leave/leaveApprove" element={<LeaveApprove />} />

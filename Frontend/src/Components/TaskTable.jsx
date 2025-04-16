@@ -94,10 +94,7 @@ function Row({ row ,openDialog,navigate}) {
             </Sheet>
           }
         </TableCell>
-        <TableCell
-          sx={{ color: "#ff3b30" }}
-          className= "flex"
-        >
+        <TableCell>
           <Dialog
             onOpenChange={(open) => {
               if (!open) navigate("/productivity/tasks");
@@ -109,7 +106,7 @@ function Row({ row ,openDialog,navigate}) {
               }}
               asChild
             >
-              <MdDelete className="font-semibold text-lg"  />
+              <MdDelete className="font-semibold text-lg text-[#ff3b30]"  />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

@@ -2,10 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../Components/components/ui/button";
-import Select from "react-select";
 import { Input } from "../Components/components/ui/input";
-import "react-datepicker/dist/react-datepicker.css";
-import DatePicker from "react-datepicker";
 import { useEffect,useState } from "react";
 import { useSelector,useDispatch } from "react-redux";
 import {

@@ -123,7 +123,6 @@ function Row({
           }
         </TableCell>
         <TableCell
-          sx={{ color: "#ff3b30" }}
           className={`${isDefault ? "hidden" : "flex"}`}
         >
           <Dialog
@@ -139,7 +138,7 @@ function Row({
             >
               <MdDelete
                 className={
-                  isDefault === false ? "font-semibold text-lg" : "hidden"
+                  isDefault === false ? "font-semibold text-lg text-[#ff3b30]" : "hidden"
                 }
               />
             </DialogTrigger>

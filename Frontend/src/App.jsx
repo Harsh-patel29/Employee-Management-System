@@ -10,6 +10,7 @@ import Loader from "./Components/Loader.jsx";
 import "./scrollbar.css";
 import AttendanceShortcut from "./pages/AttendanceShortcut";
 import MarkAttendance from "./Components/MarkAttendance";
+import TaskTimer from "./Components/TaskTimer";
 function App() {
 
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
@@ -32,6 +33,7 @@ function App() {
         <NavBar />
         <AttendanceShortcut />
         <MarkAttendance />
+        <TaskTimer/>
         <div className="flex ">
           <Navigation />
           <main

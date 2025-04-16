@@ -34,7 +34,7 @@ const createTask = AsyncHandler(async (req, res) => {
       Project:"",
       Totatime: "00:00:00",
       Status: "Backlog",
-      Asignee: 
+      Asignee: user.Name,
       StartDate,
       EndDate,
       EstimatedTime,
