@@ -6,17 +6,16 @@ import { Dialog,
 } from "./components/ui/dialog"
 import { Button } from "./components/ui/button"
 import { useDispatch ,useSelector} from "react-redux";
-import { createTaskTimer,resetTaskTimer,updateTaskTimer,getTaskByUser} from "../feature/tasktimerfetch/tasktimerslice.js";
+import { createTaskTimer,resetTaskTimer,updateTaskTimer,getTaskByUser,resetTaskByUser,resetAllTaskTimer} from "../feature/tasktimerfetch/tasktimerslice.js";
 import Select from "react-select"
 import {Input} from "./components/ui/input"
 const Timer = ({openTimer,setOpenTimer}) => {
     const dispatch = useDispatch();
     const [time,setTime] = useState(0);
-    const [message,setMessage] = useState("");
     const[selectedTask,setSelectedTask] = useState(null);
+    const [message,setMessage] = useState("");
     const [taskId,setTaskId] = useState(null);
-    const [selectedTaskcode,setSelectedTaskCode]=useState("")
-    const [writtenMessage,setWrittenMessage]=useState("")
+    const [hasSentData, setHasSentData] = useState(false);
     const {user} = useSelector((state)=>state.auth);
     const {createdTaskTimer,taskByUser}= useSelector((state)=>state.tasktimer)
     const [isRunning,setIsRunning] = useState(false);
@@ -67,21 +66,52 @@ const Timer = ({openTimer,setOpenTimer}) => {
         }
     },[taskByUser])
   
+
   useEffect(()=>{
     if(createdTaskTimer?.success){
       setTaskId(createdTaskTimer.message._id)
-      setSelectedTaskCode(createdTaskTimer.message.TaskId)
-      setWrittenMessage(createdTaskTimer.message.Message)
       dispatch(resetTaskTimer())
 }
   },[createdTaskTimer])
+
+  useEffect(() => {
+  if (taskId) {
+    localStorage.setItem("taskId", taskId);
+  }
+}, [taskId]);
+
+
+  useEffect(() => {
+  if (taskId && !hasSentData) {
+    setHasSentData(true);
+  }
+}, [taskId, hasSentData]);
 
   const taskOptions = task?.map((t)=>({
     value:`${t.CODE}${t?.title ? `- ${t?.title}` : ""}`,
     label:`${t.CODE}${t?.title ? `- ${t?.title}` : ""}`
   }))
-  const taskCode = selectedTask?.split("-")[0];
+  const taskCode = selectedTask?.label.split("-")[0];
   
+  useEffect(() => {
+    const storedTaskId = localStorage.getItem("taskId");
+    const storedTask = localStorage.getItem("selectedTask");
+    const storedInput = localStorage.getItem("message");
+    
+    if (storedTaskId) {
+      setTaskId(storedTaskId);
+    }
+
+    if (storedTask) {
+      setSelectedTask(JSON.parse(storedTask)); 
+    }
+
+  if (storedInput) {
+    setMessage(storedInput);
+  }
+}, []);
+
+
     return (
         <>
         <Dialog open={openTimer} onOpenChange={setOpenTimer}>
@@ -100,8 +130,13 @@ const Timer = ({openTimer,setOpenTimer}) => {
           ))}
         </div>
             <div className='flex flex-col gap-2 justify-center mt-4'>
-                <Select className='w-full' options={taskOptions} onChange={(e)=>setSelectedTask(e.value)} />
-                <Input type="text" placeholder='Enter Message' className='w-full shadow-none border border-gray-300 rounded-sm' onChange={(e)=>setMessage(e.target.value)}/>
+                <Select className='w-full' options={taskOptions} onChange={(option)=>{setSelectedTask(option)
+  localStorage.setItem("selectedTask",JSON.stringify(option))
+                }}  value={selectedTask}/>
+                <Input type="text" placeholder='Enter Message' className='w-full shadow-none border border-gray-300 rounded-sm'
+                 onChange={(e)=>{setMessage(e.target.value)
+                  localStorage.setItem("message",e.target.value)
+                 }} value={message}/>
                 <span className={`${message ? "hidden" : "text-sm text-red-500"}`}>Message is required</span>
             </div>
         <div className="mt-6 flex items-center justify-center gap-6">
@@ -109,7 +144,10 @@ const Timer = ({openTimer,setOpenTimer}) => {
             onClick={() => setIsRunning(true)}
             className="bg-gray-200 text-gray-700 p-3 rounded-full hover:bg-gray-300"
           >
-            <button type='submit' disabled={!message || !taskCode || isRunning} className='w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed' onClick={()=>{dispatch(createTaskTimer({data:{TaskId:taskCode,Message:message},id:user.Name}))}}>
+            <button type='submit' disabled={!message || !taskCode || isRunning} className='w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed'
+             onClick={()=>{dispatch(createTaskTimer({data:{TaskId:taskCode,Message:message},id:user.Name}))
+             
+             setHasSentData(false)}}>
             <Play />
             </button>
           </button>
@@ -117,8 +155,18 @@ const Timer = ({openTimer,setOpenTimer}) => {
             onClick={resetTimer}
             className="bg-red-600 text-white p-3 rounded-full hover:bg-red-700"
           >
-            <button type='submit' disabled={!message || !taskCode || !isRunning} className='w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed' onClick={()=>{dispatch(updateTaskTimer({data:{id:taskId},id:user.Name}))}}>
-            <StopCircle className="w-5 h-5"  onClick={resetTimer}/>
+            <button type='submit' disabled={!message || !taskCode || !isRunning} className='w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed' onClick={()=>{
+              dispatch(updateTaskTimer({data:{id:taskId},id:user.Name}))
+              }
+              }>
+            <StopCircle className="w-5 h-5"  onClick={()=>{resetTimer()
+            setTaskId(null)
+            setMessage("")
+            setSelectedTask(null)
+              localStorage.removeItem("taskId")
+              localStorage.removeItem("selectedTask")
+              localStorage.removeItem("message")
+            }}/>
             </button>
           </button>
         </div>
