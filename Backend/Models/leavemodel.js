@@ -16,7 +16,6 @@ const leaveSchema = new Schema(
         },
         LEAVE_TYPE:{
             type:String,
-            enum:["Casual","Leave without pay"],
             required:true,
         },
         Start_Date:{

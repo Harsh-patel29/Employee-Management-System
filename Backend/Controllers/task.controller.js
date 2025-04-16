@@ -105,6 +105,10 @@ const updateTask = AsyncHandler(async (req,res)=>{
     updateData.$set = updateData.$set || {};
     updateData.$push = updateData.$push || {};
     
+    if(updateData.StartDate>updateData.EndDate){
+      updateData.EndDate=""
+    }
+
     if(todo){
       updateData.$push.todo = todo
     }

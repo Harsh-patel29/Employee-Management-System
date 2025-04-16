@@ -160,6 +160,11 @@ const productivityChildren = [
           name: "Leave Type",
           link: "leave/leaveType",
         },
+        {
+          key: "leaveApprove",
+          name: "Leave Approve",
+          link: "leave/leaveApprove",
+        },
       ],
     },
     {
@@ -353,7 +358,6 @@ const productivityChildren = [
                         to={`/${subItem.link}`}
                         onClick={() => dispatch(collapedSideBar())}
                         >
-                        {console.log("Rendering:", item.name, "with children:", item.children)}
                         {
                           <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
                             <svg

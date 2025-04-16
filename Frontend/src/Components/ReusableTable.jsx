@@ -55,6 +55,7 @@ const ReusableTable = ({
           sx={{
             "& .MuiTableCell-root": {
               padding: 0.4,
+              color: "black",
             },
             ...tableStyle,
           }}

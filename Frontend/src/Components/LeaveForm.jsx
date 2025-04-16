@@ -6,7 +6,7 @@ import Select from "react-select";
 import { Input } from "../Components/components/ui/input";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { useSelector,useDispatch } from "react-redux";
 import {
   Form,
@@ -16,7 +16,7 @@ import {
   FormField,
 } from "../Components/components/ui/form";
 import {SheetClose} from "../Components/components/ui/sheet"
-import {getLeaveById} from "../feature/leavefetch/createleaveSlice"
+import {getLeaveById,getCreatedLeave} from "../feature/leavefetch/createleaveSlice"
 
 const formSchema = z.object({
   Leave_Reason: z.string().min(1, { message: "Leave Reason is Required" }),
@@ -28,15 +28,26 @@ const formSchema = z.object({
 });
 
 export default function LeaveForm({ onSubmit, mode,id }) {
-    const {leaveById} = useSelector((state)=>state.leave)
+  const [leaveType,setLeaveType] = useState([])
+  const [startDate,setStartDate] = useState([])
+    const {leaveById,createdLeaves,allLeave} = useSelector((state)=>state.leave)
   const dispatch = useDispatch()
-
+  
   useEffect(()=>{
     if(mode === "update" && id){
       dispatch(getLeaveById(id))
     }
   },[dispatch,mode,id])
 
+  useEffect(()=>{
+    dispatch(getCreatedLeave())
+  },[dispatch])
+  console.log(createdLeaves)
+    useEffect(()=>{
+      if(createdLeaves?.message){
+        setLeaveType(createdLeaves?.message)
+      }
+    },[createdLeaves,allLeave])
 
   const {
     control,
@@ -55,11 +66,11 @@ export default function LeaveForm({ onSubmit, mode,id }) {
     },
   });
   
-  
-  const LeaveTypeOptions = [
-    {value:"Casual",label:"Casual"},
-    {value:"Leave without pay",label:"Leave without pay"},
-  ] 
+
+   const LeaveTypeOptions = leaveType?.map((value)=>({
+  label:value?.Leave_Reason,
+  value:value?.Leave_Reason
+ }))
 
   const StartDateTypeOptions = [
     {value:"First_Half",label:"First Half"},
@@ -124,7 +135,7 @@ Cancel
               <FormItem>
                 <FormLabel className={errors?.Leave_Reason ? "text-[#737373]":"text-sm font-medium text-gray-700"}>Leave Reason</FormLabel>
                 <FormControl>
-                  <Input {...field} type="text" placeholder="Enter Leave Reason" className="w-full h-10 rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"/>
+                  <Input {...field} type="text" placeholder="Enter Leave Reason" className="h-9.5  w-full   rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"/>
                 </FormControl>
                   <div>{errors?.Leave_Reason && <span className="text-red-500 font-semibold">{errors.Leave_Reason.message}</span>}</div>
               </FormItem>
@@ -142,14 +153,16 @@ Cancel
                 styles={{
                           control: (baseStyles, state) => ({
   ...baseStyles,
-  borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+  height: '34px',
+  borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   boxShadow: 'none',
+  padding:"0px",
   fontSize: '15px',
-  color: 'rgb(120, 122, 126)',
+  color: 'rgb(224, 224, 224)',
   backgroundColor: 'transparent',
   width: "auto",
   '&:hover': {
-    borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+    borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   }
 }),
                           placeholder: (baseStyles) => ({
@@ -197,7 +210,7 @@ Cancel
                 <FormControl>
                  <DatePicker 
                  {...field}
-                 className='w-full h-10 border border-gray-300 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0'placeholderText='  Start Date' 
+                 className='w-full h-9.5  border border-gray-300 rounded-sm  outline-none'placeholderText='   Start Date' 
               selected={field.value}
               onChange={(date)=>{
                 field.onChange(date)
@@ -206,6 +219,7 @@ Cancel
                       date?.getTimezoneOffset() * 60000
                   )?.toISOString().split("T")[0];
                 field.onChange(localDate)
+                setStartDate(localDate)
               }}
                     dateFormat="dd-MM-yyyy"
                     showYearDropdown
@@ -231,14 +245,14 @@ Cancel
                 styles={{
                       control: (baseStyles, state) => ({
   ...baseStyles,
-  borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+  borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   boxShadow: 'none',
   fontSize: '15px',
-  color: 'rgb(120, 122, 126)',
+  color: 'rgb(224, 224, 224)',
   backgroundColor: 'transparent',
   width: "auto",
   '&:hover': {
-    borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+    borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   }
 }),
   indicatorSeparator: () => ({
@@ -279,6 +293,7 @@ Cancel
                             maxWidth:"auto"
                           }),
                         }}
+                        className="h-9.5"
             value={typeof field.value === 'string' ? StartDateTypeOptions.find(option => option.value === field.value) : field.value}
                 placeholder="Select Start Day Leave"
                 isClearable={true}
@@ -304,8 +319,9 @@ Cancel
               <FormItem className="flex flex-col">
                 <FormLabel className={errors?.End_Date ? "text-[#737373]":"text-[16px] font-[500]"}>End Date</FormLabel>
                 <FormControl>
-                   <DatePicker {...field} className='w-full h-10 border border-gray-300 rounded-sm focus-visible:ring-0 focus-visible:ring-offset-0'placeholderText='  End Date' 
+                   <DatePicker {...field} className='w-full h-9.5 border border-gray-300 rounded-sm outline-none'placeholderText='    End Date' 
               selected={field.value}
+              disabled={!startDate}
               onChange={(date)=>{
                 field.onChange(date)
                 const localDate = new Date(
@@ -314,7 +330,7 @@ Cancel
                                           )?.toISOString().split("T")[0];
                 field.onChange(localDate)
                       }}
-                    
+                      minDate={startDate}
                     dateFormat="DD-MM-YYYY"
                     showYearDropdown
                     scrollableYearDropdown
@@ -341,14 +357,14 @@ Cancel
                 styles={{
                          control: (baseStyles, state) => ({
   ...baseStyles,
-  borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+  borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   boxShadow: 'none',
   fontSize: '15px',
-  color: 'rgb(120, 122, 126)',
+  color: 'rgb(224, 224, 224)',
   backgroundColor: 'transparent',
   width: "auto",
   '&:hover': {
-    borderColor: state.isFocused ? 'rgb(101,101,101)' : 'rgb(120, 122, 126)',
+    borderColor: state.isFocused ? 'rgb(224, 224, 224)' : 'rgb(224, 224, 224)',
   }
 }),
                           placeholder: (baseStyles) => ({

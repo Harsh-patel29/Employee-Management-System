@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import {Leave} from "../Models/leavemodel.js"
 import {User} from "../Models/user.model.js"
 import {CreateLeave} from "../Models/createleavemodel.js"
@@ -128,4 +129,71 @@ const createnewLeave = AsyncHandler(async(req,res)=>{
 
 })
 
-export {createLeave,getAllLeave,deleteLeave,updateLeave,getLeaveById,createnewLeave}
+const getCreatedLeave = AsyncHandler(async(req,res)=>{
+const leave = await CreateLeave.find({})
+if(!leave){
+    throw new ApiError("No leave found",404)
+}
+return res.status(200).json(new ApiResponse(200,leave,"Leave Fetched Successfully"))
+})
+
+const getCreatedLeaveById = AsyncHandler(async(req,res)=>{
+    const {id} = req.body
+    const leave = await CreateLeave.findById(id)
+    if(!leave){
+        throw new ApiError(404,"Leave not found")
+    }
+    return res.status(200).json(new ApiResponse(200,leave,"Leave Fetched Successfully"))
+})  
+
+const updateCreatedLeave = AsyncHandler(async(req,res)=>{
+    const {id} = req.body
+    const leave = await CreateLeave.findById(id)
+    if(!leave){
+        throw new ApiError(404,"Leave not found")
+    }
+    leave.Leave_Reason = req.body.data.Leave_Reason
+    leave.Leave_Code = req.body.data.Leave_Code
+  const updatedLeave = await leave.save()
+    const newLeave= {
+        Leave_Reason:updatedLeave.Leave_Reason,
+        Leave_Code:updatedLeave.Leave_Code
+    }
+    return res.status(200).json(new ApiResponse(200,newLeave,"Leave Updated Successfully"))
+})
+
+const deleteCreatedLeave = AsyncHandler(async(req,res)=>{
+    const {id} = req.body
+    const newid = req.body.data
+    const leave = await CreateLeave.findByIdAndDelete(newid)
+    if(!leave){
+        throw new ApiError(404,"Leave not found")
+    }
+    return res.status(200).json(new ApiResponse(200,leave,"Leave Deleted Successfully"))
+})
+
+const approveLeave = AsyncHandler(async(req,res)=>{
+    const {id} = req.body
+    const mongooseid =new mongoose.Types.ObjectId(id)
+    const leave = await Leave.findById(id)
+    if(!leave){
+        throw new ApiError(404,"Leave not found")
+    }
+    await leave.updateOne({Status:"Approved"})
+    if(leave.Status === "Approved"){
+      await leave.deleteOne(mongooseid)
+    }
+    return res.status(200).json(new ApiResponse(200,leave,"Leave Approved Successfully"))
+})
+
+const rejectLeave = AsyncHandler(async(req,res)=>{
+    const {id} = req.body
+    const leave = await Leave.findById(id)
+    if(!leave){
+        throw new ApiError(404,"Leave not found")
+    }
+    await leave.updateOne({Status:"Rejected"})
+    return res.status(200).json(new ApiResponse(200,leave,"Leave Rejected Successfully"))
+})
+
+export {createLeave,getAllLeave,deleteLeave,updateLeave,getLeaveById,createnewLeave,getCreatedLeave,updateCreatedLeave,getCreatedLeaveById,deleteCreatedLeave,approveLeave,rejectLeave}

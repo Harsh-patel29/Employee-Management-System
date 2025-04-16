@@ -17,23 +17,22 @@ import {
 } from "../Components/components/ui/dialog";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
+import TableHead from "@mui/material/TableHead";
 import { Button } from "../Components/components/ui/button";
 import LeaveForm from "./LeaveForm.jsx";
 import { useDispatch,useSelector } from "react-redux";
 import {  useNavigate } from "react-router-dom";
-import { createLeave ,getAllLeave,resetError,resetLeave,deleteLeave,getLeaveById,updateLeave} from "../feature/leavefetch/createleaveSlice";
-import { MdDelete } from "react-icons/md";
-import { FaEdit } from "react-icons/fa";
+import { createLeave ,getAllLeave,resetError,rejectLeave,approveLeave,resetApprovedLeave,resetRejectedLeave} from "../feature/leavefetch/createleaveSlice";
+
 import { Bounce,toast } from "react-toastify";
-function Row({row,openDialog,navigate,openSheet}){
-  const {updatedLeave} = useSelector((state)=>state.leave)
-    const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-    React.useEffect(()=>{
-      if(updatedLeave?.success){
-        setupdatesheetopen(false)
-      }
-    },[updatedLeave])
-  const dispatch = useDispatch()
+function Row({row,openDialog,navigate}){
+    const dispatch = useDispatch()
+  
+    const [dialogOpen, setdialogOpen] = React.useState(false);
+    const [rejectDialogOpen, setrejectDialogOpen] = React.useState(false);
+   
+
+    
   return(
     <React.Fragment>
       <TableRow
@@ -52,77 +51,71 @@ function Row({row,openDialog,navigate,openSheet}){
         <TableCell>{row.Start_Date}</TableCell>
         <TableCell>{row.End_Date}</TableCell>
         <TableCell>{row.Days}</TableCell>
-        <TableCell>{row.Status}</TableCell>
-       <div className="flex items-center gap-2">
-
-            <Sheet
-              open={updatesheetopen}
-              onOpenChange={(open) => {
-                  setupdatesheetopen(open);
-                  if (!open) {
-                      navigate("/leave");
-                    }
-                }}
-                >
-              <SheetTrigger
-                onClick={() => {
-                    openSheet(row._id);
-                }}
-                asChild
-                >
-                <FaEdit className="font-[200] text-lg" />
-              </SheetTrigger>
-              <SheetContent className="min-w-2xl">
-                <SheetHeader>
-                  <SheetDescription>
-                    <LeaveForm onSubmit={(data)=>{dispatch(updateLeave({data,id:row._id}))}} mode="update" id={row._id}/>
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-        <div className="text-[#ff3b30]">
-          <Dialog
-            onOpenChange={(open) => {
-                if (!open) navigate("/leave");
-            }}
-            >
+        <TableHead>
+        <TableCell>
+<div className="flex items-center gap-2">
+        <Dialog open={dialogOpen} onOpenChange={setdialogOpen}>
             <DialogTrigger
               onClick={() => {
-                  openDialog(row._id);
-                }}
-                asChild
-                >
-              <MdDelete className="font-[200] text-lg" />
+                openDialog(row._id);
+              }}
+              asChild
+            >
+                <Button  className="px-4 py-2 bg-transparent hover:bg-emerald-600 hover:text-white border border-emerald-500 text-emerald-500 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+            Approve
+           </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogTitle>Are you sure?</DialogTitle>
                 <DialogDescription>
-                  This action cannot be undone. This will permanently delete the leave.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
-                        dispatch(deleteLeave({data:row._id}));
-                        navigate("/leave", { replace: true });
-                    }}
-                    >
-                    Delete
-                  </Button>
+                  This action cannot be undone.Once approved, the leave can't be rejected.
+                  <Button onClick={()=>{dispatch(approveLeave(row._id))
+                    setdialogOpen(false)
+                  }} className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+            Approve
+           </Button>
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
           </Dialog>
-                        </div>
-                      </div>
+                   <Dialog open={rejectDialogOpen} onOpenChange={setrejectDialogOpen}>
+            <DialogTrigger
+              onClick={() => {
+                openDialog(row._id);
+              }}
+              asChild
+            >
+                  <Button  className="px-4 py-2 bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+            Reject
+          </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone.Once rejected, the leave can't be approved.
+                  <Button onClick={()=>
+                  {dispatch(rejectLeave(row._id))
+                    setrejectDialogOpen(false)
+                  }}className=" flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+            Reject
+           </Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+     </div>
+        </TableCell>
+        </TableHead>
       </TableRow>
     </React.Fragment>
   )
 }
 
-const LeaveTable = () => {
-  const {allLeave,error,leave,deletedLeave} = useSelector((state)=>state.leave)
+const LeaveApproveTable = () => {
+  const {allLeave,error,leave,deletedLeave,approvedLeave,rejectedLeave} = useSelector((state)=>state.leave)
   const [Leave,setLeave] = React.useState([])
-    const [updatesheetopen, setupdatesheetopen] = React.useState(false);
     const [sheetopen,setsheetopen] = React.useState(false)
     const [dialogOpen, setdialogOpen] = React.useState(false);
     const navigate = useNavigate()
@@ -138,44 +131,32 @@ const LeaveTable = () => {
       }
     },[allLeave])
 
-
-     const openSheet = (id) => {
-    navigate(`/leave`);
-    dispatch(getLeaveById(id))
-    setTimeout(() => {
-      setupdatesheetopen(true);
-    }, 0);
-  };
-
     const openDialog = () => {
-    navigate(`/leave`);
     setTimeout(() => {
       setdialogOpen(true);
     }, 0);
   };
 
     React.useEffect(()=>{
-      if(leave?.success){
-        toast.success("Leave created Successfully", {
+      if(approvedLeave?.success){
+        toast.success("Leave approved Successfully", {
           position: "top-right",
           autoClose: 3000,
         });
-        setsheetopen(false)
         dispatch(getAllLeave())
-        dispatch(resetLeave())
+        dispatch(resetApprovedLeave())
       }
-    },[leave])
+    },[approvedLeave])
 
      React.useEffect(()=>{
-      if(deletedLeave?.success){
-        toast.success("Leave deleted Successfully", {
+      if(rejectedLeave?.success){
+        toast.success("Leave rejected Successfully", {
           position: "top-right",
           autoClose: 3000,
         });
-        dispatch(getAllLeave())
-        dispatch(resetLeave())
+        dispatch(resetRejectedLeave())
       }
-    },[deletedLeave])
+    },[rejectedLeave])
 
     React.useEffect(()=>{
       if (error) {
@@ -207,7 +188,6 @@ const columns =[
     {field:"Start_Date",headerName:"Start Date"},
     {field:"End_Date",headerName:"End Date"},
     {field:"Days",headerName:"Days"},
-    {field:"Status",headerName:"Status"},
     {field:"Action",headerName:"Action"},
 ]
 
@@ -215,7 +195,7 @@ return(
     <>
      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
-          Leave
+          Pending Leave
         </h5>
         <div className="flex items-center">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -227,7 +207,7 @@ return(
 <line x1="12" y1="8" x2="12" y2="16"></line>
 <line x1="8" y1="12" x2="16" y2="12"></line>
             </svg>
-             Leave 
+             Filter 
               </div>
             </SheetTrigger>
             <SheetContent showCloseButton={false}
@@ -242,9 +222,9 @@ return(
           </Sheet>
         </div>
       </div>
-    <ReusableTable columns={columns} data={Leave} RowComponent={Row} pagination={true} rowProps={{openDialog,openSheet,navigate}}/>
+    <ReusableTable columns={columns} data={Leave} RowComponent={Row} pagination={true} rowProps={{openDialog,navigate}}/>
     </>
 )
 }
 
-export default LeaveTable
+export default LeaveApproveTable
