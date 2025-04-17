@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const RolekeysSchmea = new Schema(
   {
@@ -13,4 +13,4 @@ const RolekeysSchmea = new Schema(
   { timestamps: true }
 );
 
-export const keysSchema = mongoose.model("RolesKeySchema", RolekeysSchmea);
+export const keysSchema = mongoose.model('RolesKeySchema', RolekeysSchmea);

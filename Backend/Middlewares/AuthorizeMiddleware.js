@@ -1,31 +1,31 @@
-import { User } from "../Models/user.model.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { ApiError } from "../Utils/ApiError.js";
-import jwt from "jsonwebtoken";
-import { UserAccess } from "../Models/Role_Access.js";
+import { User } from '../Models/user.model.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import { ApiError } from '../Utils/ApiError.js';
+import jwt from 'jsonwebtoken';
+import { UserAccess } from '../Models/Role_Access.js';
 
 const authenticate = AsyncHandler(async (req, res, next) => {
   const token =
     (req.cookies && req.cookies.accessToken) ||
-    (req.header("Authorization") &&
-      req.header("Authorization").startsWith("Bearer ") &&
-      req.header("Authorization").replace("Bearer ", ""));
+    (req.header('Authorization') &&
+      req.header('Authorization').startsWith('Bearer ') &&
+      req.header('Authorization').replace('Bearer ', ''));
 
   if (!token) {
-    throw new ApiError(404, "No token");
+    throw new ApiError(404, 'No token');
   }
 
   try {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    const user = await User.findById(decodedToken._id).select("-Password");
+    const user = await User.findById(decodedToken._id).select('-Password');
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(400, 'User not found');
     }
     req.user = user;
     next();
   } catch (error) {
-    throw new ApiError(401, error?.message, "Invalid AccessToken");
+    throw new ApiError(401, error?.message, 'Invalid AccessToken');
   }
 });
 
@@ -34,10 +34,10 @@ const Authorized = AsyncHandler(async (req, res, next) => {
     [
       {
         $lookup: {
-          from: "useraccesses",
-          localField: "roleid",
-          foreignField: "role",
-          as: "result",
+          from: 'useraccesses',
+          localField: 'roleid',
+          foreignField: 'role',
+          as: 'result',
         },
       },
       {
@@ -47,12 +47,12 @@ const Authorized = AsyncHandler(async (req, res, next) => {
       },
       {
         $project: {
-          result: "$result",
+          result: '$result',
         },
       },
       {
         $unwind: {
-          path: "$result",
+          path: '$result',
         },
       },
     ],
@@ -66,7 +66,7 @@ const Authorized = AsyncHandler(async (req, res, next) => {
   ) {
     next();
   } else {
-    throw new ApiError(404, "Unauthorized");
+    throw new ApiError(404, 'Unauthorized');
   }
 });
 

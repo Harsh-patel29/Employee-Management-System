@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
-import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import mongoose, { Schema } from 'mongoose';
+import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 dotenv.config({
-  path: "./.env",
+  path: './.env',
 });
 const userSchema = new Schema(
   {
@@ -31,8 +31,8 @@ const userSchema = new Schema(
     },
     Gender: {
       type: String,
-      enum: ["MALE", "FEMALE"],
-      default: "MALE",
+      enum: ['MALE', 'FEMALE'],
+      default: 'MALE',
     },
     EMP_CODE: {
       type: String,
@@ -48,17 +48,17 @@ const userSchema = new Schema(
     },
     role: {
       type: Schema.Types.String,
-      ref: "Role",
+      ref: 'Role',
       required: true,
     },
     roleid: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Role",
+      ref: 'Role',
       required: true,
     },
     access_keys: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserAccess",
+      ref: 'UserAccess',
     },
     ReportingManager: {
       type: String,
@@ -70,8 +70,8 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("Password")) return next();
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('Password')) return next();
   this.Password = await bcryptjs.hash(this.Password, 10);
   next();
 });
@@ -86,12 +86,12 @@ userSchema.statics.generateEMPCode = async function () {
     })
     .limit(1);
   if (!lastEmployee) {
-    return "EMP001";
+    return 'EMP001';
   }
 
   const lastNumber = parseInt(lastEmployee.EMP_CODE.slice(3));
   const nextNumber = lastNumber + 1;
-  return `EMP${nextNumber.toString().padStart(3, "0")}`;
+  return `EMP${nextNumber.toString().padStart(3, '0')}`;
 };
 
 userSchema.methods.generateAccessToken = function () {
@@ -116,4 +116,4 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);

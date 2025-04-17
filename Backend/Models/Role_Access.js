@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const User_AccessSchema = new Schema({
   role: {
     type: Schema.Types.ObjectId,
-    ref: "Role",
+    ref: 'Role',
     required: true,
   },
   access_keys: {
@@ -15,4 +15,4 @@ const User_AccessSchema = new Schema({
   },
 });
 
-export const UserAccess = mongoose.model("UserAccess", User_AccessSchema);
+export const UserAccess = mongoose.model('UserAccess', User_AccessSchema);

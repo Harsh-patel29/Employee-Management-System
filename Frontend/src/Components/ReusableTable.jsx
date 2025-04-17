@@ -1,13 +1,13 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import TablePagination from "@mui/material/TablePagination";
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import TablePagination from '@mui/material/TablePagination';
 
 const ReusableTable = ({
   columns,
@@ -41,11 +41,11 @@ const ReusableTable = ({
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: "white",
+          backgroundColor: 'white',
           marginTop: 0.5,
-          color: "black",
+          color: 'black',
           maxHeight: 500,
-          width: "98%",
+          width: '98%',
           marginLeft: 1.7,
           borderRadius: 2,
           ...containerStyle,
@@ -53,19 +53,28 @@ const ReusableTable = ({
       >
         <Table
           sx={{
-            "& .MuiTableCell-root": {
+            '& .MuiTableCell-root': {
               padding: 0.4,
-              color: "black",
+              color: 'black',
             },
             ...tableStyle,
           }}
         >
-          <TableHead sx={{ backgroundColor: "#c1dde9",height: "40px",position: "sticky",top: 0,zIndex: 40, ...headStyle }}>
+          <TableHead
+            sx={{
+              backgroundColor: '#c1dde9',
+              height: '40px',
+              position: 'sticky',
+              top: 0,
+              zIndex: 40,
+              ...headStyle,
+            }}
+          >
             <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.field}
-                  sx={{ fontWeight: "200", fontSize: "medium", ...cellStyle }}
+                  sx={{ fontWeight: '200', fontSize: 'medium', ...cellStyle }}
                 >
                   {column.headerName}
                 </TableCell>
@@ -78,7 +87,9 @@ const ReusableTable = ({
                 key={row._id || index}
                 row={{
                   ...row,
-                  index: pagination ? page * rowsPerPage + index + 1 : index + 1,
+                  index: pagination
+                    ? page * rowsPerPage + index + 1
+                    : index + 1,
                 }}
                 {...rowProps}
               />
@@ -118,4 +129,4 @@ ReusableTable.propTypes = {
   cellStyle: PropTypes.object,
 };
 
-export default ReusableTable; 
+export default ReusableTable;

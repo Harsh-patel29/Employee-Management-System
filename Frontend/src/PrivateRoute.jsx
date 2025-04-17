@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "./feature/datafetch/datafetchSlice";
-import Loader from "./Components/Loader";
+import React, { useEffect, useState } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuth } from './feature/datafetch/datafetchSlice';
+import Loader from './Components/Loader';
 
 const PrivateRoute = () => {
   const dispatch = useDispatch();
@@ -10,8 +10,7 @@ const PrivateRoute = () => {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(checkAuth())
-      .finally(() => setInitialLoading(false));
+    dispatch(checkAuth()).finally(() => setInitialLoading(false));
   }, [dispatch]);
 
   if (initialLoading) {

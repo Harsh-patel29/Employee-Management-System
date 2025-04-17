@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const getRoles = createAsyncThunk(
-  "auth/getRoles",
+  'auth/getRoles',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v1/user/roles/all",
+        'http://localhost:8000/api/v1/user/roles/all',
         { withCredentials: true }
       );
       return res.data;
@@ -17,11 +17,11 @@ export const getRoles = createAsyncThunk(
 );
 
 export const getKeys = createAsyncThunk(
-  "auth/getkeys",
+  'auth/getkeys',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v1/user/get/keyroles",
+        'http://localhost:8000/api/v1/user/get/keyroles',
         { withCredentials: true }
       );
       return res.data;
@@ -32,11 +32,11 @@ export const getKeys = createAsyncThunk(
 );
 
 export const createRole = createAsyncThunk(
-  "auth/createRole",
+  'auth/createRole',
   async (data, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v1/user/create/role",
+        'http://localhost:8000/api/v1/user/create/role',
         data,
         { withCredentials: true }
       );
@@ -48,7 +48,7 @@ export const createRole = createAsyncThunk(
 );
 
 export const updateRole = createAsyncThunk(
-  "auth/updateRole",
+  'auth/updateRole',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       const res = await axios.patch(
@@ -57,45 +57,45 @@ export const updateRole = createAsyncThunk(
         { withCredentials: true }
       );
       return res.data;
-    }catch(error){
+    } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
 
 export const deleteRole = createAsyncThunk(
-  "auth/deleteRole",
+  'auth/deleteRole',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.delete(
         `http://localhost:8000/api/v1/user/delete/role/${id}`,
         { withCredentials: true }
       );
-      console.log(res.data);  
+      console.log(res.data);
       return res.data;
-    }catch(error){
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 export const getRoleById = createAsyncThunk(
-  "auth/getRoleById",
+  'auth/getRoleById',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/v1/user/get/role/${id}`, 
+        `http://localhost:8000/api/v1/user/get/role/${id}`,
         { withCredentials: true }
       );
       return res.data;
-    }catch(error){
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 const roleSlice = createSlice({
-  name: "getrole",
+  name: 'getrole',
   initialState: {
     roles: null,
     keys: null,
@@ -115,7 +115,7 @@ const roleSlice = createSlice({
     },
     resetDeletedRole: (state) => {
       state.deletedRole = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -158,10 +158,12 @@ const roleSlice = createSlice({
       .addCase(updateRole.pending, (state) => {
         state.loading = true;
         state.error = null;
-      }).addCase(updateRole.fulfilled, (state, action) => {
+      })
+      .addCase(updateRole.fulfilled, (state, action) => {
         state.updatedRole = action.payload;
         state.loading = false;
-      }).addCase(updateRole.rejected, (state, action) => {
+      })
+      .addCase(updateRole.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })
@@ -172,11 +174,11 @@ const roleSlice = createSlice({
       .addCase(getRoleById.fulfilled, (state, action) => {
         state.roleById = action.payload;
         state.loading = false;
-      })  
+      })
       .addCase(getRoleById.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
-        })  
+      })
       .addCase(deleteRole.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -192,5 +194,6 @@ const roleSlice = createSlice({
   },
 });
 
-export const { resetCreatedRole, resetUpdatedRole, resetDeletedRole } = roleSlice.actions;
+export const { resetCreatedRole, resetUpdatedRole, resetDeletedRole } =
+  roleSlice.actions;
 export default roleSlice.reducer;

@@ -1,67 +1,66 @@
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { ApiError } from "../Utils/ApiError.js";
-import { projectlogo } from "../Utils/cloudinary.js";
-import { taskattachments } from "../Utils/cloudinary.js";
-import { attachment } from "../Utils/cloudinary.js";
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import { ApiError } from '../Utils/ApiError.js';
+import { projectlogo } from '../Utils/cloudinary.js';
+import { taskattachments } from '../Utils/cloudinary.js';
+import { attachment } from '../Utils/cloudinary.js';
 const uploadlogo = AsyncHandler(async (req, res, next) => {
   const logoLocalPath = req.files?.logo?.[0]?.path;
 
   if (!logoLocalPath) {
-    throw new ApiError(404, "Logo is required");
+    throw new ApiError(404, 'Logo is required');
   }
 
   let logophoto;
 
   try {
     logophoto = await projectlogo(logoLocalPath);
-    console.log("logo uploaded");
+    console.log('logo uploaded');
   } catch (error) {
-    console.log("Error in uploading logo", error);
-    throw new ApiError(500, "Failed to upload logo");
+    console.log('Error in uploading logo', error);
+    throw new ApiError(500, 'Failed to upload logo');
   }
   req.logodetail = logophoto;
 
   next();
 });
 
-const uploadtaskAttachment = AsyncHandler(async(req,res,next)=>{
-    const attachments = req.files?.attachments;
-    if(!attachments || attachments.length === 0){
-        throw new ApiError(400,"Attachments are required");
-    }
-    const attachmentsLocalPaths = attachments.map(file => file.path);
+const uploadtaskAttachment = AsyncHandler(async (req, res, next) => {
+  const attachments = req.files?.attachments;
+  if (!attachments || attachments.length === 0) {
+    throw new ApiError(400, 'Attachments are required');
+  }
+  const attachmentsLocalPaths = attachments.map((file) => file.path);
 
-    let attachmentphoto;
-    try {
-        attachmentphoto = await taskattachments(attachmentsLocalPaths);
-        console.log("Attachment uploaded");
-    } catch (error) {
-        console.log("Error in uploading attachment",error);
-        throw new ApiError(500,"Failed to upload attachment");
-    }
-    req.attachmentdetail = attachmentphoto;
-    next();
-})
+  let attachmentphoto;
+  try {
+    attachmentphoto = await taskattachments(attachmentsLocalPaths);
+    console.log('Attachment uploaded');
+  } catch (error) {
+    console.log('Error in uploading attachment', error);
+    throw new ApiError(500, 'Failed to upload attachment');
+  }
+  req.attachmentdetail = attachmentphoto;
+  next();
+});
 
 const uploadAttachment = AsyncHandler(async (req, res, next) => {
   const attachmentLocalPath = req.files?.attachment?.[0]?.path;
   if (!attachmentLocalPath) {
-    throw new ApiError(404, "Attachment is required");
+    throw new ApiError(404, 'Attachment is required');
   }
 
   let attachmentphoto;
 
   try {
     attachmentphoto = await attachment(attachmentLocalPath);
-    console.log("attachment uploaded");
+    console.log('attachment uploaded');
   } catch (error) {
-    console.log("Error in uploading attachment", error);
-    throw new ApiError(500, "Failed to upload attachment");
+    console.log('Error in uploading attachment', error);
+    throw new ApiError(500, 'Failed to upload attachment');
   }
   req.attachment = attachmentphoto;
 
   next();
 });
 
-
-export { uploadlogo,uploadtaskAttachment,uploadAttachment };
+export { uploadlogo, uploadtaskAttachment, uploadAttachment };

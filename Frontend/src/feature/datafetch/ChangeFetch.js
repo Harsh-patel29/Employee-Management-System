@@ -1,8 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const getChangeDetail = createAsyncThunk(
-  "settings/getdetails",
+  'settings/getdetails',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.get(
@@ -20,7 +20,7 @@ export const getChangeDetail = createAsyncThunk(
 );
 
 const ChangeDetailSlice = createSlice({
-  name: "ChangeAccess",
+  name: 'ChangeAccess',
   initialState: {
     detail: null,
     error: null,

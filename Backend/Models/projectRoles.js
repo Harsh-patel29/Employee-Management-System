@@ -1,10 +1,10 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const Project_RolesSchema = new Schema(
   {
     name: {
       type: String,
-      enum: ["Developer", "Project_Admin", "Project_Manager"],
+      enum: ['Developer', 'Project_Admin', 'Project_Manager'],
       unique: true,
       required: true,
     },
@@ -23,6 +23,6 @@ const Project_RolesSchema = new Schema(
   { timestamps: true }
 );
 export const Project_Roles = mongoose.model(
-  "Project_Roles",
+  'Project_Roles',
   Project_RolesSchema
 );

@@ -1,24 +1,24 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const markAttendance = createAsyncThunk(
-  "auth/markAttendance",
+  'auth/markAttendance',
   async (
     { attendance, latitude, longitude },
     { rejectWithValue, dispatch }
   ) => {
     try {
       const formData = new FormData();
-      formData.append("attendance", attendance);
-      formData.append("Latitude", latitude);
-      formData.append("Longitude", longitude);
+      formData.append('attendance', attendance);
+      formData.append('Latitude', latitude);
+      formData.append('Longitude', longitude);
       const res = await axios.post(
-        "http://localhost:8000/api/v2/attendance/attendance",
+        'http://localhost:8000/api/v2/attendance/attendance',
         formData,
         {
           withCredentials: true,
           headers: {
-            "Content-Type": "mutipart/form-data",
+            'Content-Type': 'mutipart/form-data',
           },
         }
       );
@@ -31,11 +31,11 @@ export const markAttendance = createAsyncThunk(
 );
 
 export const fetchAttendance = createAsyncThunk(
-  "auth/getAttendance",
+  'auth/getAttendance',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v2/attendance/attendanceDetail",
+        'http://localhost:8000/api/v2/attendance/attendanceDetail',
         { withCredentials: true }
       );
       return res.data;
@@ -46,11 +46,11 @@ export const fetchAttendance = createAsyncThunk(
 );
 
 export const getUserDetails = createAsyncThunk(
-  "auth/getUserDetails",
+  'auth/getUserDetails',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v2/attendance/attendance",
+        'http://localhost:8000/api/v2/attendance/attendance',
         { withCredentials: true }
       );
       return res.data;
@@ -60,9 +60,9 @@ export const getUserDetails = createAsyncThunk(
   }
 );
 const markattendanceSlice = createSlice({
-  name: "markAttendance",
+  name: 'markAttendance',
   initialState: {
-     isSheetOpen: false,
+    isSheetOpen: false,
     isSubmitting: false,
     lastOperation: null,
     attendance: null,
@@ -87,13 +87,12 @@ const markattendanceSlice = createSlice({
     setLastOperation: (state, action) => {
       state.lastOperation = action.payload;
     },
-    
   },
   extraReducers: (builder) => {
     builder
       .addCase(markAttendance.pending, (state) => {
         const now = Date.now();
-        if(state.lastOperation && now - state.lastOperation < 1000){
+        if (state.lastOperation && now - state.lastOperation < 1000) {
           return;
         }
         state.isSubmitting = true;
@@ -138,5 +137,10 @@ const markattendanceSlice = createSlice({
       });
   },
 });
-export const { resetAttendance, openAttendanceSheet, closeAttendanceSheet, setLastOperation } = markattendanceSlice.actions;
+export const {
+  resetAttendance,
+  openAttendanceSheet,
+  closeAttendanceSheet,
+  setLastOperation,
+} = markattendanceSlice.actions;
 export default markattendanceSlice.reducer;

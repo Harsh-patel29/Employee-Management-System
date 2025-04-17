@@ -1,6 +1,6 @@
-import { Button } from "../Components/components/ui/button";
-import { Input } from "../Components/components/ui/input";
-import { Label } from "../Components/components/ui/label";
+import { Button } from '../Components/components/ui/button';
+import { Input } from '../Components/components/ui/input';
+import { Label } from '../Components/components/ui/label';
 import {
   Sheet,
   SheetClose,
@@ -10,9 +10,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "../Components/components/ui/sheet";
+} from '../Components/components/ui/sheet';
 
-const SHEET_SIDES = ["top", "right", "bottom", "left"];
+const SHEET_SIDES = ['top', 'right', 'bottom', 'left'];
 
 export function SheetSide() {
   return (

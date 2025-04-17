@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTrigger,
-} from "../Components/components/ui/sheet";
-import AssignUserTable from "./AssignUserTable";
-import { useParams } from "react-router";
-import { useDispatch ,useSelector} from "react-redux";
-import { assignuser,getname,resetAssigneduser,resetDeleteuser } from "../feature/projectfetch/assignuser.js";
-import { Bounce, toast } from "react-toastify";
+} from '../Components/components/ui/sheet';
+import AssignUserTable from './AssignUserTable';
+import { useParams } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  assignuser,
+  getname,
+  resetAssigneduser,
+  resetDeleteuser,
+} from '../feature/projectfetch/assignuser.js';
+import { Bounce, toast } from 'react-toastify';
 
 const AssignSheet = () => {
   const { id } = useParams();
@@ -23,53 +28,55 @@ const AssignSheet = () => {
   const [selectedRole, setSelectedRole] = useState();
 
   const dispatch = useDispatch();
-  const { assigneduser, deleteuser,error } = useSelector((state) => state.assignusers);
+  const { assigneduser, deleteuser, error } = useSelector(
+    (state) => state.assignusers
+  );
 
-  
-useEffect(()=>{
-  if(assigneduser?.success){
-    toast.success("User assigned successfully", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-    });
-  }
-  return () => {
-    dispatch(resetAssigneduser());
-    dispatch(resetDeleteuser());
-  }
-},[assigneduser?.success])
+  useEffect(() => {
+    if (assigneduser?.success) {
+      toast.success('User assigned successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
+    }
+    return () => {
+      dispatch(resetAssigneduser());
+      dispatch(resetDeleteuser());
+    };
+  }, [assigneduser?.success]);
 
-useEffect(()=>{
-  if(deleteuser?.success){
-    toast.success("User deleted successfully", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-    });
-  }
-},[deleteuser?.success]) 
+  useEffect(() => {
+    if (deleteuser?.success) {
+      toast.success('User deleted successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
+    }
+  }, [deleteuser?.success]);
 
-useEffect(() => {
+  useEffect(() => {
     if (error) {
-      const errorMessage = error.response?.data?.message || error.message || error;
+      const errorMessage =
+        error.response?.data?.message || error.message || error;
       toast.error(errorMessage, {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
         transition: Bounce,
       });
     }
-  },[error])
+  }, [error]);
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const res = await axios.get("http://localhost:8000/api/v1/user/", {
+        const res = await axios.get('http://localhost:8000/api/v1/user/', {
           withCredentials: true,
         });
         setusers(res?.data?.message);
@@ -85,13 +92,13 @@ useEffect(() => {
     async function fetchRoles() {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/v3/project/project/roles/details",
+          'http://localhost:8000/api/v3/project/project/roles/details',
           { withCredentials: true }
         );
         setroles(res?.data?.message);
         return res.data;
       } catch (error) {
-        console.log("Something went wrong while fetching roles detail");
+        console.log('Something went wrong while fetching roles detail');
       }
     }
     fetchRoles();

@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
-import { User } from "../Models/user.model.js";
-import { Attendance } from "../Models/attendance.js";
-import { uploadOnCloudinary } from "../Utils/cloudinary.js";
-import { ApiError } from "../Utils/ApiError.js";
-import { ApiResponse } from "../Utils/ApiResponse.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import dotenv from "dotenv";
+import mongoose from 'mongoose';
+import { User } from '../Models/user.model.js';
+import { Attendance } from '../Models/attendance.js';
+import { uploadOnCloudinary } from '../Utils/cloudinary.js';
+import { ApiError } from '../Utils/ApiError.js';
+import { ApiResponse } from '../Utils/ApiResponse.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
@@ -29,16 +29,16 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
   const { Latitude, Longitude } = body;
 
   if (!ImageLocalPath) {
-    throw new ApiError(404, "Image is required for attendance");
+    throw new ApiError(404, 'Image is required for attendance');
   }
 
   let Image;
   try {
     Image = await uploadOnCloudinary(ImageLocalPath);
-    console.log("Uploaded Attendance!!");
+    console.log('Uploaded Attendance!!');
   } catch (error) {
-    console.log("Error in uploading Attendance", error);
-    throw new ApiError(500, "Failed to upload Attendance");
+    console.log('Error in uploading Attendance', error);
+    throw new ApiError(500, 'Failed to upload Attendance');
   }
 
   let logHours = 0;
@@ -82,27 +82,33 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     formattedLogHours = formatSecondsToHHMMSS(logHours);
   }
 
-  if(todayAttendance.length>0){
-    if(new Date() - new Date(todayAttendance[0].AttendAt)<1000*60*1){
-      throw new ApiError(404, "Attendance can be marked only after 1 minute of time out");
+  if (todayAttendance.length > 0) {
+    if (new Date() - new Date(todayAttendance[0].AttendAt) < 1000 * 60 * 1) {
+      throw new ApiError(
+        404,
+        'Attendance can be marked only after 1 minute of time out'
+      );
     }
   }
 
-  const nowIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-const currentDateIST = new Date(nowIST);
+  const nowIST = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+  });
+  const currentDateIST = new Date(nowIST);
 
-// Set 7:00 PM for today in IST
-const sevenPMIST = new Date(nowIST);
-sevenPMIST.setHours(19, 0, 0, 0); // 19:00:00.000
+  // Set 7:00 PM for today in IST
+  const sevenPMIST = new Date(nowIST);
+  sevenPMIST.setHours(19, 0, 0, 0); // 19:00:00.000
 
-// Comparison
-if (currentDateIST >= sevenPMIST) {
-  logHours = calculateTimeDifferenceInSeconds(todayAttendance[0].AttendAt, sevenPMIST);
-  formattedLogHours=formatSecondsToHHMMSS(logHours);
-  console.log(logHours);
-  
-}
-
+  // Comparison
+  if (currentDateIST >= sevenPMIST) {
+    logHours = calculateTimeDifferenceInSeconds(
+      todayAttendance[0].AttendAt,
+      sevenPMIST
+    );
+    formattedLogHours = formatSecondsToHHMMSS(logHours);
+    console.log(logHours);
+  }
 
   try {
     const attendance = await Attendance.create({
@@ -117,11 +123,11 @@ if (currentDateIST >= sevenPMIST) {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, attendance, "Attendance recorded successfully")
+        new ApiResponse(200, attendance, 'Attendance recorded successfully')
       );
   } catch (error) {
-    console.error("Error creating attendance:", error);
-    throw new ApiError(404, "Failed to save Attendance");
+    console.error('Error creating attendance:', error);
+    throw new ApiError(404, 'Failed to save Attendance');
   }
 });
 
@@ -143,6 +149,6 @@ const getAttendance = AsyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, values[0], "Attendance fetched Successfully"));
+    .json(new ApiResponse(200, values[0], 'Attendance fetched Successfully'));
 });
 export { uploadAttendance, getAttendance };

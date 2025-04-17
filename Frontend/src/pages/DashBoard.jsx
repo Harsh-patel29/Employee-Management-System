@@ -1,5 +1,5 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 const DashBoard = () => {
   return (
@@ -34,7 +34,7 @@ const DashBoard = () => {
               <h3 className="font-bold text-xl">Due Today Task</h3>
               <p className="text-[#22c2c2bf]">11</p>
             </div>
-          </div>{" "}
+          </div>{' '}
         </div>
       </div>
     </div>

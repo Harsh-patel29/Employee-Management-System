@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router";
-import axios from "axios";
-import { Button } from "../Components/components/ui/button";
-import { Switch } from "../Components/components/ui/switch";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
+import axios from 'axios';
+import { Button } from '../Components/components/ui/button';
+import { Switch } from '../Components/components/ui/switch';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../Components/components/ui/accordion";
-import { getChangeDetail } from "../feature/datafetch/ChangeFetch";
-import { getRoles, deleteRole,resetDeletedRole } from "../feature/rolesfetch/getrolesSlice";
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
+} from '../Components/components/ui/accordion';
+import { getChangeDetail } from '../feature/datafetch/ChangeFetch';
+import {
+  getRoles,
+  deleteRole,
+  resetDeletedRole,
+} from '../feature/rolesfetch/getrolesSlice';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
 import {
   Dialog,
   DialogContent,
@@ -21,8 +25,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../Components/components/ui/dialog";    
-import { Bounce, toast } from "react-toastify";
+} from '../Components/components/ui/dialog';
+import { Bounce, toast } from 'react-toastify';
 
 const updateAccess = (userId, key, value) => {
   return axios.put(
@@ -30,7 +34,7 @@ const updateAccess = (userId, key, value) => {
     { key, value },
     {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     }
   );
@@ -39,8 +43,8 @@ const updateAccess = (userId, key, value) => {
 const Roles = () => {
   const theme = useSelector((state) => state.theme.theme);
   const [Roles, setRoles] = useState([]);
-const [dialogOpen, setdialogOpen] = useState(false);
-  const { roles ,deletedRole} = useSelector((state) => state.getrole);
+  const [dialogOpen, setdialogOpen] = useState(false);
+  const { roles, deletedRole } = useSelector((state) => state.getrole);
 
   useEffect(() => {
     dispatch(getRoles());
@@ -92,7 +96,7 @@ const [dialogOpen, setdialogOpen] = useState(false);
   const toggleAccordion = (roleId) => {
     if (activeAccordion === roleId) {
       setActiveAccordion(null);
-      navigate("/users/roles/");
+      navigate('/users/roles/');
     } else {
       setActiveAccordion(roleId);
       navigate(`/users/roles/${roleId}`);
@@ -111,16 +115,16 @@ const [dialogOpen, setdialogOpen] = useState(false);
     if (deletedRole?.success === true) {
       setdialogOpen(false);
       dispatch(getRoles());
-      navigate("/users/roles");
+      navigate('/users/roles');
     }
     return () => {
       dispatch(resetDeletedRole());
-    }
+    };
   }, [deletedRole]);
 
-  if(deletedRole?.success){
-    toast.success("Role deleted successfully", {
-      position: "top-right",
+  if (deletedRole?.success) {
+    toast.success('Role deleted successfully', {
+      position: 'top-right',
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -135,21 +139,49 @@ const [dialogOpen, setdialogOpen] = useState(false);
           <Button
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
             onClick={() => {
-              navigate("/users");
+              navigate('/users');
             }}
           >
-            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"></path>
+            <svg
+              className="w-6 h-6"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14M5 12l4-4m-4 4 4 4"
+              ></path>
             </svg>
             Go back
           </Button>
           <h1 className="text-2xl font-semibold">Manage Access</h1>
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300" 
-            onClick={() => navigate("/create/roles/")}
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => navigate('/create/roles/')}
           >
-            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#338DB5" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"></path>
+            <svg
+              className="w-6 h-6"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#338DB5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14m-7 7V5"
+              ></path>
             </svg>
             New Role
           </button>
@@ -181,48 +213,52 @@ const [dialogOpen, setdialogOpen] = useState(false);
                       <path d="M12.356 3.066a1 1 0 0 0-.712 0l-7 2.666A1 1 0 0 0 4 6.68a17.695 17.695 0 0 0 2.022 7.98 17.405 17.405 0 0 0 5.403 6.158 1 1 0 0 0 1.15 0 17.406 17.406 0 0 0 5.402-6.157A17.694 17.694 0 0 0 20 6.68a1 1 0 0 0-.644-.949l-7-2.666Z" />
                     </svg>
 
-                    <span className="font-semibold">{role.name}
-                    </span>
+                    <span className="font-semibold">{role.name}</span>
                     <div className="flex justify-end w-full items-center gap-5 text-2xl">
-                      <FaEdit className=" font-semibold text-[#338DB5]" onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/update/roles/${role._id}`);
-                      }}/>
-                    <Dialog
-            onOpenChange={(open) => {
-              if (!open) navigate("/users/roles");
-            }}
-          >
-            <DialogTrigger
-              onClick={() => {
-                openDialog(role._id);
-              }}
-              asChild
-            >
-              <MdDelete
-                className="font-semibold text-[#FD6E6E]" onClick={(e) => {
-                  e.stopPropagation();
-                }} 
-              />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                This action cannot be undone. This will permanently delete the role.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dispatch(deleteRole(role._id));
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+                      <FaEdit
+                        className=" font-semibold text-[#338DB5]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/update/roles/${role._id}`);
+                        }}
+                      />
+                      <Dialog
+                        onOpenChange={(open) => {
+                          if (!open) navigate('/users/roles');
+                        }}
+                      >
+                        <DialogTrigger
+                          onClick={() => {
+                            openDialog(role._id);
+                          }}
+                          asChild
+                        >
+                          <MdDelete
+                            className="font-semibold text-[#FD6E6E]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                            <DialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete the role.
+                              <Button
+                                className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  dispatch(deleteRole(role._id));
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </AccordionTrigger>
@@ -232,14 +268,15 @@ const [dialogOpen, setdialogOpen] = useState(false);
                       {Object.keys(role.access)}
                     </div>
                     {Object.keys(permissions).length > 0 ? (
-                      Object.entries(permissions).map(([key, value,index]) => (
+                      Object.entries(permissions).map(([key, value, index]) => (
                         <AccordionContent
                           key={key}
                           index={index}
                           className="flex w-full justify-between p-2 pl-32 pr-32 h-full items-start capitalize font-medium"
                         >
                           <h6 className="text-md">
-                            {Object.keys(permissions).indexOf(key) + 1} . {key.replace(/_/g, " ")}
+                            {Object.keys(permissions).indexOf(key) + 1} .{' '}
+                            {key.replace(/_/g, ' ')}
                           </h6>
                           <Switch
                             onClick={(e) => e.stopPropagation()}

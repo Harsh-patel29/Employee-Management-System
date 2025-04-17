@@ -1,24 +1,23 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "../Components/components/ui/button";
-import { Input } from "../Components/components/ui/input";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '../Components/components/ui/button';
+import { Input } from '../Components/components/ui/input';
 import {
   Form,
   FormItem,
   FormLabel,
   FormControl,
   FormField,
-} from "../Components/components/ui/form";
-import { useSelector } from "react-redux";
+} from '../Components/components/ui/form';
+import { useSelector } from 'react-redux';
 const formSchema = z.object({
-  Email: z.string().email({ message: "Please enter correct Email" }),
-  Password: z.string().min(6, { message: "Passoword must be 6 characters" }),
+  Email: z.string().email({ message: 'Please enter correct Email' }),
+  Password: z.string().min(6, { message: 'Passoword must be 6 characters' }),
 });
 
 export default function LoginForm({ onSubmit }) {
   const { loading } = useSelector((state) => state.auth);
-
 
   const {
     control,
@@ -27,8 +26,8 @@ export default function LoginForm({ onSubmit }) {
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      Email: "",
-      Password: "",
+      Email: '',
+      Password: '',
     },
   });
 
@@ -43,7 +42,9 @@ export default function LoginForm({ onSubmit }) {
           name="Email"
           render={({ field }) => (
             <FormItem className="mt-4">
-              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">Email:</FormLabel>
+              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">
+                Email:
+              </FormLabel>
               <div>{errors?.Email && <span>{errors.Email.message}</span>}</div>
               <FormControl>
                 <Input
@@ -61,7 +62,9 @@ export default function LoginForm({ onSubmit }) {
           name="Password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">Password:</FormLabel>
+              <FormLabel className="font-[Inter,sans-serif] text-[#344054] w-100">
+                Password:
+              </FormLabel>
               <div>
                 {errors?.Password && <span>{errors.Password.message}</span>}
               </div>
@@ -80,7 +83,7 @@ export default function LoginForm({ onSubmit }) {
           type="submit"
           className="w-80 bg-blue-600 hover:bg-blue-700 mt-[15px] font-[Inter,sans-serif]"
         >
-          {loading ? "Signing In..." : "Sign In"}
+          {loading ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
     </Form>

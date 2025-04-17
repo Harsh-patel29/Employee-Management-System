@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const getUser = createAsyncThunk(
-  "getuser/fetch",
+  'getuser/fetch',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.get(`http://localhost:8000/api/v1/user/${id}`, {
@@ -11,32 +11,32 @@ export const getUser = createAsyncThunk(
       return res.data;
     } catch (error) {
       rejectWithValue(
-        error?.response?.data?.message || "Failed to fetch user details"
+        error?.response?.data?.message || 'Failed to fetch user details'
       );
     }
   }
 );
 
 export const getDefaultValue = createAsyncThunk(
-  "getdefaultvalue",
+  'getdefaultvalue',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v1/user/role/defaultvalue",
+        'http://localhost:8000/api/v1/user/role/defaultvalue',
         { withCredentials: true }
       );
       console.log(res.data);
       return res.data;
     } catch (error) {
       rejectWithValue(
-        error?.response?.data?.message || "Failed to fetch details"
+        error?.response?.data?.message || 'Failed to fetch details'
       );
     }
   }
 );
 
 const userSlice = createSlice({
-  name: "getuser",
+  name: 'getuser',
   initialState: {
     users: null,
     error: null,

@@ -1,60 +1,62 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "../Components/components/ui/button";
-import { Input } from "../Components/components/ui/input";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '../Components/components/ui/button';
+import { Input } from '../Components/components/ui/input';
 import {
   Form,
   FormItem,
   FormLabel,
   FormControl,
   FormField,
-} from "../Components/components/ui/form";
-import { useDispatch, useSelector } from "react-redux";
-import { Switch } from "../Components/components/ui/switch";
-import "react-datepicker/dist/react-datepicker.css";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
-import { getKeys ,getRoleById} from "../feature/rolesfetch/getrolesSlice.js";
-import { useNavigate } from "react-router-dom";
+} from '../Components/components/ui/form';
+import { useDispatch, useSelector } from 'react-redux';
+import { Switch } from '../Components/components/ui/switch';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router';
+import { getKeys, getRoleById } from '../feature/rolesfetch/getrolesSlice.js';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is Required" }),
+  name: z.string().min(1, { message: 'Name is Required' }),
   access: z.record(z.record(z.boolean())).default({}),
 });
 
-export default function AdminForm({ onSubmit,mode }) {
-  const {id} = useParams();
+export default function AdminForm({ onSubmit, mode }) {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [accessData, setAccessData] = useState({});
   const [roleData, setRoleData] = useState({});
   const dispatch = useDispatch();
-  const { keys ,roleById , updatedRole , createdRole} = useSelector((state) => state.getrole);
+  const { keys, roleById, updatedRole, createdRole } = useSelector(
+    (state) => state.getrole
+  );
   console.log(updatedRole);
   console.log(createdRole);
-  
+
   useEffect(() => {
     dispatch(getKeys());
   }, []);
 
   useEffect(() => {
-    if(createdRole?.success){
-      navigate("/users/roles");
+    if (createdRole?.success) {
+      navigate('/users/roles');
     }
   }, [createdRole]);
-  
+
   useEffect(() => {
-    if(updatedRole?.success){
-      navigate("/users/roles");
+    if (updatedRole?.success) {
+      navigate('/users/roles');
     }
   }, [updatedRole]);
 
   useEffect(() => {
-    if ( mode === "update" && id) {
+    if (mode === 'update' && id) {
       dispatch(getRoleById(id));
     }
   }, [dispatch, id, mode]);
-  
+
   useEffect(() => {
     if (keys?.message?.[0]?.access_key) {
       setAccessData(keys.message[0].access_key);
@@ -62,12 +64,11 @@ export default function AdminForm({ onSubmit,mode }) {
       setAccessData([]);
     }
   }, [keys?.message]);
-  
 
-   const form = useForm({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
       access: {},
     },
   });
@@ -80,34 +81,33 @@ export default function AdminForm({ onSubmit,mode }) {
   } = form;
 
   useEffect(() => {
-    if (mode === "update" && roleById?.message) {
+    if (mode === 'update' && roleById?.message) {
       const detail = roleById.message;
       reset({
-        name: detail?.name || "", 
+        name: detail?.name || '',
         access: detail?.access || {},
       });
     }
   }, [roleById?.message, reset, mode]);
-  
+
   return (
     <>
-    
       <Form {...control}>
         <div className="max-w-4xl mx-auto bg-[#cce7f2] rounded-xl shadow-lg">
           <div className="p-6 sm:p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              {mode === "update" ? "Update Role" : "Create Role" }
+              {mode === 'update' ? 'Update Role' : 'Create Role'}
             </h2>
             <form
               onSubmit={handleSubmit((data) => {
                 onSubmit(data);
-                if(mode === "create" && createdRole?.success){
-                  navigate("/user/roles");
+                if (mode === 'create' && createdRole?.success) {
+                  navigate('/user/roles');
                   reset();
                 }
-                if(mode === "update" && updatedRole?.success){
+                if (mode === 'update' && updatedRole?.success) {
                   reset();
-                  navigate("/user/roles");
+                  navigate('/user/roles');
                 }
               })}
               className="space-y-6"
@@ -164,7 +164,7 @@ export default function AdminForm({ onSubmit,mode }) {
                                     className="flex items-center justify-between py-3 px-4 bg-[#e4f2f7] rounded-md shadow-sm hover:bg-[#cce7f2] transition-colors duration-200"
                                   >
                                     <span className="text-sm font-medium text-gray-600 capitalize">
-                                      {key.replace(/_/g, " ")}
+                                      {key.replace(/_/g, ' ')}
                                     </span>
                                     <Switch
                                       checked={
@@ -197,7 +197,7 @@ export default function AdminForm({ onSubmit,mode }) {
                 type="submit"
                 className="w-full py-3 bg-[#e4f2f7] text-gray-800 font-medium rounded-lg hover:bg-[#cce7f2] transition-colors duration-200 focus:ring-1 focus:ring-[#cce7f2] focus:ring-opacity-50"
               >
-                {mode === "update" ? "Update" : "Create"}
+                {mode === 'update' ? 'Update' : 'Create'}
               </Button>
             </form>
           </div>

@@ -1,10 +1,9 @@
-
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { useSelector, useDispatch } from "react-redux";
-import AssignSheet from "../Components/AssignSheet.jsx";
-import { getname } from "../feature/projectfetch/assignuser.js";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import AssignSheet from '../Components/AssignSheet.jsx';
+import { getname } from '../feature/projectfetch/assignuser.js';
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -42,7 +41,7 @@ const ProjectDetail = () => {
         setdetail(res.data.message);
         return res.data;
       } catch (error) {
-        console.log("Error fetching detail", error);
+        console.log('Error fetching detail', error);
       }
     };
     getDetails(id);
@@ -296,7 +295,7 @@ const ProjectDetail = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Team Members</p>
                 <p className="text-gray-800 font-semibold">
-                  {name?.map((name) => name.username).join(", ")}
+                  {name?.map((name) => name.username).join(', ')}
                 </p>
               </div>
             </div>

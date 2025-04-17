@@ -1,15 +1,15 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { useSelector, useDispatch } from "react-redux";
-import { useParams, useNavigate } from "react-router";
-import { MdDelete } from "react-icons/md";
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
+import { MdDelete } from 'react-icons/md';
 import {
   Dialog,
   DialogContent,
@@ -17,11 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../Components/components/ui/dialog";
-import { Button } from "../Components/components/ui/button.tsx";
-import { getname } from "../feature/projectfetch/assignuser.js";
-import { deleteassignuser } from "../feature/projectfetch/assignuser.js";
-import ReusableTable from "./ReusableTable.jsx";
+} from '../Components/components/ui/dialog';
+import { Button } from '../Components/components/ui/button.tsx';
+import { getname } from '../feature/projectfetch/assignuser.js';
+import { deleteassignuser } from '../feature/projectfetch/assignuser.js';
+import ReusableTable from './ReusableTable.jsx';
 
 function Row({ row, handleDelete }) {
   const navigate = useNavigate();
@@ -31,13 +31,13 @@ function Row({ row, handleDelete }) {
     <React.Fragment>
       <TableRow
         sx={{
-          backgroundColor: theme === "light" ? "white" : "#161b22",
-          color: theme === "light" ? "black" : "#f8f9fa",
+          backgroundColor: theme === 'light' ? 'white' : '#161b22',
+          color: theme === 'light' ? 'black' : '#f8f9fa',
         }}
       >
         <TableCell>{row.username}</TableCell>
         <TableCell>{row.rolesName}</TableCell>
-        <TableCell sx={{ color: "#ff3b30" }} className="flex">
+        <TableCell sx={{ color: '#ff3b30' }} className="flex">
           <Dialog
             onOpenChange={(open) => {
               if (!open) navigate(`/productivity/project/${id}`);
@@ -120,7 +120,7 @@ export default function AssignUserTable() {
       dispatch(deleteassignuser({ id: projectId, userId, roleId }));
       setname((prev) => prev.filter((item) => item.userid !== userId));
     } catch (error) {
-      console.log("Something went wrong while deleting user", error);
+      console.log('Something went wrong while deleting user', error);
     }
   };
 
@@ -133,9 +133,9 @@ export default function AssignUserTable() {
   }, [deleteuser, userid, dispatch, id, navigate]);
 
   const columns = [
-    { field: "username", headerName: "User" },
-    { field: "rolesName", headerName: "Role" },
-    { field: "delete", headerName: "Delete" },
+    { field: 'username', headerName: 'User' },
+    { field: 'rolesName', headerName: 'Role' },
+    { field: 'delete', headerName: 'Delete' },
   ];
 
   return (
@@ -146,13 +146,12 @@ export default function AssignUserTable() {
         RowComponent={Row}
         pagination={false}
         tableStyle={{
-          "& .MuiTableCell-root": {
-            padding: "10px",
+          '& .MuiTableCell-root': {
+            padding: '10px',
           },
-
         }}
         rowStyle={{
-          padding: "10px",
+          padding: '10px',
         }}
         rowProps={{
           handleDelete,

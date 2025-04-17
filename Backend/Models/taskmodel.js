@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const taskSchema = new Schema(
   {
@@ -7,13 +7,13 @@ const taskSchema = new Schema(
     },
     title: {
       type: String,
-      default: "",
+      default: '',
     },
     description: {
       type: String,
-      default: "",
+      default: '',
     },
-     todo: [
+    todo: [
       {
         todoTitle: {
           type: String,
@@ -22,19 +22,19 @@ const taskSchema = new Schema(
           type: Boolean,
           default: false,
         },
-      }
+      },
     ],
     comments: [
       {
         Attachments: [
           {
-            url:{
-              type:String,
+            url: {
+              type: String,
             },
-            public_id:{
-              type:String,
-            }
-          }
+            public_id: {
+              type: String,
+            },
+          },
         ],
         comment: {
           type: String,
@@ -56,12 +56,12 @@ const taskSchema = new Schema(
     },
     Totatime: {
       type: String,
-      default: "00:00:00",
+      default: '00:00:00',
     },
     Status: {
       type: String,
-      enum: ["Backlog", "In_Progress", "Done", "Completed", "Deployed"],
-      default: "Backlog",
+      enum: ['Backlog', 'In_Progress', 'Done', 'Completed', 'Deployed'],
+      default: 'Backlog',
     },
     Asignee: {
       type: String,
@@ -76,18 +76,18 @@ const taskSchema = new Schema(
     ],
     Attachments: [
       {
-        url:{
-          type:String,
+        url: {
+          type: String,
         },
-        public_id:{
-          type:String,
+        public_id: {
+          type: String,
         },
-        orignalname:{
-          type:String,
+        orignalname: {
+          type: String,
         },
-        format:{
-          type:String,
-        }
+        format: {
+          type: String,
+        },
       },
     ],
     createdBy: {
@@ -104,11 +104,11 @@ taskSchema.statics.generatetaskCode = async function () {
     })
     .limit(1);
   if (!lastTask) {
-    return "T00001";
+    return 'T00001';
   }
   const lastnumber = parseInt(lastTask.CODE.slice(3));
   const nextnumber = lastnumber + 1;
-  return `T${nextnumber.toString().padStart(5, "0")}`;
+  return `T${nextnumber.toString().padStart(5, '0')}`;
 };
 
-export const Task = mongoose.model("Task", taskSchema);
+export const Task = mongoose.model('Task', taskSchema);

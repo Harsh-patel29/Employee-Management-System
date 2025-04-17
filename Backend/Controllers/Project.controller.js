@@ -1,28 +1,28 @@
-import { ApiError } from "../Utils/ApiError.js";
-import { ApiResponse } from "../Utils/ApiResponse.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { Project } from "../Models/projectmodel.js";
-import { Project_Roles } from "../Models/projectRoles.js";
-import { User } from "../Models/user.model.js";
-import mongoose from "mongoose";
-import { deleteFromCloudinary } from "../Utils/cloudinary.js";
-const cleanup = async(public_id)=>{
-  try{
+import { ApiError } from '../Utils/ApiError.js';
+import { ApiResponse } from '../Utils/ApiResponse.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import { Project } from '../Models/projectmodel.js';
+import { Project_Roles } from '../Models/projectRoles.js';
+import { User } from '../Models/user.model.js';
+import mongoose from 'mongoose';
+import { deleteFromCloudinary } from '../Utils/cloudinary.js';
+const cleanup = async (public_id) => {
+  try {
     await deleteFromCloudinary(public_id);
-  }catch(cleanupError){
-    console.log("Failed to delete logo from cloudinary", cleanupError);
+  } catch (cleanupError) {
+    console.log('Failed to delete logo from cloudinary', cleanupError);
   }
-}
+};
 
 const createProject = AsyncHandler(async (req, res) => {
   const { name, progress_status, status, logo } = req.body;
   if (!req.body) {
-    throw new ApiError(404, "All fields are required");
+    throw new ApiError(404, 'All fields are required');
   }
 
   const projectExists = await Project.findOne({ name });
   if (projectExists) {
-    throw new ApiError(405, "Project already Exists");
+    throw new ApiError(405, 'Project already Exists');
   }
 
   const user = await User.findById(req.user._id);
@@ -30,12 +30,12 @@ const createProject = AsyncHandler(async (req, res) => {
   const role_id = await Project_Roles.aggregate([
     {
       $match: {
-        name: "Project_Admin",
+        name: 'Project_Admin',
       },
     },
     {
       $project: {
-        _id: "$_id",
+        _id: '$_id',
       },
     },
   ]);
@@ -43,9 +43,9 @@ const createProject = AsyncHandler(async (req, res) => {
   try {
     const project = await Project.create({
       name,
-      logo:{
-        url:logo.secure_url,
-        public_id:logo.public_id,
+      logo: {
+        url: logo.secure_url,
+        public_id: logo.public_id,
       },
       progress_status,
       status,
@@ -59,13 +59,12 @@ const createProject = AsyncHandler(async (req, res) => {
       ],
     });
     await project.save();
-    
+
     return res
       .status(200)
-      .json(new ApiResponse(200, project, "Project created Successfully"));
+      .json(new ApiResponse(200, project, 'Project created Successfully'));
   } catch (error) {
-    throw new ApiError(500, error, "Project creation failed");
-
+    throw new ApiError(500, error, 'Project creation failed');
   }
 });
 
@@ -73,7 +72,7 @@ const getAllProject = AsyncHandler(async (req, res) => {
   const project = await Project.find({});
   return res
     .status(200)
-    .json(new ApiResponse(200, project, "Projects fetched successfully"));
+    .json(new ApiResponse(200, project, 'Projects fetched successfully'));
 });
 
 const getProjectbyId = AsyncHandler(async (req, res) => {
@@ -83,11 +82,11 @@ const getProjectbyId = AsyncHandler(async (req, res) => {
     ...project.toObject(),
   };
   if (!project) {
-    throw new ApiError(404, "Project not found");
+    throw new ApiError(404, 'Project not found');
   } else {
     return res
       .status(200)
-      .json(new ApiResponse(200, userResponse, "Project fetched successfully"));
+      .json(new ApiResponse(200, userResponse, 'Project fetched successfully'));
   }
 });
 
@@ -95,22 +94,22 @@ const updateProject = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
   const project = await Project.findById(id);
 
-  if(req.body.name && req.body.name !== project.name){
-    const nameexists = await Project.findOne({name: req.body.name});
-    if(nameexists){
-      throw new ApiError(404, "Project name already exists");
+  if (req.body.name && req.body.name !== project.name) {
+    const nameexists = await Project.findOne({ name: req.body.name });
+    if (nameexists) {
+      throw new ApiError(404, 'Project name already exists');
     }
   }
 
   try {
     if (!project) {
-      throw new ApiError(404, "Project not found");
+      throw new ApiError(404, 'Project not found');
     }
 
     if (req.body.logo && req.body.logo.secure_url && req.body.logo.public_id) {
       if (req.body.logo.public_id !== project.logo?.public_id) {
         const oldLogoPublicId = project.logo?.public_id;
-        
+
         project.logo = {
           url: req.body.logo.secure_url,
           public_id: req.body.logo.public_id,
@@ -137,15 +136,15 @@ const updateProject = AsyncHandler(async (req, res) => {
       createdBy: updatedProject.createdBy,
       updatedBy: updatedProject.updatedBy,
     };
-    
+
     return res
       .status(200)
-      .json(new ApiResponse(200, newProject, "Project updated Successfully"));
+      .json(new ApiResponse(200, newProject, 'Project updated Successfully'));
   } catch (error) {
     throw new ApiError(
       500,
       error,
-      "Something went wrong while updating project"
+      'Something went wrong while updating project'
     );
   }
 });
@@ -153,26 +152,26 @@ const updateProject = AsyncHandler(async (req, res) => {
 const deleteProject = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params.id);
   const deletedProject = await Project.findByIdAndDelete(id);
-  if(deletedProject.logo){
+  if (deletedProject.logo) {
     await cleanup(deletedProject.logo.public_id);
   }
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Project deleted successfully"));
+    .json(new ApiResponse(200, {}, 'Project deleted successfully'));
 });
 
 const getProjectRoles = AsyncHandler(async (req, res) => {
   const Roles = await Project_Roles.find({});
   return res
     .status(200)
-    .json(new ApiResponse(200, Roles, "Details fetched successfully"));
+    .json(new ApiResponse(200, Roles, 'Details fetched successfully'));
 });
 
 const AssignUser = AsyncHandler(async (req, res) => {
   const { user, role } = req.body;
 
   if (!user || !role) {
-    throw new ApiError(404, "user and role is required");
+    throw new ApiError(404, 'user and role is required');
   }
 
   const id = new mongoose.Types.ObjectId(req.params.id);
@@ -181,35 +180,39 @@ const AssignUser = AsyncHandler(async (req, res) => {
   const roleid = req.roleid;
   const role_id = Object.values(roleid);
 
-  
   const project = await Project.findById(id);
   if (!project) {
-    throw new ApiError(404, "Project not found");
+    throw new ApiError(404, 'Project not found');
   }
 
-  const userExists = project.users.some(user => user.user_id.toString() === user_id[0].toString());
-  const roleExists = project.users.some(user => 
-    user.user_id.toString() === user_id[0].toString() && 
-    user.role_id.toString() === role_id[0].toString()
+  const userExists = project.users.some(
+    (user) => user.user_id.toString() === user_id[0].toString()
+  );
+  const roleExists = project.users.some(
+    (user) =>
+      user.user_id.toString() === user_id[0].toString() &&
+      user.role_id.toString() === role_id[0].toString()
   );
 
   if (roleExists) {
-    throw new ApiError(404, "User with this role already exists in this project");
+    throw new ApiError(
+      404,
+      'User with this role already exists in this project'
+    );
   }
 
   let updatedProject;
-  
-  if (userExists) {
 
+  if (userExists) {
     updatedProject = await Project.findOneAndUpdate(
       {
         _id: id,
-        "users.user_id": user_id[0]
+        'users.user_id': user_id[0],
       },
       {
         $set: {
-          "users.$.role_id": role_id[0]
-        }
+          'users.$.role_id': role_id[0],
+        },
       },
       { new: true }
     );
@@ -230,7 +233,7 @@ const AssignUser = AsyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, updatedProject, "Updated Successfully"));
+    .json(new ApiResponse(200, updatedProject, 'Updated Successfully'));
 });
 
 const getAssignUserName = AsyncHandler(async (req, res) => {
@@ -244,49 +247,49 @@ const getAssignUserName = AsyncHandler(async (req, res) => {
     },
     {
       $unwind: {
-        path: "$users",
+        path: '$users',
       },
     },
     {
       $lookup: {
-        from: "users",
-        localField: "users.user_id",
-        foreignField: "_id",
-        as: "userDetails",
+        from: 'users',
+        localField: 'users.user_id',
+        foreignField: '_id',
+        as: 'userDetails',
       },
     },
     {
       $lookup: {
-        from: "project_roles",
-        localField: "users.role_id",
-        foreignField: "_id",
-        as: "rolesResult",
+        from: 'project_roles',
+        localField: 'users.role_id',
+        foreignField: '_id',
+        as: 'rolesResult',
       },
     },
     {
       $unwind: {
-        path: "$userDetails",
+        path: '$userDetails',
       },
     },
     {
       $unwind: {
-        path: "$rolesResult",
+        path: '$rolesResult',
       },
     },
     {
       $project: {
         _id: 0,
-        userid: "$userDetails._id",
-        username: "$userDetails.Name",
-        roleId: "$rolesResult._id",
-        rolesName: "$rolesResult.name",
+        userid: '$userDetails._id',
+        username: '$userDetails.Name',
+        roleId: '$rolesResult._id',
+        rolesName: '$rolesResult.name',
       },
     },
   ]);
   return res
     .status(200)
     .json(
-      new ApiResponse(200, name, "Users name and roles fetched successfully")
+      new ApiResponse(200, name, 'Users name and roles fetched successfully')
     );
 });
 
@@ -308,32 +311,40 @@ const deleteAssignedUser = AsyncHandler(async (req, res) => {
   if (deleteUser.modifiedCount > 0) {
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "Assigned user deleted successfully"));
+      .json(new ApiResponse(200, {}, 'Assigned user deleted successfully'));
   } else {
-    throw new ApiError(500, "User not found or already deleted");
+    throw new ApiError(500, 'User not found or already deleted');
   }
 });
 
 const logoUpload = AsyncHandler(async (req, res) => {
   const logo = req.logodetail;
-  return res.status(200).json(new ApiResponse(200, logo, "Logo Uploaded Successfully"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, logo, 'Logo Uploaded Successfully'));
 });
 
 const deleteLogo = AsyncHandler(async (req, res) => {
   const { public_id } = req.body;
-  
+
   if (!public_id) {
-    console.log("Logo public_id is required");
+    console.log('Logo public_id is required');
   }
- const existingProject = await Project.findOne({ "logo.public_id": public_id });
+  const existingProject = await Project.findOne({
+    'logo.public_id': public_id,
+  });
   if (existingProject) {
-    return res.status(200).json(new ApiResponse(200, {}, "Logo is in use, skipping deletion"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, 'Logo is in use, skipping deletion'));
   }
   try {
     await cleanup(public_id);
-    return res.status(200).json(new ApiResponse(200, {}, "Logo Deleted Successfully"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, 'Logo Deleted Successfully'));
   } catch (error) {
-    throw new ApiError(500, error, "Failed to delete logo");
+    throw new ApiError(500, error, 'Failed to delete logo');
   }
 });
 

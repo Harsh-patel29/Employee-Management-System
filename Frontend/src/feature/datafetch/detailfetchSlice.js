@@ -1,12 +1,12 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const getdetail = createAsyncThunk(
-  "getdetail/fetch",
+  'getdetail/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v1/user/detail/role",
+        'http://localhost:8000/api/v1/user/detail/role',
         {
           withCredentials: true,
         }
@@ -14,14 +14,14 @@ export const getdetail = createAsyncThunk(
       return res.data.message;
     } catch (error) {
       rejectWithValue(
-        error?.response?.data?.message || "Failed to fetch details"
+        error?.response?.data?.message || 'Failed to fetch details'
       );
     }
   }
 );
 
 const detailSlice = createSlice({
-  name: "getDetail",
+  name: 'getDetail',
   initialState: {
     detail: null,
     error: null,

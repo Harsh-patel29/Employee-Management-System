@@ -1,8 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const assignuser = createAsyncThunk(
-  "auth/assignuser",
+  'auth/assignuser',
   async ({ data, userid }, { rejectWithValue }) => {
     try {
       const res = await axios.patch(
@@ -18,7 +18,7 @@ export const assignuser = createAsyncThunk(
 );
 
 export const getname = createAsyncThunk(
-  "auth/getassignname",
+  'auth/getassignname',
   async (userid, { rejectWithValue }) => {
     try {
       const res = await axios.get(
@@ -34,7 +34,7 @@ export const getname = createAsyncThunk(
 );
 
 export const deleteassignuser = createAsyncThunk(
-  "auth/deleteuser",
+  'auth/deleteuser',
   async ({ id, userId, roleId }, { rejectWithValue }) => {
     try {
       const res = await axios.delete(
@@ -49,7 +49,7 @@ export const deleteassignuser = createAsyncThunk(
 );
 
 const assignuserSlice = createSlice({
-  name: "assignusers",
+  name: 'assignusers',
   initialState: {
     assigneduser: null,
     totalassignedusers: [],
@@ -67,7 +67,6 @@ const assignuserSlice = createSlice({
     resetDeleteuser: (state) => {
       state.deleteuser = null;
     },
-    
   },
   extraReducers: (builder) => {
     builder
@@ -110,5 +109,6 @@ const assignuserSlice = createSlice({
   },
 });
 
-export const { resetAssigneduser, resetTotalassignedusers, resetDeleteuser } = assignuserSlice.actions; 
+export const { resetAssigneduser, resetTotalassignedusers, resetDeleteuser } =
+  assignuserSlice.actions;
 export default assignuserSlice.reducer;

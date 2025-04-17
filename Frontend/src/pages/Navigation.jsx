@@ -1,47 +1,47 @@
-import React, { act, use, useState } from "react";
-import { Link } from "react-router";
-import { MdDashboard } from "react-icons/md";
-import { HiMiniSquares2X2 } from "react-icons/hi2";
-import { CgTime } from "react-icons/cg";
-import { MdOutlineCalendarMonth } from "react-icons/md";
-import { MdKeyboardCommandKey } from "react-icons/md";
-import { LuUsers } from "react-icons/lu";
-import { IoSettingsOutline } from "react-icons/io5";
-import { useDispatch, useSelector } from "react-redux";
+import React, { act, use, useState } from 'react';
+import { Link } from 'react-router';
+import { MdDashboard } from 'react-icons/md';
+import { HiMiniSquares2X2 } from 'react-icons/hi2';
+import { CgTime } from 'react-icons/cg';
+import { MdOutlineCalendarMonth } from 'react-icons/md';
+import { MdKeyboardCommandKey } from 'react-icons/md';
+import { LuUsers } from 'react-icons/lu';
+import { IoSettingsOutline } from 'react-icons/io5';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   collapedSideBar,
   expandSideBar,
-} from "../feature/ToggelSideBar/ToggleSideBarSlice.js";
-import { defaultVariantColorsResolver } from "@mantine/core";
-import { keyframes } from "@emotion/react";
+} from '../feature/ToggelSideBar/ToggleSideBarSlice.js';
+import { defaultVariantColorsResolver } from '@mantine/core';
+import { keyframes } from '@emotion/react';
 
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
-  const [active, setActive] = useState(()=>{
-    return localStorage.getItem("active") || "dashboard";
+  const [active, setActive] = useState(() => {
+    return localStorage.getItem('active') || 'dashboard';
   });
   const [expanded, setexpanded] = useState(null);
-  
-const productivityChildren = [
-  {
-          key: "project",
-          name: "Projects",
-          link: "productivity/project",
-        },
-        { key: "tasks", name: "Tasks", link: "productivity/tasks" },
-        {
-          key: "task timer",
-          name: "Task Timer",
-          link: "productivity/taskTimer",
-        },
-]
+
+  const productivityChildren = [
+    {
+      key: 'project',
+      name: 'Projects',
+      link: 'productivity/project',
+    },
+    { key: 'tasks', name: 'Tasks', link: 'productivity/tasks' },
+    {
+      key: 'task timer',
+      name: 'Task Timer',
+      link: 'productivity/taskTimer',
+    },
+  ];
 
   const menuItems = [
     {
       id: 1,
-      key: "dashboard",
-      name: "Dashboard",
-      style: " rounded-tr-[10px]",
+      key: 'dashboard',
+      name: 'Dashboard',
+      style: ' rounded-tr-[10px]',
       icon: (
         <svg
           stroke="currentColor"
@@ -63,8 +63,8 @@ const productivityChildren = [
     },
     {
       id: 2,
-      key: "productivity",
-      name: "Productivity",
+      key: 'productivity',
+      name: 'Productivity',
       icon: (
         <svg
           stroke="currentColor"
@@ -84,23 +84,23 @@ const productivityChildren = [
         </svg>
       ),
       children: [
-  {
-          key: "project",
-          name: "Projects",
-          link: "productivity/project",
-        },
-        { key: "tasks", name: "Tasks", link: "productivity/tasks" },
         {
-          key: "task timer",
-          name: "Task Timer",
-          link: "productivity/taskTimer",
+          key: 'project',
+          name: 'Projects',
+          link: 'productivity/project',
         },
-]
+        { key: 'tasks', name: 'Tasks', link: 'productivity/tasks' },
+        {
+          key: 'task timer',
+          name: 'Task Timer',
+          link: 'productivity/taskTimer',
+        },
+      ],
     },
     {
       id: 3,
-      key: "attendance",
-      name: "Attendance",
+      key: 'attendance',
+      name: 'Attendance',
       icon: (
         <svg
           stroke="currentColor"
@@ -116,24 +116,28 @@ const productivityChildren = [
           <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path>
         </svg>
       ),
-       children: [
-  {
-          key: "attendance",
-          name: "Attendance",
-          link: "attendance",
-        },
-        { key: "Regularization", name: "Regularization", link: "attendance/regularization" },
+      children: [
         {
-          key: "Monthly Report",
-          name: "Monthly Report",
-          link: "attendance/monthlyReport",
+          key: 'attendance',
+          name: 'Attendance',
+          link: 'attendance',
         },
-]
+        {
+          key: 'Regularization',
+          name: 'Regularization',
+          link: 'attendance/regularization',
+        },
+        {
+          key: 'Monthly Report',
+          name: 'Monthly Report',
+          link: 'attendance/monthlyReport',
+        },
+      ],
     },
     {
       id: 4,
-      key: "leave",
-      name: "Leave",
+      key: 'leave',
+      name: 'Leave',
       icon: (
         <svg
           stroke="currentColor"
@@ -151,26 +155,26 @@ const productivityChildren = [
       ),
       children: [
         {
-          key: "leave",
-          name: "Leave",
-          link: "leave",
+          key: 'leave',
+          name: 'Leave',
+          link: 'leave',
         },
         {
-          key: "leaveType",
-          name: "Leave Type",
-          link: "leave/leaveType",
+          key: 'leaveType',
+          name: 'Leave Type',
+          link: 'leave/leaveType',
         },
         {
-          key: "leaveApprove",
-          name: "Leave Approve",
-          link: "leave/leaveApprove",
+          key: 'leaveApprove',
+          name: 'Leave Approve',
+          link: 'leave/leaveApprove',
         },
       ],
     },
     {
       id: 5,
-      key: "master",
-      name: "Master",
+      key: 'master',
+      name: 'Master',
       icon: (
         <svg
           stroke="currentColor"
@@ -187,19 +191,19 @@ const productivityChildren = [
           <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"></path>
         </svg>
       ),
-       children: [
-  {
-          key: "Holiday",
-          name: "Holiday",
-          link: "master/holiday",
+      children: [
+        {
+          key: 'Holiday',
+          name: 'Holiday',
+          link: 'master/holiday',
         },
-        { key: "Weekoff", name: "Weekoff", link: "master/weekoff" },
-]
+        { key: 'Weekoff', name: 'Weekoff', link: 'master/weekoff' },
+      ],
     },
     {
       id: 6,
-      key: "users",
-      name: "Users",
+      key: 'users',
+      name: 'Users',
       icon: (
         <svg
           stroke="currentColor"
@@ -222,8 +226,8 @@ const productivityChildren = [
     },
     {
       id: 7,
-      key: "settings",
-      name: "Settings",
+      key: 'settings',
+      name: 'Settings',
       icon: (
         <svg
           stroke="currentColor"
@@ -248,30 +252,28 @@ const productivityChildren = [
   const dispatch = useDispatch();
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
 
-  const [value, setValue] = useState(()=>{
-    return localStorage.getItem("val") ||"Dashboard";
+  const [value, setValue] = useState(() => {
+    return localStorage.getItem('val') || 'Dashboard';
   });
 
-  React.useEffect(()=>{
-    localStorage.setItem("active", active);
-  },[active])
-
-
+  React.useEffect(() => {
+    localStorage.setItem('active', active);
+  }, [active]);
 
   return (
-    <div style={{ position: "absolute",zIndex:"50" }}>
+    <div style={{ position: 'absolute', zIndex: '50' }}>
       <nav className="transform transition-all translate-x-0 duration-45 delay-0 w-[114px] left-0 top-[78px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px] shadow-[4px_11px_12px_#8a8f93b8]  bg-[#fff] h-[100vh] fixed z-[11] border-r-[solid] border-r-[1px] ">
         <ul
           className="max-h-[calc(100vh-70px)] list-none block mx-0"
-          style={{ unicodeBidi: "isolate" }}
+          style={{ unicodeBidi: 'isolate' }}
         >
           {menuItems.map((item) => (
             <li
-            key={item.id}
+              key={item.id}
               className={`${item.style} ${
                 active === item.key
-                  ? "bg-[rgba(178,223,244,0.643)] border-l-[4px] border-l-[rgb(51,141,181)]"
-                  : ""
+                  ? 'bg-[rgba(178,223,244,0.643)] border-l-[4px] border-l-[rgb(51,141,181)]'
+                  : ''
               }
               relative box-border list-item h-[80px] w-full font-[400px] border-b-[0.8px] pt-[14px] 
               `}
@@ -283,7 +285,7 @@ const productivityChildren = [
                 }
               }}
             >
-                {item.children ? (
+              {item.children ? (
                 <div
                   className="block items-center text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center cursor-pointer "
                   onClick={(e) => {
@@ -296,15 +298,15 @@ const productivityChildren = [
                       style={{
                         color:
                           active === item.key
-                            ? "rgb(51,141,181)"
-                            : "rgb(126, 126, 126)",
+                            ? 'rgb(51,141,181)'
+                            : 'rgb(126, 126, 126)',
                       }}
                     >
                       {item.icon}
                     </div>
                     <span
                       className={`${
-                        active === item.key ? "text-[rgb(51,141,181)]" : ""
+                        active === item.key ? 'text-[rgb(51,141,181)]' : ''
                       }`}
                     >
                       {item.name}
@@ -324,15 +326,15 @@ const productivityChildren = [
                         style={{
                           color:
                             active === item.key
-                              ? "rgb(51,141,181)"
-                              : "rgb(126, 126, 126)",
+                              ? 'rgb(51,141,181)'
+                              : 'rgb(126, 126, 126)',
                         }}
                       >
                         {item.icon}
                       </div>
                       <span
                         className={`${
-                          active === item.key ? "text-[rgb(51,141,181)]" : ""
+                          active === item.key ? 'text-[rgb(51,141,181)]' : ''
                         }`}
                       >
                         {item.name}
@@ -341,44 +343,46 @@ const productivityChildren = [
                   </Link>
                 </div>
               )}
-              {isExpanded && item.children && active===item.key && (
+              {isExpanded && item.children && active === item.key && (
                 <ul
                   className={`${
                     isExpanded
-                      ? "fixed left-full top-0 bg-white shadow-md w-[170px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer "
-                      : "hidden"
+                      ? 'fixed left-full top-0 bg-white shadow-md w-[170px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer '
+                      : 'hidden'
                   }`}
                 >
-                  {item.children &&active===item.key &&item.children.map((subItem) => (
-                    <li
-                    key={subItem.link}
-                    className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
-                    >
-                      <Link
-                        to={`/${subItem.link}`}
-                        onClick={() => dispatch(collapedSideBar())}
+                  {item.children &&
+                    active === item.key &&
+                    item.children.map((subItem) => (
+                      <li
+                        key={subItem.link}
+                        className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
+                      >
+                        <Link
+                          to={`/${subItem.link}`}
+                          onClick={() => dispatch(collapedSideBar())}
                         >
-                        {
-                          <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
-                            <svg
-                              stroke="currentColor"
-                              fill="currentColor"
-                              stroke-width="0"
-                              viewBox="0 0 24 24"
-                              class="me- mb-"
-                              height="1em"
-                              width="1em"
-                              xmlns="http://www.w3.org/2000/svg"
-                              style={{ color: "var(--SUB-LINE-DOT)" }}
-                            >
-                              <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
-                            </svg>
-                            <span className="text-left ms-2">{`${subItem.name}`}</span>
-                          </div>
-                        }{" "}
-                      </Link>
-                    </li>
-                  ))}
+                          {
+                            <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
+                              <svg
+                                stroke="currentColor"
+                                fill="currentColor"
+                                stroke-width="0"
+                                viewBox="0 0 24 24"
+                                class="me- mb-"
+                                height="1em"
+                                width="1em"
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ color: 'var(--SUB-LINE-DOT)' }}
+                              >
+                                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
+                              </svg>
+                              <span className="text-left ms-2">{`${subItem.name}`}</span>
+                            </div>
+                          }{' '}
+                        </Link>
+                      </li>
+                    ))}
                 </ul>
               )}
             </li>

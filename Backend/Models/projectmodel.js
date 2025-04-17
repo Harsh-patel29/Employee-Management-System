@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const ProjectSchema = new Schema(
   {
@@ -7,30 +7,30 @@ const ProjectSchema = new Schema(
       required: true,
     },
     logo: {
-      url:String,
-      public_id:String,
+      url: String,
+      public_id: String,
     },
     users: [
       {
         user_id: {
           type: Schema.Types.ObjectId,
-          ref: "Users",
+          ref: 'Users',
         },
         role_id: {
           type: Schema.Types.ObjectId,
-          ref: "Project_Roles",
+          ref: 'Project_Roles',
         },
       },
     ],
     progress_status: {
       type: String,
-      enum: ["Pending", "In-Progress", "Hold", "Completed", "Scrapped"],
-      default: "Pending",
+      enum: ['Pending', 'In-Progress', 'Hold', 'Completed', 'Scrapped'],
+      default: 'Pending',
     },
     status: {
       type: String,
-      enum: ["Active", "In-Active"],
-      default: "Active",
+      enum: ['Active', 'In-Active'],
+      default: 'Active',
     },
     is_deleted: {
       type: Boolean,
@@ -38,14 +38,14 @@ const ProjectSchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "Users",
+      ref: 'Users',
     },
     updatedBy: {
       type: Schema.Types.ObjectId,
-      ref: "Users",
+      ref: 'Users',
     },
   },
   { timestamps: true }
 );
 
-export const Project = mongoose.model("Project", ProjectSchema);
+export const Project = mongoose.model('Project', ProjectSchema);

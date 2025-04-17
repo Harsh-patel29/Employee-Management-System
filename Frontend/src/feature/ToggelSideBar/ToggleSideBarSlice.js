@@ -1,11 +1,11 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isExpanded: false,
 };
 
 const ToggleSideBarSlice = createSlice({
-  name: "Sidebar",
+  name: 'Sidebar',
   initialState,
   reducers: {
     expandSideBar: (state) => {

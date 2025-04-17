@@ -1,14 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const toggelMode = createSlice({
-  name: "theme",
+  name: 'theme',
   initialState: {
-    theme: localStorage.getItem("theme") || "light",
+    theme: localStorage.getItem('theme') || 'light',
   },
   reducers: {
     toggletheme: (state) => {
-      state.theme = state.theme === "light" ? "dark" : "light";
-      localStorage.setItem("theme", state.theme);
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', state.theme);
     },
   },
 });

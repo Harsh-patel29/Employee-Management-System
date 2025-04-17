@@ -1,15 +1,15 @@
-import React from "react";
-import { Link } from "react-router";
-import { FiPlus } from "react-icons/fi";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { CgProfile } from "react-icons/cg";
-import { GiSettingsKnobs } from "react-icons/gi";
-import { BsClock } from "react-icons/bs";
-import { CiCircleInfo } from "react-icons/ci";
-import { IoExitOutline } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import React from 'react';
+import { Link } from 'react-router';
+import { FiPlus } from 'react-icons/fi';
+import { IoMdNotificationsOutline } from 'react-icons/io';
+import { CgProfile } from 'react-icons/cg';
+import { GiSettingsKnobs } from 'react-icons/gi';
+import { BsClock } from 'react-icons/bs';
+import { CiCircleInfo } from 'react-icons/ci';
+import { IoExitOutline } from 'react-icons/io5';
+import { FaUser } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,19 +17,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../Components/components/ui/dropdown.tsx";
-import axios from "axios";
+} from '../Components/components/ui/dropdown.tsx';
+import axios from 'axios';
 
 const NavBar = () => {
   const navigate = useNavigate();
   const handlelogout = async () => {
     const res = await axios.post(
-      "http://localhost:8000/api/v1/user/logout",
+      'http://localhost:8000/api/v1/user/logout',
       {},
       { withCredentials: true }
     );
     if (res.data.statusCode === 200) {
-      navigate("/login");
+      navigate('/login');
     }
   };
 
@@ -37,11 +37,11 @@ const NavBar = () => {
 
   const { user, loading } = useSelector((state) => state.auth);
   if (loading) return <p>Loading...</p>;
-  const value = localStorage.getItem("theme");
+  const value = localStorage.getItem('theme');
   return (
     <div
-      style={{ top: 0, position: "sticky",zIndex:"50" }}
-      className=" bg-white w-full sm:w-full flex flex-row  text-white h-20 border border-white shadow" 
+      style={{ top: 0, position: 'sticky', zIndex: '50' }}
+      className=" bg-white w-full sm:w-full flex flex-row  text-white h-20 border border-white shadow"
     >
       <Link to="/dashboard">
         <img
@@ -52,8 +52,8 @@ const NavBar = () => {
       <div
         className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11 `}
       >
-        <div className="text-black" >
-          <FiPlus size={26} style={{ fontWeight: "bold" }} />
+        <div className="text-black">
+          <FiPlus size={26} style={{ fontWeight: 'bold' }} />
         </div>
         <div className="text-black">
           <IoMdNotificationsOutline size={26} />
@@ -63,12 +63,10 @@ const NavBar = () => {
             <DropdownMenuTrigger>
               <div
                 className={`
-                  ${theme === "light" ? "bg-[#64B2D559]" : "bg-[#1e2939] "}
+                  ${theme === 'light' ? 'bg-[#64B2D559]' : 'bg-[#1e2939] '}
                   flex flex-row border h-8 w-auto border-black pr-[0.5rem] rounded-2xl  cursor-pointer `}
               >
-                <div
-                  className="text-black  flex space-x-2.5 items-center"
-                >
+                <div className="text-black  flex space-x-2.5 items-center">
                   <FaUser size={26} className="ml-2" />
                   <h1 className="text-sm">
                     {user?.user?.Name ? (

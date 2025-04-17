@@ -1,23 +1,23 @@
-import * as React from "react";
-import axios from "axios";
-import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import TableCell from "@mui/material/TableCell";
-import TableRow from "@mui/material/TableRow";
-import Typography from "@mui/material/Typography";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { useNavigate, useParams } from "react-router";
-import { FaEdit } from "react-icons/fa";
+import * as React from 'react';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { useNavigate, useParams } from 'react-router';
+import { FaEdit } from 'react-icons/fa';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTrigger,
-} from "../Components/components/ui/sheet";
+} from '../Components/components/ui/sheet';
 import {
   Dialog,
   DialogContent,
@@ -25,15 +25,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../Components/components/ui/dialog";
-import AdminForm from "./AdminForm";
-import { MdDelete } from "react-icons/md";
-import { Button } from "../Components/components/ui/button.tsx";
-import { Bounce, toast } from "react-toastify";
-import { useSelector, useDispatch } from "react-redux";
-import { createuser ,fetchuser,deleteuser,updateuser,resetCreatedUser,resetUpdatedUser,reseterror,resetDeletedUser} from "../feature/createuserfetch/createuserSlice.js";
-import Loader from "../Components/Loader.jsx";
-import ReusableTable from "./ReusableTable.jsx";
+} from '../Components/components/ui/dialog';
+import AdminForm from './AdminForm';
+import { MdDelete } from 'react-icons/md';
+import { Button } from '../Components/components/ui/button.tsx';
+import { Bounce, toast } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  createuser,
+  fetchuser,
+  deleteuser,
+  updateuser,
+  resetCreatedUser,
+  resetUpdatedUser,
+  reseterror,
+  resetDeletedUser,
+} from '../feature/createuserfetch/createuserSlice.js';
+import Loader from '../Components/Loader.jsx';
+import ReusableTable from './ReusableTable.jsx';
 function Row({
   row,
   canUpdateUser,
@@ -44,21 +53,21 @@ function Row({
 }) {
   const [open, setOpen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-  const {updateduser} = useSelector((state)=>state.createuser)
+  const { updateduser } = useSelector((state) => state.createuser);
 
-  React.useEffect(()=>{
-    if(updateduser?.success === true){
+  React.useEffect(() => {
+    if (updateduser?.success === true) {
       setupdatesheetopen(false);
     }
-  },[updateduser])
+  }, [updateduser]);
   const theme = useSelector((state) => state.theme.theme);
   const dispatch = useDispatch();
   return (
     <React.Fragment>
       <TableRow
         sx={{
-          backgroundColor: "white",
-          color: "black",
+          backgroundColor: 'white',
+          color: 'black',
         }}
       >
         <TableCell>
@@ -69,27 +78,27 @@ function Row({
           >
             {open ? (
               <KeyboardArrowDownIcon
-                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+                sx={{ color: theme === 'light' ? 'black' : '#f8f9fa' }}
               />
             ) : (
               <KeyboardArrowRightIcon
-                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+                sx={{ color: theme === 'light' ? 'black' : '#f8f9fa' }}
               />
             )}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
+        <TableCell component="th" scope="row" sx={{ color: 'inherit' }}>
           {row.index}
         </TableCell>
-        <TableCell component="th" scope="row" sx={{ color: "inherit" }}>
+        <TableCell component="th" scope="row" sx={{ color: 'inherit' }}>
           {row.Name}
         </TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.EMP_CODE}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.role}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.Email}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.Mobile_Number}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>{row.ReportingManager}</TableCell>
-        <TableCell sx={{ color: "inherit" }}>
+        <TableCell sx={{ color: 'inherit' }}>{row.EMP_CODE}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>{row.role}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>{row.Email}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>{row.Mobile_Number}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>{row.ReportingManager}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>
           {
             <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
               <SheetTrigger
@@ -100,12 +109,12 @@ function Row({
               >
                 <FaEdit
                   className={`${
-                    canUpdateUser ? "font-semibold text-lg" : "hidden"
+                    canUpdateUser ? 'font-semibold text-lg' : 'hidden'
                   }`}
                 />
               </SheetTrigger>
               <SheetContent
-                className={`${theme === "light" ? "bg-white " : "bg-[#121212]"} 
+                className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
                 min-w-6xl`}
               >
                 <SheetHeader>
@@ -122,12 +131,10 @@ function Row({
             </Sheet>
           }
         </TableCell>
-        <TableCell
-          className={`${isDefault ? "hidden" : "flex"}`}
-        >
+        <TableCell className={`${isDefault ? 'hidden' : 'flex'}`}>
           <Dialog
             onOpenChange={(open) => {
-              if (!open) navigate("/users");
+              if (!open) navigate('/users');
             }}
           >
             <DialogTrigger
@@ -138,7 +145,9 @@ function Row({
             >
               <MdDelete
                 className={
-                  isDefault === false ? "font-semibold text-lg text-[#ff3b30]" : "hidden"
+                  isDefault === false
+                    ? 'font-semibold text-lg text-[#ff3b30]'
+                    : 'hidden'
                 }
               />
             </DialogTrigger>
@@ -152,7 +161,7 @@ function Row({
                     className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
                     onClick={() => {
                       dispatch(deleteuser(row._id));
-                      navigate("/users");
+                      navigate('/users');
                     }}
                   >
                     Delete
@@ -168,8 +177,8 @@ function Row({
           style={{ paddingBottom: 0, paddingTop: 0 }}
           colSpan={10}
           sx={{
-            backgroundColor: "white",
-            color: "black",
+            backgroundColor: 'white',
+            color: 'black',
           }}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -224,7 +233,7 @@ export default function CollapsibleTable() {
 
   const dispatch = useDispatch();
 
-  const { createduser, fetchusers, deleteduser, updateduser, loading ,error} =
+  const { createduser, fetchusers, deleteduser, updateduser, loading, error } =
     useSelector((state) => state.createuser);
 
   React.useEffect(() => {
@@ -249,7 +258,7 @@ export default function CollapsibleTable() {
     async function getDetail() {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/v1/user/role/defaultvalue",
+          'http://localhost:8000/api/v1/user/role/defaultvalue',
           {
             withCredentials: true,
           }
@@ -257,7 +266,7 @@ export default function CollapsibleTable() {
         setisDefault(res.data.message);
       } catch (error) {
         console.error(
-          "Error fetching users:",
+          'Error fetching users:',
           error?.response?.data || error.message
         );
       }
@@ -296,15 +305,15 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     if (createduser?.success === true) {
-       toast.success("User Created Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+      toast.success('User Created Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
       dispatch(fetchuser());
       setsheetopen(false);
-      return()=>{
-        dispatch(resetCreatedUser())
-      }
+      return () => {
+        dispatch(resetCreatedUser());
+      };
     }
   }, [createduser]);
 
@@ -317,38 +326,39 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     if (updateduser?.success === true) {
-       toast.success("User updated Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+      toast.success('User updated Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
       dispatch(fetchuser());
-      return()=>{
-        dispatch(resetUpdatedUser())
-      }
+      return () => {
+        dispatch(resetUpdatedUser());
+      };
     }
   }, [updateduser]);
 
   React.useEffect(() => {
     if (error) {
-      const errorMessage = error.response?.data?.message || error.message || error;
+      const errorMessage =
+        error.response?.data?.message || error.message || error;
       toast.error(errorMessage, {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
         transition: Bounce,
       });
       dispatch(reseterror());
     }
-  },[error])
+  }, [error]);
 
   React.useEffect(() => {
     if (updatesheetopen === false) {
-      navigate("/users");
+      navigate('/users');
     }
   }, [updatesheetopen]);
 
@@ -357,44 +367,44 @@ export default function CollapsibleTable() {
   React.useEffect(() => {
     if (deleteduser?.success === true) {
       navigate(`/users`, { replace: true });
-       toast.success("User Deleted Successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+      toast.success('User Deleted Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
       dispatch(fetchuser());
-      return()=>{
-        dispatch(resetDeletedUser())
-      }
+      return () => {
+        dispatch(resetDeletedUser());
+      };
     }
   }, [deleteduser, dispatch]);
 
-const columns = [
-  { field: "expand", headerName: "", width: 50 },  
-  { field: "index", headerName: "#" },
-  { field: "Name", headerName: "Name" },
-  { field: "EMP_CODE", headerName: "Employee Code" },
-  { field: "role", headerName: "Role" },
-  { field: "Email", headerName: "Email" },
-  { field: "Mobile_Number", headerName: "Mobile Number" },
-  { field: "ReportingManager", headerName: "Reporting Manager" },
-  { field: "edit", headerName: "Edit" },
-  { field: "delete", headerName: "Delete" }
-];
+  const columns = [
+    { field: 'expand', headerName: '', width: 50 },
+    { field: 'index', headerName: '#' },
+    { field: 'Name', headerName: 'Name' },
+    { field: 'EMP_CODE', headerName: 'Employee Code' },
+    { field: 'role', headerName: 'Role' },
+    { field: 'Email', headerName: 'Email' },
+    { field: 'Mobile_Number', headerName: 'Mobile Number' },
+    { field: 'ReportingManager', headerName: 'Reporting Manager' },
+    { field: 'edit', headerName: 'Edit' },
+    { field: 'delete', headerName: 'Delete' },
+  ];
 
-if (loading) {
-  return <Loader />;
-}
+  if (loading) {
+    return <Loader />;
+  }
 
-return(
-  <>
-  <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
+  return (
+    <>
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Users
         </h5>
         <div className="flex items-center">
           <button
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
-            onClick={() => navigate("/users/roles")}
+            onClick={() => navigate('/users/roles')}
           >
             <svg
               className="w-6 h-6 text-gray-800 dark:text-white"
@@ -404,7 +414,7 @@ return(
               height="24"
               fill="#338DB5"
               viewBox="0 0 24 24"
-              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+              style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
             >
               <title>Manage User</title>
               <path
@@ -418,7 +428,7 @@ return(
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
               className={`
-                  ${canAddUser ? "flex" : "hidden"}
+                  ${canAddUser ? 'flex' : 'hidden'}
                   `}
             >
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
@@ -430,7 +440,7 @@ return(
                   height="24"
                   fill="#338DB5"
                   viewBox="0 0 24 24"
-                  style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+                  style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
                 >
                   <title>Add User</title>
                   <path
@@ -442,9 +452,7 @@ return(
                 Add user
               </div>
             </SheetTrigger>
-            <SheetContent
-              className="bg-white min-w-6xl"
-            >
+            <SheetContent className="bg-white min-w-6xl">
               <SheetHeader>
                 <SheetDescription>
                   <AdminForm
@@ -457,20 +465,19 @@ return(
           </Sheet>
         </div>
       </div>
-  <ReusableTable
-    columns={columns}
-    data={users}
-    RowComponent={Row}
-    pagination={true}
-    rowProps={{
-      canUpdateUser,
-      openSheet,
-      navigate,
-      isDefault,
-      openDialog
-    }}
-  />
-  </>
-)
-
+      <ReusableTable
+        columns={columns}
+        data={users}
+        RowComponent={Row}
+        pagination={true}
+        rowProps={{
+          canUpdateUser,
+          openSheet,
+          navigate,
+          isDefault,
+          openDialog,
+        }}
+      />
+    </>
+  );
 }

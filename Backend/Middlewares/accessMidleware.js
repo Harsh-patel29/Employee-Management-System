@@ -1,8 +1,8 @@
-import { Role } from "../Models/Role.model.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import dotenv from "dotenv";
+import { Role } from '../Models/Role.model.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import dotenv from 'dotenv';
 dotenv.config({
-  path: "./.env",
+  path: './.env',
 });
 
 const roles = AsyncHandler(async (req, res, next) => {

@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { upload } from "../Middlewares/multer.Middleware.js";
+import { Router } from 'express';
+import { upload } from '../Middlewares/multer.Middleware.js';
 import {
   AssignUser,
   createProject,
@@ -12,18 +12,18 @@ import {
   logoUpload,
   updateProject,
   deleteLogo,
-} from "../Controllers/Project.controller.js";
-import { authenticate } from "../Middlewares/AuthorizeMiddleware.js";
-import { roleid, userid } from "../Middlewares/userroleMiddleware.js";
-import { uploadlogo } from "../Middlewares/uploadlogoMiddleware.js";
+} from '../Controllers/Project.controller.js';
+import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
+import { roleid, userid } from '../Middlewares/userroleMiddleware.js';
+import { uploadlogo } from '../Middlewares/uploadlogoMiddleware.js';
 const router = Router();
 
 router
-  .route("/project")
+  .route('/project')
   .post(
     upload.fields([
       {
-        name: "logo",
+        name: 'logo',
         maxCount: 1,
       },
     ]),
@@ -32,38 +32,38 @@ router
   )
   .get(authenticate, getAllProject, (req, res) => {
     res.json({
-      message: "User data fetched Successfully",
+      message: 'User data fetched Successfully',
       user: req.user,
     });
   });
-router.route("/upload-logo").post(
+router.route('/upload-logo').post(
   upload.fields([
     {
-      name: "logo",
+      name: 'logo',
       maxCount: 1,
     },
   ]),
   uploadlogo,
   logoUpload
 );
-router.route("/project/:id").get(authenticate, getProjectbyId);
-router.route("/project/roles/details").get(authenticate, getProjectRoles);
-router.route("/projects/delete/:id").delete(authenticate, deleteProject);
+router.route('/project/:id').get(authenticate, getProjectbyId);
+router.route('/project/roles/details').get(authenticate, getProjectRoles);
+router.route('/projects/delete/:id').delete(authenticate, deleteProject);
 router
-  .route("/projects/update/:id")
+  .route('/projects/update/:id')
   .put(
-    upload.fields([{ name: "logo", maxCount: 1 }]),
+    upload.fields([{ name: 'logo', maxCount: 1 }]),
     authenticate,
     updateProject
   );
-router.route("/project/logo/delete").delete(authenticate,deleteLogo);
+router.route('/project/logo/delete').delete(authenticate, deleteLogo);
 router
-  .route("/project/roles/update/:id")
+  .route('/project/roles/update/:id')
   .patch(authenticate, userid, roleid, AssignUser);
 router
-  .route("/project/roles/details/name/:id")
+  .route('/project/roles/details/name/:id')
   .get(authenticate, getAssignUserName);
 router
-  .route("/project/roles/details/name/delete/role/:id/:userid/:roleid")
+  .route('/project/roles/details/name/delete/role/:id/:userid/:roleid')
   .delete(authenticate, deleteAssignedUser);
 export default router;

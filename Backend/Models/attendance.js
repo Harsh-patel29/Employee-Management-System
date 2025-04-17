@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 const AttendanceSchema = new Schema(
   {
@@ -8,16 +8,16 @@ const AttendanceSchema = new Schema(
     },
     User: {
       type: Schema.Types.ObjectId,
-      ref: "Users",
+      ref: 'Users',
       required: true,
     },
     AttendAt: {
       type: Date,
-      default: "19:00:00",
+      default: '19:00:00',
     },
     LogHours: {
       type: String,
-      default: "00:00:00",
+      default: '00:00:00',
     },
     Latitude: {
       type: Number,
@@ -29,4 +29,4 @@ const AttendanceSchema = new Schema(
   { timestamps: true }
 );
 
-export const Attendance = mongoose.model("Attendance", AttendanceSchema);
+export const Attendance = mongoose.model('Attendance', AttendanceSchema);

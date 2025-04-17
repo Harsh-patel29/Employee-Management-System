@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const createuser = createAsyncThunk(
-  "auth/createuser",
+  'auth/createuser',
   async (data, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v1/user/createUser",
+        'http://localhost:8000/api/v1/user/createUser',
         data,
         { withCredentials: true }
       );
@@ -18,21 +18,21 @@ export const createuser = createAsyncThunk(
 );
 
 export const fetchuser = createAsyncThunk(
-  "auth/fetchuser",
+  'auth/fetchuser',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/user/", {
+      const res = await axios.get('http://localhost:8000/api/v1/user/', {
         withCredentials: true,
       });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.response.data||error.message);
+      return rejectWithValue(error.response.data || error.message);
     }
   }
 );
 
 export const updateuser = createAsyncThunk(
-  "auth/upadateuser",
+  'auth/upadateuser',
   async ({ data, userid }, { rejectWithValue }) => {
     try {
       const res = await axios.put(
@@ -42,13 +42,13 @@ export const updateuser = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.response.data||error.message);
+      return rejectWithValue(error.response.data || error.message);
     }
   }
 );
 
 export const deleteuser = createAsyncThunk(
-  "auth/deleteuser",
+  'auth/deleteuser',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.delete(
@@ -63,7 +63,7 @@ export const deleteuser = createAsyncThunk(
 );
 
 const createuserSlice = createSlice({
-  name: "createuser",
+  name: 'createuser',
   initialState: {
     createduser: null,
     fetchusers: [],
@@ -73,20 +73,20 @@ const createuserSlice = createSlice({
     error: null,
   },
   reducers: {
-    resetCreatedUser:(state)=>{
-      state.createduser=null
+    resetCreatedUser: (state) => {
+      state.createduser = null;
     },
-    resetUpdatedUser:(state)=>{
-      state.updateduser=null
+    resetUpdatedUser: (state) => {
+      state.updateduser = null;
     },
-    resetDeletedUser:(state)=>{
-      state.deleteduser=null
+    resetDeletedUser: (state) => {
+      state.deleteduser = null;
     },
-    reseterror:(state)=>{
-      state.error=null
+    reseterror: (state) => {
+      state.error = null;
     },
-    resetLoading:(state)=>{
-      state.loading=null
+    resetLoading: (state) => {
+      state.loading = null;
     },
   },
   extraReducers: (builder) => {
@@ -142,5 +142,11 @@ const createuserSlice = createSlice({
   },
 });
 
-export const { resetCreatedUser, resetUpdatedUser, resetDeletedUser, reseterror, resetLoading } = createuserSlice.actions;
+export const {
+  resetCreatedUser,
+  resetUpdatedUser,
+  resetDeletedUser,
+  reseterror,
+  resetLoading,
+} = createuserSlice.actions;
 export default createuserSlice.reducer;

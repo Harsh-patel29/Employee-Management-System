@@ -1,17 +1,17 @@
-import mongoose from "mongoose";
-import { User } from "../Models/user.model.js";
-import { UserAccess } from "../Models/Role_Access.js";
-import { ApiError } from "../Utils/ApiError.js";
-import { ApiResponse } from "../Utils/ApiResponse.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
-import { Role } from "../Models/Role.model.js";
-import { keysSchema } from "../Models/Roles_keys.js";
+import mongoose from 'mongoose';
+import { User } from '../Models/user.model.js';
+import { UserAccess } from '../Models/Role_Access.js';
+import { ApiError } from '../Utils/ApiError.js';
+import { ApiResponse } from '../Utils/ApiResponse.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import { Role } from '../Models/Role.model.js';
+import { keysSchema } from '../Models/Roles_keys.js';
 
 const generateAccessandRefreshToken = async (UserID) => {
   try {
     const user = await User.findById(UserID);
     if (!user) {
-      throw new ApiError(404, "User not found");
+      throw new ApiError(404, 'User not found');
     }
     const accessToken = await user.generateAccessToken();
     const refreshToken = await user.generateRefreshToken();
@@ -25,7 +25,7 @@ const generateAccessandRefreshToken = async (UserID) => {
   } catch (error) {
     throw new ApiError(
       500,
-      "Something went wrong while generating access and refresh Token"
+      'Something went wrong while generating access and refresh Token'
     );
   }
 };
@@ -50,7 +50,7 @@ const createUser = AsyncHandler(async (req, res) => {
   });
 
   if (userExist) {
-    throw new ApiError(404, "User already exists");
+    throw new ApiError(404, 'User already exists');
   }
 
   try {
@@ -78,9 +78,9 @@ const createUser = AsyncHandler(async (req, res) => {
     await user.save();
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "User Created Successfully"));
+      .json(new ApiResponse(200, user, 'User Created Successfully'));
   } catch (error) {
-    throw new ApiError(500, error, "User creation failed");
+    throw new ApiError(500, error, 'User creation failed');
   }
 });
 
@@ -88,18 +88,18 @@ const loginUser = AsyncHandler(async (req, res) => {
   const { Email, Password } = req.body;
   const access = req.permission;
   if (!Email || !Password) {
-    throw new ApiError(400, "All fileds are required");
+    throw new ApiError(400, 'All fileds are required');
   }
 
   const user = await User.findOne({ Email });
   if (!user) {
-    throw new ApiError(403, "User not found");
+    throw new ApiError(403, 'User not found');
   }
 
   const isPasswordValid = await user.isPasswordCorrect(Password);
 
   if (!isPasswordValid) {
-    throw new ApiError(400, "Email or Password is incorrect");
+    throw new ApiError(400, 'Email or Password is incorrect');
   }
 
   const { accessToken, refreshToken } = await generateAccessandRefreshToken(
@@ -110,12 +110,12 @@ const loginUser = AsyncHandler(async (req, res) => {
     httpOnly: true,
   };
 
-  const loggedInUser = await User.findById(user._id).select("-Password ");
+  const loggedInUser = await User.findById(user._id).select('-Password ');
   return res
     .status(200)
-    .cookie("accessToken", accessToken, option)
-    .cookie("refreshToken", refreshToken, option)
-    .json(new ApiResponse(200, loggedInUser, "User loggedIn Successfully"));
+    .cookie('accessToken', accessToken, option)
+    .cookie('refreshToken', refreshToken, option)
+    .json(new ApiResponse(200, loggedInUser, 'User loggedIn Successfully'));
 });
 
 const logoutUser = AsyncHandler(async (req, res) => {
@@ -135,9 +135,9 @@ const logoutUser = AsyncHandler(async (req, res) => {
   };
   return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User loggedOut Successfully"));
+    .clearCookie('accessToken', options)
+    .clearCookie('refreshToken', options)
+    .json(new ApiResponse(200, {}, 'User loggedOut Successfully'));
 });
 
 const updateUser = AsyncHandler(async (req, res) => {
@@ -147,15 +147,15 @@ const updateUser = AsyncHandler(async (req, res) => {
   const result = req.rolesResult;
   const roleid = result[0]._id;
 
-  if(req.body.Name && req.body.Name !== user.Name){
-    const nameexists = await User.findOne({Name: req.body.Name});
-    if(nameexists){
-      throw new ApiError(404, "User name already exists");
+  if (req.body.Name && req.body.Name !== user.Name) {
+    const nameexists = await User.findOne({ Name: req.body.Name });
+    if (nameexists) {
+      throw new ApiError(404, 'User name already exists');
     }
   }
 
   if (!user) {
-    throw new ApiError(404, "User not found");
+    throw new ApiError(404, 'User not found');
   } else {
     user.Name = req.body.Name;
     user.Email = req.body.Email;
@@ -179,7 +179,7 @@ const updateUser = AsyncHandler(async (req, res) => {
     const newUser = {
       Name: updatedUser.Name,
       Email: updatedUser.Email,
-      Password: "",
+      Password: '',
       Date_of_Birth: updatedUser.Date_of_Birth,
       Mobile_Number: updatedUser.Mobile_Number,
       Gender: updatedUser.Gender,
@@ -190,10 +190,9 @@ const updateUser = AsyncHandler(async (req, res) => {
       ReportingManager: updatedUser.ReportingManager,
     };
 
-
     return res
       .status(200)
-      .json(new ApiResponse(200, newUser, "User updated Successfully"));
+      .json(new ApiResponse(200, newUser, 'User updated Successfully'));
   }
 });
 
@@ -201,23 +200,23 @@ const deleteUser = AsyncHandler(async (req, res) => {
   const requestingUserAccess = req.permission;
 
   if (requestingUserAccess.can_delete_user === false) {
-    throw new ApiError(403, "Unauthorized");
+    throw new ApiError(403, 'Unauthorized');
   }
   const user = await User.findById(req.params.id);
   const id = req.params.id;
 
   if (!user) {
-    throw new ApiError(400, "User not found");
+    throw new ApiError(400, 'User not found');
   }
 
-  if (user.role === "Admin") {
-    throw new ApiError(404, "Admin cannot be deleted");
+  if (user.role === 'Admin') {
+    throw new ApiError(404, 'Admin cannot be deleted');
   }
 
   await User.findByIdAndDelete(id);
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "User deleted Successfully"));
+    .json(new ApiResponse(200, {}, 'User deleted Successfully'));
 });
 
 const getAllUsers = AsyncHandler(async (req, res) => {
@@ -227,12 +226,12 @@ const getAllUsers = AsyncHandler(async (req, res) => {
     const user = await User.find({});
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "User fetched Successfully"));
+      .json(new ApiResponse(200, user, 'User fetched Successfully'));
   } else {
     const user = await User.find({ _id: req.user._id });
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "Employee Fetched Successfully"));
+      .json(new ApiResponse(200, user, 'Employee Fetched Successfully'));
   }
 });
 
@@ -241,14 +240,14 @@ const getUserById = AsyncHandler(async (req, res) => {
   const user = await User.findById(id);
   const userResponse = {
     ...user.toObject(),
-    Password: "",
+    Password: '',
   };
   if (!user) {
-    throw new ApiError(404, "User not found");
+    throw new ApiError(404, 'User not found');
   } else {
     return res
       .status(200)
-      .json(new ApiResponse(200, userResponse, "User fetched Successfully"));
+      .json(new ApiResponse(200, userResponse, 'User fetched Successfully'));
   }
 });
 
@@ -257,26 +256,26 @@ const ManageDetails = AsyncHandler(async (req, res) => {
     [
       {
         $lookup: {
-          from: "useraccesses",
-          localField: "_id",
-          foreignField: "role",
-          as: "ok",
+          from: 'useraccesses',
+          localField: '_id',
+          foreignField: 'role',
+          as: 'ok',
         },
       },
       {
         $unwind: {
-          path: "$ok",
+          path: '$ok',
         },
       },
       {
         $project: {
-          ok: "$ok",
+          ok: '$ok',
         },
       },
     ],
   ]);
 
-  return res.status(200).json(new ApiResponse(200, roleid, "Fetched"));
+  return res.status(200).json(new ApiResponse(200, roleid, 'Fetched'));
 });
 
 const getAllowedSettingsById = AsyncHandler(async (req, res) => {
@@ -286,29 +285,29 @@ const getAllowedSettingsById = AsyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, AllowedPermissions, "Fetched!!"));
+    .json(new ApiResponse(200, AllowedPermissions, 'Fetched!!'));
 });
 
 const chageAccess = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   const { key, value } = req.body;
 
-  if (typeof key === "undefined" || key === null) {
-    throw new ApiError(400, "Permission key is undefined");
+  if (typeof key === 'undefined' || key === null) {
+    throw new ApiError(400, 'Permission key is undefined');
   }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(400, "Invalid permissions id");
+    throw new ApiError(400, 'Invalid permissions id');
   }
 
   const permissions = await Role.findById(id);
 
   if (!permissions) {
-    throw new ApiError(404, "Permissions not found");
+    throw new ApiError(404, 'Permissions not found');
   }
 
   if (!permissions.access || !permissions.access.user) {
-    throw new ApiError(500, "Invalid permissions structure");
+    throw new ApiError(500, 'Invalid permissions structure');
   }
   if (!(key in permissions.access.user)) {
     throw new ApiError(400, `Permission key "${key}" does not exist`);
@@ -326,7 +325,7 @@ const chageAccess = AsyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         permissions.access_keys.user,
-        "Access updated successfully"
+        'Access updated successfully'
       )
     );
 });
@@ -336,52 +335,52 @@ const getDefaultValue = AsyncHandler(async (req, res) => {
   const isDefaultFlag = isDefault && isDefault[0] && isDefault[0].is_default;
   return res
     .status(200)
-    .json(new ApiResponse(200, isDefaultFlag, "Fetched Successfully!!"));
+    .json(new ApiResponse(200, isDefaultFlag, 'Fetched Successfully!!'));
 });
 
 const getroles = AsyncHandler(async (req, res) => {
   const roles = await Role.find({});
   return res
     .status(200)
-    .json(new ApiResponse(200, roles, "Roles Fetched Successfully"));
+    .json(new ApiResponse(200, roles, 'Roles Fetched Successfully'));
 });
 
 const getkeysRoles = AsyncHandler(async (req, res) => {
   const keys = await keysSchema.find({});
   return res
     .status(200)
-    .json(new ApiResponse(200, keys, "Keys Fetched Successfully"));
+    .json(new ApiResponse(200, keys, 'Keys Fetched Successfully'));
 });
 
-const createRole = AsyncHandler(async (req, res,err) => {
+const createRole = AsyncHandler(async (req, res, err) => {
   const { name, access } = req.body;
 
   if (!name) {
-    throw new ApiError(405, "All fields are required");
+    throw new ApiError(405, 'All fields are required');
   }
 
   const isRoleExists = await Role.findOne({ name });
 
   if (isRoleExists) {
-    throw new ApiError(404,  "Role Already Exists");
+    throw new ApiError(404, 'Role Already Exists');
   }
 
   try {
     const allKeys = await keysSchema.findOne({ is_deleted: false });
     if (!allKeys || !allKeys.access_key || !allKeys.access_key.user) {
-      throw new ApiError(404, "No permission keys found in database");
+      throw new ApiError(404, 'No permission keys found in database');
     }
 
     const completeAccess = {
-      user: {}
+      user: {},
     };
-    
-    Object.keys(allKeys.access_key.user).forEach(key => {
+
+    Object.keys(allKeys.access_key.user).forEach((key) => {
       completeAccess.user[key] = false;
     });
 
     if (access && access.user) {
-      Object.keys(access.user).forEach(key => {
+      Object.keys(access.user).forEach((key) => {
         if (key in completeAccess.user) {
           completeAccess.user[key] = access.user[key];
         }
@@ -392,17 +391,17 @@ const createRole = AsyncHandler(async (req, res,err) => {
       name,
       access: completeAccess,
     });
-    
+
     await newrole.save();
     return res
       .status(200)
-      .json(new ApiResponse(200, newrole, "New Role created Successfully"));
+      .json(new ApiResponse(200, newrole, 'New Role created Successfully'));
   } catch (error) {
     console.log(error);
     throw new ApiError(
       500,
       error,
-      "Something went wrong while creating new role"
+      'Something went wrong while creating new role'
     );
   }
 });
@@ -412,36 +411,36 @@ const getkeyroles = AsyncHandler(async (req, res) => {
   const keys = result;
   return res
     .status(200)
-    .json(new ApiResponse(200, keys, "Fetched Successfully"));
+    .json(new ApiResponse(200, keys, 'Fetched Successfully'));
 });
 
 const updateRole = AsyncHandler(async (req, res) => {
-  const id  = new mongoose.Types.ObjectId(req.params.id);
+  const id = new mongoose.Types.ObjectId(req.params.id);
   const role = await Role.findById(id);
 
   if (req.body.name && req.body.name !== role.name) {
-    const nameexists = await Role.findOne({name: req.body.name});
-    if(nameexists){
-      throw new ApiError(404, "Role name already exists");
+    const nameexists = await Role.findOne({ name: req.body.name });
+    if (nameexists) {
+      throw new ApiError(404, 'Role name already exists');
     }
   }
 
-  try{
-    if(!role){
-      throw new ApiError(404, "Role not found");
+  try {
+    if (!role) {
+      throw new ApiError(404, 'Role not found');
     }
     role.name = req.body.name;
     role.access = req.body.access;
     await role.save();
     const newRole = {
       name: role.name,
-    access: role.access,
+      access: role.access,
     };
     return res
       .status(200)
-      .json(new ApiResponse(200, newRole, "Role updated Successfully"));
+      .json(new ApiResponse(200, newRole, 'Role updated Successfully'));
   } catch (error) {
-    throw new ApiError(500, error, "Something went wrong while updating role");
+    throw new ApiError(500, error, 'Something went wrong while updating role');
   }
 });
 
@@ -450,14 +449,16 @@ const getRoleById = AsyncHandler(async (req, res) => {
   const role = await Role.findById(id);
   return res
     .status(200)
-    .json(new ApiResponse(200, role, "Role fetched Successfully"));
+    .json(new ApiResponse(200, role, 'Role fetched Successfully'));
 });
 
-  const deleteRole = AsyncHandler(async (req, res) => {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    await Role.findByIdAndDelete(id);
-    return res.status(200).json(new ApiResponse(200, {}, "Role deleted Successfully"));
-  });
+const deleteRole = AsyncHandler(async (req, res) => {
+  const id = new mongoose.Types.ObjectId(req.params.id);
+  await Role.findByIdAndDelete(id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Role deleted Successfully'));
+});
 
 export {
   createUser,
@@ -476,6 +477,6 @@ export {
   createRole,
   getkeyroles,
   updateRole,
-  getRoleById,  
+  getRoleById,
   deleteRole,
 };

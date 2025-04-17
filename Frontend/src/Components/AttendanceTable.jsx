@@ -1,43 +1,46 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { fetchAttendance,openAttendanceSheet } from "../feature/attendancefetch/attendanceSlice.js";
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import {
+  fetchAttendance,
+  openAttendanceSheet,
+} from '../feature/attendancefetch/attendanceSlice.js';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetFooter,
   SheetTitle,
-} from "../Components/components/ui/sheet";
-import { Button } from "../Components/components/ui/button";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import TextField from "@mui/material/TextField";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { Link } from "react-router-dom";
-import Loader from "./Loader.jsx";
-import ReusableTable from "./ReusableTable.jsx";
+} from '../Components/components/ui/sheet';
+import { Button } from '../Components/components/ui/button';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import TextField from '@mui/material/TextField';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { Link } from 'react-router-dom';
+import Loader from './Loader.jsx';
+import ReusableTable from './ReusableTable.jsx';
 function convertDateFormat(dateStr) {
-  const [month, day, year] = dateStr.split("/");
+  const [month, day, year] = dateStr.split('/');
   return `${day}/${month}/${year}`;
 }
 
 const formatTime = (timeString) => {
-  if (!timeString) return "N/A";
-  const [hours, minutes, seconds] = timeString.split(":");
-  return `${hours.padStart(2, "0")}:${minutes}:${seconds.padStart(2, "0")}`;
+  if (!timeString) return 'N/A';
+  const [hours, minutes, seconds] = timeString.split(':');
+  return `${hours.padStart(2, '0')}:${minutes}:${seconds.padStart(2, '0')}`;
 };
 
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
@@ -65,8 +68,8 @@ function Row({ row, openMap }) {
     <React.Fragment>
       <TableRow
         sx={{
-          backgroundColor: "white",
-          color: "black",
+          backgroundColor: 'white',
+          color: 'black',
         }}
       >
         <TableCell>
@@ -77,11 +80,11 @@ function Row({ row, openMap }) {
           >
             {open ? (
               <KeyboardArrowDownIcon
-                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+                sx={{ color: theme === 'light' ? 'black' : '#f8f9fa' }}
               />
             ) : (
               <KeyboardArrowRightIcon
-                sx={{ color: theme === "light" ? "black" : "#f8f9fa" }}
+                sx={{ color: theme === 'light' ? 'black' : '#f8f9fa' }}
               />
             )}
           </IconButton>
@@ -107,8 +110,8 @@ function Row({ row, openMap }) {
           style={{ paddingBottom: 0, paddingTop: 0 }}
           colSpan={8}
           sx={{
-            backgroundColor: "white",
-            color: "black",
+            backgroundColor: 'white',
+            color: 'black',
           }}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -120,7 +123,7 @@ function Row({ row, openMap }) {
               <Table size="medium" className="ml-36">
                 <TableHead
                   sx={{
-                    backgroundColor: "#c1dde9",
+                    backgroundColor: '#c1dde9',
                   }}
                 >
                   <TableRow>
@@ -135,8 +138,8 @@ function Row({ row, openMap }) {
                     <TableRow
                       key={idx}
                       sx={{
-                        backgroundColor: "white",
-                        color: "black",
+                        backgroundColor: 'white',
+                        color: 'black',
                       }}
                     >
                       <TableCell>{idx + 1}</TableCell>
@@ -155,7 +158,7 @@ function Row({ row, openMap }) {
                           onClick={() => openMap()}
                           className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
                         >
-                          {" "}
+                          {' '}
                           Map View
                         </Link>
                       </TableCell>
@@ -190,25 +193,24 @@ export default function CollapsibleTable() {
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
-  
 
   const { newattendance, loading } = useSelector(
     (state) => state.markAttendance
   );
 
   const { user } = useSelector((state) => state.auth);
-  
+
   React.useEffect(() => {
     dispatch(fetchAttendance());
   }, []);
-  
+
   React.useEffect(() => {
     if (newattendance?.message) {
       setAttendances(newattendance.message);
       setFilteredAttendances(newattendance.message);
     }
   }, [newattendance]);
-  
+
   React.useEffect(() => {
     if (!fromDate && !toDate) {
       setFilteredAttendances(attendances);
@@ -216,16 +218,16 @@ export default function CollapsibleTable() {
       const currentDate = new Date();
       const from = fromDate ? new Date(fromDate) : currentDate;
       const to = toDate ? new Date(toDate) : currentDate;
-      
+
       const filtered = attendances.filter((attendance) => {
         const attendanceDate = new Date(attendance.AttendAt);
         return attendanceDate >= from && attendanceDate <= to;
       });
-      
+
       setFilteredAttendances(filtered);
     }
   }, [fromDate, toDate, attendances]);
-  
+
   const groupedAttendances = React.useMemo(() => {
     return filteredAttendances?.reduce((acc, attendance) => {
       const date = new Date(attendance.AttendAt).toLocaleDateString();
@@ -236,18 +238,18 @@ export default function CollapsibleTable() {
       return acc;
     }, {});
   }, [filteredAttendances]);
-  
+
   const sortedDates = Object.keys(groupedAttendances).sort(
     (a, b) => new Date(b) - new Date(a)
   );
-  
+
   const formattedData = sortedDates.map((date, index) => {
     const records = groupedAttendances[date];
     const firstRecord = records[0];
     const otherRecords = records.slice(0);
     const lastTimeIn = otherRecords.findLast((e) => e);
     const isOdd = records.length % 2 === 1;
-    
+
     return {
       index: index + 1,
       Image: (
@@ -276,20 +278,20 @@ export default function CollapsibleTable() {
       otherAttendances: otherRecords,
       Location: firstRecord.Location,
       Latitude: firstRecord.Latitude,
-      Longitude: firstRecord.Longitude
+      Longitude: firstRecord.Longitude,
     };
   });
 
-  const columns=[
-    { field: "expand", headerName: "", width: 50 },
-    { field: "index", headerName: "#" },
-    { field: "image", headerName: "Image" },
-    { field: "date", headerName: "Date" },
-    { field: "user", headerName: "User" },
-    { field: "attendAt", headerName: "Attend At" },
-    { field: "timeOut", headerName: "Time Out" },
-    { field: "logHours", headerName: "Log Hours" },
-    { field: "location", headerName: "Location" },
+  const columns = [
+    { field: 'expand', headerName: '', width: 50 },
+    { field: 'index', headerName: '#' },
+    { field: 'image', headerName: 'Image' },
+    { field: 'date', headerName: 'Date' },
+    { field: 'user', headerName: 'User' },
+    { field: 'attendAt', headerName: 'Attend At' },
+    { field: 'timeOut', headerName: 'Time Out' },
+    { field: 'logHours', headerName: 'Log Hours' },
+    { field: 'location', headerName: 'Location' },
   ];
 
   return loading ? (
@@ -313,7 +315,7 @@ export default function CollapsibleTable() {
               height="1em"
               width="1em"
               xmlns="http://www.w3.org/2000/svg"
-              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+              style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
             >
               <title>filters</title>
               <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
@@ -321,9 +323,10 @@ export default function CollapsibleTable() {
             Filters
           </button>
           <button
-          onClick={()=>dispatch(openAttendanceSheet())}
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300">
-               <svg
+            onClick={() => dispatch(openAttendanceSheet())}
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
+          >
+            <svg
               stroke="currentColor"
               fill="currentColor"
               stroke-width="0"
@@ -332,7 +335,7 @@ export default function CollapsibleTable() {
               height="1em"
               width="1em"
               xmlns="http://www.w3.org/2000/svg"
-              style={{ fontSize: "var(--THEME-ICON-SIZE)" }}
+              style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
             >
               <title>Attendace</title>
               <path d="M256 48C141.6 48 48 141.6 48 256s93.6 208 208 208 208-93.6 208-208S370.4 48 256 48zm-42.7 318.9L106.7 260.3l29.9-29.9 76.8 76.8 162.1-162.1 29.9 29.9-192.1 191.9z"></path>
@@ -352,7 +355,7 @@ export default function CollapsibleTable() {
             </div>
           </SheetHeader>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DemoContainer components={["DateRangeCalendar"]}>
+            <DemoContainer components={['DateRangeCalendar']}>
               <div className="flex flex-row gap-4 mt-4">
                 <DateCalendar
                   label="From Date"
@@ -387,16 +390,16 @@ export default function CollapsibleTable() {
         </SheetContent>
       </Sheet>
 
-      <ReusableTable 
-        columns={columns} 
-        data={formattedData} 
+      <ReusableTable
+        columns={columns}
+        data={formattedData}
         RowComponent={Row}
         pagination={true}
         rowProps={{
           openMap: () => {
             const url = `https://www.google.com/maps?q=${formattedData[0]?.Latitude},${formattedData[0]?.Longitude}`;
-            window.open(url, "_blank");
-          }
+            window.open(url, '_blank');
+          },
         }}
       />
     </>

@@ -1,6 +1,6 @@
-import { User } from "../Models/user.model.js";
-import { Project_Roles } from "../Models/projectRoles.js";
-import { AsyncHandler } from "../Utils/AsyncHandler.js";
+import { User } from '../Models/user.model.js';
+import { Project_Roles } from '../Models/projectRoles.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
 
 const userid = AsyncHandler(async (req, res, next) => {
   const user = await User.aggregate([
@@ -11,7 +11,7 @@ const userid = AsyncHandler(async (req, res, next) => {
     },
     {
       $project: {
-        _id: "$_id",
+        _id: '$_id',
       },
     },
   ]);
@@ -29,7 +29,7 @@ const roleid = AsyncHandler(async (req, res, next) => {
     },
     {
       $project: {
-        _id: "$_id",
+        _id: '$_id',
       },
     },
   ]);

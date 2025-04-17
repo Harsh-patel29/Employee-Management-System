@@ -1,6 +1,6 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import AttendanceTable from "../Components/AttendanceTable.jsx";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import AttendanceTable from '../Components/AttendanceTable.jsx';
 
 const Attendance = () => {
   return (

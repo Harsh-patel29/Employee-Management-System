@@ -1,16 +1,16 @@
-import { Role } from "./Models/Role.model.js";
-import { UserAccess } from "./Models/Role_Access.js";
-import { connectDB } from "./DB/index.js";
-import { AsyncHandler } from "./Utils/AsyncHandler.js";
-import { ApiError } from "./Utils/ApiError.js";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import { User } from "./Models/user.model.js";
-import { Project_Roles } from "./Models/projectRoles.js";
-import { keysSchema } from "./Models/Roles_keys.js";
+import { Role } from './Models/Role.model.js';
+import { UserAccess } from './Models/Role_Access.js';
+import { connectDB } from './DB/index.js';
+import { AsyncHandler } from './Utils/AsyncHandler.js';
+import { ApiError } from './Utils/ApiError.js';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import { User } from './Models/user.model.js';
+import { Project_Roles } from './Models/projectRoles.js';
+import { keysSchema } from './Models/Roles_keys.js';
 
 dotenv.config({
-  path: "../.env",
+  path: '../.env',
 });
 
 const seedData = async () => {
@@ -39,9 +39,9 @@ const seedData = async () => {
 
     // AdminRole.permission = [manageUser._id];
     // await AdminRole.save();
-    console.log("Seeding dones", AdminRole);
+    console.log('Seeding dones', AdminRole);
   } catch (error) {
-    throw new ApiError(500, "Seeding failed", error);
+    throw new ApiError(500, 'Seeding failed', error);
   }
 };
 

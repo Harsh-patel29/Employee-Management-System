@@ -1,13 +1,13 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import axios from "axios";
+import axios from 'axios';
 
 export const loginUser = createAsyncThunk(
-  "auth/loginUser",
+  'auth/loginUser',
   async (userData, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v1/user/login",
+        'http://localhost:8000/api/v1/user/login',
         userData,
         { withCredentials: true }
       );
@@ -15,16 +15,16 @@ export const loginUser = createAsyncThunk(
 
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
 );
 
 export const getLoginDetail = createAsyncThunk(
-  "auth/getDetails",
+  'auth/getDetails',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/user/login", {
+      const res = await axios.get('http://localhost:8000/api/v1/user/login', {
         withCredentials: true,
       });
       return res.data;
@@ -35,22 +35,22 @@ export const getLoginDetail = createAsyncThunk(
 );
 
 export const checkAuth = createAsyncThunk(
-  "auth/chechkAuth",
+  'auth/chechkAuth',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/user/login", {
+      const res = await axios.get('http://localhost:8000/api/v1/user/login', {
         withCredentials: true,
       });
 
       return res.data;
     } catch (error) {
-      return rejectWithValue("Not Authenticated");
+      return rejectWithValue('Not Authenticated');
     }
   }
 );
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState: {
     user: null,
     error: null,

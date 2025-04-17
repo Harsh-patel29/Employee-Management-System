@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const createproject = createAsyncThunk(
-  "auth/createproject",
+  'auth/createproject',
   async (formdata, { rejectWithValue }) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v3/project/project",
+        'http://localhost:8000/api/v3/project/project',
         formdata,
         { withCredentials: true }
       );
@@ -18,11 +18,11 @@ export const createproject = createAsyncThunk(
 );
 
 export const getProjects = createAsyncThunk(
-  "auth/getprojects",
+  'auth/getprojects',
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/v3/project/project",
+        'http://localhost:8000/api/v3/project/project',
         { withCredentials: true }
       );
       return res.data;
@@ -33,7 +33,7 @@ export const getProjects = createAsyncThunk(
 );
 
 export const getProjectbyId = createAsyncThunk(
-  "auth/getprojectbyid",
+  'auth/getprojectbyid',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.get(
@@ -48,7 +48,7 @@ export const getProjectbyId = createAsyncThunk(
 );
 
 export const updateproject = createAsyncThunk(
-  "auth/updateproject",
+  'auth/updateproject',
   async ({ data, id }, { rejectWithValue }) => {
     try {
       const res = await axios.put(
@@ -64,7 +64,7 @@ export const updateproject = createAsyncThunk(
 );
 
 export const deleteProject = createAsyncThunk(
-  "auth/deleteproject",
+  'auth/deleteproject',
   async (id, { rejectWithValue }) => {
     try {
       const res = await axios.delete(
@@ -79,17 +79,17 @@ export const deleteProject = createAsyncThunk(
 );
 
 export const uploadLogo = createAsyncThunk(
-  "auth/upload-logo",
+  'auth/upload-logo',
   async (file, { rejectWithValue }) => {
     const formdata = new FormData();
-    formdata.append("logo", file);
+    formdata.append('logo', file);
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v3/project/upload-logo",
+        'http://localhost:8000/api/v3/project/upload-logo',
         formdata,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
@@ -100,21 +100,27 @@ export const uploadLogo = createAsyncThunk(
   }
 );
 
-export const deleteLogo = createAsyncThunk("auth/deletelogo",async(data,{rejectWithValue})=>{
-  try {
-    const res = await axios.delete(`http://localhost:8000/api/v3/project/project/logo/delete`,{
-      data: { public_id: data },
-      withCredentials: true
-    });
-    console.log(res.data);
-    return res.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data || error.message);
+export const deleteLogo = createAsyncThunk(
+  'auth/deletelogo',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8000/api/v3/project/project/logo/delete`,
+        {
+          data: { public_id: data },
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
-})
+);
 
 const createProjectSlice = createSlice({
-  name: "project",
+  name: 'project',
   initialState: {
     project: null,
     projects: [],
@@ -124,7 +130,7 @@ const createProjectSlice = createSlice({
     logo: null,
     loading: false,
     logoloading: false,
-    error: null,  
+    error: null,
     deletedlogo: null,
     deletedlogoloading: false,
   },
@@ -226,7 +232,7 @@ const createProjectSlice = createSlice({
       .addCase(deleteLogo.rejected, (state, action) => {
         state.error = action.payload;
         state.deletedlogoloading = false;
-      })
+      });
   },
 });
 export const { resetProject } = createProjectSlice.actions;
