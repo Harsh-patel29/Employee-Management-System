@@ -92,7 +92,14 @@ const Timer = ({ openTimer, setOpenTimer }) => {
     }
   }, [taskId, hasSentData]);
 
-  const taskOptions = task?.map((t) => ({
+  const filteredTask = task?.filter(
+    (t) =>
+      t.Status !== 'Completed' &&
+      t.Status !== 'Deployed' &&
+      t.Status !== 'Done' &&
+      t.Status !== 'Backlog'
+  );
+  const taskOptions = filteredTask?.map((t) => ({
     value: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,
     label: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,
   }));

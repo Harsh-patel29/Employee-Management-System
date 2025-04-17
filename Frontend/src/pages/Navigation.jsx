@@ -39,7 +39,7 @@ const Navigation = () => {
   const menuItems = [
     {
       id: 1,
-      key: 'dashboard',
+      key: 'Dashboard',
       name: 'Dashboard',
       style: ' rounded-tr-[10px]',
       icon: (
@@ -63,7 +63,7 @@ const Navigation = () => {
     },
     {
       id: 2,
-      key: 'productivity',
+      key: 'Productivity',
       name: 'Productivity',
       icon: (
         <svg
@@ -99,7 +99,7 @@ const Navigation = () => {
     },
     {
       id: 3,
-      key: 'attendance',
+      key: 'Attendance',
       name: 'Attendance',
       icon: (
         <svg
@@ -136,7 +136,7 @@ const Navigation = () => {
     },
     {
       id: 4,
-      key: 'leave',
+      key: 'Leave',
       name: 'Leave',
       icon: (
         <svg
@@ -173,7 +173,7 @@ const Navigation = () => {
     },
     {
       id: 5,
-      key: 'master',
+      key: 'Master',
       name: 'Master',
       icon: (
         <svg
@@ -202,7 +202,7 @@ const Navigation = () => {
     },
     {
       id: 6,
-      key: 'users',
+      key: 'Users',
       name: 'Users',
       icon: (
         <svg
@@ -226,7 +226,7 @@ const Navigation = () => {
     },
     {
       id: 7,
-      key: 'settings',
+      key: 'Settings',
       name: 'Settings',
       icon: (
         <svg
@@ -283,13 +283,20 @@ const Navigation = () => {
                 if (!item.children) {
                   dispatch(collapedSideBar());
                 }
+                if (item.name == active && item.children) {
+                  dispatch(isExpanded ? collapedSideBar() : expandSideBar());
+                }
               }}
             >
               {item.children ? (
                 <div
                   className="block items-center text-[16px] text-[rgb(40,42,43)] font-[sans-serif,Inter] text-center cursor-pointer "
-                  onClick={(e) => {
-                    dispatch(isExpanded ? collapedSideBar() : expandSideBar());
+                  onClick={() => {
+                    dispatch(
+                      isExpanded && !item.children
+                        ? collapedSideBar()
+                        : expandSideBar()
+                    );
                   }}
                 >
                   <div className="flex flex-col gap-y-1.5">
