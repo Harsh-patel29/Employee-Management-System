@@ -18,57 +18,35 @@ import {
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { Button } from '../Components/components/ui/button';
-import LeaveForm from './LeaveForm.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {
-  createLeave,
-  getAllLeave,
-  resetError,
-  resetLeave,
-  deleteLeave,
-  getLeaveById,
-  updateLeave,
-} from '../feature/leavefetch/createleaveSlice';
-import { MdDelete } from 'react-icons/md';
-import { FaEdit } from 'react-icons/fa';
 import { Bounce, toast } from 'react-toastify';
-function Row({ row, openDialog, navigate, openSheet }) {
-  const { updatedLeave } = useSelector((state) => state.leave);
-  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-  React.useEffect(() => {
-    if (updatedLeave?.success) {
-      setupdatesheetopen(false);
-    }
-  }, [updatedLeave]);
+import {
+  fetchHoliday,
+  createHoliday,
+  getHolidayById,
+  updateHoliday,
+  deleteHoliday,
+  resetDeletedHoliday,
+  resetHoliday,
+  resetHolidayById,
+} from '../feature/hoildayfetch/hoildaySlice.js';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
+import HolidayForm from './HolidayForm.jsx';
+function Row({ row, openDialog, openSheet }) {
   const dispatch = useDispatch();
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   return (
-    <React.Fragment>
-      <TableRow
-        sx={{
-          backgroundColor: 'white',
-          color: 'black',
-        }}
-      >
-        <TableCell>{row.index}</TableCell>
-        <TableCell>{row.EMPCODE}</TableCell>
-        <TableCell>{row.userName}</TableCell>
-        <TableCell>{row.Leave_Reason}</TableCell>
-        <TableCell>{row.LEAVE_TYPE}</TableCell>
-        <TableCell>{row.Start_Date}</TableCell>
-        <TableCell>{row.End_Date}</TableCell>
-        <TableCell>{row.Days}</TableCell>
-        <TableCell>{row.Status}</TableCell>
+    <TableRow>
+      <TableCell>{row.index}</TableCell>
+      <TableCell>{row.holiday_name}</TableCell>
+      <TableCell>{row.Start_Date}</TableCell>
+      <TableCell>{row.End_Date}</TableCell>
+      <TableCell>
         <div className="flex items-center gap-2">
-          <Sheet
-            open={updatesheetopen}
-            onOpenChange={(open) => {
-              setupdatesheetopen(open);
-              if (!open) {
-                navigate('/leave');
-              }
-            }}
-          >
+          <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
             <SheetTrigger
               onClick={() => {
                 openSheet(row._id);
@@ -80,23 +58,19 @@ function Row({ row, openDialog, navigate, openSheet }) {
             <SheetContent className="min-w-2xl">
               <SheetHeader>
                 <SheetDescription>
-                  <LeaveForm
+                  <HolidayForm
                     onSubmit={(data) => {
-                      dispatch(updateLeave({ data, id: row._id }));
+                      dispatch(updateHoliday({ data, id: row._id }));
+                      setupdatesheetopen(false);
                     }}
                     mode="update"
-                    id={row._id}
                   />
                 </SheetDescription>
               </SheetHeader>
             </SheetContent>
           </Sheet>
           <div className="text-[#ff3b30]">
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) navigate('/leave');
-              }}
-            >
+            <Dialog>
               <DialogTrigger
                 onClick={() => {
                   openDialog(row._id);
@@ -114,8 +88,8 @@ function Row({ row, openDialog, navigate, openSheet }) {
                     <Button
                       className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
                       onClick={() => {
-                        dispatch(deleteLeave({ data: row._id }));
-                        navigate('/leave', { replace: true });
+                        dispatch(deleteHoliday({ data: row._id }));
+                        setDialogOpen(false);
                       }}
                     >
                       Delete
@@ -126,118 +100,89 @@ function Row({ row, openDialog, navigate, openSheet }) {
             </Dialog>
           </div>
         </div>
-      </TableRow>
-    </React.Fragment>
+      </TableCell>
+    </TableRow>
   );
 }
 
-const LeaveTable = () => {
-  const { allLeave, error, leave, deletedLeave, updatedLeave } = useSelector(
-    (state) => state.leave
-  );
-  const [Leave, setLeave] = React.useState([]);
-  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-  const [sheetopen, setsheetopen] = React.useState(false);
-  const [dialogOpen, setdialogOpen] = React.useState(false);
-  const navigate = useNavigate();
+const HolidayTable = () => {
+  const { allHoliday, createdholiday, updatedHoliday, deletedHoliday, error } =
+    useSelector((state) => state.holiday);
   const dispatch = useDispatch();
+  const [sheetopen, setsheetopen] = React.useState(false);
+  const [updatesheetopen, setupdatesheetopen] = React.useState(false);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [holiday, setholiday] = React.useState([]);
 
   React.useEffect(() => {
-    dispatch(getAllLeave());
-  }, [dispatch]);
+    dispatch(fetchHoliday());
+  }, []);
 
   React.useEffect(() => {
-    if (allLeave?.message) {
-      setLeave(allLeave?.message);
+    if (allHoliday?.message) {
+      setholiday(allHoliday.message);
     }
-  }, [allLeave]);
+  }, [allHoliday]);
 
   const openSheet = (id) => {
-    navigate(`/leave`);
-    dispatch(getLeaveById(id));
+    dispatch(getHolidayById(id));
     setTimeout(() => {
       setupdatesheetopen(true);
     }, 0);
   };
 
   const openDialog = () => {
-    navigate(`/leave`);
     setTimeout(() => {
-      setdialogOpen(true);
+      setDialogOpen(true);
     }, 0);
   };
 
   React.useEffect(() => {
-    if (leave?.success) {
-      toast.success('Leave created Successfully', {
+    if (createdholiday?.success) {
+      toast.success('Holiday created Successfully', {
         position: 'top-right',
         autoClose: 3000,
       });
       setsheetopen(false);
-      dispatch(getAllLeave());
-      dispatch(resetLeave());
+      dispatch(fetchHoliday());
+      dispatch(resetHoliday());
     }
-  }, [leave]);
+  }, [createdholiday]);
 
   React.useEffect(() => {
-    if (updatedLeave?.success) {
-      toast.success('Leave updated Successfully', {
+    if (updatedHoliday?.success) {
+      toast.success('Holiday updated Successfully', {
         position: 'top-right',
         autoClose: 3000,
       });
-      dispatch(getAllLeave());
-      dispatch(resetLeave());
+      dispatch(fetchHoliday());
+      dispatch(resetHoliday());
     }
-  }, [updatedLeave]);
+  }, [updatedHoliday]);
 
   React.useEffect(() => {
-    if (deletedLeave?.success) {
-      toast.success('Leave deleted Successfully', {
+    if (deletedHoliday?.success) {
+      toast.success('Holiday deleted Successfully', {
         position: 'top-right',
         autoClose: 3000,
       });
-      dispatch(getAllLeave());
-      dispatch(resetLeave());
+      dispatch(fetchHoliday());
+      dispatch(resetDeletedHoliday());
     }
-  }, [deletedLeave]);
-
-  React.useEffect(() => {
-    if (error) {
-      const errorMessage =
-        error.response?.data?.message || error.message || error;
-      toast.error(errorMessage, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-        transition: Bounce,
-      });
-      dispatch(resetError());
-    }
-  }, [error]);
+  }, [deletedHoliday]);
 
   const columns = [
     { field: 'index', headerName: '#' },
-    { field: 'EMP_CODE', headerName: 'EMP CODE' },
-    { field: 'Name', headerName: 'User Name' },
-    { field: 'Leave_Reason', headerName: 'Leave Reason' },
-    { field: 'LEAVE_TYPE', headerName: 'Leave Type' },
+    { field: 'holiday_name', headerName: 'Holiday Name' },
     { field: 'Start_Date', headerName: 'Start Date' },
     { field: 'End_Date', headerName: 'End Date' },
-    { field: 'Days', headerName: 'Days' },
-    { field: 'Status', headerName: 'Status' },
     { field: 'Action', headerName: 'Action' },
   ];
-
   return (
     <>
       <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
-          Leave
+          Holiday
         </h5>
         <div className="flex items-center">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -260,15 +205,15 @@ const LeaveTable = () => {
                   <line x1="12" y1="8" x2="12" y2="16"></line>
                   <line x1="8" y1="12" x2="16" y2="12"></line>
                 </svg>
-                Leave
+                Holiday
               </div>
             </SheetTrigger>
             <SheetContent showCloseButton={false} className="bg-white min-w-xl">
               <SheetHeader>
                 <SheetDescription>
-                  <LeaveForm
+                  <HolidayForm
                     onSubmit={(data) => {
-                      dispatch(createLeave(data));
+                      dispatch(createHoliday(data));
                     }}
                   />
                 </SheetDescription>
@@ -277,15 +222,15 @@ const LeaveTable = () => {
           </Sheet>
         </div>
       </div>
+
       <ReusableTable
         columns={columns}
-        data={Leave}
         RowComponent={Row}
-        pagination={true}
-        rowProps={{ openDialog, openSheet, navigate }}
+        data={holiday}
+        rowProps={{ openSheet, openDialog }}
       />
     </>
   );
 };
 
-export default LeaveTable;
+export default HolidayTable;

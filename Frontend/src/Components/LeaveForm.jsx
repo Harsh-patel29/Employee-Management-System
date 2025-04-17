@@ -91,7 +91,6 @@ export default function LeaveForm({ onSubmit, mode, id }) {
   useEffect(() => {
     if (mode === 'update' && leaveById?.message) {
       const detail = leaveById?.message;
-      console.log(detail.LEAVE_TYPE);
       reset({
         Leave_Reason: detail?.Leave_Reason,
         LEAVE_TYPE: detail?.LEAVE_TYPE,

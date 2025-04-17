@@ -27,6 +27,8 @@ import Regularization from './pages/Regularization.jsx';
 import MonthlyReport from './pages/MonthlyReport.jsx';
 import LeaveApprove from './pages/LeaveApprove.jsx';
 import TaskTimerPage from './pages/TaskTimerPage.jsx';
+import Holiday from './pages/Holiday.jsx';
+import WeekOff from './pages/Weekoff.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -41,7 +43,10 @@ const router = createBrowserRouter(
           </Route>
           <Route path="/create/roles" element={<NewRoles />} />
           <Route path="/update/roles/:id" element={<NewRoles />} />
-          <Route path="/master" element={<Master />} />
+          <Route path="/master" element={<Master />}>
+            <Route path="/master/holiday" element={<Holiday />} />
+            <Route path="/master/weekoff" element={<WeekOff />} />
+          </Route>
           <Route path="/settings" element={<Settings />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route

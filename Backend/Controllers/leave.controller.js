@@ -99,9 +99,6 @@ const deleteLeave = AsyncHandler(async (req, res) => {
 });
 
 const updateLeave = AsyncHandler(async (req, res) => {
-  const { id } = req.body;
-  console.log(req.body.data);
-  console.log('req.body.data', req.body.data);
   const calculateDays = (startDate, endDate) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
