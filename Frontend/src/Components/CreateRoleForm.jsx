@@ -27,13 +27,10 @@ export default function AdminForm({ onSubmit, mode }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [accessData, setAccessData] = useState({});
-  const [roleData, setRoleData] = useState({});
   const dispatch = useDispatch();
   const { keys, roleById, updatedRole, createdRole } = useSelector(
     (state) => state.getrole
   );
-  console.log(updatedRole);
-  console.log(createdRole);
 
   useEffect(() => {
     dispatch(getKeys());

@@ -15,13 +15,10 @@ import {
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { SheetClose } from '../Components/components/ui/sheet';
-import {
-  getHolidayById,
-  resetHolidayById,
-} from '../feature/hoildayfetch/hoildaySlice.js';
+import { getHolidayById } from '../feature/hoildayfetch/hoildaySlice.js';
 const formSchema = z.object({
   holiday_name: z.string().min(1, {
-    message: ' Hoilday Name is required',
+    message: 'Hoilday Name is required',
   }),
   Start_Date: z.string().min(1, {
     message: 'Start Date is required',
@@ -97,7 +94,10 @@ export default function HolidayForm({ onSubmit, mode, id }) {
             {mode === 'update' ? 'Update' : 'Create'}
           </Button>
           <SheetClose>
-            <Button className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer">
+            <Button
+              type="button"
+              className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
+            >
               <svg
                 className="w-10 h-10"
                 stroke="currentColor"

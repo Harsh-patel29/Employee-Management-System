@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Task } from '../Models/taskmodel.js';
+import { TaskTimer } from '../Models/tasktimermodel.js';
 import { User } from '../Models/user.model.js';
 import { ApiError } from '../Utils/ApiError.js';
 import { ApiResponse } from '../Utils/ApiResponse.js';
@@ -122,6 +123,24 @@ const updateTask = AsyncHandler(async (req, res) => {
     if (!task) {
       throw new ApiError(404, 'Task not found');
     }
+
+    // const totalTime = await TaskTimer.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: 'tasks',
+    //       localField: 'TaskId',
+    //       foreignField: 'CODE',
+    //       as: 'result',
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       result: 1,
+    //     },
+    //   },
+    // ]);
+
+    // console.log(totalTime);
 
     const updateData = {
       title: req.body.title,

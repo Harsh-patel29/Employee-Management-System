@@ -15,6 +15,8 @@ import filterSliceReducer from '../feature/filterSlice/filterSlice.js';
 import createleaveSliceReducer from '../feature/leavefetch/createleaveSlice.js';
 import taskTimerSliceReducer from '../feature/tasktimerfetch/tasktimerslice.js';
 import holidaySliceReducer from '../feature/hoildayfetch/hoildaySlice.js';
+import weekOffSliceReducer from '../feature/weekofffetch/weekoffslice.js';
+
 export default configureStore({
   reducer: {
     theme: themeReducer,
@@ -33,5 +35,6 @@ export default configureStore({
     leave: createleaveSliceReducer,
     tasktimer: taskTimerSliceReducer,
     holiday: holidaySliceReducer,
+    weekoff: weekOffSliceReducer,
   },
 });

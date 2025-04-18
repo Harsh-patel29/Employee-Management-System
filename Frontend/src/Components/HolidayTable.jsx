@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReusableTable from '../Components/ReusableTable.jsx';
 import {
   Sheet,
@@ -39,71 +40,82 @@ function Row({ row, openDialog, openSheet }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   return (
-    <TableRow>
-      <TableCell>{row.index}</TableCell>
-      <TableCell>{row.holiday_name}</TableCell>
-      <TableCell>{row.Start_Date}</TableCell>
-      <TableCell>{row.End_Date}</TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
-            <SheetTrigger
-              onClick={() => {
-                openSheet(row._id);
-              }}
-              asChild
-            >
-              <FaEdit className="font-[200] text-lg" />
-            </SheetTrigger>
-            <SheetContent className="min-w-2xl">
-              <SheetHeader>
-                <SheetDescription>
-                  <HolidayForm
-                    onSubmit={(data) => {
-                      dispatch(updateHoliday({ data, id: row._id }));
-                      setupdatesheetopen(false);
-                    }}
-                    mode="update"
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
-          <div className="text-[#ff3b30]">
-            <Dialog>
-              <DialogTrigger
+    <React.Fragment>
+      <TableRow>
+        <TableCell>{row.index}</TableCell>
+        <TableCell>{row.holiday_name}</TableCell>
+        <TableCell>{row.Start_Date}</TableCell>
+        <TableCell>{row.End_Date}</TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
+              <SheetTrigger
                 onClick={() => {
-                  openDialog(row._id);
+                  openSheet(row._id);
                 }}
                 asChild
               >
-                <MdDelete className="font-[200] text-lg" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the leave.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        dispatch(deleteHoliday({ data: row._id }));
-                        setDialogOpen(false);
+                <FaEdit className="font-[200] text-lg" />
+              </SheetTrigger>
+              <SheetContent className="min-w-2xl">
+                <SheetHeader>
+                  <SheetDescription>
+                    <HolidayForm
+                      onSubmit={(data) => {
+                        dispatch(updateHoliday({ data, id: row._id }));
+                        setupdatesheetopen(false);
                       }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                      mode="update"
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+            <div className="text-[#ff3b30]">
+              <Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-[200] text-lg" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the holiday.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteHoliday({ data: row._id }));
+                          setDialogOpen(false);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
-      </TableCell>
-    </TableRow>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
   );
 }
+
+Row.prototype = {
+  row: PropTypes.shape({
+    index: PropTypes.number,
+    holiday_name: PropTypes.string,
+    Start_Date: PropTypes.string,
+    End_Date: PropTypes.string,
+  }).isRequired,
+};
 
 const HolidayTable = () => {
   const { allHoliday, createdholiday, updatedHoliday, deletedHoliday, error } =
