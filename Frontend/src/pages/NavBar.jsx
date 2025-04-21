@@ -30,6 +30,9 @@ const NavBar = () => {
     );
     if (res.data.statusCode === 200) {
       navigate('/login');
+      localStorage.removeItem('active');
+      localStorage.removeItem('val');
+      localStorage.removeItem('viewMode');
     }
   };
 

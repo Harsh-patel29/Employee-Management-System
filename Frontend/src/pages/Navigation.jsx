@@ -1,40 +1,16 @@
 import React, { act, use, useState } from 'react';
 import { Link } from 'react-router';
-import { MdDashboard } from 'react-icons/md';
-import { HiMiniSquares2X2 } from 'react-icons/hi2';
-import { CgTime } from 'react-icons/cg';
-import { MdOutlineCalendarMonth } from 'react-icons/md';
-import { MdKeyboardCommandKey } from 'react-icons/md';
-import { LuUsers } from 'react-icons/lu';
-import { IoSettingsOutline } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   collapedSideBar,
   expandSideBar,
 } from '../feature/ToggelSideBar/ToggleSideBarSlice.js';
-import { defaultVariantColorsResolver } from '@mantine/core';
-import { keyframes } from '@emotion/react';
 
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
   const [active, setActive] = useState(() => {
-    return localStorage.getItem('active') || 'dashboard';
+    return localStorage.getItem('active') || 'Dashboard';
   });
-  const [expanded, setexpanded] = useState(null);
-
-  const productivityChildren = [
-    {
-      key: 'project',
-      name: 'Projects',
-      link: 'productivity/project',
-    },
-    { key: 'tasks', name: 'Tasks', link: 'productivity/tasks' },
-    {
-      key: 'task timer',
-      name: 'Task Timer',
-      link: 'productivity/taskTimer',
-    },
-  ];
 
   const menuItems = [
     {
@@ -255,6 +231,10 @@ const Navigation = () => {
   const [value, setValue] = useState(() => {
     return localStorage.getItem('val') || 'Dashboard';
   });
+
+  React.useEffect(() => {
+    localStorage.setItem('val', value);
+  }, [value]);
 
   React.useEffect(() => {
     localStorage.setItem('active', active);

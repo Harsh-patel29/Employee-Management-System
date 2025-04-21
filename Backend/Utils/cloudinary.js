@@ -55,10 +55,10 @@ const taskattachments = async (filepaths) => {
   for (const localFilePath of filepaths) {
     try {
       const response = await cloudinary.uploader.upload(localFilePath, {
-        resource_type: 'image',
+        resource_type: 'auto',
         folder: 'taskattachments',
         use_filename: true,
-        unique_filename: true,
+        unique_filename: false,
       });
       console.log(
         'File uploaded on Cloudinary. File src:' + response.secure_url
@@ -76,9 +76,8 @@ const taskattachments = async (filepaths) => {
 const attachment = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
-    const fullpath = path.resolve(localFilePath);
     const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: 'image',
+      resource_type: 'auto',
       folder: 'attachment',
       use_filename: true,
       unique_filename: false,

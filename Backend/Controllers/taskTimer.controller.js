@@ -7,9 +7,10 @@ import { AsyncHandler } from '../Utils/AsyncHandler.js';
 
 const formatDuration = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  return `${minutes}m ${seconds}s`;
+  return `${hours}h: ${minutes}m ${seconds}s`;
 };
 
 const createTaskTimer = AsyncHandler(async (req, res) => {

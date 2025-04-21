@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { type } from 'os';
 
 const taskSchema = new Schema(
   {
@@ -32,6 +33,9 @@ const taskSchema = new Schema(
               type: String,
             },
             public_id: {
+              type: String,
+            },
+            format: {
               type: String,
             },
           },

@@ -30,7 +30,7 @@ import {
   deleteHoliday,
   resetDeletedHoliday,
   resetHoliday,
-  resetHolidayById,
+  resetError,
 } from '../feature/hoildayfetch/hoildaySlice.js';
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
@@ -183,6 +183,24 @@ const HolidayTable = () => {
     }
   }, [deletedHoliday]);
 
+  React.useEffect(() => {
+    if (error) {
+      const errorMessage =
+        error.response?.data?.message || error.message || error;
+      toast.error(errorMessage, {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+        transition: Bounce,
+      });
+      dispatch(resetError());
+    }
+  }, [error]);
   const columns = [
     { field: 'index', headerName: '#' },
     { field: 'holiday_name', headerName: 'Holiday Name' },

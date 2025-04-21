@@ -43,6 +43,12 @@ import {
   deleteUploadedImage,
   deleteTodo,
 } from '../feature/taskfetch/taskfetchSlice';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { FileText } from 'lucide-react';
+
 const formSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -102,8 +108,10 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [currentUserId, setCurrentUserId] = useState('');
   const [openUserDialog, setOpenUserDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFileType, setSelectedFileType] = useState(null);
   const [openImageDialog, setOpenImageDialog] = useState(false);
-
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
   useEffect(() => {
     if (updatedTask?.success) {
       setShowTitleField(false);
@@ -120,6 +128,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   useEffect(() => {
     dispatch(getTaskById(taskid));
   }, []);
+
+  console.log(selectedFileType);
 
   useEffect(() => {
     if (getTaskid?.message) {
@@ -230,6 +240,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
         Attachments: currentAttachments.map((file) => ({
           url: file.url,
           public_id: file.public_id,
+          format: file.format,
         })),
         comment: typeof value === 'string' ? value : value.comment || '',
       };
@@ -389,7 +400,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          <div className="flex w-full h-full items-center justify-between items-start pb-3 ">
+          <div className="flex w-full h-full justify-between items-start pb-3 ">
             <div className="flex flex-col w-[810px]">
               <FormField
                 control={control}
@@ -711,7 +722,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 render={({ field }) => (
                   <FormItem className="w-full flex flex-col mt-6 bg-white shadow-2xl border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
                     <FormLabel
-                      className="flex items-start mt-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] font-[Inter,sans-serif] 
+                      className="flex items-start mt-2 text-[20px]  ml-5 font-[100] font-[Inter,sans-serif] 
 text-decoration-line: underline decoration-[rgb(205,179,162)]"
                     >
                       Comments
@@ -720,9 +731,10 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                       <div className="flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300">
                         {currentAttachments.map((value, index) => (
                           <div key={index} className="relative">
+                            {console.log(value)}
                             <div>
                               <div
-                                className="absolute top-0 right-0 bg-white rounded-full m-1 cursor-pointer"
+                                className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 cursor-pointer"
                                 onClick={() => {
                                   setCurrentvalue(value.public_id);
                                   setOpenDialog(true);
@@ -750,11 +762,23 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                   />
                                 </svg>
                               </div>
-                              <img
-                                src={value?.url}
-                                alt="Attachment"
-                                className="w-[90px] h-[90px] object-cover"
-                              />
+                              {value.format === 'png' ||
+                              value.format === 'jpg' ||
+                              value.format === 'jpeg' ? (
+                                <img
+                                  src={value?.url}
+                                  alt="Attachment"
+                                  className="w-[90px] h-[90px] object-cover"
+                                />
+                              ) : (
+                                <div>
+                                  <iframe
+                                    className="h-[90px] object-cover"
+                                    src={value?.url}
+                                    frameborder="1"
+                                  ></iframe>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -827,7 +851,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           id="attachment-button"
                           multiple
                           className="hidden"
-                          accept="image/*"
+                          accept=""
                           onChange={(e) => {
                             const files = e.target.files;
                             if (files) {
@@ -903,16 +927,32 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                               <div className="flex gap-2">
                                 {value.Attachments.map((file, index) => (
                                   <div className="ml-2">
-                                    <img
-                                      key={index}
-                                      src={file.url}
-                                      className="w-[90px] h-[90px] cursor-pointer"
-                                      alt="Attachment"
-                                      onClick={() => {
-                                        setSelectedImage(file.url);
-                                        setOpenImageDialog(true);
-                                      }}
-                                    />
+                                    {console.log(file)}
+                                    {file.format === 'pdf' ? (
+                                      <div
+                                        key={index}
+                                        className="w-[90px] h-[90px] cursor-pointer"
+                                        onClick={() => {
+                                          setSelectedFileType('pdf');
+                                          setSelectedFile(file.url);
+                                          setOpenImageDialog(true);
+                                        }}
+                                      >
+                                        <FileText className="w-[90%] h-[90%] text-[rgb(51,141,181)]" />
+                                      </div>
+                                    ) : (
+                                      <img
+                                        key={index}
+                                        src={file.url}
+                                        className="w-[90px] h-[90px] cursor-pointer"
+                                        alt="Attachment"
+                                        onClick={() => {
+                                          setSelectedFileType('image');
+                                          setSelectedImage(file.url);
+                                          setOpenImageDialog(true);
+                                        }}
+                                      />
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -920,15 +960,15 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           </div>
                         </div>
                       ))}
-                      {openImageDialog && selectedImage && (
+                      {openImageDialog && selectedImage && selectedFile && (
                         <div
-                          className="fixed inset-0 flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm"
+                          className="fixed inset-0  flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm"
                           onClick={() => {
                             setOpenImageDialog(false);
                           }}
                         >
                           <div
-                            className="relative bg-gradient-to-br bg-white  p-6 rounded-xl shadow-2xl max-w-[90%] max-h-[95%] border border-slate-700"
+                            className="relative bg-gradient-to-br bg-white  p-6 rounded-xl shadow-2xl  max-h-[95%] border border-slate-700"
                             onClick={(e) => {
                               e.stopPropagation();
                             }}
@@ -944,11 +984,22 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                 &times;
                               </button>
                             </div>
-                            <img
-                              src={selectedImage}
-                              alt="Full View"
-                              className="flex max-w-full max-h-[80vh] rounded-lg shadow-lg"
-                            />
+                            {selectedFileType === 'image' ? (
+                              <img
+                                src={selectedImage}
+                                alt="Full View"
+                                className="flex max-w-full max-h-[80vh] rounded-lg shadow-lg"
+                              />
+                            ) : (
+                              <div className="relative w-180 h-150">
+                                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                  <Viewer
+                                    fileUrl={selectedFile}
+                                    plugins={[defaultLayoutPluginInstance]}
+                                  />
+                                </Worker>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -1711,7 +1762,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                               id="attachment-button"
                               multiple
                               className="hidden"
-                              accept="image/*"
+                              accept=""
                               onChange={(e) => handleAttachmentChange(e)}
                             />
                           </label>
@@ -1794,7 +1845,17 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                         <h6
                                           className="hover:text-[rgb(51,141,181)]"
                                           onClick={() => {
+                                            if (file.format === 'pdf') {
+                                              setSelectedFileType('pdf');
+                                            } else if (
+                                              file.format === 'jpg' ||
+                                              'png' ||
+                                              'jpeg'
+                                            ) {
+                                              setSelectedFileType('image');
+                                            }
                                             setSelectedImage(file.url);
+                                            setSelectedFile(file.url);
                                             setOpenImageDialog(true);
                                           }}
                                         >

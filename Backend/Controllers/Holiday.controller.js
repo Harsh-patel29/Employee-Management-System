@@ -5,7 +5,10 @@ import { ApiResponse } from '../Utils/ApiResponse.js';
 
 const createHoliday = AsyncHandler(async (req, res) => {
   const { holiday_name, Start_Date, End_Date } = req.body;
-
+  const Holidayexists = await Holiday.findOne({ holiday_name });
+  if (Holidayexists) {
+    throw new ApiError(400, 'Holiday already exists');
+  }
   if (!holiday_name || !Start_Date) {
     throw new ApiError(400, 'Holiday Name and Start Date are required');
   }

@@ -106,6 +106,9 @@ const holidaySlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    resetError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -172,6 +175,10 @@ const holidaySlice = createSlice({
   },
 });
 
-export const { resetHoliday, resetDeletedHoliday, resetHolidayById } =
-  holidaySlice.actions;
+export const {
+  resetHoliday,
+  resetDeletedHoliday,
+  resetHolidayById,
+  resetError,
+} = holidaySlice.actions;
 export default holidaySlice.reducer;

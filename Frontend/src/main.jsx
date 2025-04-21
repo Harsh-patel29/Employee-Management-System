@@ -35,8 +35,9 @@ const router = createBrowserRouter(
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<App />}>
           <Route path="/dashboard" element={<DashBoard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/users/:id" element={<Users />} />
+          <Route path="/users" element={<Users />}>
+            <Route path="/users/:id" element={<Users />} />
+          </Route>
           <Route path="/users/roles" element={<Roles />}>
             <Route path="/users/roles/:id" element={<Roles />} />
             <Route path="/users/roles/delete/:id" element={<Roles />} />

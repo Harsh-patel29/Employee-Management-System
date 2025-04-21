@@ -40,6 +40,7 @@ const uploadtaskAttachment = AsyncHandler(async (req, res, next) => {
     throw new ApiError(500, 'Failed to upload attachment');
   }
   req.attachmentdetail = attachmentphoto;
+
   next();
 });
 
@@ -48,7 +49,6 @@ const uploadAttachment = AsyncHandler(async (req, res, next) => {
   if (!attachmentLocalPath) {
     throw new ApiError(404, 'Attachment is required');
   }
-
   let attachmentphoto;
 
   try {

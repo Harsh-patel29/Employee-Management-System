@@ -55,7 +55,7 @@ router.route('/upload-attachment').post(
   upload.fields([
     {
       name: 'attachment',
-      maxCount: 1,
+      maxCount: 10,
     },
   ]),
   uploadAttachment,

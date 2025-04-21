@@ -18,6 +18,7 @@ import ReusableTable from './ReusableTable.jsx';
 import {
   getAllTaskTimer,
   deleteTaskTimer,
+  resetAllTaskTimer,
 } from '../feature/tasktimerfetch/tasktimerslice.js';
 function Row({ row, openDialog }) {
   const dispatch = useDispatch();
@@ -101,13 +102,17 @@ export default function TaskTimerTable() {
 
   React.useEffect(() => {
     if (createdTaskTimer?.success) {
+      console.log('skjdf');
+
       dispatch(getAllTaskTimer());
+      dispatch(resetAllTaskTimer());
     }
   }, [createdTaskTimer]);
 
   React.useEffect(() => {
     if (updatedTaskTimer?.success) {
       dispatch(getAllTaskTimer());
+      dispatch(resetAllTaskTimer());
     }
   }, [updatedTaskTimer]);
 

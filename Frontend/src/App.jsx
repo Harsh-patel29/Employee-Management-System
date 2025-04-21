@@ -12,6 +12,8 @@ import AttendanceShortcut from './pages/AttendanceShortcut';
 import MarkAttendance from './Components/MarkAttendance';
 import TaskTimer from './Components/TaskTimer';
 function App() {
+  const { allTaskTimer, createdTaskTimer, updatedTaskTimer, deletedTaskTimer } =
+    useSelector((state) => state.tasktimer);
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   const [loading, setLoading] = useState(true);
 

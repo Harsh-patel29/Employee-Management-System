@@ -1,12 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { MdDelete } from 'react-icons/md';
@@ -96,19 +91,16 @@ export default function AssignUserTable() {
     (state) => state.assignusers
   );
 
-  // Initial data fetch
   React.useEffect(() => {
     dispatch(getname(id));
   }, [dispatch, id]);
 
-  // Update local state when totalassignedusers changes
   React.useEffect(() => {
     if (totalassignedusers?.message) {
       setname(totalassignedusers.message);
     }
   }, [totalassignedusers]);
 
-  // Handle user assignment
   React.useEffect(() => {
     if (assigneduser?.success === true) {
       dispatch(getname(userid));
@@ -124,7 +116,6 @@ export default function AssignUserTable() {
     }
   };
 
-  // Handle user deletion
   React.useEffect(() => {
     if (deleteuser?.success === true) {
       navigate(`/productivity/project/${id}`, { replace: true });

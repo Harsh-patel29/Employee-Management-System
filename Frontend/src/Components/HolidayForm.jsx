@@ -23,7 +23,9 @@ const formSchema = z.object({
   Start_Date: z.string().min(1, {
     message: 'Start Date is required',
   }),
-  End_Date: z.string(),
+  End_Date: z.string().min(1, {
+    message: 'End Date is required',
+  }),
 });
 
 export default function HolidayForm({ onSubmit, mode, id }) {
@@ -236,6 +238,13 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                   isClearable={true}
                 />
               </FormControl>
+              <div>
+                {errors?.End_Date && (
+                  <span className="text-red-500 font-semibold">
+                    {errors.End_Date.message}
+                  </span>
+                )}
+              </div>
             </FormItem>
           )}
         />

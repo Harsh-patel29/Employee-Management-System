@@ -137,7 +137,10 @@ const updateLeave = AsyncHandler(async (req, res) => {
 
 const createnewLeave = AsyncHandler(async (req, res) => {
   const { Leave_Reason, Leave_Code } = req.body;
-
+  const leaveExists = await CreateLeave.findOne({ Leave_Reason });
+  if (leaveExists) {
+    throw new ApiError(400, 'Leave alreday exists');
+  }
   try {
     const leaveReason = await CreateLeave.create({
       Leave_Reason,

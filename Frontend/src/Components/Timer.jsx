@@ -8,6 +8,7 @@ import {
   resetTaskTimer,
   updateTaskTimer,
   getTaskByUser,
+  getAllTaskTimer,
   resetTaskByUser,
   resetAllTaskTimer,
 } from '../feature/tasktimerfetch/tasktimerslice.js';
@@ -21,7 +22,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
   const [taskId, setTaskId] = useState(null);
   const [hasSentData, setHasSentData] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const { createdTaskTimer, taskByUser } = useSelector(
+  const { createdTaskTimer, taskByUser, updatedTaskTimer } = useSelector(
     (state) => state.tasktimer
   );
   const [isRunning, setIsRunning] = useState(false);
