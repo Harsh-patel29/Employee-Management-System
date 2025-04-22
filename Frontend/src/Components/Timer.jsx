@@ -124,17 +124,18 @@ const Timer = ({ openTimer, setOpenTimer }) => {
     }
   }, []);
 
+  const errorMessage = document.getElementById('error-message');
   return (
     <>
       <Dialog open={openTimer} onOpenChange={setOpenTimer}>
-        <DialogContent className="bg-white border-none">
+        <DialogContent className="bg-white border-none p-0 w-100">
           <DialogHeader></DialogHeader>
           <div className="inset-0 flex items-center justify-center z-50">
-            <div className=" rounded-2xl shadow-none p-6 w-[90%] max-w-md relative">
+            <div className=" rounded-2xl shadow-none  w-[90%] max-w-md relative">
               <h2 className="text-xl font-semibold mb-6 text-gray-700">
                 Time Tracker
               </h2>
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between">
                 {[
                   { label: 'Hours', value: hours },
                   { label: 'Minutes', value: minutes },
@@ -176,20 +177,25 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                   }}
                   value={message}
                 />
-                <span
-                  className={`${message ? 'hidden' : 'text-sm text-red-500'}`}
-                >
-                  Message is required
+                <span id="error-message" className={'text-sm text-red-500'}>
+                  {/* Message is required */}
                 </span>
               </div>
-              <div className="mt-6 flex items-center justify-center gap-6">
+              <div className="mt-6 flex items-center justify-center gap-6 pb-6">
                 <button
-                  onClick={() => setIsRunning(true)}
-                  className="bg-gray-200 text-gray-700 p-3 rounded-full hover:bg-gray-300"
+                  onClick={() => {
+                    if (message && selectedTask) {
+                      setIsRunning(true);
+                      errorMessage.textContent = '';
+                    } else {
+                      errorMessage.append('Task and Message is Required');
+                      errorMessage.textContent('');
+                    }
+                  }}
+                  className="bg-gray-200 text-gray-700 p-3 rounded-full hover:bg-gray-300 cursor-not-allowed"
                 >
                   <button
                     type="submit"
-                    disabled={!message || !taskCode || isRunning}
                     className="w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
                       dispatch(

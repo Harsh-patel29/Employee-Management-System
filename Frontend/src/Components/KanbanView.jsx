@@ -5,6 +5,7 @@ import {
   getAllTasks,
   updateTaskStatus,
 } from '../feature/taskfetch/taskfetchSlice';
+import { Link, useNavigate } from 'react-router';
 
 const KanbanView = ({ viewType = 'kanban' }) => {
   const { tasks } = useSelector((state) => state.task);
@@ -177,59 +178,65 @@ const KanbanView = ({ viewType = 'kanban' }) => {
             ignoreContainerClipping={false}
           >
             {(provided, snapshot) => (
-              <div className="w-full overflow-y-auto">
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`bg-gray-100 h-[500px] shadow-xl w-64 rounded ${snapshot.isDraggingOver ? 'bg-gray-200' : ''}`}
-                >
+              <Link to={`/productivity/tasks/${task.CODE}`}>
+                <div className="w-full overflow-y-auto">
                   <div
-                    className={`${columnId === 'Backlog' ? 'border-t-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-t-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-t-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-t-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-t-[rgb(130,216,239)] border-4' : 'bg-white'} h-14 scrollbar-thin flex justify-between bg-white items-center border border-b-0 border-l-0 border-r-0 shadow rounded-tr-md rounded-tl-md`}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`bg-gray-100 h-[500px] shadow-xl w-64 rounded ${snapshot.isDraggingOver ? 'bg-gray-200' : ''}`}
                   >
-                    <h2 className="capitalize font-bold mb-2 ml-4 text-black">
-                      {columnId}
-                    </h2>
-                    <div className="capitalize font-bold mb-2 text-black mr-3 border-2 bg-gray-200 rounded-full h-6 w-6 flex items-center justify-center">
-                      {columnTasks?.length}
-                    </div>
-                  </div>
-                  {columnTasks?.map((task, index) => (
-                    <Draggable
-                      key={task._id}
-                      draggableId={task._id}
-                      index={index}
+                    <div
+                      className={`${columnId === 'Backlog' ? 'border-t-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-t-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-t-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-t-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-t-[rgb(130,216,239)] border-4' : 'bg-white'} h-14 scrollbar-thin flex justify-between bg-white items-center border border-b-0 border-l-0 border-r-0 shadow rounded-tr-md rounded-tl-md`}
                     >
-                      {(provided, snapshot) => (
-                        <div
-                          className={` ${columnId === 'Backlog' ? 'border-l-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-l-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-l-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-l-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-l-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-l-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-l-[rgb(130,216,239)] border-4' : 'bg-white'} border-b-0 border-t-0 border-r-0  rounded-md mt-2`}
-                        >
+                      <h2 className="capitalize font-bold mb-2 ml-4 text-black">
+                        {columnId}
+                      </h2>
+                      <div className="capitalize font-bold mb-2 text-black mr-3 border-2 bg-gray-200 rounded-full h-6 w-6 flex items-center justify-center">
+                        {columnTasks?.length}
+                      </div>
+                    </div>
+                    {columnTasks?.map((task, index) => (
+                      <Draggable
+                        key={task._id}
+                        draggableId={task._id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
                           <div
-                            className={`p-2 rounded shadow mb-2 transition-all duration-300 ${
-                              snapshot.isDragging
-                                ? 'bg-blue-200 transform scale-102 shadow-lg'
-                                : 'bg-white'
-                            }`}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
+                            className={` ${columnId === 'Backlog' ? 'border-l-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-l-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-l-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-l-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-l-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-l-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-l-[rgb(130,216,239)] border-4' : 'bg-white'} border-b-0 border-t-0 border-r-0  rounded-md mt-2`}
                           >
-                            #{task.CODE}
-                            <div className="flex  justify-between">
-                              <div className=" flex items-center justify-start ml-3">
-                                {task.title}
-                              </div>
-                              <div className="flex justify-end text-[13px] font-bold text-[rgb(59,130,246)] bg-[rgb(239,246,255)] px-2 py-1 rounded-md">
-                                {task.Project}
+                            <div
+                              className={`p-2 rounded shadow mb-2 transition-all duration-300 ${
+                                snapshot.isDragging
+                                  ? 'bg-blue-200 transform scale-102 shadow-lg'
+                                  : 'bg-white'
+                              }`}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              #{task.CODE}
+                              <div className="flex  justify-between">
+                                <div className=" flex items-center justify-start ml-3">
+                                  {task.title}
+                                </div>
+                                {task.Project ? (
+                                  <div className="flex justify-end text-[13px] font-bold text-[rgb(59,130,246)] bg-[rgb(239,246,255)] px-2 py-1 rounded-md">
+                                    {task.Project}
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                        )}
+                      </Draggable>
+                    ))}
+                  </div>
+                  {provided.placeholder}
                 </div>
-                {provided.placeholder}
-              </div>
+              </Link>
             )}
           </Droppable>
         ))}

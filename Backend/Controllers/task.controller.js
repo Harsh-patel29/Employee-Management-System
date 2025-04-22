@@ -158,6 +158,13 @@ const updateTask = AsyncHandler(async (req, res) => {
     updateData.$set = updateData.$set || {};
     updateData.$push = updateData.$push || {};
 
+    if (updateData.Project) {
+      updateData.Users = req.user.Name;
+    }
+    if (req.body.Users) {
+      updateData.Users = req.body.Users;
+    }
+
     if (updateData.StartDate > updateData.EndDate) {
       updateData.EndDate = '';
     }
@@ -195,8 +202,6 @@ const deleteTask = AsyncHandler(async (req, res) => {
     throw new ApiError(404, 'Task not found');
   }
   for (const attachment of task.Attachments) {
-    console.log('Attachment', attachment);
-
     await deleteFromCloudinary(attachment.public_id);
   }
 

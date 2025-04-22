@@ -99,77 +99,79 @@ function Row({
         <TableCell sx={{ color: 'inherit' }}>{row.Mobile_Number}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.ReportingManager}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>
-          {
-            <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
-              <SheetTrigger
-                onClick={() => {
-                  openSheet(row._id);
-                }}
-                asChild
-              >
-                <FaEdit
-                  className={`${
-                    canUpdateUser ? 'font-semibold text-lg' : 'hidden'
-                  }`}
-                />
-              </SheetTrigger>
-              <SheetContent
-                className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
+          <div className="flex items-center gap-2 justify-center">
+            {
+              <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
+                <SheetTrigger
+                  onClick={() => {
+                    openSheet(row._id);
+                  }}
+                  asChild
+                >
+                  <FaEdit
+                    className={`${
+                      canUpdateUser ? 'font-semibold text-lg' : 'hidden'
+                    }`}
+                  />
+                </SheetTrigger>
+                <SheetContent
+                  className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
                 min-w-6xl`}
+                >
+                  <SheetHeader>
+                    <SheetDescription>
+                      <AdminForm
+                        mode="update"
+                        onSubmit={(data) => {
+                          dispatch(updateuser({ data, userid: row._id }));
+                        }}
+                      />
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+            }
+            <div className={`${isDefault ? 'hidden' : 'flex'}`}>
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) navigate('/users');
+                }}
               >
-                <SheetHeader>
-                  <SheetDescription>
-                    <AdminForm
-                      mode="update"
-                      onSubmit={(data) => {
-                        dispatch(updateuser({ data, userid: row._id }));
-                      }}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-          }
-        </TableCell>
-        <TableCell className={`${isDefault ? 'hidden' : 'flex'}`}>
-          <Dialog
-            onOpenChange={(open) => {
-              if (!open) navigate('/users');
-            }}
-          >
-            <DialogTrigger
-              onClick={() => {
-                openDialog(row._id);
-              }}
-              asChild
-            >
-              <MdDelete
-                className={
-                  isDefault === false
-                    ? 'font-semibold text-lg text-[#ff3b30]'
-                    : 'hidden'
-                }
-              />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  user's account and remove their data from servers.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
-                      dispatch(deleteuser(row._id));
-                      navigate('/users');
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete
+                    className={
+                      isDefault === false
+                        ? 'font-semibold text-lg text-[#ff3b30]'
+                        : 'hidden'
+                    }
+                  />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the user's account and remove their data from servers.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteuser(row._id));
+                          navigate('/users');
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -387,8 +389,7 @@ export default function CollapsibleTable() {
     { field: 'Email', headerName: 'Email' },
     { field: 'Mobile_Number', headerName: 'Mobile Number' },
     { field: 'ReportingManager', headerName: 'Reporting Manager' },
-    { field: 'edit', headerName: 'Edit' },
-    { field: 'delete', headerName: 'Delete' },
+    { field: 'Action', headerName: 'Action' },
   ];
 
   if (loading) {

@@ -111,7 +111,6 @@ export const deleteLogo = createAsyncThunk(
           withCredentials: true,
         }
       );
-      console.log(res.data);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

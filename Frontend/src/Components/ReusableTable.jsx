@@ -56,6 +56,7 @@ const ReusableTable = ({
             '& .MuiTableCell-root': {
               padding: 0.4,
               color: 'black',
+              textAlign: 'center',
             },
             ...tableStyle,
           }}
@@ -70,11 +71,15 @@ const ReusableTable = ({
               ...headStyle,
             }}
           >
-            <TableRow>
+            <TableRow className="">
               {columns.map((column) => (
                 <TableCell
                   key={column.field}
-                  sx={{ fontWeight: '200', fontSize: 'medium', ...cellStyle }}
+                  sx={{
+                    fontWeight: '200',
+                    fontSize: 'medium',
+                    ...cellStyle,
+                  }}
                 >
                   {column.headerName}
                 </TableCell>

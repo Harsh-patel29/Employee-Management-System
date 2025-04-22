@@ -42,63 +42,64 @@ function Row({ row, openSheet, openDialog, navigate }) {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>{row.Leave_Reason}</TableCell>
-        <TableCell>{row.Leave_Code}</TableCell>
+        <TableCell className="w-40">{row.Leave_Reason}</TableCell>
+        <TableCell className="w-[75%]">{row.Leave_Code}</TableCell>
         <TableCell>
-          {
-            <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
-              <SheetTrigger
+          <div className="flex items-center gap-2 justify-center">
+            {
+              <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
+                <SheetTrigger
+                  onClick={() => {
+                    openSheet(row._id);
+                  }}
+                  asChild
+                >
+                  <FaEdit className="font-semibold text-lg" />
+                </SheetTrigger>
+                <SheetContent className="bg-white min-w-xl">
+                  <SheetHeader>
+                    <SheetDescription>
+                      <CreateLeaveForm
+                        mode="update"
+                        onSubmit={(data) => {
+                          dispatch(updateCreatedLeave({ data, id: row._id }));
+                          setupdatesheetopen(false);
+                        }}
+                      />
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+            }
+
+            <Dialog>
+              <DialogTrigger
                 onClick={() => {
-                  openSheet(row._id);
+                  openDialog(row._id);
                 }}
                 asChild
               >
-                <FaEdit className="font-semibold text-lg" />
-              </SheetTrigger>
-              <SheetContent className="bg-white min-w-xl">
-                <SheetHeader>
-                  <SheetDescription>
-                    <CreateLeaveForm
-                      mode="update"
-                      onSubmit={(data) => {
-                        dispatch(updateCreatedLeave({ data, id: row._id }));
-                        setupdatesheetopen(false);
+                <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the leave.
+                    <Button
+                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                      onClick={() => {
+                        dispatch(deleteCreatedLeave({ data: row._id }));
                       }}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-          }
-        </TableCell>
-        <TableCell>
-          <Dialog>
-            <DialogTrigger
-              onClick={() => {
-                openDialog(row._id);
-              }}
-              asChild
-            >
-              <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  leave.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
-                      dispatch(deleteCreatedLeave({ data: row._id }));
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+                    >
+                      Delete
+                    </Button>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -206,7 +207,6 @@ export default function CreateLeaveTable() {
     { field: 'Leave_Reason', headerName: 'Leave Reason' },
     { field: 'Leave_Code', headerName: 'Leave Code' },
     { field: 'Action', headerName: 'Action' },
-    { field: 'Delete', headerName: 'Delete' },
   ];
 
   return (

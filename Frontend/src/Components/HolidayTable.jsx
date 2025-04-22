@@ -35,6 +35,7 @@ import {
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import HolidayForm from './HolidayForm.jsx';
+import HolidayFilterSheet from './HolidayFilterSheet.jsx';
 function Row({ row, openDialog, openSheet }) {
   const dispatch = useDispatch();
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -47,7 +48,7 @@ function Row({ row, openDialog, openSheet }) {
         <TableCell>{row.Start_Date}</TableCell>
         <TableCell>{row.End_Date}</TableCell>
         <TableCell>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 justify-center">
             <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
               <SheetTrigger
                 onClick={() => {
@@ -120,6 +121,7 @@ Row.prototype = {
 const HolidayTable = () => {
   const { allHoliday, createdholiday, updatedHoliday, deletedHoliday, error } =
     useSelector((state) => state.holiday);
+  const filterValue = useSelector((state) => state.filter.filterValue);
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -148,6 +150,20 @@ const HolidayTable = () => {
       setDialogOpen(true);
     }, 0);
   };
+
+  const filteredData = holiday.filter((item) => {
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const startDateMatch =
+      !filterValue.Start_Date || item.Start_Date === filterValue.Start_Date;
+    const endDateMatch =
+      !filterValue.End_Date || item.End_Date === filterValue.End_Date;
+    return startDateMatch && endDateMatch;
+  });
 
   React.useEffect(() => {
     if (createdholiday?.success) {
@@ -250,13 +266,16 @@ const HolidayTable = () => {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+          <button>
+            <HolidayFilterSheet />
+          </button>
         </div>
       </div>
 
       <ReusableTable
         columns={columns}
         RowComponent={Row}
-        data={holiday}
+        data={filteredData}
         rowProps={{ openSheet, openDialog }}
       />
     </>

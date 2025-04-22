@@ -144,7 +144,14 @@ export default function TasksFilterSheet() {
                 isClearable={true}
                 options={assigneeOptions}
                 onChange={(value) => {
-                  handleFilter(value, projectoption, taskoption);
+                  handleFilter(
+                    value,
+                    projectoption,
+                    taskoption,
+                    fromdate,
+                    todate,
+                    statusoption?.label
+                  );
                   setAsigneeoption(value);
                 }}
                 isLoading={loading}
@@ -156,7 +163,7 @@ export default function TasksFilterSheet() {
                 isClearable={true}
                 options={projectOptions}
                 onChange={(value) => {
-                  handleFilter(Asigneeoption, value, taskoption);
+                  handleFilter(assigneeOptions, value, projectOptions);
                   setprojectoption(value);
                 }}
                 isLoading={loading}
@@ -173,7 +180,8 @@ export default function TasksFilterSheet() {
                     projectoption,
                     value,
                     fromdate,
-                    todate
+                    todate,
+                    statusoption?.label
                   );
                   settaskoption(value);
                 }}
@@ -185,11 +193,22 @@ export default function TasksFilterSheet() {
               <div className="flex flex-col gap-2 w-[46%]">
                 <label>From</label>
                 <DatePicker
-                  className="w-full border-2 border-gray-300 h-10 rounded-sm"
+                  className="w-full border-2 border-gray-300 h-10 rounded-sm p-2"
                   placeholderText="DD-MM-YYYY"
                   selected={fromdate}
                   onChange={(date) => {
                     setfromdate(date);
+                    if (!date) {
+                      handleFilter(
+                        Asigneeoption,
+                        projectoption,
+                        taskoption,
+                        null,
+                        todate?.toLocaleDateString('en-CA'),
+                        statusoption?.label
+                      );
+                      return;
+                    }
                     const localDate = new Date(
                       date?.getTime() - date?.getTimezoneOffset() * 60000
                     )
@@ -200,7 +219,8 @@ export default function TasksFilterSheet() {
                       projectoption,
                       taskoption,
                       localDate,
-                      todate?.toLocaleDateString('en-CA')
+                      todate?.toLocaleDateString('en-CA'),
+                      statusoption?.label
                     );
                   }}
                   dateFormat="dd-MM-yyyy"
@@ -213,11 +233,22 @@ export default function TasksFilterSheet() {
               <div className="flex flex-col gap-2 items-start w-[46%]">
                 <label>To</label>
                 <DatePicker
-                  className="w-full border-2 border-gray-300 h-10 rounded-sm"
+                  className="w-full border-2 border-gray-300 h-10 rounded-sm p-2"
                   placeholderText="DD-MM-YYYY"
                   selected={todate}
                   onChange={(date) => {
                     settodate(date);
+                    if (!date) {
+                      handleFilter(
+                        Asigneeoption,
+                        projectoption,
+                        taskoption,
+                        fromdate?.toLocaleDateString('en-CA'),
+                        null,
+                        statusoption?.label
+                      );
+                      return;
+                    }
                     const localDate = new Date(
                       date?.getTime() - date?.getTimezoneOffset() * 60000
                     )
@@ -228,7 +259,8 @@ export default function TasksFilterSheet() {
                       projectoption,
                       taskoption,
                       fromdate?.toLocaleDateString('en-CA'),
-                      localDate
+                      localDate,
+                      statusoption?.label
                     );
                   }}
                   showYearDropdown

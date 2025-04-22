@@ -33,6 +33,7 @@ import {
 import { MdDelete } from 'react-icons/md';
 import { FaEdit } from 'react-icons/fa';
 import { Bounce, toast } from 'react-toastify';
+import LeaveFilterSheet from './LeaveFilterSheet.jsx';
 function Row({ row, openDialog, navigate, openSheet }) {
   const { updatedLeave } = useSelector((state) => state.leave);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -59,39 +60,40 @@ function Row({ row, openDialog, navigate, openSheet }) {
         <TableCell>{row.End_Date}</TableCell>
         <TableCell>{row.Days}</TableCell>
         <TableCell>{row.Status}</TableCell>
-        <div className="flex items-center gap-2">
-          <Sheet
-            open={updatesheetopen}
-            onOpenChange={(open) => {
-              setupdatesheetopen(open);
-              if (!open) {
-                navigate('/leave');
-              }
-            }}
-          >
-            <SheetTrigger
-              onClick={() => {
-                openSheet(row._id);
+        <TableCell>
+          <div className="flex items-center gap-2 justify-center">
+            <Sheet
+              open={updatesheetopen}
+              onOpenChange={(open) => {
+                setupdatesheetopen(open);
+                if (!open) {
+                  navigate('/leave');
+                }
               }}
-              asChild
             >
-              <FaEdit className="font-[200] text-lg" />
-            </SheetTrigger>
-            <SheetContent className="min-w-2xl">
-              <SheetHeader>
-                <SheetDescription>
-                  <LeaveForm
-                    onSubmit={(data) => {
-                      dispatch(updateLeave({ data, id: row._id }));
-                    }}
-                    mode="update"
-                    id={row._id}
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
-          <div className="text-[#ff3b30]">
+              <SheetTrigger
+                onClick={() => {
+                  openSheet(row._id);
+                }}
+                asChild
+              >
+                <FaEdit className="font-[200] text-lg" />
+              </SheetTrigger>
+              <SheetContent className="min-w-2xl">
+                <SheetHeader>
+                  <SheetDescription>
+                    <LeaveForm
+                      onSubmit={(data) => {
+                        dispatch(updateLeave({ data, id: row._id }));
+                      }}
+                      mode="update"
+                      id={row._id}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+
             <Dialog
               onOpenChange={(open) => {
                 if (!open) navigate('/leave');
@@ -103,7 +105,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
                 }}
                 asChild
               >
-                <MdDelete className="font-[200] text-lg" />
+                <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -115,7 +117,6 @@ function Row({ row, openDialog, navigate, openSheet }) {
                       className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
                       onClick={() => {
                         dispatch(deleteLeave({ data: row._id }));
-                        navigate('/leave', { replace: true });
                       }}
                     >
                       Delete
@@ -125,7 +126,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
               </DialogContent>
             </Dialog>
           </div>
-        </div>
+        </TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -135,6 +136,7 @@ const LeaveTable = () => {
   const { allLeave, error, leave, deletedLeave, updatedLeave } = useSelector(
     (state) => state.leave
   );
+  const filterValue = useSelector((state) => state.filter.filterValue);
   const [Leave, setLeave] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [sheetopen, setsheetopen] = React.useState(false);
@@ -151,6 +153,22 @@ const LeaveTable = () => {
       setLeave(allLeave?.message);
     }
   }, [allLeave]);
+
+  const filteredData = Leave.filter((item) => {
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const LeaveStatusMatch =
+      !filterValue.Status || item.Status === filterValue.Status;
+    const startDateMatch =
+      !filterValue.Start_Date || item.Start_Date === filterValue.Start_Date;
+    const endDateMatch =
+      !filterValue.End_Date || item.End_Date === filterValue.End_Date;
+    return LeaveStatusMatch && startDateMatch && endDateMatch;
+  });
 
   const openSheet = (id) => {
     navigate(`/leave`);
@@ -275,11 +293,14 @@ const LeaveTable = () => {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+          <button>
+            <LeaveFilterSheet />
+          </button>
         </div>
       </div>
       <ReusableTable
         columns={columns}
-        data={Leave}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, openSheet, navigate }}

@@ -1,7 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import dotenv from 'dotenv';
-import path from 'path';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -73,23 +71,28 @@ const taskattachments = async (filepaths) => {
   return uploadedAttachments;
 };
 
-const attachment = async (localFilePath) => {
-  try {
-    if (!localFilePath) return null;
-    const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: 'auto',
-      folder: 'attachment',
-      use_filename: true,
-      unique_filename: false,
-    });
-    console.log('File uploaded on Cloudinary. File src:' + response.secure_url);
-    fs.unlinkSync(localFilePath);
-    return response;
-  } catch (error) {
-    console.log('Error on Cloudinary', error);
-    fs.unlinkSync(localFilePath);
-    return null;
+const attachment = async (filepaths) => {
+  if (!filepaths || filepaths.length === 0) return [];
+  const uploadedAttachments = [];
+  for (const localFilePath of filepaths) {
+    try {
+      const response = await cloudinary.uploader.upload(localFilePath, {
+        resource_type: 'auto',
+        folder: 'attachment',
+        use_filename: true,
+        unique_filename: false,
+      });
+      console.log(
+        'File uploaded on Cloudinary. File src:' + response.secure_url
+      );
+      fs.unlinkSync(localFilePath);
+      uploadedAttachments.push(response);
+    } catch (error) {
+      console.log('Error on Cloudinary', error);
+      fs.unlinkSync(localFilePath);
+    }
   }
+  return uploadedAttachments;
 };
 
 const deleteFromCloudinary = async (publicId) => {

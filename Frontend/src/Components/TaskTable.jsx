@@ -67,72 +67,72 @@ function Row({ row, openDialog, navigate }) {
         <TableCell sx={{ color: 'inherit' }}>{row.Status}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.Asignee}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>
-          {
-            <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
-              <SheetTrigger
+          <div className="flex justify-center">
+            {
+              <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
+                <SheetTrigger
+                  onClick={() => {
+                    openSheet(row._id);
+                  }}
+                  asChild
+                >
+                  <FaEdit
+                    className="font-semibold text-lg cursor-pointer"
+                    onClick={() => {
+                      navigate(`/productivity/tasks/${row.CODE}`);
+                    }}
+                  />
+                </SheetTrigger>
+                <SheetContent
+                  className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
+                min-w-6xl`}
+                >
+                  <SheetHeader>
+                    <SheetDescription>
+                      <TaskUpdateForm
+                        mode="update"
+                        onSubmit={(data) => {
+                          dispatch(updateTask(data));
+                        }}
+                      />
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+            }
+            <Dialog
+              onOpenChange={(open) => {
+                if (!open) navigate('/productivity/tasks');
+              }}
+            >
+              <DialogTrigger
                 onClick={() => {
-                  openSheet(row._id);
+                  openDialog(row.CODE);
                 }}
                 asChild
               >
-                <FaEdit
-                  className="font-semibold text-lg"
-                  onClick={() => {
-                    navigate(`/productivity/tasks/${row.CODE}`);
-                  }}
-                />
-              </SheetTrigger>
-              <SheetContent
-                className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
-                min-w-6xl`}
-              >
-                <SheetHeader>
-                  <SheetDescription>
-                    <TaskUpdateForm
-                      mode="update"
-                      onSubmit={(data) => {
-                        dispatch(updateTask(data));
+                <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the task.
+                    <Button
+                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                      onClick={() => {
+                        navigate('/productivity/tasks');
+                        dispatch(deleteTask(row.CODE));
                       }}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-          }
-        </TableCell>
-        <TableCell>
-          <Dialog
-            onOpenChange={(open) => {
-              if (!open) navigate('/productivity/tasks');
-            }}
-          >
-            <DialogTrigger
-              onClick={() => {
-                openDialog(row.CODE);
-              }}
-              asChild
-            >
-              <MdDelete className="font-semibold text-lg text-[#ff3b30]" />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  task.
-                  <Button
-                    className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                    onClick={() => {
-                      navigate('/productivity/tasks');
-                      dispatch(deleteTask(row.CODE));
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+                    >
+                      Delete
+                    </Button>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -279,8 +279,7 @@ export default function TaskTable({ data }) {
     { field: 'createdBy', headerName: 'Created By' },
     { field: 'Status', headerName: 'Status' },
     { field: 'Asignee', headerName: 'Asignee' },
-    { field: 'action', headerName: 'Update' },
-    { field: 'delete', headerName: 'Delete' },
+    { field: 'Action', headerName: 'Action' },
   ];
 
   return (

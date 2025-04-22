@@ -30,9 +30,11 @@ import {
   approveLeave,
   resetApprovedLeave,
   resetRejectedLeave,
+  deleteLeave,
 } from '../feature/leavefetch/createleaveSlice';
 
 import { Bounce, toast } from 'react-toastify';
+import { AlignJustify } from 'lucide-react';
 function Row({ row, openDialog, navigate }) {
   const dispatch = useDispatch();
 
@@ -55,83 +57,79 @@ function Row({ row, openDialog, navigate }) {
         <TableCell>{row.Start_Date}</TableCell>
         <TableCell>{row.End_Date}</TableCell>
         <TableCell>{row.Days}</TableCell>
-        <TableHead>
-          <TableCell>
-            <div className="flex items-center gap-2">
-              <Dialog open={dialogOpen} onOpenChange={setdialogOpen}>
-                <DialogTrigger
-                  onClick={() => {
-                    openDialog(row._id);
-                  }}
-                  asChild
-                >
-                  <Button className="px-4 py-2 bg-transparent hover:bg-emerald-600 hover:text-white border border-emerald-500 text-emerald-500 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
-                    Approve
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone.Once approved, the leave
-                      can't be rejected.
-                      <Button
-                        onClick={() => {
-                          dispatch(approveLeave(row._id));
-                          setdialogOpen(false);
-                        }}
-                        className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
-                      >
-                        Approve
-                      </Button>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={rejectDialogOpen}
-                onOpenChange={setrejectDialogOpen}
+        <TableCell>
+          <div>
+            <Dialog open={dialogOpen} onOpenChange={setdialogOpen}>
+              <DialogTrigger
+                onClick={() => {
+                  openDialog(row._id);
+                }}
+                asChild
               >
-                <DialogTrigger
-                  onClick={() => {
-                    openDialog(row._id);
-                  }}
-                  asChild
-                >
-                  <Button className="px-4 py-2 bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
-                    Reject
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone.Once rejected, the leave
-                      can't be approved.
-                      <Button
-                        onClick={() => {
-                          dispatch(rejectLeave(row._id));
-                          setrejectDialogOpen(false);
-                        }}
-                        className=" flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
-                      >
-                        Reject
-                      </Button>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </TableCell>
-        </TableHead>
+                <Button className="px-4 mr-2 py-2 cursor-pointer bg-transparent hover:bg-emerald-600 hover:text-white border border-emerald-500 text-emerald-500 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+                  Approve
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone.Once approved, the leave can't
+                    be rejected.
+                    <Button
+                      onClick={() => {
+                        dispatch(approveLeave(row._id));
+                        setdialogOpen(false);
+                      }}
+                      className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
+                    >
+                      Approve
+                    </Button>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={rejectDialogOpen} onOpenChange={setrejectDialogOpen}>
+              <DialogTrigger
+                onClick={() => {
+                  openDialog(row._id);
+                }}
+                asChild
+              >
+                <Button className="px-4 py-2 cursor-pointer bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+                  Reject
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone.Once rejected, the leave can't
+                    be approved.
+                    <Button
+                      onClick={() => {
+                        dispatch(rejectLeave(row._id));
+                        setrejectDialogOpen(false);
+                      }}
+                      className=" flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
+                    >
+                      Reject
+                    </Button>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </TableCell>
       </TableRow>
     </React.Fragment>
   );
 }
 
 const LeaveApproveTable = () => {
-  const { allLeave, error, leave, deletedLeave, approvedLeave, rejectedLeave } =
-    useSelector((state) => state.leave);
+  const { allLeave, error, approvedLeave, rejectedLeave } = useSelector(
+    (state) => state.leave
+  );
   const [Leave, setLeave] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
   const [dialogOpen, setdialogOpen] = React.useState(false);
@@ -147,6 +145,10 @@ const LeaveApproveTable = () => {
       setLeave(allLeave?.message);
     }
   }, [allLeave]);
+
+  const LeavetoBeDisplayed = Leave.filter((leave) => {
+    return leave.Status === 'Pending';
+  });
 
   const openDialog = () => {
     setTimeout(() => {
@@ -217,34 +219,24 @@ const LeaveApproveTable = () => {
             <SheetTrigger>
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
-                  className="h-6 w-6"
                   stroke="currentColor"
-                  fill="none"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  fill="currentColor"
+                  stroke-width="0"
+                  viewBox="0 0 512 512"
                   height="1em"
                   width="1em"
                   xmlns="http://www.w3.org/2000/svg"
+                  style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
                 >
-                  <title>create</title>
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                  <title>filters</title>
+                  <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
                 </svg>
                 Filter
               </div>
             </SheetTrigger>
             <SheetContent showCloseButton={false} className="bg-white min-w-xl">
               <SheetHeader>
-                <SheetDescription>
-                  <LeaveForm
-                    onSubmit={(data) => {
-                      dispatch(createLeave(data));
-                    }}
-                  />
-                </SheetDescription>
+                <SheetDescription></SheetDescription>
               </SheetHeader>
             </SheetContent>
           </Sheet>
@@ -252,7 +244,7 @@ const LeaveApproveTable = () => {
       </div>
       <ReusableTable
         columns={columns}
-        data={Leave}
+        data={LeavetoBeDisplayed}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, navigate }}

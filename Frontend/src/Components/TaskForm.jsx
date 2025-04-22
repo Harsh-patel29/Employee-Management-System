@@ -42,6 +42,7 @@ import {
   resetTask,
   deleteUploadedImage,
   deleteTodo,
+  resetdeleteImage,
 } from '../feature/taskfetch/taskfetchSlice';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -85,6 +86,12 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [currentvalue, setCurrentvalue] = useState('');
   const users = useSelector((state) => state.getuser);
   const { user } = useSelector((state) => state.auth);
+  const [localAttachments, setLocalAttachments] = useState([]);
+  useEffect(() => {
+    if (Tasks?.Attachments) {
+      setLocalAttachments(Tasks.Attachments);
+    }
+  }, [Tasks?.Attachments]);
   const {
     tasks,
     createtask,
@@ -129,8 +136,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     dispatch(getTaskById(taskid));
   }, []);
 
-  console.log(selectedFileType);
-
   useEffect(() => {
     if (getTaskid?.message) {
       setTasks(getTaskid.message.task);
@@ -152,33 +157,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   useEffect(() => {
     if (uploadedImage?.message) {
-      setAttachment((prev) => [...prev, uploadedImage.message]);
-
-      const existingAttachments = Array.isArray(Tasks.Attachments)
-        ? Tasks.Attachments
-        : [];
-
-      const isDuplicate = existingAttachments.some(
-        (attach) => attach.public_id === uploadedImage.message.public_id
-      );
-
-      if (!isDuplicate) {
-        const updatedAttachments = [
-          ...existingAttachments,
-          {
-            url: uploadedImage.message.url,
-            public_id: uploadedImage.message.public_id,
-            orignalname: uploadedImage.message.original_filename,
-            format: uploadedImage.message.format,
-          },
-        ];
-
-        handleUpdateTask('Attachments', updatedAttachments);
-        return () => {
-          dispatch(resetUploadedImage());
-        };
-      }
+      setAttachment((prev) => [...prev, ...uploadedImage?.message]);
     }
+    return () => {
+      resetUploadedImage();
+    };
   }, [uploadedImage]);
 
   const {
@@ -201,7 +184,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       StartDate: '',
       EndDate: '',
       EstimatedTime: '',
-      Users: [],
+      Users: '',
       Attachments: [],
     },
   });
@@ -244,8 +227,13 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
         })),
         comment: typeof value === 'string' ? value : value.comment || '',
       };
+    } else if (fieldName === 'Attachments') {
+      updatedData.Attachments = value;
+    } else {
+      updatedData[fieldName] = value;
     }
     dispatch(updateTask({ data: updatedData, id: taskid }));
+
     if (fieldName === 'comments') {
       setCurrentAttachments([]);
     }
@@ -253,14 +241,45 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       dispatch(resetTask());
     };
   };
-
   const handleAttachmentChange = (e) => {
     const files = Array.from(e.target.files);
-    files.forEach((file) => {
-      dispatch(Attachment(file));
-    });
-    e.target.value = '';
+    dispatch(Attachment(files))
+      .then((response) => {
+        e.target.value = '';
+      })
+      .catch((error) => {
+        console.error('Error uploading files', error);
+        e.target.value = '';
+      });
   };
+
+  useEffect(() => {
+    if (!attachment || attachment.length === 0) return;
+    const existingAttachments = Array.isArray(Tasks.Attachments)
+      ? Tasks.Attachments
+      : [];
+
+    const formattedNewAttachments = attachment.map((file) => ({
+      url: file.url,
+      public_id: file.public_id,
+      orignalname: file.original_filename,
+      format: file.format,
+    }));
+
+    const isDuplicate = formattedNewAttachments.filter(
+      (newAttachment) =>
+        !existingAttachments.some(
+          (existAttach) => existAttach.public_id === newAttachment.public_id
+        )
+    );
+
+    if (isDuplicate.length === 0) return;
+
+    const newUpload = [...existingAttachments, ...isDuplicate];
+
+    handleUpdateTask('Attachments', newUpload);
+    dispatch(resetUploadedImage());
+  }, [attachment, Tasks?.Attachments]);
 
   useEffect(() => {
     if (deletedAttachment?.success) {
@@ -731,7 +750,6 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                       <div className="flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300">
                         {currentAttachments.map((value, index) => (
                           <div key={index} className="relative">
-                            {console.log(value)}
                             <div>
                               <div
                                 className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 cursor-pointer"
@@ -927,7 +945,6 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                               <div className="flex gap-2">
                                 {value.Attachments.map((file, index) => (
                                   <div className="ml-2">
-                                    {console.log(file)}
                                     {file.format === 'pdf' ? (
                                       <div
                                         key={index}
@@ -960,7 +977,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           </div>
                         </div>
                       ))}
-                      {openImageDialog && selectedImage && selectedFile && (
+                      {openImageDialog && (selectedFile || selectedImage) && (
                         <div
                           className="fixed inset-0  flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm"
                           onClick={() => {
@@ -1072,6 +1089,8 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             onChange={(selectedOption) => {
                               field.onChange(selectedOption.value);
                               handleUpdateTask('Project', selectedOption.value);
+                              setSelectedUsers([]);
+                              handleUpdateTask('Users', '');
                             }}
                             options={projectOptions}
                           />
@@ -1183,6 +1202,8 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                 fontSize: '15px',
                                 color: 'rgb(120, 122, 126)',
                                 backgroundColor: 'transparent',
+                                minWidth: '120px',
+                                width: 'auto',
                               }),
                               placeholder: (baseStyles) => ({
                                 ...baseStyles,
@@ -1269,7 +1290,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                 placeholder="Start Date"
                               ></Input>
                             </PopoverTrigger>
-                            <PopoverContent>
+                            <PopoverContent className="p-0 w-0 h-0">
                               <DatePicker
                                 selected={field.value ? startDate : null}
                                 onChange={(date) => {
@@ -1347,8 +1368,9 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                 placeholder="End Date"
                               ></Input>
                             </PopoverTrigger>
-                            <PopoverContent>
+                            <PopoverContent className="p-0 w-20 h-0">
                               <DatePicker
+                                className="p-0 "
                                 selected={field.value ? endDate : null}
                                 onChange={(date) => {
                                   if (date) {
@@ -1520,7 +1542,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                               return (
                                 <p
                                   key={index}
-                                  className="ml-1 bg-[rgba(61,66,179,0.92)] text-white rounded-full w-8 h-8 flex items-center justify-center"
+                                  className="ml-1 text-sm bg-[rgba(61,66,179,0.92)] text-white rounded-full w-7 h-7 flex items-center justify-center"
                                 >
                                   {initials}
                                 </p>
@@ -1847,15 +1869,11 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                           onClick={() => {
                                             if (file.format === 'pdf') {
                                               setSelectedFileType('pdf');
-                                            } else if (
-                                              file.format === 'jpg' ||
-                                              'png' ||
-                                              'jpeg'
-                                            ) {
+                                            } else {
                                               setSelectedFileType('image');
                                             }
-                                            setSelectedImage(file.url);
                                             setSelectedFile(file.url);
+                                            setSelectedImage(file.url);
                                             setOpenImageDialog(true);
                                           }}
                                         >
@@ -1909,15 +1927,19 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-red-500 text-white hover:bg-red-700"
-                        onClick={() => {
-                          dispatch(deleteUploadedImage(currentPublicId));
-
+                        onClick={async () => {
+                          await dispatch(deleteUploadedImage(currentPublicId));
                           if (Tasks?.Attachments) {
-                            const updatedAttachments = Tasks.Attachments.filter(
+                            const updatedAttachments = localAttachments.filter(
                               (attachment) =>
                                 attachment.public_id !== currentPublicId
                             );
-                            handleUpdateTask('Attachments', updatedAttachments);
+                            console.log(updatedAttachments);
+
+                            await handleUpdateTask(
+                              'Attachments',
+                              updatedAttachments
+                            );
                           }
                           setOpenTaskAttachmentDialog(false);
                         }}

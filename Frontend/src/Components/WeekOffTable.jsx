@@ -42,6 +42,7 @@ import {
   updateWeekOff,
 } from '../feature/weekofffetch/weekoffslice.js';
 import WeekOffForm from './WeekOffForm.jsx';
+import WeekOffFilterSheet from './WeekOffFilterSheet.jsx';
 function Row({ row, openDialog, openSheet }) {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
@@ -62,7 +63,7 @@ function Row({ row, openDialog, openSheet }) {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>
+        <TableCell className="w-10">
           <IconButton
             aria-label="expand row"
             size="small"
@@ -79,7 +80,7 @@ function Row({ row, openDialog, openSheet }) {
         <TableCell>{row.WeekOffName}</TableCell>
         <TableCell>{row.Effective_Date}</TableCell>
         <TableCell>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 justify-center">
             <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
               <SheetTrigger
                 onClick={() => {
@@ -224,6 +225,8 @@ export default function WeekOffTable() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { allWeekOff, createdWeekOff, deletedWeekOff, updatedWeekOff } =
     useSelector((state) => state.weekoff);
+  const filterValue = useSelector((state) => state.filter.filterValue);
+
   React.useEffect(() => {
     dispatch(getAllWeekOff());
   }, []);
@@ -233,6 +236,19 @@ export default function WeekOffTable() {
       setweekoff(allWeekOff.message);
     }
   }, [allWeekOff]);
+
+  const filteredData = weekoff.filter((item) => {
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const effectiveDateMatch =
+      !filterValue.Effective_Date ||
+      item.Effective_Date === filterValue.Effective_Date;
+    return effectiveDateMatch;
+  });
 
   const openSheet = (id) => {
     dispatch(getWeekOffById(id));
@@ -326,11 +342,14 @@ export default function WeekOffTable() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+          <button>
+            <WeekOffFilterSheet />
+          </button>
         </div>
       </div>
       <ReusableTable
         columns={columns}
-        data={weekoff}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openSheet, openDialog }}

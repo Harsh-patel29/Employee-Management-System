@@ -140,9 +140,15 @@ export const uploadAttachment = createAsyncThunk(
 
 export const Attachment = createAsyncThunk(
   'auth/upload-Attachemnt',
-  async (file, { rejectWithValue }) => {
+  async (files, { rejectWithValue }) => {
     const formdata = new FormData();
-    formdata.append('attachment', file);
+    if (files.length && typeof files !== 'string') {
+      for (let i = 0; i < files.length; i++) {
+        formdata.append('attachment', files[i]);
+      }
+    } else {
+      formdata.append('attachment', files);
+    }
     try {
       const res = await axios.post(
         'http://localhost:8000/api/v4/tasks/upload-attachment',
@@ -231,6 +237,7 @@ const taskSlice = createSlice({
   },
   reducers: {
     resetTask: (state) => {
+      state.getTaskid = null;
       state.updateTaskStatus = null;
       state.updatedTask = null;
       state.deletedTask = null;
@@ -240,6 +247,9 @@ const taskSlice = createSlice({
     },
     resetUploadedImage: (state) => {
       state.uploadedImage = null;
+    },
+    resetdeleteImage: (state) => {
+      state.deletedUploadedImage = null;
     },
   },
   extraReducers: (builder) => {
@@ -379,5 +389,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const { resetTask, resetUploadedImage } = taskSlice.actions;
+export const { resetTask, resetUploadedImage, resetdeleteImage } =
+  taskSlice.actions;
 export default taskSlice.reducer;

@@ -45,14 +45,14 @@ const uploadtaskAttachment = AsyncHandler(async (req, res, next) => {
 });
 
 const uploadAttachment = AsyncHandler(async (req, res, next) => {
-  const attachmentLocalPath = req.files?.attachment?.[0]?.path;
-  if (!attachmentLocalPath) {
+  const attachments = req.files?.attachment;
+  if (!attachment || attachment.length === 0) {
     throw new ApiError(404, 'Attachment is required');
   }
+  const attachmentsLocalPaths = attachments.map((file) => file.path);
   let attachmentphoto;
-
   try {
-    attachmentphoto = await attachment(attachmentLocalPath);
+    attachmentphoto = await attachment(attachmentsLocalPaths);
     console.log('attachment uploaded');
   } catch (error) {
     console.log('Error in uploading attachment', error);

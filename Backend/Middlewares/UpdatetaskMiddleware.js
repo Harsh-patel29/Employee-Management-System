@@ -30,6 +30,7 @@ const assignedProject = async (req, res, next) => {
     },
   ]);
   req.project = project;
+
   next();
 };
 
