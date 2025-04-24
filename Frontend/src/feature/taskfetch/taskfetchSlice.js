@@ -237,7 +237,6 @@ const taskSlice = createSlice({
   },
   reducers: {
     resetTask: (state) => {
-      state.getTaskid = null;
       state.updateTaskStatus = null;
       state.updatedTask = null;
       state.deletedTask = null;

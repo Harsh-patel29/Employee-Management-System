@@ -263,11 +263,26 @@ const deleteUploadedImage = AsyncHandler(async (req, res) => {
   if (!public_id) {
     throw new ApiError(400, 'Public id is required');
   }
+  const attachment = await Task.findOne({
+    Attachments: { $elemMatch: { public_id } },
+  });
+  const deletedAttachment = await Task.findOneAndUpdate(
+    { CODE: attachment.CODE },
+    { $pull: { Attachments: { public_id } } },
+    { new: true }
+  );
+
   try {
     await deleteFromCloudinary(public_id);
     return res
       .status(200)
-      .json(new ApiResponse(200, 'Attachment deleted successfully'));
+      .json(
+        new ApiResponse(
+          200,
+          deletedAttachment,
+          'Attachment deleted successfully'
+        )
+      );
   } catch (error) {
     throw new ApiError(
       500,

@@ -101,6 +101,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     uploadedImage,
     deletedAttachment,
     deletedTodo,
+    deletedUploadedImage,
   } = useSelector((state) => state.task);
   const [currentAttachments, setCurrentAttachments] = useState([]);
   const [attachment, setAttachment] = useState([]);
@@ -255,10 +256,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   useEffect(() => {
     if (!attachment || attachment.length === 0) return;
+    console.log('Before delete - Tasks.Attachments:', Tasks?.Attachments);
     const existingAttachments = Array.isArray(Tasks.Attachments)
       ? Tasks.Attachments
       : [];
-
+    console.log('After delete - existing attachments:', existingAttachments);
     const formattedNewAttachments = attachment.map((file) => ({
       url: file.url,
       public_id: file.public_id,
@@ -266,26 +268,29 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       format: file.format,
     }));
 
-    const isDuplicate = formattedNewAttachments.filter(
-      (newAttachment) =>
-        !existingAttachments.some(
-          (existAttach) => existAttach.public_id === newAttachment.public_id
-        )
+    const isDuplicate = formattedNewAttachments.filter((newAttachment) =>
+      existingAttachments.some(
+        (existAttach) => existAttach.public_id === newAttachment.public_id
+      )
+    );
+    const nonDuplicates = formattedNewAttachments.filter(
+      (newAtt) =>
+        !isDuplicate.some((dupAtt) => dupAtt.public_id === newAtt.public_id)
     );
 
-    if (isDuplicate.length === 0) return;
+    const newUpload = [...existingAttachments, ...nonDuplicates];
 
-    const newUpload = [...existingAttachments, ...isDuplicate];
+    console.log('newUpload result:', newUpload);
 
     handleUpdateTask('Attachments', newUpload);
     dispatch(resetUploadedImage());
-  }, [attachment, Tasks?.Attachments]);
+  }, [attachment]);
 
   useEffect(() => {
-    if (deletedAttachment?.success) {
+    if (deletedAttachment?.success || deletedUploadedImage?.success) {
       dispatch(getTaskById(taskid));
     }
-  }, [deletedAttachment]);
+  }, [deletedAttachment, deletedUploadedImage]);
 
   useEffect(() => {
     if (deletedTodo?.success) {
@@ -1927,20 +1932,9 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-red-500 text-white hover:bg-red-700"
-                        onClick={async () => {
-                          await dispatch(deleteUploadedImage(currentPublicId));
-                          if (Tasks?.Attachments) {
-                            const updatedAttachments = localAttachments.filter(
-                              (attachment) =>
-                                attachment.public_id !== currentPublicId
-                            );
-                            console.log(updatedAttachments);
-
-                            await handleUpdateTask(
-                              'Attachments',
-                              updatedAttachments
-                            );
-                          }
+                        onClick={() => {
+                          dispatch(deleteUploadedImage(currentPublicId));
+                          dispatch(resetdeleteImage());
                           setOpenTaskAttachmentDialog(false);
                         }}
                       >
