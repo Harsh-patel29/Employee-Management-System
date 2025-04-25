@@ -41,7 +41,6 @@ export const checkAuth = createAsyncThunk(
       const res = await axios.get('http://localhost:8000/api/v1/user/login', {
         withCredentials: true,
       });
-
       return res.data;
     } catch (error) {
       return rejectWithValue('Not Authenticated');

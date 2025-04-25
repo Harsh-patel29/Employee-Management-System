@@ -281,7 +281,7 @@ const ManageDetails = AsyncHandler(async (req, res) => {
 const getAllowedSettingsById = AsyncHandler(async (req, res) => {
   const id = new mongoose.Types.ObjectId(req.params);
   const Permissions = await Role.findById(id);
-  const AllowedPermissions = Permissions.access.user;
+  const AllowedPermissions = Permissions.access;
 
   return res
     .status(200)
@@ -371,9 +371,9 @@ const createRole = AsyncHandler(async (req, res, err) => {
       throw new ApiError(404, 'No permission keys found in database');
     }
 
-    const completeAccess = {
-      user: {},
-    };
+    const access = await keysSchema.find({});
+    const completeAccess = access[0].access_key;
+    console.log(completeAccess);
 
     Object.keys(allKeys.access_key.user).forEach((key) => {
       completeAccess.user[key] = false;
@@ -391,6 +391,7 @@ const createRole = AsyncHandler(async (req, res, err) => {
       name,
       access: completeAccess,
     });
+    console.log(newrole);
 
     await newrole.save();
     return res

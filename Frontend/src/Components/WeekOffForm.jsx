@@ -398,7 +398,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                                 <Button
                                   type="button"
                                   variant="default"
-                                  className="px-2 py-1 text-center shadow bg-[#6794f4]  text-[#FFFFFF] font-semibold   rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="px-2 py-1 text-center shadow bg-[#6794f4]  text-[#FFFFFF] font-semibold rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                   Select
                                 </Button>

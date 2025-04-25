@@ -148,12 +148,12 @@ export default function AdminForm({ onSubmit, mode }) {
                         ([category, permissions]) => (
                           <div
                             key={category}
-                            className="bg-[#e4f2f7] p-4 rounded-lg border border-gray-200 shadow-sm"
+                            className="bg-[#e4f2f7]  p-4 rounded-lg border border-gray-200 shadow-sm"
                           >
                             <h3 className="font-semibold capitalize text-gray-700 mb-4 text-lg">
                               {category}
                             </h3>
-                            <div className="grid gap-3">
+                            <div className="grid gap-3 cursor-pointer">
                               {Object.entries(permissions).map(
                                 ([key, value]) => (
                                   <div
@@ -164,6 +164,7 @@ export default function AdminForm({ onSubmit, mode }) {
                                       {key.replace(/_/g, ' ')}
                                     </span>
                                     <Switch
+                                      id={`${category}-${key}`}
                                       checked={
                                         field.value?.[category]?.[key] || false
                                       }
@@ -192,7 +193,7 @@ export default function AdminForm({ onSubmit, mode }) {
               />
               <Button
                 type="submit"
-                className="w-full py-3 bg-[#e4f2f7] text-gray-800 font-medium rounded-lg hover:bg-[#cce7f2] transition-colors duration-200 focus:ring-1 focus:ring-[#cce7f2] focus:ring-opacity-50"
+                className="w-full cursor-pointer py-3 bg-[#e4f2f7] text-gray-800 font-medium rounded-lg hover:bg-[#cce7f2] transition-colors duration-200 focus:ring-1 focus:ring-[#cce7f2] focus:ring-opacity-50"
               >
                 {mode === 'update' ? 'Update' : 'Create'}
               </Button>

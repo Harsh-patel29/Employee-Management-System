@@ -27,7 +27,7 @@ import {
   DialogTrigger,
 } from '../Components/components/ui/dialog';
 import { Bounce, toast } from 'react-toastify';
-
+import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 const updateAccess = (userId, key, value) => {
   return axios.put(
     `http://localhost:8000/api/v1/user/settings/fetch/${userId}`,
@@ -46,9 +46,15 @@ const Roles = () => {
   const [dialogOpen, setdialogOpen] = useState(false);
   const { roles, deletedRole } = useSelector((state) => state.getrole);
 
+  const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(getRoles());
   }, []);
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, []);
+  console.log(user.permission);
 
   useEffect(() => {
     if (roles?.message) {
@@ -83,10 +89,13 @@ const Roles = () => {
     }
   }, [detail]);
 
-  const handleToggle = (key, checked) => {
+  const handleToggle = (category, key, checked) => {
     setPermissions((prev) => ({
       ...prev,
-      [key]: checked,
+      [category]: {
+        ...prev[category],
+        [key]: checked,
+      },
     }));
     updateAccess(userid, key, checked)
       .then((response) => {})
@@ -135,7 +144,9 @@ const Roles = () => {
   return (
     <>
       <div className="absolute flex flex-col h-[80%]  bg-[#ffffff] rounded-xl  xl:w-[80%] xl:ml-30 mr-1.5 lg:w-[100%]  md:w-[90%]  sm:w-[88%] sm:ml-20 max-sm:w-[86%] transition-all duration-300">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div
+          className={`${user?.permission?.user?.can_add_user_roles ? '' : 'justify-center'} flex items-center justify-between  p-4 border-b border-gray-200`}
+        >
           <Button
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
             onClick={() => {
@@ -161,33 +172,39 @@ const Roles = () => {
             </svg>
             Go back
           </Button>
-          <h1 className="text-2xl font-semibold">Manage Access</h1>
-          <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
-            onClick={() => navigate('/create/roles/')}
+          <h1
+            className={`${user?.permission?.user?.can_add_user_roles ? '' : 'flex justify-center w-full mr-24 text-2xl font-semibold'}text-2xl font-semibold  `}
           >
-            <svg
-              className="w-6 h-6"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="#338DB5"
-              viewBox="0 0 24 24"
+            Manage Access
+          </h1>
+          {user?.permission?.user?.can_add_user_roles && (
+            <button
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+              onClick={() => navigate('/create/roles/')}
             >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 12h14m-7 7V5"
-              ></path>
-            </svg>
-            New Role
-          </button>
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="#338DB5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 12h14m-7 7V5"
+                ></path>
+              </svg>
+              New Role
+            </button>
+          )}
         </div>
         <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl xl:w-[100%]  pl-14 pr-14 lg:w-[100%] md:w-[90%] sm:w-[88%] max-sm:w-[86%] transition-all duration-300">
-          <Accordion type="single" collapsible className="w-[100%]">
+          <Accordion type="single" collapsible className="w-[100%] ">
             {Roles.map((role) => (
               <AccordionItem key={role._id} value={role._id}>
                 <AccordionTrigger
@@ -195,7 +212,7 @@ const Roles = () => {
                     e.stopPropagation();
                     toggleAccordion(role._id);
                   }}
-                  className="bg-[#cce7f2] border-[#374151]h-20 mt-4 text-2xl"
+                  className="bg-[#cce7f2] border-[#374151]  mt-4 text-2xl cursor-pointer"
                 >
                   <div
                     variant="outline"
@@ -215,83 +232,108 @@ const Roles = () => {
 
                     <span className="font-semibold">{role.name}</span>
                     <div className="flex justify-end w-full items-center gap-5 text-2xl">
-                      <FaEdit
-                        className=" font-semibold text-[#338DB5]"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/update/roles/${role._id}`);
-                        }}
-                      />
-                      <Dialog
-                        onOpenChange={(open) => {
-                          if (!open) navigate('/users/roles');
-                        }}
-                      >
-                        <DialogTrigger
-                          onClick={() => {
-                            openDialog(role._id);
+                      {user?.permission?.user?.can_update_user_roles && (
+                        <FaEdit
+                          className=" font-semibold text-[#338DB5]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/update/roles/${role._id}`);
                           }}
-                          asChild
+                        />
+                      )}
+                      {user?.permission?.user?.can_delete_user_roles && (
+                        <Dialog
+                          onOpenChange={(open) => {
+                            if (!open) navigate('/users/roles');
+                          }}
                         >
-                          <MdDelete
-                            className="font-semibold text-[#FD6E6E]"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                          <DialogTrigger
+                            onClick={() => {
+                              openDialog(role._id);
                             }}
-                          />
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Are you absolutely sure?</DialogTitle>
-                            <DialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the role.
-                              <Button
-                                className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  dispatch(deleteRole(role._id));
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </DialogDescription>
-                          </DialogHeader>
-                        </DialogContent>
-                      </Dialog>
+                            asChild
+                          >
+                            <MdDelete
+                              className="font-semibold text-[#FD6E6E] cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                            />
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you absolutely sure?
+                              </DialogTitle>
+                              <DialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the role.
+                                <Button
+                                  className="cursor-pointer flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    dispatch(deleteRole(role._id));
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </DialogDescription>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                      )}
                     </div>
                   </div>
                 </AccordionTrigger>
                 {activeAccordion === role._id && (
-                  <AccordionContent className="relative mt-2 w-[100%]  rounded-sm  bg-[#edf7fb] mb-2">
-                    <div className="flex text-2xl font-semibold justify-center capitalize">
-                      {Object.keys(role.access)}
-                    </div>
-                    {Object.keys(permissions).length > 0 ? (
-                      Object.entries(permissions).map(([key, value, index]) => (
-                        <AccordionContent
-                          key={key}
-                          index={index}
-                          className="flex w-full justify-between p-2 pl-32 pr-32 h-full items-start capitalize font-medium"
-                        >
-                          <h6 className="text-md">
-                            {Object.keys(permissions).indexOf(key) + 1} .{' '}
-                            {key.replace(/_/g, ' ')}
-                          </h6>
-                          <Switch
-                            onClick={(e) => e.stopPropagation()}
-                            checked={value}
-                            onCheckedChange={(checked) =>
-                              handleToggle(key, checked)
-                            }
-                            className="data-[state=checked]:bg-[#78adc4]"
-                          />
-                        </AccordionContent>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500">
-                        No permissions found
-                      </p>
+                  <AccordionContent className="relative mt-2 w-[100%] rounded-sm bg-[#edf7fb] mb-2">
+                    {Object.entries(permissions).map(
+                      ([category, permissionObj], index) => (
+                        <div key={index}>
+                          <div className="flex text-2xl font-semibold justify-center capitalize">
+                            {category.replace(/([A-Z])/g, ' $1').trim()}
+                          </div>
+                          {Object.keys(permissionObj).length > 0 ? (
+                            Object.entries(permissionObj).map(
+                              ([permission, value], idx) => (
+                                <div key={`${category}-${permission}`}>
+                                  <AccordionContent
+                                    key={`${category}-${permission}`}
+                                    index={index}
+                                    className="flex w-full justify-between p-2 pl-32 pr-32 h-full items-start capitalize font-medium"
+                                  >
+                                    <h6 className="flex text-md gap-1">
+                                      {idx + 1}.{' '}
+                                      <p className="capitalize">
+                                        {permission
+                                          .replace(/^_/, '')
+                                          .replace(/_/g, ' ')}
+                                      </p>
+                                    </h6>
+
+                                    <Switch
+                                      onClick={(e) => e.stopPropagation()}
+                                      checked={value}
+                                      onCheckedChange={(checked) =>
+                                        handleToggle(
+                                          category,
+                                          permission,
+                                          checked
+                                        )
+                                      }
+                                      className="data-[state=checked]:bg-[#78adc4]"
+                                    />
+                                  </AccordionContent>
+                                </div>
+                              )
+                            )
+                          ) : (
+                            <p className="text-center text-gray-500">
+                              No permissions found
+                            </p>
+                          )}
+                        </div>
+                      )
                     )}
                   </AccordionContent>
                 )}

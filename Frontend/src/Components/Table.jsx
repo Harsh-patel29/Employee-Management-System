@@ -43,6 +43,7 @@ import {
 } from '../feature/createuserfetch/createuserSlice.js';
 import Loader from '../Components/Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
+import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 function Row({
   row,
   canUpdateUser,
@@ -54,7 +55,7 @@ function Row({
   const [open, setOpen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const { updateduser } = useSelector((state) => state.createuser);
-
+  const { user } = useSelector((state) => state.auth);
   React.useEffect(() => {
     if (updateduser?.success === true) {
       setupdatesheetopen(false);
@@ -100,7 +101,8 @@ function Row({
         <TableCell sx={{ color: 'inherit' }}>{row.ReportingManager}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>
           <div className="flex items-center gap-2 justify-center">
-            {
+            {(user?.permission?.user?.can_update_user ||
+              row._id === user.user._id) && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
                 <SheetTrigger
                   onClick={() => {
@@ -108,11 +110,7 @@ function Row({
                   }}
                   asChild
                 >
-                  <FaEdit
-                    className={`${
-                      canUpdateUser ? 'font-semibold text-lg' : 'hidden'
-                    }`}
-                  />
+                  <FaEdit className="cursor-pointer font-semibold text-lg" />
                 </SheetTrigger>
                 <SheetContent
                   className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
@@ -130,47 +128,46 @@ function Row({
                   </SheetHeader>
                 </SheetContent>
               </Sheet>
-            }
-            <div className={`${isDefault ? 'hidden' : 'flex'}`}>
-              <Dialog
-                onOpenChange={(open) => {
-                  if (!open) navigate('/users');
-                }}
-              >
-                <DialogTrigger
-                  onClick={() => {
-                    openDialog(row._id);
-                  }}
-                  asChild
-                >
-                  <MdDelete
-                    className={
-                      isDefault === false
-                        ? 'font-semibold text-lg text-[#ff3b30]'
-                        : 'hidden'
-                    }
-                  />
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the user's account and remove their data from servers.
-                      <Button
-                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                        onClick={() => {
-                          dispatch(deleteuser(row._id));
-                          navigate('/users');
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </div>
+            )}
+
+            {user?.permission?.user?.can_delete_user &&
+              row.role !== 'Admin' && (
+                <div>
+                  <Dialog
+                    onOpenChange={(open) => {
+                      if (!open) navigate('/users');
+                    }}
+                  >
+                    <DialogTrigger
+                      onClick={() => {
+                        openDialog(row._id);
+                      }}
+                      asChild
+                    >
+                      <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete the user's account and remove their data from
+                          servers.
+                          <Button
+                            className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                            onClick={() => {
+                              dispatch(deleteuser(row._id));
+                              navigate('/users');
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
           </div>
         </TableCell>
       </TableRow>
@@ -403,29 +400,31 @@ export default function CollapsibleTable() {
           Users
         </h5>
         <div className="flex items-center">
-          <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
-            onClick={() => navigate('/users/roles')}
-          >
-            <svg
-              className="w-6 h-6 text-gray-800 dark:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="#338DB5"
-              viewBox="0 0 24 24"
-              style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
+          {user?.permission?.user?.can_view_user_access && (
+            <button
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
+              onClick={() => navigate('/users/roles')}
             >
-              <title>Manage User</title>
-              <path
-                fill-rule="evenodd"
-                d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-            Manage Users
-          </button>
+              <svg
+                className="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="#338DB5"
+                viewBox="0 0 24 24"
+                style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
+              >
+                <title>Manage User</title>
+                <path
+                  fill-rule="evenodd"
+                  d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              Manage Users
+            </button>
+          )}
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
               className={`

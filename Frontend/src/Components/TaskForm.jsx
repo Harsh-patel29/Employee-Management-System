@@ -987,7 +987,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               <div
                                 className={`${value.Attachments.map((file) => (file.url === '' ? '' : ''))}`}
                               ></div>
-                              <div className="grid grid-cols-7 gap-y-2 max-h-48 min-h-auto gap-1 w-full overflow-auto">
+                              <div className="grid grid-cols-7 gap-y-2 max-h-48  min-h-auto gap-1 w-full overflow-auto">
                                 {value.Attachments.map((file, index) => (
                                   <div className="ml-1">
                                     {file.url.split('.').includes('pdf') ? (
