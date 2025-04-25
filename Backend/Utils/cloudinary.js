@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import path from 'path';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,13 +9,24 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
+  if (!localFilePath) return null;
   try {
-    if (!localFilePath) return null;
+    const firstfilename = path.basename(
+      localFilePath,
+      path.extname(localFilePath)
+    );
+
+    const extname = path.extname(localFilePath);
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-CA').split('/').join('-');
+    const formattedTime = now.toLocaleTimeString('en-IN').split('-').join('/');
+
+    const filename = `${firstfilename}${formattedDate}${formattedTime}${extname}`;
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: 'image',
       folder: 'attendance',
-      use_filename: true,
-      unique_filename: false,
+      public_id: filename,
     });
     console.log('File uploaded on Cloudinary. File src:' + response.secure_url);
     fs.unlinkSync(localFilePath);
@@ -27,13 +39,25 @@ const uploadOnCloudinary = async (localFilePath) => {
 };
 
 const projectlogo = async (localFilePath) => {
+  if (!localFilePath) return null;
   try {
-    if (!localFilePath) return null;
+    const firstfilename = path.basename(
+      localFilePath,
+      path.extname(localFilePath)
+    );
+
+    const extname = path.extname(localFilePath);
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-CA').split('/').join('-');
+    const formattedTime = now.toLocaleTimeString('en-IN').split('-').join('/');
+
+    const filename = `${firstfilename}${formattedDate}${formattedTime}${extname}`;
+
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: 'image',
       folder: 'projectlogo',
-      use_filename: true,
-      unique_filename: false,
+      public_id: filename,
     });
     console.log('File uploaded on Cloudinary. File src:' + response.secure_url);
     fs.unlinkSync(localFilePath);
@@ -51,12 +75,23 @@ const taskattachments = async (filepaths) => {
   const uploadedAttachments = [];
 
   for (const localFilePath of filepaths) {
+    const firstfilename = path.basename(
+      localFilePath,
+      path.extname(localFilePath)
+    );
+
+    const extname = path.extname(localFilePath);
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-CA').split('/').join('-');
+    const formattedTime = now.toLocaleTimeString('en-IN').split('-').join('/');
+
+    const filename = `${firstfilename}${formattedDate}${formattedTime}${extname}`;
     try {
       const response = await cloudinary.uploader.upload(localFilePath, {
         resource_type: 'auto',
         folder: 'taskattachments',
-        use_filename: true,
-        unique_filename: false,
+        public_id: filename,
       });
       console.log(
         'File uploaded on Cloudinary. File src:' + response.secure_url
@@ -73,14 +108,26 @@ const taskattachments = async (filepaths) => {
 
 const attachment = async (filepaths) => {
   if (!filepaths || filepaths.length === 0) return [];
+
   const uploadedAttachments = [];
   for (const localFilePath of filepaths) {
+    const firstfilename = path.basename(
+      localFilePath,
+      path.extname(localFilePath)
+    );
+
+    const extname = path.extname(localFilePath);
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-CA').split('/').join('-');
+    const formattedTime = now.toLocaleTimeString('en-IN').split('-').join('/');
+
+    const filename = `${firstfilename}${formattedDate}${formattedTime}${extname}`;
     try {
       const response = await cloudinary.uploader.upload(localFilePath, {
         resource_type: 'auto',
         folder: 'attachment',
-        use_filename: true,
-        unique_filename: false,
+        public_id: filename,
       });
       console.log(
         'File uploaded on Cloudinary. File src:' + response.secure_url

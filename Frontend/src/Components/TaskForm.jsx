@@ -43,12 +43,17 @@ import {
   deleteUploadedImage,
   deleteTodo,
   resetdeleteImage,
+  deleteAttachedFile,
 } from '../feature/taskfetch/taskfetchSlice';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { FileText } from 'lucide-react';
+import TimePicker from 'react-time-picker';
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-clock/dist/Clock.css';
+import Loader from './Loader';
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -84,17 +89,18 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     useState(false);
   const [currentPublicId, setCurrentPublicId] = useState('');
   const [currentvalue, setCurrentvalue] = useState('');
+  const [localAttachments, setLocalAttachments] = useState([]);
+  const [hours, setHours] = useState('');
+  const [minutes, setMinutes] = useState('');
   const users = useSelector((state) => state.getuser);
   const { user } = useSelector((state) => state.auth);
-  const [localAttachments, setLocalAttachments] = useState([]);
+
   useEffect(() => {
     if (Tasks?.Attachments) {
       setLocalAttachments(Tasks.Attachments);
     }
   }, [Tasks?.Attachments]);
   const {
-    tasks,
-    createtask,
     updatedTask,
     getTaskid,
     uploadedAttachment,
@@ -102,6 +108,9 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     deletedAttachment,
     deletedTodo,
     deletedUploadedImage,
+    loading,
+    uploadedImageLoading,
+    uploadedAttachmentLoading,
   } = useSelector((state) => state.task);
   const [currentAttachments, setCurrentAttachments] = useState([]);
   const [attachment, setAttachment] = useState([]);
@@ -117,6 +126,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [openUserDialog, setOpenUserDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedDocx, setSelectedDocx] = useState(null);
   const [selectedFileType, setSelectedFileType] = useState(null);
   const [openImageDialog, setOpenImageDialog] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
@@ -161,7 +171,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       setAttachment((prev) => [...prev, ...uploadedImage?.message]);
     }
     return () => {
-      resetUploadedImage();
+      dispatch(resetUploadedImage());
     };
   }, [uploadedImage]);
 
@@ -212,11 +222,12 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     }
   }, [Tasks, reset]);
 
-  const handleUpdateTask = (fieldName, value) => {
+  const handleUpdateTask = (fieldName, value, field) => {
     const currentValues = control._formValues;
     const updatedData = {
       ...currentValues,
       [fieldName]: value,
+      field,
     };
 
     if (fieldName === 'comments') {
@@ -224,7 +235,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
         Attachments: currentAttachments.map((file) => ({
           url: file.url,
           public_id: file.public_id,
-          format: file.format,
         })),
         comment: typeof value === 'string' ? value : value.comment || '',
       };
@@ -256,16 +266,15 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   useEffect(() => {
     if (!attachment || attachment.length === 0) return;
-    console.log('Before delete - Tasks.Attachments:', Tasks?.Attachments);
+
     const existingAttachments = Array.isArray(Tasks.Attachments)
       ? Tasks.Attachments
       : [];
-    console.log('After delete - existing attachments:', existingAttachments);
+
     const formattedNewAttachments = attachment.map((file) => ({
       url: file.url,
       public_id: file.public_id,
       orignalname: file.original_filename,
-      format: file.format,
     }));
 
     const isDuplicate = formattedNewAttachments.filter((newAttachment) =>
@@ -273,14 +282,14 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
         (existAttach) => existAttach.public_id === newAttachment.public_id
       )
     );
+
     const nonDuplicates = formattedNewAttachments.filter(
       (newAtt) =>
         !isDuplicate.some((dupAtt) => dupAtt.public_id === newAtt.public_id)
     );
 
     const newUpload = [...existingAttachments, ...nonDuplicates];
-
-    console.log('newUpload result:', newUpload);
+    setAttachment(isDuplicate);
 
     handleUpdateTask('Attachments', newUpload);
     dispatch(resetUploadedImage());
@@ -289,6 +298,10 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   useEffect(() => {
     if (deletedAttachment?.success || deletedUploadedImage?.success) {
       dispatch(getTaskById(taskid));
+      toast.success('Task Updated Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   }, [deletedAttachment, deletedUploadedImage]);
 
@@ -304,6 +317,16 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       setValue('EndDate', null);
     }
   }, [Tasks]);
+
+  const handleMinutesChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      const num = parseInt(value, 10);
+      if (value === '' || (num >= 0 && num <= 59)) {
+        setMinutes(value);
+      }
+    }
+  };
 
   const projectOptions = projectName?.map((value) => ({
     label: value,
@@ -329,7 +352,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     handleUpdateTask('Users', updatedUsers);
   };
 
-  const isDeleteable = Tasks?.Users?.[0];
+  const isDeleteable = user?.user?.Name;
 
   return (
     <>
@@ -747,65 +770,76 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   <FormItem className="w-full flex flex-col mt-6 bg-white shadow-2xl border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
                     <FormLabel
                       className="flex items-start mt-2 text-[20px]  ml-5 font-[100] font-[Inter,sans-serif] 
-text-decoration-line: underline decoration-[rgb(205,179,162)]"
+                          text-decoration-line: underline decoration-[rgb(205,179,162)]"
                     >
                       Comments
                     </FormLabel>
-                    {currentAttachments.length > 0 && (
-                      <div className="flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300">
-                        {currentAttachments.map((value, index) => (
-                          <div key={index} className="relative">
-                            <div>
-                              <div
-                                className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 cursor-pointer"
-                                onClick={() => {
-                                  setCurrentvalue(value.public_id);
-                                  setOpenDialog(true);
-                                }}
-                              >
-                                <svg
-                                  class="w-4 h-4 text-red-500"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  style={{
-                                    transition: 'transform 0.3s',
-                                    transform: 'rotate(45deg)',
-                                  }}
-                                >
-                                  <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M5 12h14m-7 7V5"
-                                  />
-                                </svg>
-                              </div>
-                              {value.format === 'png' ||
-                              value.format === 'jpg' ||
-                              value.format === 'jpeg' ? (
-                                <img
-                                  src={value?.url}
-                                  alt="Attachment"
-                                  className="w-[90px] h-[90px] object-cover"
-                                />
-                              ) : (
-                                <div>
-                                  <iframe
-                                    className="h-[90px] object-cover"
-                                    src={value?.url}
-                                    frameborder="1"
-                                  ></iframe>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                    {uploadedAttachmentLoading ? (
+                      <div
+                        className="flex justify-center items-center h-10 w-full
+                      "
+                      >
+                        <Loader />
                       </div>
+                    ) : (
+                      <>
+                        {currentAttachments.length > 0 && (
+                          <div className="flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300">
+                            {currentAttachments.map((value, index) => (
+                              <div key={index} className="relative">
+                                <div>
+                                  <div
+                                    className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 mt-1  cursor-pointer"
+                                    onClick={() => {
+                                      setCurrentvalue(value.public_id);
+                                      setOpenDialog(true);
+                                    }}
+                                  >
+                                    <svg
+                                      class="w-4 h-4 text-red-500"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      style={{
+                                        transition: 'transform 0.3s',
+                                        transform: 'rotate(45deg)',
+                                      }}
+                                    >
+                                      <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 12h14m-7 7V5"
+                                      />
+                                    </svg>
+                                  </div>
+                                  {value.url.split('.').includes('docx') ||
+                                  value.url.split('.').includes('xlsx') ||
+                                  value.url.split('.').includes('pptx') ? (
+                                    <div>
+                                      <FileText className="w-[90px] h-[90px] object-cover text-[rgb(51,141,181)]" />
+                                    </div>
+                                  ) : value.url.split('.').includes('pdf') ? (
+                                    <div>
+                                      <FileText className="h-[90px] w-[90px] object-cover text-[rgb(51,141,181)]" />
+                                    </div>
+                                  ) : (
+                                    <img
+                                      src={value?.url}
+                                      alt="Attachment"
+                                      className="w-[90px] h-[90px] object-cover"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
                     <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
                       <AlertDialogContent>
@@ -821,7 +855,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           <AlertDialogAction
                             className="bg-red-500 text-white hover:bg-red-700"
                             onClick={() => {
-                              dispatch(deleteUploadedImage(currentvalue));
+                              dispatch(deleteAttachedFile(currentvalue));
                               setCurrentAttachments(
                                 currentAttachments.filter(
                                   (attachment) =>
@@ -842,7 +876,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           id="comments"
                           name="comments"
                           type="text"
-                          className="shadow h-10 mt-3 mb-3 w-[98%] ml-2 bg-[rgba(249,249,249,0.65)]"
+                          className="shadow h-10 mt-3 mb-3 w-[98%] ml-2  bg-[rgba(249,249,249,0.65)]"
                           style={{
                             border: '1px solid #338db5',
                             borderRadius: '20px',
@@ -884,7 +918,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                         />
                         <button
                           id="comment-send-button"
-                          className="mb-3"
+                          className="mb-3 disabled:cursor-not-allowed "
                           onClick={() => {
                             handleUpdateTask('comments', {
                               Attachments:
@@ -896,7 +930,10 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             });
                             field.onChange('');
                           }}
-                          disabled={uploadedAttachment?.loading}
+                          disabled={
+                            currentAttachments.length === 0 &&
+                            field.value === ''
+                          }
                         >
                           <svg
                             stroke="currentColor"
@@ -913,6 +950,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                         </button>
                       </div>
                     </div>
+
                     <div className="max-h-[320px] overflow-y-auto flex flex-col gap-2">
                       {Tasks.comments?.map((value) => (
                         <div key={value._id} className="h-auto">
@@ -929,9 +967,11 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                     .join('')
                                     .toUpperCase()}
                             </p>
-                            <div className="flex flex-col bg-[rgba(249,249,249,0.65)] rounded-2xl p-2 mr-7 justify-center border-2 border-[rgb(226,226,226)] w-full">
+                            <div className="flex flex-col bg-[rgba(249,249,249,0.65)] rounded-2xl  p-2 mr-7 overflow-y-auto mt-2  justify-center border-2 border-[rgb(226,226,226)] w-full">
                               <div className="flex items-center gap-6">
-                                <p>{value.user || user.user.Name}</p>
+                                <p className="ml-3">
+                                  {value.user || user.user.Name}
+                                </p>
                                 <p className="text-[rgb(115,115,115)]">
                                   {value.createdAt
                                     ? format(
@@ -941,22 +981,36 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                     : ''}
                                 </p>
                               </div>
-                              <p className="text-[rgb(115,115,115)] ml-2">
+                              <p className="text-[rgb(115,115,115)] ml-2 mb-2 mt-2">
                                 {value.comment}
                               </p>
                               <div
-                                className={`${value.Attachments.map((file) => (file.url === '' ? 'w-0 h-0' : ''))}`}
+                                className={`${value.Attachments.map((file) => (file.url === '' ? '' : ''))}`}
                               ></div>
-                              <div className="flex gap-2">
+                              <div className="grid grid-cols-7 gap-y-2 max-h-48 min-h-auto gap-1 w-full overflow-auto">
                                 {value.Attachments.map((file, index) => (
-                                  <div className="ml-2">
-                                    {file.format === 'pdf' ? (
+                                  <div className="ml-1">
+                                    {file.url.split('.').includes('pdf') ? (
                                       <div
                                         key={index}
                                         className="w-[90px] h-[90px] cursor-pointer"
                                         onClick={() => {
                                           setSelectedFileType('pdf');
                                           setSelectedFile(file.url);
+                                          setOpenImageDialog(true);
+                                        }}
+                                      >
+                                        <FileText className="w-[90%] h-[90%] text-[rgb(51,141,181)]" />
+                                      </div>
+                                    ) : file.url.split('.').includes('docx') ||
+                                      file.url.split('.').includes('pptx') ||
+                                      file.url.split('.').includes('xlsx') ? (
+                                      <div
+                                        key={index}
+                                        className="w-[90px] h-[90px] cursor-pointer"
+                                        onClick={() => {
+                                          setSelectedFileType('docx');
+                                          setSelectedDocx(file.url);
                                           setOpenImageDialog(true);
                                         }}
                                       >
@@ -982,49 +1036,59 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           </div>
                         </div>
                       ))}
-                      {openImageDialog && (selectedFile || selectedImage) && (
-                        <div
-                          className="fixed inset-0  flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm"
-                          onClick={() => {
-                            setOpenImageDialog(false);
-                          }}
-                        >
+                      {openImageDialog &&
+                        (selectedFile || selectedImage || selectedDocx) && (
                           <div
-                            className="relative bg-gradient-to-br bg-white  p-6 rounded-xl shadow-2xl  max-h-[95%] border border-slate-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            className="fixed inset-0  flex items-center justify-center z-50 bg-black/70 backdrop-blur-sm"
+                            onClick={() => {
+                              setOpenImageDialog(false);
                             }}
                           >
-                            <div className="flex justify-between pb-4">
-                              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
-                                Media Viewer
-                              </h1>
-                              <button
-                                className="font-bold text-2xl text-gray-300 hover:text-red-400 transition-colors"
-                                onClick={() => setOpenImageDialog(false)}
-                              >
-                                &times;
-                              </button>
-                            </div>
-                            {selectedFileType === 'image' ? (
-                              <img
-                                src={selectedImage}
-                                alt="Full View"
-                                className="flex max-w-full max-h-[80vh] rounded-lg shadow-lg"
-                              />
-                            ) : (
-                              <div className="relative w-180 h-150">
-                                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                  <Viewer
-                                    fileUrl={selectedFile}
-                                    plugins={[defaultLayoutPluginInstance]}
-                                  />
-                                </Worker>
+                            <div
+                              className="relative bg-gradient-to-br bg-white  p-6 rounded-xl shadow-2xl  max-h-[95%] border border-slate-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                            >
+                              <div className="flex justify-between pb-4">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
+                                  Media Viewer
+                                </h1>
+                                <button
+                                  className="font-bold text-2xl text-gray-300 hover:text-red-400 transition-colors cursor-pointer"
+                                  onClick={() => setOpenImageDialog(false)}
+                                >
+                                  &times;
+                                </button>
                               </div>
-                            )}
+                              {selectedFileType === 'image' ? (
+                                <img
+                                  src={selectedImage}
+                                  alt="Full View"
+                                  className="flex max-w-full max-h-[80vh] rounded-lg shadow-lg"
+                                />
+                              ) : selectedFileType === 'docx' ? (
+                                <div className="relative w-180 h-150">
+                                  <iframe
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedDocx)}&embedded=true`}
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="relative w-180 h-150">
+                                  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                    <Viewer
+                                      fileUrl={selectedFile}
+                                      plugins={[defaultLayoutPluginInstance]}
+                                    />
+                                  </Worker>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   </FormItem>
                 )}
@@ -1093,9 +1157,11 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             {...field}
                             onChange={(selectedOption) => {
                               field.onChange(selectedOption.value);
-                              handleUpdateTask('Project', selectedOption.value);
-                              setSelectedUsers([]);
-                              handleUpdateTask('Users', '');
+                              handleUpdateTask(
+                                'Project',
+                                selectedOption.value,
+                                'Project'
+                              );
                             }}
                             options={projectOptions}
                           />
@@ -1124,7 +1190,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             <path d="M11.1115 12C11.5662 14.004 13.3584 15.5 15.5 15.5C17.6416 15.5 19.4338 14.004 19.8885 12H22V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V12H11.1115ZM5 16H7V18H5V16ZM15.5 13.5C14.1193 13.5 13 12.3807 13 11C13 9.61929 14.1193 8.5 15.5 8.5C16.8807 8.5 18 9.61929 18 11C18 12.3807 16.8807 13.5 15.5 13.5ZM11.1115 10H2V4C2 3.44772 2.44772 3 3 3H21C21.5523 3 22 3.44772 22 4V10H19.8885C19.4338 7.99601 17.6416 6.5 15.5 6.5C13.3584 6.5 11.5662 7.99601 11.1115 10Z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-w-10">
                           Status:
                         </h2>
                         <FormControl>
@@ -1270,59 +1336,86 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             <path d="M436 160H12c-6.6 0-12-5.4-12-12v-36c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48v36c0 6.6-5.4 12-12 12zM12 192h424c6.6 0 12 5.4 12 12v260c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V204c0-6.6 5.4-12 12-12zm316 140c0-6.6-5.4-12-12-12h-60v-60c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v60h-60c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h60v60c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12v-60h60c6.6 0 12-5.4 12-12v-40z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] ">
                           Start Date:
                         </h2>
-                        <FormControl>
-                          <Popover>
-                            <PopoverTrigger>
-                              <Input
-                                type="text"
-                                style={{
-                                  border: 'none',
-                                  outline: 'none',
-                                  boxShadow: 'none',
-                                }}
-                                value={
-                                  field.value
-                                    ? new Date(field.value)
-                                        .toLocaleDateString('en-GB')
-                                        .split('/')
-                                        .join('-')
-                                    : ''
-                                }
-                                onChange={field.onChange}
-                                placeholder="Start Date"
-                              ></Input>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0 w-0 h-0">
-                              <DatePicker
-                                selected={field.value ? startDate : null}
-                                onChange={(date) => {
-                                  if (date) {
-                                    setStartDate(date);
-                                    const localDate = new Date(
-                                      date.getTime() -
-                                        date.getTimezoneOffset() * 60000
-                                    );
-                                    field.onChange(
-                                      localDate.toISOString().split('T')[0]
-                                    );
-                                    handleUpdateTask(
-                                      'StartDate',
-                                      localDate.toISOString().split('T')[0]
-                                    );
+                        <div className="flex w-[30%] items-center">
+                          <FormControl>
+                            <Popover>
+                              <PopoverTrigger>
+                                <Input
+                                  className="text-[rgb(120,122,126)]"
+                                  type="text"
+                                  style={{
+                                    border: 'none',
+                                    outline: 'none',
+                                    boxShadow: 'none',
+                                  }}
+                                  value={
+                                    field.value
+                                      ? new Date(field.value)
+                                          .toLocaleDateString('en-GB')
+                                          .split('/')
+                                          .join('-')
+                                      : ''
                                   }
-                                }}
-                                inline
-                                dateFormat="yyyy-MM-dd"
-                                showYearDropdown
-                                scrollableYearDropdown
-                                yearDropdownItemNumber={100}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </FormControl>
+                                  onChange={field.onChange}
+                                  placeholder="Start Date"
+                                ></Input>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0 w-0 h-0">
+                                <DatePicker
+                                  selected={field.value ? startDate : null}
+                                  onChange={(date) => {
+                                    if (date) {
+                                      setStartDate(date);
+                                      const localDate = new Date(
+                                        date.getTime() -
+                                          date.getTimezoneOffset() * 60000
+                                      );
+                                      field.onChange(
+                                        localDate.toISOString().split('T')[0]
+                                      );
+                                      handleUpdateTask(
+                                        'StartDate',
+                                        localDate.toISOString().split('T')[0]
+                                      );
+                                    }
+                                  }}
+                                  inline
+                                  dateFormat="yyyy-MM-dd"
+                                  showYearDropdown
+                                  scrollableYearDropdown
+                                  yearDropdownItemNumber={100}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </FormControl>
+                          {Tasks?.StartDate && (
+                            <button
+                              className="cursor-pointer"
+                              onClick={() => {
+                                handleUpdateTask('StartDate', '');
+                              }}
+                            >
+                              <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="rgb(51,141,181)"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </FormLabel>
                     </FormItem>
                   )}
@@ -1347,62 +1440,88 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                             <path d="M436 160H12c-6.6 0-12-5.4-12-12v-36c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48v36c0 6.6-5.4 12-12 12zM12 192h424c6.6 0 12 5.4 12 12v260c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V204c0-6.6 5.4-12 12-12zm257.3 160l48.1-48.1c4.7-4.7 4.7-12.3 0-17l-28.3-28.3c-4.7-4.7-12.3-4.7-17 0l-48.1 48.1-48.1-48.1c-4.7-4.7-12.3-4.7-17 0l-28.3 28.3c-4.7 4.7-4.7 12.3 0 17l48.1 48.1-48.1 48.1c-4.7 4.7-4.7 12.3 0 17l28.3 28.3c4.7 4.7 12.3 4.7 17 0l48.1-48.1 48.1 48.1c4.7 4.7 12.3 4.7 17 0l28.3-28.3c4.7-4.7 4.7-12.3 0-17L269.3 352z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-w-18">
                           End Date:
                         </h2>
-                        <FormControl>
-                          <Popover>
-                            <PopoverTrigger>
-                              <Input
-                                disabled={!Tasks?.StartDate}
-                                type=""
-                                style={{
-                                  border: 'none',
-                                  outline: 'none',
-                                  boxShadow: 'none',
-                                }}
-                                value={
-                                  field.value
-                                    ? new Date(field.value)
-                                        .toLocaleDateString('en-GB')
-                                        .split('/')
-                                        .join('-')
-                                    : ''
-                                }
-                                onChange={field.onChange}
-                                placeholder="End Date"
-                              ></Input>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0 w-20 h-0">
-                              <DatePicker
-                                className="p-0 "
-                                selected={field.value ? endDate : null}
-                                onChange={(date) => {
-                                  if (date) {
-                                    setEndDate(date);
-                                    const localDate = new Date(
-                                      date.getTime() -
-                                        date.getTimezoneOffset() * 60000
-                                    );
-                                    field.onChange(
-                                      localDate.toISOString().split('T')[0]
-                                    );
-                                    handleUpdateTask(
-                                      'EndDate',
-                                      localDate.toISOString().split('T')[0]
-                                    );
+                        <div className="flex w-[30%] items-center">
+                          <FormControl>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Input
+                                  className="text-[rgb(120,122,126)]"
+                                  disabled={!Tasks?.StartDate}
+                                  type=""
+                                  style={{
+                                    border: 'none',
+                                    outline: 'none',
+                                    boxShadow: 'none',
+                                  }}
+                                  value={
+                                    field.value
+                                      ? new Date(field.value)
+                                          .toLocaleDateString('en-GB')
+                                          .split('/')
+                                          .join('-')
+                                      : ''
                                   }
-                                }}
-                                minDate={Tasks?.StartDate}
-                                inline
-                                dateFormat="yyyy-MM-dd"
-                                showYearDropdown
-                                scrollableYearDropdown
-                                yearDropdownItemNumber={100}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </FormControl>
+                                  onChange={field.onChange}
+                                  placeholder="End Date"
+                                />
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0 w-20 h-0">
+                                <DatePicker
+                                  selected={field.value ? endDate : null}
+                                  onChange={(date) => {
+                                    if (date) {
+                                      setEndDate(date);
+                                      const localDate = new Date(
+                                        date.getTime() -
+                                          date.getTimezoneOffset() * 60000
+                                      );
+                                      field.onChange(
+                                        localDate.toISOString().split('T')[0]
+                                      );
+                                      handleUpdateTask(
+                                        'EndDate',
+                                        localDate.toISOString().split('T')[0]
+                                      );
+                                    }
+                                  }}
+                                  minDate={Tasks?.StartDate}
+                                  inline
+                                  dateFormat="yyyy-MM-dd"
+                                  showYearDropdown
+                                  scrollableYearDropdown
+                                  yearDropdownItemNumber={100}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </FormControl>
+                          {Tasks?.EndDate && (
+                            <button
+                              className="cursor-pointer"
+                              onClick={() => {
+                                handleUpdateTask('EndDate', '');
+                              }}
+                            >
+                              <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="rgb(51,141,181)"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </FormLabel>
                     </FormItem>
                   )}
@@ -1435,36 +1554,62 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                         <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Estimated Time:
                         </h2>
-
                         {showEstimatedTimeField && (
                           <FormControl>
-                            <Input
-                              name="time"
-                              type="time"
-                              format="HH:mm"
-                              step="60"
-                              max="23:59"
-                              placeholder=""
-                              style={{
-                                border: 'none',
-                                outline: 'none',
-                                boxShadow: 'none',
-                              }}
-                              className="flex w-[20%]"
+                            <div
+                              className="flex items-center gap-2  text-sm text-[rgb(115,122,126)]"
                               {...field}
-                            />
+                            >
+                              <input
+                                type="number"
+                                value={hours}
+                                onChange={(e) => setHours(e.target.value)}
+                                placeholder="Hours"
+                                min="0"
+                                className="w-17 px-2 py-1 text-sm text-center text-gray-800 rounded-md focus:outline-none"
+                              />
+
+                              <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                                :
+                              </span>
+                              <input
+                                type="text"
+                                value={minutes}
+                                onChange={handleMinutesChange}
+                                placeholder="Minutes"
+                                className="w-16 px-2 py-1 text-sm text-center text-gray-800  rounded-md focus:outline-none"
+                              />
+                            </div>
                           </FormControl>
                         )}
                         {Tasks?.EstimatedTime &&
                           showEstimatedTimeField === false && (
-                            <div>{Tasks?.EstimatedTime}</div>
+                            <div className="text-[rgb(120,122,126)]">
+                              {Tasks?.EstimatedTime}
+                            </div>
                           )}
                         <button
                           className={
                             showEstimatedTimeField ? 'cursor-pointer' : 'hidden'
                           }
                           onClick={() => {
-                            handleUpdateTask('EstimatedTime', field.value);
+                            const [existingHours, existingMinutes] = (
+                              field.value || '0:00'
+                            ).split(':');
+
+                            const finalHours =
+                              hours !== '' ? hours : existingHours;
+                            const finalMinutes =
+                              minutes !== '' ? minutes : existingMinutes;
+
+                            const paddedMinutes = finalMinutes
+                              .toString()
+                              .padStart(2, '0');
+
+                            handleUpdateTask(
+                              'EstimatedTime',
+                              `${finalHours}:${paddedMinutes}`
+                            );
                           }}
                         >
                           <svg
@@ -1605,8 +1750,12 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                     ]
                                   : [...Tasks.Users];
                                 field.onChange(updatedUsers);
-                                handleUpdateTask('Users', updatedUsers);
                                 setSelectedUsers(updatedUsers);
+                                handleUpdateTask(
+                                  'Users',
+                                  updatedUsers,
+                                  'Users'
+                                );
                               }}
                               options={asigneeOptions}
                             />
@@ -1664,16 +1813,16 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                       {showUserDropDown === true &&
                         Tasks?.Users &&
                         Tasks?.Users?.length > 0 && (
-                          <div className="h-auto min-h-11 items-center  rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)]">
+                          <div className="h-auto min-h-11 items-center flex rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)]">
                             {Tasks?.Users && showUserDropDown === true && (
-                              <div className="flex flex-col justify-end font-light text-[15px] font-[rgb(115,115,115)]">
+                              <div className="flex flex-col w-[98%] justify-end font-light text-[15px] font-[rgb(115,115,115)]">
                                 {Tasks?.Users?.map((user, index) => (
                                   <div
                                     key={index}
-                                    className="cursor-pointer flex justify-between items-center h-auto pt-1 pb-1 pr-2"
+                                    className="cursor-pointer flex justify-between items-center h-auto pb-2 pt-1"
                                   >
                                     <span className="flex gap-4 items-center">
-                                      <p className="ml-1 bg-[rgba(61,66,179,0.92)] text-white rounded-full w-8 h-8 flex items-center justify-center">
+                                      <p className="bg-[rgba(61,66,179,0.92)] text-white text-center rounded-full w-7 h-7 flex items-center  justify-center">
                                         {user
                                           .split(' ')
                                           .map((name) => name[0])
@@ -1743,6 +1892,7 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+
                 <FormField
                   control={control}
                   name="Attachments"
@@ -1765,25 +1915,31 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                           </svg>
                         </div>
                         <div className="flex w-full justify-start gap-4">
-                          <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
+                          <h2 className="text-[rgb(120, 122, 126)] text-[15px] ">
                             Attachments {`(${Tasks?.Attachments?.length})`}:
                           </h2>
-                          <label className="cursor-pointer ">
-                            <svg
-                              class="w-6 h-6"
-                              stroke="currentColor"
-                              fill="rgb(51,141,181)"
-                              stroke-width="0"
-                              viewBox="0 0 512 512"
-                              height="24"
-                              width="24"
-                              xmlns="http://www.w3.org/2000/svg"
-                              style={{ transition: 'transform 0.3s' }}
-                            >
-                              <title>add</title>
-                              <path d="M363 277h-86v86h-42v-86h-86v-42h86v-86h42v86h86v42z"></path>
-                              <path d="M256 90c44.3 0 86 17.3 117.4 48.6C404.7 170 422 211.7 422 256s-17.3 86-48.6 117.4C342 404.7 300.3 422 256 422c-44.3 0-86-17.3-117.4-48.6C107.3 342 90 300.3 90 256c0-44.3 17.3-86 48.6-117.4C170 107.3 211.7 90 256 90m0-42C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48z"></path>
-                            </svg>
+                          <label className="cursor-pointer">
+                            {uploadedImageLoading ? (
+                              <div className="flex justify-center items-center h-6 w-6">
+                                <Loader height={30} width={30} />
+                              </div>
+                            ) : (
+                              <svg
+                                class="w-6 h-6"
+                                stroke="currentColor"
+                                fill="rgb(51,141,181)"
+                                stroke-width="0"
+                                viewBox="0 0 512 512"
+                                height="24"
+                                width="24"
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ transition: 'transform 0.3s' }}
+                              >
+                                <title>add</title>
+                                <path d="M363 277h-86v86h-42v-86h-86v-42h86v-86h42v86h86v42z"></path>
+                                <path d="M256 90c44.3 0 86 17.3 117.4 48.6C404.7 170 422 211.7 422 256s-17.3 86-48.6 117.4C342 404.7 300.3 422 256 422c-44.3 0-86-17.3-117.4-48.6C107.3 342 90 300.3 90 256c0-44.3 17.3-86 48.6-117.4C170 107.3 211.7 90 256 90m0-42C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48z"></path>
+                              </svg>
+                            )}
                             <input
                               type="file"
                               id="attachment-button"
@@ -1872,17 +2028,35 @@ text-decoration-line: underline decoration-[rgb(205,179,162)]"
                                         <h6
                                           className="hover:text-[rgb(51,141,181)]"
                                           onClick={() => {
-                                            if (file.format === 'pdf') {
+                                            if (
+                                              file.url
+                                                .split('.')
+                                                .includes('pdf')
+                                            ) {
                                               setSelectedFileType('pdf');
+                                            } else if (
+                                              file.url
+                                                .split('.')
+                                                .includes('docx') ||
+                                              file.url
+                                                .split('.')
+                                                .includes('pptx') ||
+                                              file.url
+                                                .split('.')
+                                                .includes('xlsx')
+                                            ) {
+                                              setSelectedFileType('docx');
                                             } else {
                                               setSelectedFileType('image');
                                             }
                                             setSelectedFile(file.url);
                                             setSelectedImage(file.url);
+                                            setSelectedDocx(file.url);
                                             setOpenImageDialog(true);
                                           }}
                                         >
-                                          {file.orignalname}.{file.format}
+                                          {file.orignalname}.
+                                          {file.url.split('.')[3]}
                                         </h6>
                                       </span>
                                       <svg

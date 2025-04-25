@@ -35,9 +35,6 @@ const taskSchema = new Schema(
             public_id: {
               type: String,
             },
-            format: {
-              type: String,
-            },
           },
         ],
         comment: {
@@ -87,9 +84,6 @@ const taskSchema = new Schema(
           type: String,
         },
         orignalname: {
-          type: String,
-        },
-        format: {
           type: String,
         },
       },

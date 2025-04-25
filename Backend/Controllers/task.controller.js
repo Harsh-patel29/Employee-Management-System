@@ -118,6 +118,8 @@ const updateTask = AsyncHandler(async (req, res) => {
   const todoIndex = req.body.todoIndex;
   const todoStatus = req.body.todoStatus;
   const comments = req.body.comments;
+  const isProjectUpdated = req.body.field === 'Project';
+  const isUsersUpdated = req.body.field === 'Users';
   try {
     const task = await Task.findOne({ CODE: id });
     if (!task) {
@@ -158,14 +160,17 @@ const updateTask = AsyncHandler(async (req, res) => {
     updateData.$set = updateData.$set || {};
     updateData.$push = updateData.$push || {};
 
-    if (updateData.Project) {
+    if (isProjectUpdated) {
       updateData.Users = req.user.Name;
-    }
-    if (req.body.Users) {
+      updateData.Asignee = req.user.Name;
+    } else if (isUsersUpdated && req.body.Users) {
       updateData.Users = req.body.Users;
     }
 
-    if (updateData.StartDate > updateData.EndDate) {
+    if (
+      updateData.StartDate > updateData.EndDate ||
+      updateData.StartDate === ''
+    ) {
       updateData.EndDate = '';
     }
 
@@ -260,12 +265,15 @@ const Attachment = AsyncHandler(async (req, res) => {
 
 const deleteUploadedImage = AsyncHandler(async (req, res) => {
   const { public_id } = req.body;
+  console.log(public_id);
   if (!public_id) {
     throw new ApiError(400, 'Public id is required');
   }
   const attachment = await Task.findOne({
     Attachments: { $elemMatch: { public_id } },
   });
+  console.log(attachment);
+
   const deletedAttachment = await Task.findOneAndUpdate(
     { CODE: attachment.CODE },
     { $pull: { Attachments: { public_id } } },
@@ -292,6 +300,17 @@ const deleteUploadedImage = AsyncHandler(async (req, res) => {
   }
 });
 
+const deleteAttachedFile = AsyncHandler(async (req, res) => {
+  const { public_id } = req.body;
+  if (!public_id) {
+    throw new ApiError(400, 'Public id is required');
+  }
+  await deleteFromCloudinary(public_id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Attached File Deleted Successfully'));
+});
+
 const deleteAttachment = AsyncHandler(async (req, res) => {
   const { public_id } = req.body;
   if (!public_id) {
@@ -310,6 +329,7 @@ const deleteAttachment = AsyncHandler(async (req, res) => {
       { $pull: { Attachments: { public_id } } },
       { new: true }
     );
+
     await deleteFromCloudinary(public_id);
     return res
       .status(200)
@@ -365,4 +385,5 @@ export {
   deleteAttachment,
   deleteUploadedImage,
   removeTodo,
+  deleteAttachedFile,
 };

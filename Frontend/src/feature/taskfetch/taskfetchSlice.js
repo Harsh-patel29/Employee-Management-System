@@ -200,6 +200,23 @@ export const deleteUploadedImage = createAsyncThunk(
   }
 );
 
+export const deleteAttachedFile = createAsyncThunk(
+  'auth/deleteAttachedFile',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8000/api/v4/tasks/delete-attachedFile`,
+        { data: { public_id: data }, withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data?.message || error?.message || error
+      );
+    }
+  }
+);
+
 export const deleteTodo = createAsyncThunk(
   'auth/deleteTodo',
   async ({ data, id }, { rejectWithValue }) => {
@@ -229,9 +246,12 @@ const taskSlice = createSlice({
     createtask: null,
     getTaskid: null,
     uploadedAttachment: null,
+    uploadedAttachmentLoading: false,
     uploadedImage: null,
+    uploadedImageLoading: false,
     deletedAttachment: null,
     deletedUploadedImage: null,
+    deletedAttachedFile: null,
     loading: false,
     error: null,
   },
@@ -249,6 +269,9 @@ const taskSlice = createSlice({
     },
     resetdeleteImage: (state) => {
       state.deletedUploadedImage = null;
+    },
+    resetdeletedAttachedFile: (state) => {
+      state.deletedAttachedFile = null;
     },
   },
   extraReducers: (builder) => {
@@ -326,28 +349,28 @@ const taskSlice = createSlice({
         state.loading = false;
       })
       .addCase(uploadAttachment.pending, (state) => {
-        state.loading = true;
+        state.uploadedAttachmentLoading = true;
         state.error = null;
       })
       .addCase(uploadAttachment.fulfilled, (state, action) => {
         state.uploadedAttachment = action.payload;
-        state.loading = false;
+        state.uploadedAttachmentLoading = false;
       })
       .addCase(uploadAttachment.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
+        state.uploadedAttachmentLoading = false;
       })
       .addCase(Attachment.pending, (state) => {
-        state.loading = true;
+        state.uploadedImageLoading = true;
         state.error = null;
       })
       .addCase(Attachment.fulfilled, (state, action) => {
         state.uploadedImage = action.payload;
-        state.loading = false;
+        state.uploadedImageLoading = false;
       })
       .addCase(Attachment.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
+        state.uploadedImageLoading = false;
       })
       .addCase(deleteAttachment.pending, (state) => {
         state.loading = true;
@@ -384,10 +407,26 @@ const taskSlice = createSlice({
       .addCase(deleteTodo.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(deleteAttachedFile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAttachedFile.fulfilled, (state, action) => {
+        state.deletedAttachedFile = action.payload;
+        state.loading = false;
+      })
+      .addCase(deleteAttachedFile.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
 
-export const { resetTask, resetUploadedImage, resetdeleteImage } =
-  taskSlice.actions;
+export const {
+  resetTask,
+  resetUploadedImage,
+  resetdeleteImage,
+  resetdeletedAttachedFile,
+} = taskSlice.actions;
 export default taskSlice.reducer;

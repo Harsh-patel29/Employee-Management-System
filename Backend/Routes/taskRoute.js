@@ -11,6 +11,7 @@ import {
   deleteAttachment,
   deleteUploadedImage,
   removeTodo,
+  deleteAttachedFile,
 } from '../Controllers/task.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { upload } from '../Middlewares/multer.Middleware.js';
@@ -65,6 +66,7 @@ router.route('/delete-attachment').delete(authenticate, deleteAttachment);
 router
   .route('/delete-uploaded-image')
   .delete(authenticate, deleteUploadedImage);
+router.route('/delete-attachedFile').delete(authenticate, deleteAttachedFile);
 router.route('/deletetask/:id').delete(authenticate, deleteTask);
 router.route('/remove-todo/:id').post(authenticate, removeTodo);
 export default router;
