@@ -6,7 +6,9 @@ import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
+import TableHead from '@mui/material/TableHead';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { useNavigate, useParams } from 'react-router';
@@ -173,8 +175,11 @@ function Row({
       </TableRow>
       <TableRow>
         <TableCell
-          style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={10}
+          style={{
+            paddingBottom: 0,
+            paddingTop: 0,
+          }}
+          colSpan={9}
           sx={{
             backgroundColor: 'white',
             color: 'black',
@@ -182,19 +187,52 @@ function Row({
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                Additional Details
-              </Typography>
-              <Typography variant="body2">
-                DOJ: {row.DATE_OF_JOINING}
-              </Typography>
-              <Typography variant="body2">
-                Mobile: {row.Mobile_Number}
-              </Typography>
-              <Typography variant="body2">Email: {row.Email}</Typography>
-              <Typography variant="body2">
-                Date of Birth: {row.Date_of_Birth}
-              </Typography>
+              <Table
+                sx={{
+                  alignContent: 'center',
+                }}
+              >
+                <TableHead
+                  sx={{
+                    backgroundColor: '#c1dde9',
+                  }}
+                >
+                  <TableRow
+                    sx={{ borderRadius: 2 }}
+                    className=" border-gray-200 border-2"
+                  >
+                    <TableCell className="border-2 border-gray-200">
+                      Date of Joining
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      Mobile Number
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      Email
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      Date of Birth
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow className="border-2 border-gray-200">
+                    {console.log(row)}
+                    <TableCell className="border-2 border-gray-200">
+                      {row.DATE_OF_JOINING}
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      {row.Mobile_Number}
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      {row.Email}
+                    </TableCell>
+                    <TableCell className="border-2 border-gray-200">
+                      {row.Date_of_Birth}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </Box>
           </Collapse>
         </TableCell>

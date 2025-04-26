@@ -373,7 +373,6 @@ const createRole = AsyncHandler(async (req, res, err) => {
 
     const access = await keysSchema.find({});
     const completeAccess = access[0].access_key;
-    console.log(completeAccess);
 
     Object.keys(allKeys.access_key.user).forEach((key) => {
       completeAccess.user[key] = false;
@@ -391,14 +390,12 @@ const createRole = AsyncHandler(async (req, res, err) => {
       name,
       access: completeAccess,
     });
-    console.log(newrole);
 
     await newrole.save();
     return res
       .status(200)
       .json(new ApiResponse(200, newrole, 'New Role created Successfully'));
   } catch (error) {
-    console.log(error);
     throw new ApiError(
       500,
       error,

@@ -20,8 +20,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { getUser } from '../feature/datafetch/userfetchSlice';
-('react-redux');
+import { getUser } from '../feature/datafetch/userfetchSlice.js';
+import { fetchuser } from '../feature/createuserfetch/createuserSlice.js';
+import Select from 'react-select';
 
 const formSchema = z.object({
   Name: z.string().min(1, { message: 'Name is Required' }),
@@ -37,21 +38,21 @@ const formSchema = z.object({
     .string()
     .regex(/^\d+$/, { message: 'Please enter a valid mobile number' })
     .min(8, { message: 'Please enter valid mobile Number' }),
-  Gender: z.enum(['MALE', 'FEMALE'], { message: 'Select Gender' }),
+  Gender: z.string().min(1, { message: 'Select Gender' }),
   DATE_OF_JOINING: z
     .string()
     .min(1, { message: 'Date of Joining is required' }),
   Designation: z.string(),
   WeekOff: z.string(),
-  role: z.enum(['Admin', 'Developer', 'HR', 'Product_Manager'], {
-    message: 'Select Role',
-  }),
-  ReportingManager: z.string(),
+  role: z.string().min(1, { message: 'Select Role' }),
+  ReportingManager: z.string().optional(),
 });
 
 export default function AdminForm({ onSubmit, mode }) {
   const users = useSelector((state) => state.getuser);
   const { user } = useSelector((state) => state.auth);
+  const { roles } = useSelector((state) => state.getrole);
+  const { fetchusers } = useSelector((state) => state.createuser);
   const dispatch = useDispatch();
   const { id } = useParams();
 
@@ -60,6 +61,9 @@ export default function AdminForm({ onSubmit, mode }) {
       dispatch(getUser(id));
     }
   }, [dispatch, id, mode]);
+  useEffect(() => {
+    dispatch(fetchuser());
+  }, []);
 
   const {
     control,
@@ -108,6 +112,19 @@ export default function AdminForm({ onSubmit, mode }) {
 
   const theme = useSelector((state) => state.theme.theme);
 
+  const rolesOptions = roles?.message.map((role) => ({
+    label: role.name,
+    value: role.name,
+  }));
+
+  const usersOptions = fetchusers?.message.map((user) => ({
+    label: user.Name,
+    value: user.Name,
+  }));
+  const genderOptions = [
+    { value: 'MALE', label: 'MALE' },
+    { value: 'FEMALE', label: 'FEMALE' },
+  ];
   return (
     <>
       <Form {...control}>
@@ -206,7 +223,7 @@ export default function AdminForm({ onSubmit, mode }) {
                 </FormLabel>
                 <FormControl>
                   <Popover>
-                    <PopoverTrigger>
+                    <PopoverTrigger asChild>
                       <Input
                         type="text"
                         className="justify-evenly shadow"
@@ -217,9 +234,12 @@ export default function AdminForm({ onSubmit, mode }) {
                         }
                         onChange={field.onChange}
                         placeholder="Select Date"
-                      ></Input>
+                      />
                     </PopoverTrigger>
-                    <PopoverContent>
+                    <PopoverContent
+                      className="p-0 w-20 h-0"
+                      style={{ pointerEvents: 'auto' }}
+                    >
                       <DatePicker
                         selected={field.value ? new Date(field.value) : null}
                         onChange={(date) => {
@@ -232,6 +252,7 @@ export default function AdminForm({ onSubmit, mode }) {
                             );
                           }
                         }}
+                        inline
                         dateFormat="yyyy-MM-dd"
                         showYearDropdown
                         showMonthDropdown
@@ -291,38 +312,45 @@ export default function AdminForm({ onSubmit, mode }) {
                   Select Gender
                 </FormLabel>
                 <FormControl>
-                  <select
-                    id="Gender"
+                  <Select
+                    className="shadow w-[90%]"
+                    styles={{
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        boxShadow: 'none',
+                        fontSize: '15px',
+                        color: 'rgb(120, 122, 126)',
+                        width: '100%',
+                      }),
+                      placeholder: (baseStyles) => ({
+                        ...baseStyles,
+                        color: 'rgb(120, 122, 126)',
+                        fontSize: '15px',
+                      }),
+                      option: (baseStyles, state) => ({
+                        ...baseStyles,
+                        backgroundColor: state.isFocused
+                          ? 'rgb(51,141,181)'
+                          : 'white',
+                        color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                        ':hover': {
+                          backgroundColor: 'rgb(51,141,181)',
+                        },
+                      }),
+                      menu: (baseStyles) => ({
+                        ...baseStyles,
+                        backgroundColor: 'white',
+                      }),
+                    }}
                     {...field}
-                    className="flex border w-[90%] h-9 rounded-md shadow pl-2"
-                  >
-                    <option
-                      value=""
-                      className={`${
-                        theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                      } `}
-                      disabled
-                      selected
-                    >
-                      Select
-                    </option>
-                    <option
-                      value="MALE"
-                      className={`${
-                        theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                      }`}
-                    >
-                      MALE
-                    </option>
-                    <option
-                      value="FEMALE"
-                      className={`${
-                        theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                      }`}
-                    >
-                      FEMALE
-                    </option>
-                  </select>
+                    placeholder={field.value || 'Select'}
+                    value={field.value}
+                    onChange={(selectedOptions) => {
+                      console.log(field.value);
+                      field.onChange(selectedOptions.value);
+                    }}
+                    options={genderOptions}
+                  />
                 </FormControl>
                 <div>
                   {errors?.Gender && (
@@ -334,20 +362,20 @@ export default function AdminForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          {user.permission.user.can_update_user_roles === true ? (
+          {user.user.role === 'Admin' && (
             <FormField
               control={control}
               name="DATE_OF_JOINING"
               render={({ field }) => (
-                <FormItem className="w-[90%] flex flex-col h-16">
+                <FormItem className="w-[90%] h-16 ">
                   <FormLabel
-                    className={`${errors?.DATE_OF_JOINING ? 'text-[#737373] h-10' : ''}`}
+                    className={`${errors?.DATE_OF_JOINING ? 'text-[#737373] ' : ''}`}
                   >
                     Date Of Joining
                   </FormLabel>
                   <FormControl>
                     <Popover>
-                      <PopoverTrigger>
+                      <PopoverTrigger asChild>
                         <Input
                           type="text"
                           className="justify-evenly shadow"
@@ -360,9 +388,12 @@ export default function AdminForm({ onSubmit, mode }) {
                           }
                           onChange={field.onChange}
                           placeholder="Select Date"
-                        ></Input>
+                        />
                       </PopoverTrigger>
-                      <PopoverContent>
+                      <PopoverContent
+                        className="p-0 w-20 h-0"
+                        style={{ pointerEvents: 'auto' }}
+                      >
                         <DatePicker
                           selected={field.value ? new Date(field.value) : null}
                           onChange={(date) => {
@@ -376,6 +407,7 @@ export default function AdminForm({ onSubmit, mode }) {
                               );
                             }
                           }}
+                          inline
                           dateFormat="yyyy-MM-dd"
                           showYearDropdown
                           scrollableYearDropdown
@@ -394,7 +426,7 @@ export default function AdminForm({ onSubmit, mode }) {
                 </FormItem>
               )}
             />
-          ) : null}
+          )}
           <FormField
             control={control}
             name="Designation"
@@ -442,54 +474,46 @@ export default function AdminForm({ onSubmit, mode }) {
                     Role
                   </FormLabel>
                   <FormControl>
-                    <select
-                      id="role"
-                      className="flex border w-[90%] h-9 rounded-md shadow pl-2"
+                    <Select
+                      className="shadow w-[90%]"
+                      styles={{
+                        control: (baseStyles) => ({
+                          ...baseStyles,
+                          boxShadow: 'none',
+                          fontSize: '15px',
+                          color: 'rgb(120, 122, 126)',
+                          width: '100%',
+                        }),
+                        placeholder: (baseStyles) => ({
+                          ...baseStyles,
+                          color: 'rgb(120, 122, 126)',
+                          fontSize: '15px',
+                        }),
+                        option: (baseStyles, state) => ({
+                          ...baseStyles,
+                          backgroundColor: state.isFocused
+                            ? 'rgb(51,141,181)'
+                            : 'white',
+                          color: state.isFocused
+                            ? 'white'
+                            : 'rgb(120, 122, 126)',
+                          ':hover': {
+                            backgroundColor: 'rgb(51,141,181)',
+                          },
+                        }),
+                        menu: (baseStyles) => ({
+                          ...baseStyles,
+                          backgroundColor: 'white',
+                        }),
+                      }}
                       {...field}
-                    >
-                      <option
-                        value=""
-                        className={`${
-                          theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                        }`}
-                        disabled
-                        selected
-                      >
-                        Select
-                      </option>
-                      <option
-                        value="Admin"
-                        className={`${
-                          theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                        }`}
-                      >
-                        Admin
-                      </option>
-                      <option
-                        value="HR"
-                        className={`${
-                          theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                        }`}
-                      >
-                        HR
-                      </option>
-                      <option
-                        value="Product_Manager"
-                        className={`${
-                          theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                        }`}
-                      >
-                        Product_Manager
-                      </option>
-                      <option
-                        value="Developer"
-                        className={`${
-                          theme === 'light' ? 'bg-white' : 'bg-[#121212]'
-                        }`}
-                      >
-                        Developer
-                      </option>
-                    </select>
+                      placeholder={field.value || 'Select'}
+                      value={field.value}
+                      onChange={(selectedOptions) => {
+                        field.onChange(selectedOptions.value);
+                      }}
+                      options={rolesOptions}
+                    />
                   </FormControl>
                   <div>
                     {errors?.role && (
@@ -506,14 +530,46 @@ export default function AdminForm({ onSubmit, mode }) {
             control={control}
             name="ReportingManager"
             render={({ field }) => (
-              <FormItem className="w-[90%] mt-0.5 flex flex-col">
+              <FormItem>
                 <FormLabel className="">Reporting Manager</FormLabel>
                 <FormControl>
-                  <Input
-                    type="text"
-                    className="shadow"
-                    placeholder="Enter Name of ReportingManager"
+                  <Select
+                    className="shadow w-[90%]"
+                    styles={{
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        boxShadow: 'none',
+                        fontSize: '15px',
+                        color: 'rgb(120, 122, 126)',
+                        width: '100%',
+                      }),
+                      placeholder: (baseStyles) => ({
+                        ...baseStyles,
+                        color: 'rgb(120, 122, 126)',
+                        fontSize: '15px',
+                      }),
+                      option: (baseStyles, state) => ({
+                        ...baseStyles,
+                        backgroundColor: state.isFocused
+                          ? 'rgb(51,141,181)'
+                          : 'white',
+                        color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                        ':hover': {
+                          backgroundColor: 'rgb(51,141,181)',
+                        },
+                      }),
+                      menu: (baseStyles) => ({
+                        ...baseStyles,
+                        backgroundColor: 'white',
+                      }),
+                    }}
                     {...field}
+                    placeholder={field.value || 'Select'}
+                    value={field.value}
+                    onChange={(selectedOptions) => {
+                      field.onChange(selectedOptions.value);
+                    }}
+                    options={usersOptions}
                   />
                 </FormControl>
               </FormItem>
