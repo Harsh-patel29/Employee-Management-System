@@ -716,9 +716,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="cursor-pointer">
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-green-500 text-white hover:bg-green-600"
+                            className="bg-green-500 text-white hover:bg-green-600 cursor-pointer"
                             onClick={() => {
                               dispatch(
                                 updateTask({ data: todochecked, id: taskid })
@@ -744,9 +746,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="cursor-pointer">
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-red-500 text-white hover:bg-red-700"
+                            className="bg-red-500 text-white hover:bg-red-700 cursor-pointer"
                             onClick={() => {
                               dispatch(
                                 deleteTodo({ data: todoId, id: taskid })
@@ -851,9 +855,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="cursor-pointer">
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-red-500 text-white hover:bg-red-700"
+                            className="bg-red-500 text-white hover:bg-red-700 cursor-pointer"
                             onClick={() => {
                               dispatch(deleteAttachedFile(currentvalue));
                               setCurrentAttachments(
@@ -1879,9 +1885,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel className="cursor-pointer">
+                        Cancel
+                      </AlertDialogCancel>
                       <AlertDialogAction
-                        className="bg-red-500 text-white hover:bg-red-700"
+                        className="bg-red-500 text-white hover:bg-red-700 cursor-pointer"
                         onClick={() => {
                           deleteUser(currentUserId);
                           setOpenUserDialog(false);
@@ -2103,9 +2111,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel className="cursor-pointer">
+                        Cancel
+                      </AlertDialogCancel>
                       <AlertDialogAction
-                        className="bg-red-500 text-white hover:bg-red-700"
+                        className="bg-red-500 text-white hover:bg-red-700 cursor-pointer"
                         onClick={() => {
                           dispatch(deleteUploadedImage(currentPublicId));
                           dispatch(resetdeleteImage());

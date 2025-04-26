@@ -163,7 +163,7 @@ Row.propTypes = {
   }).isRequired,
 };
 
-export default function TaskTable({ data }) {
+export default function TaskTable() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();

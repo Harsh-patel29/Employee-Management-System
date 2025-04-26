@@ -138,7 +138,7 @@ function MarkAttendance() {
             <Button
               onClick={captureImage}
               disabled={isSubmitting}
-              className="px-6 py-2 mt-6 bg-white text-black hover:bg-gray-50 border-black border disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 mt-6 cursor-pointer bg-white text-black hover:bg-gray-50 border-black border disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Processing...' : 'Mark Attendance'}
             </Button>

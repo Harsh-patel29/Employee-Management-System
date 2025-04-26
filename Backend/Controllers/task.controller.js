@@ -53,7 +53,14 @@ const createTask = AsyncHandler(async (req, res) => {
 });
 
 const getAlltasks = AsyncHandler(async (req, res) => {
-  const allTasks = await Task.find({});
+  const rolesPermission = req.permission;
+  const ViewAccess = rolesPermission?.task.canViewAllTask;
+  let allTasks;
+  if (ViewAccess === true) {
+    allTasks = await Task.find({});
+  } else {
+    allTasks = await Task.find({ Users: req.user.Name });
+  }
   return res
     .status(200)
     .json(new ApiResponse(200, allTasks, 'All Tasks fetched successfully'));
