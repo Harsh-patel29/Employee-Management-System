@@ -72,7 +72,7 @@ function Row({ row, openSheet, openDialog, navigate }) {
                 </SheetContent>
               </Sheet>
             )}
-            {user.permission.leaveType.cancanDeleteLeaveType && (
+            {user.permission.leaveType.canDeleteLeaveType && (
               <Dialog>
                 <DialogTrigger
                   onClick={() => {

@@ -149,6 +149,7 @@ const updateLeave = AsyncHandler(async (req, res) => {
 
 const createnewLeave = AsyncHandler(async (req, res) => {
   const { Leave_Reason, Leave_Code } = req.body;
+
   const leaveExists = await CreateLeave.findOne({ Leave_Reason });
   if (leaveExists) {
     throw new ApiError(400, 'Leave alreday exists');
@@ -193,6 +194,13 @@ const getCreatedLeaveById = AsyncHandler(async (req, res) => {
 const updateCreatedLeave = AsyncHandler(async (req, res) => {
   const { id } = req.body;
   const leave = await CreateLeave.findById(id);
+
+  const leaveExists = await CreateLeave.findOne({
+    Leave_Reason: req.body.data.Leave_Reason,
+  });
+  if (leaveExists) {
+    throw new ApiError(400, 'Leave alreday exists');
+  }
   if (!leave) {
     throw new ApiError(404, 'Leave not found');
   }
