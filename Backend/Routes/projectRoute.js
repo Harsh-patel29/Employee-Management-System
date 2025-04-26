@@ -16,6 +16,7 @@ import {
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { roleid, userid } from '../Middlewares/userroleMiddleware.js';
 import { uploadlogo } from '../Middlewares/uploadlogoMiddleware.js';
+import { isAuth } from '../Middlewares/authMiddleware.js';
 const router = Router();
 
 router
@@ -30,7 +31,7 @@ router
     authenticate,
     createProject
   )
-  .get(authenticate, getAllProject, (req, res) => {
+  .get(authenticate, isAuth, getAllProject, (req, res) => {
     res.json({
       message: 'User data fetched Successfully',
       user: req.user,
@@ -66,4 +67,5 @@ router
 router
   .route('/project/roles/details/name/delete/role/:id/:userid/:roleid')
   .delete(authenticate, deleteAssignedUser);
+
 export default router;

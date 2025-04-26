@@ -46,6 +46,7 @@ import {
 import Loader from '../Components/Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
 import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
+import ExporttoExcel from './Export.jsx';
 function Row({
   row,
   canUpdateUser,
@@ -104,35 +105,37 @@ function Row({
         <TableCell sx={{ color: 'inherit' }}>
           <div className="flex items-center gap-2 justify-center">
             {(user?.permission?.user?.can_update_user ||
-              row._id === user.user._id) && (
-              <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
-                <SheetTrigger
-                  onClick={() => {
-                    openSheet(row._id);
-                  }}
-                  asChild
-                >
-                  <FaEdit className="cursor-pointer font-semibold text-lg" />
-                </SheetTrigger>
-                <SheetContent
-                  className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
+              row._id === user.user._id) &&
+              (row.role !== 'Admin' || user.user.role === 'Admin') && (
+                <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
+                  <SheetTrigger
+                    onClick={() => {
+                      openSheet(row._id);
+                    }}
+                    asChild
+                  >
+                    <FaEdit className="cursor-pointer font-semibold text-lg" />
+                  </SheetTrigger>
+                  <SheetContent
+                    className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
                 min-w-6xl`}
-                >
-                  <SheetHeader>
-                    <SheetDescription>
-                      <AdminForm
-                        mode="update"
-                        onSubmit={(data) => {
-                          dispatch(updateuser({ data, userid: row._id }));
-                        }}
-                      />
-                    </SheetDescription>
-                  </SheetHeader>
-                </SheetContent>
-              </Sheet>
-            )}
+                  >
+                    <SheetHeader>
+                      <SheetDescription>
+                        <AdminForm
+                          mode="update"
+                          onSubmit={(data) => {
+                            dispatch(updateuser({ data, userid: row._id }));
+                          }}
+                        />
+                      </SheetDescription>
+                    </SheetHeader>
+                  </SheetContent>
+                </Sheet>
+              )}
 
             {user?.permission?.user?.can_delete_user &&
+              row._id !== user.user._id &&
               row.role !== 'Admin' && (
                 <div>
                   <Dialog
@@ -217,7 +220,6 @@ function Row({
                 </TableHead>
                 <TableBody>
                   <TableRow className="border-2 border-gray-200">
-                    {console.log(row)}
                     <TableCell className="border-2 border-gray-200">
                       {row.DATE_OF_JOINING}
                     </TableCell>
@@ -501,6 +503,13 @@ export default function CollapsibleTable() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+          {user?.permission.user.can_export_user && (
+            <ExporttoExcel
+              data={users}
+              fileName="Users"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            />
+          )}
         </div>
       </div>
       <ReusableTable

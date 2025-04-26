@@ -17,6 +17,7 @@ import {
   resetDeleteuser,
 } from '../feature/projectfetch/assignuser.js';
 import { Bounce, toast } from 'react-toastify';
+import Select from 'react-select';
 
 const AssignSheet = () => {
   const { id } = useParams();
@@ -108,6 +109,15 @@ const AssignSheet = () => {
     user: selectedUser,
     role: selectedRole,
   };
+  const selectUserOptions = users?.map((user) => ({
+    label: user.Name,
+    value: user.Name,
+  }));
+
+  const selectRolesOptions = roles?.map((role) => ({
+    label: role.name,
+    value: role.name,
+  }));
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -138,55 +148,23 @@ const AssignSheet = () => {
           <SheetDescription>
             <div className="flex items-center gap-3 py-4">
               <div className="relative w-[50%]">
-                <select
-                  className="w-full appearance-none rounded border border-gray-300 bg-white px-3 py-2 text-gray-600 focus:border-blue-500 focus:outline-none"
+                <Select
+                  className="z-50"
+                  placeholder={selectedUser}
                   value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Select User
-                  </option>
-                  {users?.map((user) => (
-                    <option key={user._id} value={user.Name}>
-                      {user.Name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg
-                    className="h-4 w-4 fill-current"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
+                  onChange={(e) => setSelectedUser(e.value)}
+                  options={selectUserOptions}
+                />
               </div>
 
               <div className="relative w-[50%]">
-                <select
-                  className="w-full appearance-none rounded border border-gray-300 bg-white px-3 py-2 text-gray-600 focus:border-blue-500 focus:outline-none"
+                <Select
+                  className="z-50"
+                  placeholder={selectedRole}
                   value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Select Role
-                  </option>
-                  {roles?.map((role) => (
-                    <option key={role._id} value={role.name}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg
-                    className="h-4 w-4 fill-current"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
+                  onChange={(e) => setSelectedRole(e.value)}
+                  options={selectRolesOptions}
+                />
               </div>
 
               <button

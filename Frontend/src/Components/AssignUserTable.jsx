@@ -22,6 +22,7 @@ function Row({ row, handleDelete }) {
   const navigate = useNavigate();
   const theme = useSelector((state) => state.theme.theme);
   const { id } = useParams();
+  const { user } = useSelector((state) => state.auth);
   return (
     <React.Fragment>
       <TableRow
@@ -32,41 +33,42 @@ function Row({ row, handleDelete }) {
       >
         <TableCell>{row.username}</TableCell>
         <TableCell>{row.rolesName}</TableCell>
-        {row?.rolesName !== 'Project_Admin' && (
-          <TableCell sx={{ color: '#ff3b30' }} className="flex">
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) navigate(`/productivity/project/${id}`);
-              }}
-            >
-              <DialogTrigger
-                onClick={() => {
-                  navigate(
-                    `/productivity/project/${id}/${row.userid}/${row.roleId}`
-                  );
+        {row?.rolesName !== 'Project_Admin' &&
+          user.permission.project.canRemoveProjectUsers && (
+            <TableCell sx={{ color: '#ff3b30' }} className="flex">
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) navigate(`/productivity/project/${id}`);
                 }}
-                asChild
               >
-                <MdDelete className="font-semibold text-lg" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the user's account and remove their data from servers.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => handleDelete(id, row.userid, row.roleId)}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </TableCell>
-        )}
+                <DialogTrigger
+                  onClick={() => {
+                    navigate(
+                      `/productivity/project/${id}/${row.userid}/${row.roleId}`
+                    );
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-semibold text-lg cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the user's account and remove their data from servers.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800 "
+                        onClick={() => handleDelete(id, row.userid, row.roleId)}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </TableCell>
+          )}
       </TableRow>
     </React.Fragment>
   );

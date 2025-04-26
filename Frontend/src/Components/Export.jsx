@@ -9,8 +9,11 @@ const ExporttoExcel = ({ data, fileName }) => {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   };
   return (
-    <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[110px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-      <button onClick={handleExport}>
+    <div
+      onClick={handleExport}
+      className="bg-[#ffffff] text-[#338DB5]  font-[400] gap-3  border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[110px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+    >
+      <button className="cursor-pointer">
         <svg
           stroke="currentColor"
           fill="none"

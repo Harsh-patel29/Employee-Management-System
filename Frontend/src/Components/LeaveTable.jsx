@@ -36,6 +36,7 @@ import { Bounce, toast } from 'react-toastify';
 import LeaveFilterSheet from './LeaveFilterSheet.jsx';
 function Row({ row, openDialog, navigate, openSheet }) {
   const { updatedLeave } = useSelector((state) => state.leave);
+  const { user } = useSelector((state) => state.auth);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   React.useEffect(() => {
     if (updatedLeave?.success) {
@@ -62,69 +63,72 @@ function Row({ row, openDialog, navigate, openSheet }) {
         <TableCell>{row.Status}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2 justify-center">
-            <Sheet
-              open={updatesheetopen}
-              onOpenChange={(open) => {
-                setupdatesheetopen(open);
-                if (!open) {
-                  navigate('/leave');
-                }
-              }}
-            >
-              <SheetTrigger
-                onClick={() => {
-                  openSheet(row._id);
+            {user?.permission.leave.canUpdateLeave && (
+              <Sheet
+                open={updatesheetopen}
+                onOpenChange={(open) => {
+                  setupdatesheetopen(open);
+                  if (!open) {
+                    navigate('/leave');
+                  }
                 }}
-                asChild
               >
-                <FaEdit className="font-[200] text-lg" />
-              </SheetTrigger>
-              <SheetContent className="min-w-2xl">
-                <SheetHeader>
-                  <SheetDescription>
-                    <LeaveForm
-                      onSubmit={(data) => {
-                        dispatch(updateLeave({ data, id: row._id }));
-                      }}
-                      mode="update"
-                      id={row._id}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) navigate('/leave');
-              }}
-            >
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
+                <SheetTrigger
+                  onClick={() => {
+                    openSheet(row._id);
+                  }}
+                  asChild
+                >
+                  <FaEdit className="font-[200] text-lg cursor-pointer" />
+                </SheetTrigger>
+                <SheetContent className="min-w-2xl">
+                  <SheetHeader>
+                    <SheetDescription>
+                      <LeaveForm
+                        onSubmit={(data) => {
+                          dispatch(updateLeave({ data, id: row._id }));
+                        }}
+                        mode="update"
+                        id={row._id}
+                      />
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+            )}
+            {user?.permission.leave.canDeleteLeave && (
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) navigate('/leave');
                 }}
-                asChild
               >
-                <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the leave.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        dispatch(deleteLeave({ data: row._id }));
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-[200] text-lg text-[#ff3b30] cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the leave.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteLeave({ data: row._id }));
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -136,6 +140,8 @@ const LeaveTable = () => {
   const { allLeave, error, leave, deletedLeave, updatedLeave } = useSelector(
     (state) => state.leave
   );
+  const { user } = useSelector((state) => state.auth);
+
   const filterValue = useSelector((state) => state.filter.filterValue);
   const [Leave, setLeave] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -258,41 +264,46 @@ const LeaveTable = () => {
           Leave
         </h5>
         <div className="flex items-center">
-          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  height="1em"
-                  width="1em"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <title>create</title>
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                Leave
-              </div>
-            </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
-              <SheetHeader>
-                <SheetDescription>
-                  <LeaveForm
-                    onSubmit={(data) => {
-                      dispatch(createLeave(data));
-                    }}
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
+          {user?.permission.leave.canAddLeave && (
+            <Sheet open={sheetopen} onOpenChange={setsheetopen}>
+              <SheetTrigger>
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                  <svg
+                    className="h-6 w-6"
+                    stroke="currentColor"
+                    fill="none"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    height="1em"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <title>create</title>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  Leave
+                </div>
+              </SheetTrigger>
+              <SheetContent
+                showCloseButton={false}
+                className="bg-white min-w-xl"
+              >
+                <SheetHeader>
+                  <SheetDescription>
+                    <LeaveForm
+                      onSubmit={(data) => {
+                        dispatch(createLeave(data));
+                      }}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          )}
           <button>
             <LeaveFilterSheet />
           </button>

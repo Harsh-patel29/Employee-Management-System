@@ -86,6 +86,7 @@ const getTaskTimer = AsyncHandler(async (req, res) => {
     createdAt: taskTimer.createdAt,
     updatedAt: taskTimer.updatedAt,
   };
+
   return res
     .status(200)
     .json(new ApiResponse(200, finalData, 'Task timer fetched successfully'));
@@ -107,7 +108,15 @@ const getTaskByUser = AsyncHandler(async (req, res) => {
 });
 
 const getAllTaskTimer = AsyncHandler(async (req, res) => {
-  const taskTimer = await TaskTimer.find({});
+  const user = req.user.Name;
+  const rolesPermission = req.permission;
+  const ViewAccess = rolesPermission?.taskTimer.canViewOthersTaskTimer;
+  let taskTimer;
+  if (ViewAccess === true) {
+    taskTimer = await TaskTimer.find({});
+  } else {
+    taskTimer = await TaskTimer.find({ User: user });
+  }
   const finalData = taskTimer.map((item) => {
     return {
       _id: item._id,

@@ -36,6 +36,8 @@ function Row({ row, openDialog, navigate }) {
   const { id } = useParams();
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
+  const { user } = useSelector((state) => state.auth);
+
   const dispatch = useDispatch();
   return (
     <React.Fragment>
@@ -49,10 +51,15 @@ function Row({ row, openDialog, navigate }) {
           {row.index}
         </TableCell>
         <TableCell component="th" scope="row" sx={{ color: 'inherit' }}>
+          {user?.permission.task.canUpdateTask}
           <p
             className="text-[rgb(64,140,182)] cursor-pointer"
             onClick={() => {
-              navigate(`/productivity/tasks/${row.CODE}`);
+              {
+                user?.permission.task.canUpdateTask
+                  ? navigate(`/productivity/tasks/${row.CODE}`)
+                  : '';
+              }
             }}
           >
             {row.CODE}
@@ -68,7 +75,7 @@ function Row({ row, openDialog, navigate }) {
         <TableCell sx={{ color: 'inherit' }}>{row.Asignee}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>
           <div className="flex justify-center">
-            {
+            {user?.permission.task.canUpdateTask && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
                 <SheetTrigger
                   onClick={() => {
@@ -85,7 +92,7 @@ function Row({ row, openDialog, navigate }) {
                 </SheetTrigger>
                 <SheetContent
                   className={`${theme === 'light' ? 'bg-white ' : 'bg-[#121212]'} 
-                min-w-6xl`}
+                  min-w-6xl`}
                 >
                   <SheetHeader>
                     <SheetDescription>
@@ -99,39 +106,41 @@ function Row({ row, openDialog, navigate }) {
                   </SheetHeader>
                 </SheetContent>
               </Sheet>
-            }
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) navigate('/productivity/tasks');
-              }}
-            >
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row.CODE);
+            )}
+            {user?.permission.task.canDeleteTask && (
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) navigate('/productivity/tasks');
                 }}
-                asChild
               >
-                <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the task.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        navigate('/productivity/tasks');
-                        dispatch(deleteTask(row.CODE));
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row.CODE);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the task.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          navigate('/productivity/tasks');
+                          dispatch(deleteTask(row.CODE));
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -164,7 +173,7 @@ export default function TaskTable({ data }) {
     return localStorage.getItem('viewMode') || 'list';
   });
   const [dialogOpen, setdialogOpen] = React.useState(false);
-
+  const { user } = useSelector((state) => state.auth);
   const { tasks, createtask, deletedTask } = useSelector((state) => state.task);
   const filterValue = useSelector((state) => state.filter.filterValue);
 
@@ -289,30 +298,32 @@ export default function TaskTable({ data }) {
           Tasks
         </h5>
         <div className="flex items-center">
-          <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
-            onClick={() => handleCreateTask()}
-          >
-            <svg
-              className="w-6 h-6"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
+          {user?.permission.task.canAddTask && (
+            <button
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+              onClick={() => handleCreateTask()}
             >
-              <title>New Task</title>
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              ></path>
-            </svg>
-            Task
-          </button>
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <title>New Task</title>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                ></path>
+              </svg>
+              Task
+            </button>
+          )}
           <button>
             <TasksFilterSheet />
           </button>

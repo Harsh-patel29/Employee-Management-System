@@ -5,12 +5,14 @@ import {
   collapedSideBar,
   expandSideBar,
 } from '../feature/ToggelSideBar/ToggleSideBarSlice.js';
+import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 
 const Navigation = () => {
   const [dropdown, setdropdown] = useState(false);
   const [active, setActive] = useState(() => {
     return localStorage.getItem('active') || 'Dashboard';
   });
+  const { user } = useSelector((state) => state.auth);
 
   const menuItems = [
     {
@@ -141,8 +143,8 @@ const Navigation = () => {
           link: 'leave/leaveType',
         },
         {
-          key: 'leaveApprove',
-          name: 'Leave Approve',
+          key: 'PendingLeave',
+          name: 'Pending Leave',
           link: 'leave/leaveApprove',
         },
       ],
@@ -224,10 +226,28 @@ const Navigation = () => {
       ),
     },
   ];
+  const hasPermission = (user, subItem) => {
+    const permissionMap = {
+      leaveType: { category: 'leave', permission: 'canManageLeaveStatus' },
+      PendingLeave: { category: 'leave', permission: 'canViewAllPendingLeave' },
+    };
 
+    const permissionInfo = permissionMap[subItem.key];
+
+    if (!permissionInfo) return true;
+
+    return (
+      user.permission &&
+      user.permission[permissionInfo.category] &&
+      user.permission[permissionInfo.category][permissionInfo.permission] ===
+        true
+    );
+  };
   const dispatch = useDispatch();
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
-
+  React.useEffect(() => {
+    dispatch(checkAuth());
+  }, []);
   const [value, setValue] = useState(() => {
     return localStorage.getItem('val') || 'Dashboard';
   });
@@ -340,36 +360,38 @@ const Navigation = () => {
                 >
                   {item.children &&
                     active === item.key &&
-                    item.children.map((subItem) => (
-                      <li
-                        key={subItem.link}
-                        className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
-                      >
-                        <Link
-                          to={`/${subItem.link}`}
-                          onClick={() => dispatch(collapedSideBar())}
+                    item.children
+                      .filter((subItem) => hasPermission(user, subItem))
+                      .map((subItem) => (
+                        <li
+                          key={subItem.link}
+                          className="p-2 pl-4  transition-all duration-300  hover:bg-[#e6f7ffce]"
                         >
-                          {
-                            <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
-                              <svg
-                                stroke="currentColor"
-                                fill="currentColor"
-                                stroke-width="0"
-                                viewBox="0 0 24 24"
-                                class="me- mb-"
-                                height="1em"
-                                width="1em"
-                                xmlns="http://www.w3.org/2000/svg"
-                                style={{ color: 'var(--SUB-LINE-DOT)' }}
-                              >
-                                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
-                              </svg>
-                              <span className="text-left ms-2">{`${subItem.name}`}</span>
-                            </div>
-                          }{' '}
-                        </Link>
-                      </li>
-                    ))}
+                          <Link
+                            to={`/${subItem.link}`}
+                            onClick={() => dispatch(collapedSideBar())}
+                          >
+                            {
+                              <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
+                                <svg
+                                  stroke="currentColor"
+                                  fill="currentColor"
+                                  stroke-width="0"
+                                  viewBox="0 0 24 24"
+                                  class="me- mb-"
+                                  height="1em"
+                                  width="1em"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  style={{ color: 'var(--SUB-LINE-DOT)' }}
+                                >
+                                  <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
+                                </svg>
+                                <span className="text-left ms-2">{`${subItem.name}`}</span>
+                              </div>
+                            }{' '}
+                          </Link>
+                        </li>
+                      ))}
                 </ul>
               )}
             </li>

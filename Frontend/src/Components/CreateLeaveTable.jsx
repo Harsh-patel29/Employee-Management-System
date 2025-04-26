@@ -38,6 +38,7 @@ import {
 } from '../feature/leavefetch/createleaveSlice';
 function Row({ row, openSheet, openDialog, navigate }) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   return (
     <React.Fragment>
@@ -46,7 +47,7 @@ function Row({ row, openSheet, openDialog, navigate }) {
         <TableCell className="w-[75%]">{row.Leave_Code}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2 justify-center">
-            {
+            {user.permission.leaveType.canUpdateLeaveType && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
                 <SheetTrigger
                   onClick={() => {
@@ -54,7 +55,7 @@ function Row({ row, openSheet, openDialog, navigate }) {
                   }}
                   asChild
                 >
-                  <FaEdit className="font-semibold text-lg" />
+                  <FaEdit className="font-semibold text-lg cursor-pointer" />
                 </SheetTrigger>
                 <SheetContent className="bg-white min-w-xl">
                   <SheetHeader>
@@ -70,35 +71,36 @@ function Row({ row, openSheet, openDialog, navigate }) {
                   </SheetHeader>
                 </SheetContent>
               </Sheet>
-            }
-
-            <Dialog>
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
-                }}
-                asChild
-              >
-                <MdDelete className="font-[200] text-lg text-[#ff3b30]" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the leave.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        dispatch(deleteCreatedLeave({ data: row._id }));
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+            )}
+            {user.permission.leaveType.cancanDeleteLeaveType && (
+              <Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-[200] text-lg text-[#ff3b30] cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the leave.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteCreatedLeave({ data: row._id }));
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -122,6 +124,7 @@ export default function CreateLeaveTable() {
     deletedCreatedLeave,
     error,
   } = useSelector((state) => state.leave);
+  const { user } = useSelector((state) => state.auth);
   const [sheetopen, setsheetopen] = React.useState(false);
   const [leave, setleave] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -216,41 +219,46 @@ export default function CreateLeaveTable() {
           Leave Type
         </h5>
         <div className="flex items-center">
-          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  height="1em"
-                  width="1em"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <title>create</title>
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                New Leave
-              </div>
-            </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
-              <SheetHeader>
-                <SheetDescription>
-                  <CreateLeaveForm
-                    onSubmit={(data) => {
-                      dispatch(createNewLeave(data));
-                    }}
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
+          {user.permission.leaveType.canAddLeaveType && (
+            <Sheet open={sheetopen} onOpenChange={setsheetopen}>
+              <SheetTrigger>
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                  <svg
+                    className="h-6 w-6"
+                    stroke="currentColor"
+                    fill="none"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    height="1em"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <title>create</title>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  New Leave
+                </div>
+              </SheetTrigger>
+              <SheetContent
+                showCloseButton={false}
+                className="bg-white min-w-xl"
+              >
+                <SheetHeader>
+                  <SheetDescription>
+                    <CreateLeaveForm
+                      onSubmit={(data) => {
+                        dispatch(createNewLeave(data));
+                      }}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </div>
       <ReusableTable

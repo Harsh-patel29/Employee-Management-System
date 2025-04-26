@@ -377,7 +377,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                         <div className="min-w-25 text-2xl">{day}</div>
                         <div className="flex w-full items-center justify-between ml-20">
                           <Checkbox
-                            className="form-checkbox h-5 w-5  border-2 border-[#879ac1] shadow-xl"
+                            className="form-checkbox h-5 w-5 cursor-pointer border-2 border-[#879ac1] shadow-xl"
                             checked={formData.days[day].weekOff}
                             onCheckedChange={(s) =>
                               handleCheckboxChange(day, 'weekOff')
@@ -385,7 +385,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                             disabled={formData.days[day].halfDay}
                           />
                           <Checkbox
-                            className="form-checkbox h-5 w-5  rounded border-2 border-[#879ac1] shadow-xl"
+                            className="form-checkbox h-5 w-5 cursor-pointer rounded border-2 border-[#879ac1] shadow-xl"
                             disabled={formData.days[day].weekOff}
                             checked={formData.days[day].halfDay}
                             onCheckedChange={() =>
@@ -398,7 +398,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                                 <Button
                                   type="button"
                                   variant="default"
-                                  className="px-2 py-1 text-center shadow bg-[#6794f4]  text-[#FFFFFF] font-semibold rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="px-2 py-1 text-center cursor-pointer shadow bg-[#6794f4]  text-[#FFFFFF] font-semibold rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                   Select
                                 </Button>

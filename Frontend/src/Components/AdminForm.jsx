@@ -21,6 +21,7 @@ import DatePicker from 'react-datepicker';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { getUser } from '../feature/datafetch/userfetchSlice.js';
+import { getRoles } from '../feature/rolesfetch/getrolesSlice.js';
 import { fetchuser } from '../feature/createuserfetch/createuserSlice.js';
 import Select from 'react-select';
 
@@ -61,8 +62,13 @@ export default function AdminForm({ onSubmit, mode }) {
       dispatch(getUser(id));
     }
   }, [dispatch, id, mode]);
+
   useEffect(() => {
     dispatch(fetchuser());
+  }, []);
+
+  useEffect(() => {
+    dispatch(getRoles());
   }, []);
 
   const {
@@ -461,71 +467,69 @@ export default function AdminForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          {user.permission.user.can_update_user_roles === true ? (
-            <FormField
-              control={control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel
-                    htmlFor="role"
-                    className={errors?.role ? 'text-[#737373]' : ''}
-                  >
-                    Role
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      className="shadow w-[90%]"
-                      styles={{
-                        control: (baseStyles) => ({
-                          ...baseStyles,
-                          boxShadow: 'none',
-                          fontSize: '15px',
-                          color: 'rgb(120, 122, 126)',
-                          width: '100%',
-                        }),
-                        placeholder: (baseStyles) => ({
-                          ...baseStyles,
-                          color: 'rgb(120, 122, 126)',
-                          fontSize: '15px',
-                        }),
-                        option: (baseStyles, state) => ({
-                          ...baseStyles,
-                          backgroundColor: state.isFocused
-                            ? 'rgb(51,141,181)'
-                            : 'white',
-                          color: state.isFocused
-                            ? 'white'
-                            : 'rgb(120, 122, 126)',
-                          ':hover': {
-                            backgroundColor: 'rgb(51,141,181)',
-                          },
-                        }),
-                        menu: (baseStyles) => ({
-                          ...baseStyles,
-                          backgroundColor: 'white',
-                        }),
-                      }}
-                      {...field}
-                      placeholder={field.value || 'Select'}
-                      value={field.value}
-                      onChange={(selectedOptions) => {
-                        field.onChange(selectedOptions.value);
-                      }}
-                      options={rolesOptions}
-                    />
-                  </FormControl>
-                  <div>
-                    {errors?.role && (
-                      <span className="text-red-500 font-semibold">
-                        {errors.role.message}
-                      </span>
-                    )}
-                  </div>
-                </FormItem>
-              )}
-            />
-          ) : null}
+
+          <FormField
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel
+                  htmlFor="role"
+                  className={errors?.role ? 'text-[#737373]' : ''}
+                >
+                  Role
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    className="shadow w-[90%]"
+                    styles={{
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        boxShadow: 'none',
+                        fontSize: '15px',
+                        color: 'rgb(120, 122, 126)',
+                        width: '100%',
+                      }),
+                      placeholder: (baseStyles) => ({
+                        ...baseStyles,
+                        color: 'rgb(120, 122, 126)',
+                        fontSize: '15px',
+                      }),
+                      option: (baseStyles, state) => ({
+                        ...baseStyles,
+                        backgroundColor: state.isFocused
+                          ? 'rgb(51,141,181)'
+                          : 'white',
+                        color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                        ':hover': {
+                          backgroundColor: 'rgb(51,141,181)',
+                        },
+                      }),
+                      menu: (baseStyles) => ({
+                        ...baseStyles,
+                        backgroundColor: 'white',
+                      }),
+                    }}
+                    {...field}
+                    placeholder={field.value || 'Select'}
+                    value={field.value}
+                    onChange={(selectedOptions) => {
+                      field.onChange(selectedOptions.value);
+                    }}
+                    options={rolesOptions}
+                  />
+                </FormControl>
+                <div>
+                  {errors?.role && (
+                    <span className="text-red-500 font-semibold">
+                      {errors.role.message}
+                    </span>
+                  )}
+                </div>
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={control}
             name="ReportingManager"
@@ -576,6 +580,7 @@ export default function AdminForm({ onSubmit, mode }) {
             )}
           />
           <>
+            <div></div>
             <div></div>
             <div></div>
             <Button

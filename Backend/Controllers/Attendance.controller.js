@@ -26,6 +26,9 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user._id);
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
 
+  const userName = await User.find({ _id: userId });
+  console.log(userName[0].Name);
+
   const { Latitude, Longitude } = body;
 
   if (!ImageLocalPath) {
@@ -107,13 +110,13 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
       sevenPMIST
     );
     formattedLogHours = formatSecondsToHHMMSS(logHours);
-    console.log(logHours);
   }
 
   try {
     const attendance = await Attendance.create({
       Image: Image.url,
       User: userId,
+      UserName: userName[0].Name,
       AttendAt: isOdd || isEmpty ? currentTime : todayAttendance[0].AttendAt,
       LogHours: formattedLogHours,
       Latitude: Latitude ? Number(Latitude) : undefined,
@@ -132,9 +135,90 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
 });
 
 const getAttendance = AsyncHandler(async (req, res) => {
-  let AllAttendance = await Attendance.find({ User: req.user._id }).sort({
-    AttendAt: -1,
-  });
+  const rolesPermission = req.permission;
+  const ViewAccess = rolesPermission?.attendance.canViewOthersAttendance;
+  let AllAttendance;
+  if (ViewAccess === true) {
+    AllAttendance = await Attendance.aggregate([
+      {
+        $addFields: {
+          attendDateOnly: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$AttendAt',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: '$User',
+            date: '$attendDateOnly',
+          },
+          attendances: {
+            $push: '$$ROOT',
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          user: '$_id.user',
+          date: '$_id.date',
+          attendances: 1,
+        },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+    ]);
+  } else {
+    AllAttendance = await Attendance.aggregate([
+      {
+        $addFields: {
+          attendDateOnly: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$AttendAt',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: '$User',
+            date: '$attendDateOnly',
+          },
+          attendances: {
+            $push: '$$ROOT',
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          user: '$_id.user',
+          date: '$_id.date',
+          attendances: 1,
+        },
+      },
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.user._id),
+        },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+    ]);
+    // AllAttendance.filter((item) => item.User !== req.user._id);
+  }
 
   const userAttendances = {};
 

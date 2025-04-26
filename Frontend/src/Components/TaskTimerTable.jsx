@@ -22,6 +22,8 @@ import {
 } from '../feature/tasktimerfetch/tasktimerslice.js';
 function Row({ row, openDialog }) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
   return (
     <React.Fragment>
       <TableRow>
@@ -33,33 +35,35 @@ function Row({ row, openDialog }) {
         <TableCell>{row.Message}</TableCell>
         <TableCell>
           <div className="flex justify-center">
-            <Dialog>
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
-                }}
-                asChild
-              >
-                <MdDelete className="font-semibold text-lg text-[#ff3b30] flex" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the task timer.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        dispatch(deleteTaskTimer({ data: row._id }));
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+            {user.permission.taskTimer.canDeleteTaskTimer && (
+              <Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-semibold text-lg text-[#ff3b30] flex" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the task timer.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteTaskTimer({ data: row._id }));
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TableCell>
       </TableRow>

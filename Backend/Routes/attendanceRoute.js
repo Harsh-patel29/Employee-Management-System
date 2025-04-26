@@ -5,6 +5,7 @@ import {
   getAttendance,
 } from '../Controllers/Attendance.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
+import { isAuth } from '../Middlewares/authMiddleware.js';
 import multer from 'multer';
 
 const router = Router();
@@ -30,6 +31,6 @@ router
     });
   });
 
-router.route('/attendanceDetail').get(authenticate, getAttendance);
+router.route('/attendanceDetail').get(authenticate, isAuth, getAttendance);
 
 export default router;

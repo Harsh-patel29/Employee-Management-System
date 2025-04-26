@@ -39,7 +39,7 @@ import ReusableTable from './ReusableTable.jsx';
 import ProjectFilterSheet from './ProjectFilterSheet.jsx';
 function Row({ row, openDialog, navigate, openSheet }) {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
-
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   return (
@@ -52,11 +52,12 @@ function Row({ row, openDialog, navigate, openSheet }) {
       >
         <TableCell>{row.index}</TableCell>
         <TableCell>
-          <div className="flex items-center gap-2 justify-center">
+          <div className="flex items-center gap-2 w-full justify-center text-start">
             {row.logo}
             <Link
               to={`/productivity/project/${row._id}`}
               style={{ color: '#408cb6' }}
+              className="w-20"
             >
               {row.name}
             </Link>
@@ -66,7 +67,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
         <TableCell>{row.status}</TableCell>
         <TableCell>
           <div className="flex justify-center">
-            {
+            {user.permission.project.canUpdateProject && (
               <Sheet
                 open={updatesheetopen}
                 onOpenChange={(open) => {
@@ -98,40 +99,41 @@ function Row({ row, openDialog, navigate, openSheet }) {
                   </SheetHeader>
                 </SheetContent>
               </Sheet>
-            }
-
-            <Dialog
-              onOpenChange={(open) => {
-                if (!open) navigate('/productivity/project');
-              }}
-            >
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
+            )}
+            {user.permission.project.canDeleteProject && (
+              <Dialog
+                onOpenChange={(open) => {
+                  if (!open) navigate('/productivity/project');
                 }}
-                asChild
               >
-                <MdDelete className="font-[200] text-lg text-[#ff3b30] cursor-pointer" />
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    the user's account and remove their data from servers.
-                    <Button
-                      className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
-                      onClick={() => {
-                        dispatch(deleteProject(row._id));
-                        navigate('/productivity/project', { replace: true });
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <MdDelete className="font-[200] text-lg text-[#ff3b30] cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the user's account and remove their data from servers.
+                      <Button
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        onClick={() => {
+                          dispatch(deleteProject(row._id));
+                          navigate('/productivity/project', { replace: true });
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -157,7 +159,7 @@ export default function ProjectTable() {
 
   const { project, projects, logo, loading, deletedproject, updatedproject } =
     useSelector((state) => state.project);
-
+  const { user } = useSelector((state) => state.auth);
   const filterValue = useSelector((state) => state.filter.filterValue);
 
   const openDialog = (id) => {
@@ -276,47 +278,51 @@ export default function ProjectTable() {
           <button>
             <ProjectFilterSheet />
           </button>
-          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-                <svg
-                  class="w-6 h-6 text-[#338DB5]"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <title>Create Project</title>
+          {user.permission.project.canAddProject && (
+            <Sheet open={sheetopen} onOpenChange={setsheetopen}>
+              <SheetTrigger>
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                  <svg
+                    class="w-6 h-6 text-[#338DB5]"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <title>Create Project</title>
 
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  ></path>
-                </svg>
-                Create Project
-              </div>
-            </SheetTrigger>
-            <SheetContent className="bg-white min-w-2xl">
-              <SheetHeader>
-                <SheetDescription>
-                  <ProjectForm
-                    mode="create"
-                    onSubmit={(formdata) => dispatch(createproject(formdata))}
-                  />
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
-          <ExporttoExcel
-            data={Projects}
-            fileName="Projects"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          />
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    ></path>
+                  </svg>
+                  Create Project
+                </div>
+              </SheetTrigger>
+              <SheetContent className="bg-white min-w-2xl">
+                <SheetHeader>
+                  <SheetDescription>
+                    <ProjectForm
+                      mode="create"
+                      onSubmit={(formdata) => dispatch(createproject(formdata))}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          )}
+          <button>
+            <ExporttoExcel
+              data={Projects}
+              fileName="Projects"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            />
+          </button>
         </div>
       </div>
 

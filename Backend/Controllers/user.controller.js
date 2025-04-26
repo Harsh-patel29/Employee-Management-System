@@ -290,7 +290,7 @@ const getAllowedSettingsById = AsyncHandler(async (req, res) => {
 
 const chageAccess = AsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { key, value } = req.body;
+  const { category, key, value } = req.body;
 
   if (typeof key === 'undefined' || key === null) {
     throw new ApiError(400, 'Permission key is undefined');
@@ -309,13 +309,13 @@ const chageAccess = AsyncHandler(async (req, res) => {
   if (!permissions.access || !permissions.access.user) {
     throw new ApiError(500, 'Invalid permissions structure');
   }
-  if (!(key in permissions.access.user)) {
+  if (!(key in permissions.access[category])) {
     throw new ApiError(400, `Permission key "${key}" does not exist`);
   }
 
   await Role.findByIdAndUpdate(
     id,
-    { $set: { [`access.user.${key}`]: value } },
+    { $set: { [`access.${category}.${key}`]: value } },
     { new: true }
   );
 
@@ -324,7 +324,7 @@ const chageAccess = AsyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        permissions.access_keys.user,
+        permissions.access[category],
         'Access updated successfully'
       )
     );

@@ -69,10 +69,23 @@ const createProject = AsyncHandler(async (req, res) => {
 });
 
 const getAllProject = AsyncHandler(async (req, res) => {
-  const project = await Project.find({});
-  return res
-    .status(200)
-    .json(new ApiResponse(200, project, 'Projects fetched successfully'));
+  const userid = req.user._id;
+  const rolesPermission = req.permission;
+
+  const ViewAccess = rolesPermission?.project.canViewOthersProject;
+  if (ViewAccess === true) {
+    const project = await Project.find({});
+    return res
+      .status(200)
+      .json(new ApiResponse(200, project, 'Projects fetched successfully'));
+  } else {
+    const project = await Project.find({
+      users: { $elemMatch: { user_id: userid } },
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, project, 'Projects fetched successfully'));
+  }
 });
 
 const getProjectbyId = AsyncHandler(async (req, res) => {

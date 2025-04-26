@@ -10,7 +10,7 @@ const ProjectDetail = () => {
   const [userid, setuserid] = useState(id);
   const [detail, setdetail] = useState();
   const [name, setname] = useState([]);
-
+  const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     setuserid(id);
   }, [id]);
@@ -64,9 +64,11 @@ const ProjectDetail = () => {
             </div>
           </div>
           <div className="flex flex-row gap-10 ">
-            <button className="bg-[#f9f9f9] cursor-pointer rounded-lg w-35 text-xl">
-              {<AssignSheet />}
-            </button>
+            {user.permission.project.canAddProjectUsers && (
+              <button className="bg-[#f9f9f9] cursor-pointer rounded-lg w-35 text-xl">
+                {<AssignSheet />}
+              </button>
+            )}
             <div className="bg-sky-400/30 text-white px-4 py-1 rounded-full flex items-center">
               <span className="mr-2">●</span>
               <span>{detail?.status}</span>

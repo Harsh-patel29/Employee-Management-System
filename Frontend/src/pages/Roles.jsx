@@ -28,10 +28,11 @@ import {
 } from '../Components/components/ui/dialog';
 import { Bounce, toast } from 'react-toastify';
 import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
-const updateAccess = (userId, key, value) => {
+
+const updateAccess = (userId, key, value, category) => {
   return axios.put(
     `http://localhost:8000/api/v1/user/settings/fetch/${userId}`,
-    { key, value },
+    { key, value, category },
     {
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +55,6 @@ const Roles = () => {
   useEffect(() => {
     dispatch(checkAuth());
   }, []);
-  console.log(user.permission);
 
   useEffect(() => {
     if (roles?.message) {
@@ -97,7 +97,8 @@ const Roles = () => {
         [key]: checked,
       },
     }));
-    updateAccess(userid, key, checked)
+
+    updateAccess(userid, key, checked, category)
       .then((response) => {})
       .catch((err) => console.error(err));
   };
@@ -312,6 +313,10 @@ const Roles = () => {
                                     </h6>
 
                                     <Switch
+                                      disabled={
+                                        !user?.permission?.user
+                                          ?.can_update_user_roles
+                                      }
                                       onClick={(e) => e.stopPropagation()}
                                       checked={value}
                                       onCheckedChange={(checked) =>

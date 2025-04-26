@@ -11,6 +11,9 @@ const AttendanceSchema = new Schema(
       ref: 'Users',
       required: true,
     },
+    UserName: {
+      type: String,
+    },
     AttendAt: {
       type: Date,
       default: '19:00:00',

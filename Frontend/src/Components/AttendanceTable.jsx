@@ -32,10 +32,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { Link } from 'react-router-dom';
 import Loader from './Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
-function convertDateFormat(dateStr) {
-  const [month, day, year] = dateStr.split('/');
-  return `${day}/${month}/${year}`;
-}
+import ExporttoExcel from './Export.jsx';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -134,7 +131,7 @@ function Row({ row, openMap }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.otherAttendances.map((attendance, idx) => (
+                  {row?.otherAttendances?.map((attendance, idx) => (
                     <TableRow
                       key={idx}
                       sx={{
@@ -228,57 +225,44 @@ export default function CollapsibleTable() {
     }
   }, [fromDate, toDate, attendances]);
 
-  const groupedAttendances = React.useMemo(() => {
-    return filteredAttendances?.reduce((acc, attendance) => {
-      const date = new Date(attendance.AttendAt).toLocaleDateString();
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(attendance);
-      return acc;
-    }, {});
-  }, [filteredAttendances]);
-
-  const sortedDates = Object.keys(groupedAttendances).sort(
-    (a, b) => new Date(b) - new Date(a)
-  );
-
-  const formattedData = sortedDates.map((date, index) => {
-    const records = groupedAttendances[date];
-    const firstRecord = records[0];
-    const otherRecords = records.slice(0);
+  const formattedData = attendances?.map((date, index) => {
+    const d = date?.attendances?.map((item) => item);
+    const image = d.map((item) => item.Image);
+    const attendAt = d.map((item) => item.AttendAt);
+    const otherRecords = d.filter((item) => item._id !== d[0]._id);
     const lastTimeIn = otherRecords.findLast((e) => e);
-    const isOdd = records.length % 2 === 1;
+    const isOdd = d.length % 2 === 1;
+    const userName = d.map((item) => item.UserName);
 
     return {
       index: index + 1,
       Image: (
         <img
-          src={firstRecord.Image}
+          src={image[0]}
           alt="Attendance"
           className="w-8 h-8 object-cover rounded-3xl"
         />
       ),
-      Date: convertDateFormat(date),
-      User: user.user.Name,
-      AttendAt: new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
+      Date: date.date,
+      User: userName[0],
+      AttendAt: new Date(attendAt[0]).toLocaleTimeString(),
       TimeOut: isOdd
         ? new Date().toLocaleTimeString()
-        : new Date(firstRecord.AttendAt).toLocaleTimeString(),
+        : new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
       formattedLogHours: isOdd
         ? formatTime(
             convertSecondsToTimeString(
               calculateTimeDifferenceInSeconds(
-                new Date(firstRecord.AttendAt),
+                new Date(lastTimeIn.AttendAt),
                 new Date()
               )
             )
           )
-        : formatTime(firstRecord.LogHours),
+        : formatTime(lastTimeIn.LogHours),
       otherAttendances: otherRecords,
-      Location: firstRecord.Location,
-      Latitude: firstRecord.Latitude,
-      Longitude: firstRecord.Longitude,
+      Location: attendances.Location,
+      Latitude: lastTimeIn.Latitude,
+      Longitude: lastTimeIn.Longitude,
     };
   });
 
@@ -288,7 +272,7 @@ export default function CollapsibleTable() {
     { field: 'image', headerName: 'Image' },
     { field: 'date', headerName: 'Date' },
     { field: 'user', headerName: 'User' },
-    { field: 'attendAt', headerName: 'Attend At' },
+    { field: 'TimeIn', headerName: 'TimeIn' },
     { field: 'timeOut', headerName: 'Time Out' },
     { field: 'logHours', headerName: 'Log Hours' },
     { field: 'location', headerName: 'Location' },
@@ -303,6 +287,11 @@ export default function CollapsibleTable() {
           Attendance
         </h5>
         <div className="flex items-center">
+          <ExporttoExcel
+            data={formattedData}
+            fileName="Attendance"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          />
           <button
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
             onClick={() => setOpenFilterSheet(true)}

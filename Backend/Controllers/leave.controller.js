@@ -66,13 +66,25 @@ const createLeave = AsyncHandler(async (req, res) => {
 });
 
 const getAllLeave = AsyncHandler(async (req, res) => {
-  const leave = await Leave.find({});
-  if (!leave) {
-    throw new ApiError('No leave found', 404);
+  const rolesPermission = req.permission;
+  const ViewAccess = rolesPermission?.leave.canViewOthersLeave;
+  if (ViewAccess === true) {
+    const leave = await Leave.find({});
+    if (!leave) {
+      throw new ApiError(400, 'No leave found');
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, leave, 'All Leave Fetched Successfully'));
+  } else {
+    const leave = await Leave.find({ EMPCODE: req.user.EMP_CODE });
+    if (!leave) {
+      throw new ApiError(400, 'No leave found');
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, leave, 'All Leave Fetched Successfully'));
   }
-  return res
-    .status(200)
-    .json(new ApiResponse(200, leave, 'All Leave Fetched Successfully'));
 });
 
 const getLeaveById = AsyncHandler(async (req, res) => {
