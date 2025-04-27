@@ -87,6 +87,7 @@ export default function DashTaskTable() {
   ];
   return (
     <ReusableTable
+      width="100%"
       maxHeight={200}
       data={filteredTask}
       RowComponent={Row}

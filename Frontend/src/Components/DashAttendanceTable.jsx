@@ -99,6 +99,7 @@ export default function DashAttendanceTable() {
 
   return (
     <ReusableTable
+      width="100%"
       maxHeight={200}
       RowComponent={Row}
       data={formattedData}

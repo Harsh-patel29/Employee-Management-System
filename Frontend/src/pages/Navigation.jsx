@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   collapedSideBar,
   expandSideBar,
+  notVisible,
+  visible,
 } from '../feature/ToggelSideBar/ToggleSideBarSlice.js';
+
 import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 
 const Navigation = () => {
@@ -226,6 +229,7 @@ const Navigation = () => {
       ),
     },
   ];
+
   const hasPermission = (user, subItem) => {
     const permissionMap = {
       leaveType: { category: 'leave', permission: 'canManageLeaveStatus' },
@@ -245,6 +249,8 @@ const Navigation = () => {
   };
   const dispatch = useDispatch();
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
+  const isVisible = useSelector((state) => state.Sidebar.visible);
+
   React.useEffect(() => {
     dispatch(checkAuth());
   }, []);
@@ -260,8 +266,28 @@ const Navigation = () => {
     localStorage.setItem('active', active);
   }, [active]);
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  React.useEffect(() => {
+    dispatch(!isMobile ? visible() : notVisible());
+    if (!isMobile) {
+      dispatch(visible());
+    }
+  }, [isMobile]);
+
   return (
-    <div style={{ position: 'absolute', zIndex: '50' }}>
+    <div
+      style={{ position: 'absolute', zIndex: '50 ' }}
+      className={`${!isMobile || isVisible ? 'flex' : 'hidden '} `}
+    >
       <nav className="transform transition-all translate-x-0 duration-45 delay-0 w-[114px] left-0 top-[78px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px] shadow-[4px_11px_12px_#8a8f93b8]  bg-[#fff] h-[100vh] fixed z-[11] border-r-[solid] border-r-[1px] ">
         <ul
           className="max-h-[calc(100vh-70px)] list-none block mx-0"

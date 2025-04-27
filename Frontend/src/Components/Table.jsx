@@ -513,6 +513,7 @@ export default function CollapsibleTable() {
         </div>
       </div>
       <ReusableTable
+        width="full"
         columns={columns}
         data={users}
         RowComponent={Row}

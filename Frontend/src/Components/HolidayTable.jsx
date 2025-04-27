@@ -285,9 +285,11 @@ const HolidayTable = () => {
       </div>
 
       <ReusableTable
+        width="full"
         columns={columns}
         RowComponent={Row}
         data={filteredData}
+        pagination={true}
         rowProps={{ openSheet, openDialog }}
       />
     </>

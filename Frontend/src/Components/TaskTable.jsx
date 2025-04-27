@@ -399,6 +399,7 @@ export default function TaskTable() {
 
       {viewMode === 'list' && (
         <ReusableTable
+          width="full"
           columns={columns}
           data={filteredData}
           RowComponent={Row}

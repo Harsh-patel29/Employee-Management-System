@@ -304,7 +304,7 @@ export default function ProjectTable() {
                   Create Project
                 </div>
               </SheetTrigger>
-              <SheetContent className="bg-white min-w-2xl">
+              <SheetContent className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md">
                 <SheetHeader>
                   <SheetDescription>
                     <ProjectForm
@@ -327,6 +327,7 @@ export default function ProjectTable() {
       </div>
 
       <ReusableTable
+        width="full"
         columns={columns}
         data={filteredData}
         rowProps={{ openDialog, openSheet, navigate }}

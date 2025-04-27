@@ -167,7 +167,7 @@ const KanbanView = ({ viewType = 'kanban' }) => {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex flex-row justify-evenly p-4">
+      <div className="flex flex-row justify-evenly  p-4 min-w-full">
         {Object.entries(columns).map(([columnId, columnTasks]) => (
           <Droppable
             direction="vertical"
@@ -178,14 +178,14 @@ const KanbanView = ({ viewType = 'kanban' }) => {
             ignoreContainerClipping={false}
           >
             {(provided, snapshot) => (
-              <div className="w-full overflow-y-auto">
+              <div className="w-full  overflow-y-auto">
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={`bg-gray-100 h-[500px] shadow-xl w-64 rounded ${snapshot.isDraggingOver ? 'bg-gray-200' : ''}`}
                 >
                   <div
-                    className={`${columnId === 'Backlog' ? 'border-t-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-t-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-t-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-t-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-t-[rgb(130,216,239)] border-4' : 'bg-white'} h-14 scrollbar-thin flex justify-between bg-white items-center border border-b-0 border-l-0 border-r-0 shadow rounded-tr-md rounded-tl-md`}
+                    className={` ${columnId === 'Backlog' ? 'border-t-[rgb(253,80,78)] border-4' : columnId === 'In_Progress' ? 'border-t-[rgb(250,139,52)] border-4' : columnId === 'Due_Today' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'OverDue' ? 'border-t-[rgb(217,37,34)] border-4' : columnId === 'Completed' ? 'border-t-[rgb(69,222,103)] border-4' : columnId === 'Done' ? 'border-t-[rgb(145,150,135)] border-4' : columnId === 'Deployed' ? 'border-t-[rgb(130,216,239)] border-4' : 'bg-white'} h-14 scrollbar-thin flex justify-between bg-white items-center border border-b-0 border-l-0 border-r-0 shadow rounded-tr-md rounded-tl-md`}
                   >
                     <h2 className="capitalize font-bold mb-2 ml-4 text-black">
                       {columnId}

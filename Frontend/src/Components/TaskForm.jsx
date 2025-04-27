@@ -447,8 +447,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          <div className="flex w-full h-full justify-between items-start pb-3 ">
-            <div className="flex flex-col w-[810px]">
+          <div className="flex xl:flex-row lg:flex-col md:flex-col sm:flex-col max-sm:flex-col w-full h-full justify-between items-start pb-3 ">
+            <div className="flex flex-col xl:w-[810px] 2xl:w-full w-full">
               <FormField
                 control={control}
                 name="description"
@@ -771,7 +771,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 control={control}
                 name="comments"
                 render={({ field }) => (
-                  <FormItem className="w-full flex flex-col mt-6 bg-white shadow-2xl border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
+                  <FormItem className="w-[98%] flex flex-col mt-6 bg-white shadow-2xl border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
                     <FormLabel
                       className="flex items-start mt-2 text-[20px]  ml-5 font-[100] font-[Inter,sans-serif] 
                           text-decoration-line: underline decoration-[rgb(205,179,162)]"
@@ -1100,8 +1100,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 )}
               />
             </div>
-            <div className="mr-20 pb-6 w-[34%]">
-              <div className="flex flex-col gap-4 border  border-l-1 border-t-0 border-b-0 border-r-0 border-gray-300">
+            <div className="xl:mr-20 pb-6 lg:flex md:flex sm:flex max-sm:flex   lg:justify-center md:justify-center sm:justify-center max-sm:justify-center   lg:w-full xl:w-[34%] max:sm:w-full">
+              <div className="flex flex-col gap-4 border max:sm:w-[50%] lg:mt-6  md:mt-6 sm:md-6 max-sm:mt-6 xl:mt-0   border-l-1 border-t-0 border-b-0 border-r-0 border-gray-300">
                 <FormField
                   control={control}
                   name="Project"

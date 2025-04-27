@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isExpanded: false,
+  visible: false,
 };
 
 const ToggleSideBarSlice = createSlice({
@@ -14,9 +15,15 @@ const ToggleSideBarSlice = createSlice({
     collapedSideBar: (state) => {
       state.isExpanded = false;
     },
+    visible: (state) => {
+      state.visible = true;
+    },
+    notVisible: (state) => {
+      state.visible = false;
+    },
   },
 });
 
-export const { expandSideBar, collapedSideBar } = ToggleSideBarSlice.actions;
-
+export const { expandSideBar, collapedSideBar, notVisible, visible } =
+  ToggleSideBarSlice.actions;
 export default ToggleSideBarSlice.reducer;

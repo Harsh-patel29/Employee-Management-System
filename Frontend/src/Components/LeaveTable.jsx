@@ -310,6 +310,7 @@ const LeaveTable = () => {
         </div>
       </div>
       <ReusableTable
+        width="full"
         columns={columns}
         data={filteredData}
         RowComponent={Row}

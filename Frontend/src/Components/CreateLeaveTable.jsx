@@ -262,6 +262,7 @@ export default function CreateLeaveTable() {
         </div>
       </div>
       <ReusableTable
+        width="full"
         columns={columns}
         data={leave}
         RowComponent={Row}

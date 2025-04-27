@@ -85,7 +85,7 @@ const NewRoles = () => {
   }, [createdRole?.success, updatedRole?.success, error, dispatch, mode]);
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-w-full min-h-screen bg-gray-50">
       <CreateRoleForm onSubmit={handleSubmit} mode={mode} />
     </div>
   );

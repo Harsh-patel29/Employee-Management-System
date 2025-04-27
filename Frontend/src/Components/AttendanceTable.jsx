@@ -105,7 +105,7 @@ function Row({ row, openMap }) {
       <TableRow>
         <TableCell
           style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={8}
+          colSpan={7}
           sx={{
             backgroundColor: 'white',
             color: 'black',
@@ -233,7 +233,6 @@ export default function CollapsibleTable() {
     const lastTimeIn = otherRecords.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
     const userName = d.map((item) => item.UserName);
-    console.log(new Date(lastTimeIn?.AttendAt).toLocaleTimeString());
 
     return {
       index: index + 1,
@@ -381,6 +380,7 @@ export default function CollapsibleTable() {
       </Sheet>
 
       <ReusableTable
+        width="full"
         columns={columns}
         data={formattedData}
         RowComponent={Row}

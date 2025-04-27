@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700');
 @import '../node_modules/@syncfusion/ej2-base/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-layouts/styles/material.css';
@@ -6,13 +7,38 @@
 @import '../node_modules/@syncfusion/ej2-navigations/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-popups/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-react-kanban/styles/material.css';
-
 @import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
+@tailwind utilities;
 
+@media (min-width: 640px) {
+  .container {
+    max-width: 100%;
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: 100%;
+  }
+}
+@media (min-width: 1024px) {
+  .container {
+    max-width: 100%;
+  }
+}
+@media (min-width: 1280px) {
+  .container {
+    max-width: 100%;
+  }
+}
+@media (min-width: 1536px) {
+  .container {
+    max-width: 100%;
+  }
+}
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(0 0% 3.9%);
@@ -106,4 +132,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+.container {
+  @apply mx-auto px-2; /* center it and add side padding */
+  max-width: 100%; /* make it full width */
 }

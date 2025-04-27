@@ -37,7 +37,7 @@ function MarkAttendance() {
 
   useEffect(() => {
     if (error) {
-      toast.error(error.response.data.message, {
+      toast.error(error.response?.data.message, {
         position: 'top-right',
         autoClose: 3000,
       });

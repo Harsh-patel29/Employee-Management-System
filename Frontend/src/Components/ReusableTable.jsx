@@ -20,6 +20,7 @@ const ReusableTable = ({
   headStyle = {},
   cellStyle = {},
   maxHeight = 500,
+  width = '98%',
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -46,8 +47,7 @@ const ReusableTable = ({
           marginTop: 0.5,
           color: 'black',
           maxHeight: { maxHeight },
-          width: '98%',
-          marginLeft: 1.7,
+          width: { width },
           borderRadius: 2,
           ...containerStyle,
         }}

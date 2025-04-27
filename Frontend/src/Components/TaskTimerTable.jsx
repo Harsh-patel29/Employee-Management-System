@@ -149,6 +149,7 @@ export default function TaskTimerTable() {
         </h5>
       </div>
       <ReusableTable
+        width="full"
         columns={columns}
         RowComponent={Row}
         data={taskTimer}
