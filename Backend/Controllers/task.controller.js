@@ -57,9 +57,11 @@ const getAlltasks = AsyncHandler(async (req, res) => {
   const ViewAccess = rolesPermission?.task.canViewAllTask;
   let allTasks;
   if (ViewAccess === true) {
-    allTasks = await Task.find({});
+    allTasks = await Task.find({}).sort({ createdAt: -1 });
   } else {
-    allTasks = await Task.find({ Users: req.user.Name });
+    allTasks = await Task.find({ Users: req.user.Name }).sort({
+      createdAt: -1,
+    });
   }
   return res
     .status(200)

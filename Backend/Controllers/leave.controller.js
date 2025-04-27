@@ -69,7 +69,7 @@ const getAllLeave = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
   const ViewAccess = rolesPermission?.leave.canViewOthersLeave;
   if (ViewAccess === true) {
-    const leave = await Leave.find({});
+    const leave = await Leave.find({}).sort({ createdAt: -1 });
     if (!leave) {
       throw new ApiError(400, 'No leave found');
     }
@@ -77,7 +77,9 @@ const getAllLeave = AsyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, leave, 'All Leave Fetched Successfully'));
   } else {
-    const leave = await Leave.find({ EMPCODE: req.user.EMP_CODE });
+    const leave = await Leave.find({ EMPCODE: req.user.EMP_CODE }).sort({
+      createdAt: -1,
+    });
     if (!leave) {
       throw new ApiError(400, 'No leave found');
     }
@@ -171,7 +173,7 @@ const createnewLeave = AsyncHandler(async (req, res) => {
 });
 
 const getCreatedLeave = AsyncHandler(async (req, res) => {
-  const leave = await CreateLeave.find({});
+  const leave = await CreateLeave.find({}).sort({ createdAt: -1 });
   if (!leave) {
     throw new ApiError('No leave found', 404);
   }

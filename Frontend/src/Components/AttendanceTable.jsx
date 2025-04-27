@@ -229,10 +229,11 @@ export default function CollapsibleTable() {
     const d = date?.attendances?.map((item) => item);
     const image = d.map((item) => item.Image);
     const attendAt = d.map((item) => item.AttendAt);
-    const otherRecords = d.filter((item) => item._id !== d[0]._id);
+    const otherRecords = d.filter((item) => item);
     const lastTimeIn = otherRecords.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
     const userName = d.map((item) => item.UserName);
+    console.log(new Date(lastTimeIn?.AttendAt).toLocaleTimeString());
 
     return {
       index: index + 1,
@@ -253,16 +254,16 @@ export default function CollapsibleTable() {
         ? formatTime(
             convertSecondsToTimeString(
               calculateTimeDifferenceInSeconds(
-                new Date(lastTimeIn.AttendAt),
+                new Date(lastTimeIn?.AttendAt),
                 new Date()
               )
             )
           )
-        : formatTime(lastTimeIn.LogHours),
+        : formatTime(lastTimeIn?.LogHours),
       otherAttendances: otherRecords,
-      Location: attendances.Location,
-      Latitude: lastTimeIn.Latitude,
-      Longitude: lastTimeIn.Longitude,
+      Location: attendances?.Location,
+      Latitude: lastTimeIn?.Latitude,
+      Longitude: lastTimeIn?.Longitude,
     };
   });
 

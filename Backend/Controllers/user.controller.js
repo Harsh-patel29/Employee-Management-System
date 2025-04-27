@@ -223,10 +223,11 @@ const getAllUsers = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
   const ViewAccess = rolesPermission.user.can_view_other_users;
   if (ViewAccess === true) {
-    const user = await User.find({});
+    const user = await User.find({}).sort({ createdAt: -1 });
     return res
       .status(200)
-      .json(new ApiResponse(200, user, 'User fetched Successfully'));
+      .json(new ApiResponse(200, user, 'User fetched Successfully'))
+      .sort({ createdAt: -1 });
   } else {
     const user = await User.find({ _id: req.user._id });
     return res

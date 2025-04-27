@@ -4,32 +4,42 @@ import { useParams } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import AssignSheet from '../Components/AssignSheet.jsx';
 import { getname } from '../feature/projectfetch/assignuser.js';
-
+import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
+import { getProjects } from '../feature/projectfetch/createproject.js';
 const ProjectDetail = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [userid, setuserid] = useState(id);
   const [detail, setdetail] = useState();
   const [name, setname] = useState([]);
-  const { user } = useSelector((state) => state.auth);
-  useEffect(() => {
-    setuserid(id);
-  }, [id]);
+  const [Projects, setProjects] = React.useState([]);
+  const [Task, setTask] = React.useState([]);
+  const { tasks } = useSelector((state) => state.task);
+  const { projects } = useSelector((state) => state.project);
 
-  const { totalassignedusers } = useSelector((state) => state.assignusers);
-
-  const dispatch = useDispatch();
-
-  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
-
-  useEffect(() => {
-    dispatch(getname(userid));
+  React.useEffect(() => {
+    dispatch(getProjects());
   }, []);
 
-  useEffect(() => {
-    if (totalassignedusers) {
-      setname(totalassignedusers?.message);
+  React.useEffect(() => {
+    if (projects?.message) {
+      setProjects(projects.message);
+    } else {
+      setProjects([]);
     }
-  }, [totalassignedusers]);
+  }, [projects]);
+
+  React.useEffect(() => {
+    dispatch(getAllTasks());
+  }, []);
+
+  React.useEffect(() => {
+    if (tasks?.message) {
+      setTask(tasks.message);
+    } else {
+      setTask([]);
+    }
+  }, [tasks]);
 
   useEffect(() => {
     const getDetails = async (id) => {
@@ -47,8 +57,51 @@ const ProjectDetail = () => {
     getDetails(id);
   }, [id]);
 
+  const totalTask = Task.filter((item) => item.Project === detail?.name);
+  const status = totalTask.map((item) => item.Status);
+  const inProgress = status.filter(
+    (item) => item == 'In_Progress' && totalTask.filter((items) => items)
+  );
+
+  const Backlog = status.filter((item) => item == 'Backlog');
+  const Completed = status.filter((item) => item == 'Completed');
+
+  const OverDue = totalTask.filter(
+    (item) =>
+      item.EndDate !== '' &&
+      item.EndDate <
+        new Date().toLocaleDateString('en-CA').split('/').join('-') &&
+      !['Completed', 'Done', 'Deployed'].includes(item.Status)
+  );
+  const DueToday = totalTask.filter(
+    (item) =>
+      item.EndDate !== '' &&
+      item.EndDate ==
+        new Date().toLocaleDateString('en-CA').split('/').join('-') &&
+      !['Completed', 'Done', 'Deployed'].includes(item.Status)
+  );
+
+  const { user } = useSelector((state) => state.auth);
+  useEffect(() => {
+    setuserid(id);
+  }, [id]);
+
+  const { totalassignedusers } = useSelector((state) => state.assignusers);
+
+  const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
+
+  useEffect(() => {
+    dispatch(getname(userid));
+  }, []);
+
+  useEffect(() => {
+    if (totalassignedusers) {
+      setname(totalassignedusers?.message);
+    }
+  }, [totalassignedusers]);
+
   return (
-    <div className="rounded-md ml-28 top-26 shadow   lg:w-[90%]  transition-all duration-300 bg-gray-50">
+    <div className="rounded-md ml-28 top-26 shadow  lg:w-[90%] transition-all duration-300 bg-gray-50">
       <div className="bg-gray-50  flex flex-col h-full">
         <div className="bg-[#6eaffe] rounded-lg p-4 mb-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">
@@ -97,12 +150,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">1</h2>
+                  <h2 className="text-3xl font-bold">{totalTask?.length}</h2>
                   <p className="text-gray-500 ">Total Tasks</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-purple-100 rounded-full">
-                <div className="h-1 bg-purple-500 rounded-full w-1/3"></div>
+                <div
+                  className="h-1 bg-purple-500 rounded-full"
+                  style={{
+                    width: `${(totalTask?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -125,12 +183,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">0</h2>
+                  <h2 className="text-3xl font-bold">{Backlog?.length}</h2>
                   <p className="text-gray-500">Backlog Tasks</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-blue-100 rounded-full">
-                <div className="h-1 bg-blue-500 rounded-full w-0"></div>
+                <div
+                  className="h-1 bg-blue-500 rounded-full"
+                  style={{
+                    width: `${(Backlog?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -153,12 +216,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">00</h2>
+                  <h2 className="text-3xl font-bold">{inProgress?.length}</h2>
                   <p className="text-gray-500">In Progress</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-orange-100 rounded-full">
-                <div className="h-1 bg-orange-500 rounded-full w-0"></div>
+                <div
+                  className="h-1 bg-orange-500 rounded-full"
+                  style={{
+                    width: `${(inProgress?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -181,12 +249,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">00</h2>
+                  <h2 className="text-3xl font-bold">{OverDue?.length}</h2>
                   <p className="text-gray-500">Overdue</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-red-100 rounded-full">
-                <div className="h-1 bg-red-500 rounded-full w-0"></div>
+                <div
+                  className="h-1 bg-red-500 rounded-full"
+                  style={{
+                    width: `${(OverDue?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -209,12 +282,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">01</h2>
+                  <h2 className="text-3xl font-bold">{DueToday?.length}</h2>
                   <p className="text-gray-500">Due Today</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-green-100 rounded-full">
-                <div className="h-1 bg-green-500 rounded-full w-1/3"></div>
+                <div
+                  className="h-1 bg-green-500 rounded-full"
+                  style={{
+                    width: `${(DueToday?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -237,12 +315,17 @@ const ProjectDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">0</h2>
+                  <h2 className="text-3xl font-bold">{Completed?.length}</h2>
                   <p className="text-gray-500">Completed</p>
                 </div>
               </div>
               <div className="h-1 w-full bg-teal-100 rounded-full">
-                <div className="h-1 bg-teal-500 rounded-full w-0"></div>
+                <div
+                  className="h-1 bg-teal-500 rounded-full"
+                  style={{
+                    width: `${(Completed?.length / totalTask?.length) * 100}%`,
+                  }}
+                ></div>
               </div>
             </div>
           </div>

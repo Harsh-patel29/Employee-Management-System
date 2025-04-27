@@ -113,9 +113,9 @@ const getAllTaskTimer = AsyncHandler(async (req, res) => {
   const ViewAccess = rolesPermission?.taskTimer.canViewOthersTaskTimer;
   let taskTimer;
   if (ViewAccess === true) {
-    taskTimer = await TaskTimer.find({});
+    taskTimer = await TaskTimer.find({}).sort({ createdAt: -1 });
   } else {
-    taskTimer = await TaskTimer.find({ User: user });
+    taskTimer = await TaskTimer.find({ User: user }).sort({ createdAt: -1 });
   }
   const finalData = taskTimer.map((item) => {
     return {

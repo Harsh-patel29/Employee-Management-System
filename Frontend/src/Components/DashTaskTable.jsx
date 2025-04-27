@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import ReusableTable from './ReusableTable.jsx';
 import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
 import { useNavigate } from 'react-router';
+import { Table } from '@mui/material';
 function Row({ row }) {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -86,10 +87,11 @@ export default function DashTaskTable() {
   ];
   return (
     <ReusableTable
+      maxHeight={200}
       data={filteredTask}
       RowComponent={Row}
       columns={columns}
-      pagination={false}
+      pagination={true}
     />
   );
 }

@@ -25,19 +25,22 @@ const DaySchema = new mongoose.Schema({
   },
 });
 
-const weekOffSchema = new Schema({
-  WeekOffName: {
-    type: String,
-    required: true,
+const weekOffSchema = new Schema(
+  {
+    WeekOffName: {
+      type: String,
+      required: true,
+    },
+    Effective_Date: {
+      type: String,
+      required: true,
+    },
+    days: {
+      type: [DaySchema],
+      required: true,
+    },
   },
-  Effective_Date: {
-    type: String,
-    required: true,
-  },
-  days: {
-    type: [DaySchema],
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 export const WeekOff = mongoose.model('WeekOff', weekOffSchema);

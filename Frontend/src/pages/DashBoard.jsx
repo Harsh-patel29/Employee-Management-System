@@ -36,7 +36,7 @@ const DashBoard = () => {
   const DueTodayTask = Tasks?.filter(
     (item) =>
       item.EndDate !== '' &&
-      item.EndDate ===
+      item.EndDate ==
         new Date().toLocaleDateString('en-CA').split('/').join('-') &&
       !['Completed', 'Done', 'Deployed'].includes(item.Status)
   );
@@ -83,14 +83,14 @@ const DashBoard = () => {
             </div>{' '}
           </div>
         </div>
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-2 mb-5">
           <div className="w-[30%] ">
             <h1 className="ml-4 font-semibold text-[20.8px] mb-4">Log Hours</h1>
             <div>
               <DashAttendanceTable />
             </div>
           </div>
-          <div className="w-[70%]">
+          <div className="w-[70%] ">
             <h1 className="ml-4 font-semibold text-[20.8px] mb-4">
               Pending Task List
             </h1>

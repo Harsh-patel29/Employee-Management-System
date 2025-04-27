@@ -70,7 +70,7 @@ const deleteHoliday = AsyncHandler(async (req, res) => {
 });
 
 const getHoliday = AsyncHandler(async (req, res) => {
-  const holiday = await Holiday.find({});
+  const holiday = await Holiday.find({}).sort({ createdAt: -1 });
   if (!holiday) {
     throw new ApiError(404, 'Holiday not found');
   }

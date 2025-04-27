@@ -99,10 +99,11 @@ export default function DashAttendanceTable() {
 
   return (
     <ReusableTable
+      maxHeight={200}
       RowComponent={Row}
       data={formattedData}
       columns={columns}
-      pagination={false}
+      pagination={true}
     />
   );
 }

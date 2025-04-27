@@ -74,13 +74,15 @@ const getAllProject = AsyncHandler(async (req, res) => {
 
   const ViewAccess = rolesPermission?.project.canViewOthersProject;
   if (ViewAccess === true) {
-    const project = await Project.find({});
+    const project = await Project.find({})
+      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 });
     return res
       .status(200)
       .json(new ApiResponse(200, project, 'Projects fetched successfully'));
   } else {
     const project = await Project.find({
-      users: { $elemMatch: { user_id: userid } },
+      users: { $elemMatch: { user_id: userid } }.sort({ createdAt: -1 }),
     });
     return res
       .status(200)
