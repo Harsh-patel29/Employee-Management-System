@@ -25,9 +25,9 @@ const formSchema = z.object({
   Leave_Reason: z.string().min(1, { message: 'Leave Reason is Required' }),
   LEAVE_TYPE: z.string().min(1, { message: 'Leave Type is Required' }),
   Start_Date: z.string().min(1, { message: 'Start Date is Required' }),
-  StartDateType: z.string().min(1, { message: 'Start Date Type is Required' }),
-  End_Date: z.string().min(1, { message: 'End Date is Required' }),
-  EndDateType: z.string().min(1, { message: 'End Date Type is Required' }),
+  StartDateType: z.string().min(1, { message: 'Start Day Type is Required' }),
+  End_Date: z.string().optional(),
+  EndDateType: z.string().optional(),
 });
 
 export default function LeaveForm({ onSubmit, mode, id }) {
@@ -63,11 +63,11 @@ export default function LeaveForm({ onSubmit, mode, id }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       Leave_Reason: '',
-      LEAVE_TYPE: null,
+      LEAVE_TYPE: '',
       Start_Date: '',
-      StartDateType: null,
+      StartDateType: '',
       End_Date: '',
-      EndDateType: null,
+      EndDateType: '',
     },
   });
 
@@ -176,7 +176,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                     {...field}
                     type="text"
                     placeholder="Enter Leave Reason"
-                    className="h-9.5  w-full   rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="h-9.5 w-full rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </FormControl>
                 <div>
@@ -256,7 +256,6 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                         : field.value
                     }
                     placeholder="Select Leave Type"
-                    isClearable={true}
                     options={LeaveTypeOptions}
                     onChange={(value) => {
                       field.onChange(value.value);
@@ -290,8 +289,9 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                 <FormControl>
                   <DatePicker
                     {...field}
-                    className="w-full h-9.5  border border-gray-300 rounded-sm  outline-none"
-                    placeholderText="   Start Date"
+                    className="w-full h-9.5  border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3  outline-none"
+                    placeholderText="Start Date"
+                    autoComplete="off"
                     selected={field.value}
                     onChange={(date) => {
                       field.onChange(date);
@@ -333,7 +333,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                       : 'text-[16px] font-[500]'
                   }`}
                 >
-                  Start Date
+                  Start Day
                 </FormLabel>
                 <FormControl>
                   <Select
@@ -437,8 +437,9 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                 <FormControl>
                   <DatePicker
                     {...field}
-                    className="w-full h-9.5 border border-gray-300 rounded-sm outline-none"
-                    placeholderText="    End Date"
+                    className="w-full h-9.5 border border-gray-300 p-3 text-[rgb(0,0,0)] text-[15px] font-[450]  rounded-sm outline-none"
+                    autoComplete="off"
+                    placeholderText="End Date"
                     selected={field.value}
                     disabled={!startDate}
                     onChange={(date) => {
@@ -477,7 +478,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                   htmlFor="End_Date_Type"
                   className={errors?.EndDateType ? 'text-[#737373]' : ''}
                 >
-                  End Date
+                  End Day
                 </FormLabel>
                 <FormControl>
                   <Select

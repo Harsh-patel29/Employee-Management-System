@@ -29,12 +29,10 @@ const leaveSchema = new Schema(
     },
     End_Date: {
       type: String,
-      required: true,
     },
     EndDateType: {
       type: String,
-      enum: ['First_Half', 'Second_Half', 'Full_Day'],
-      required: true,
+      enum: ['First_Half', 'Second_Half', 'Full_Day', ''],
     },
     Days: {
       type: Number,

@@ -15,14 +15,7 @@ const createLeave = AsyncHandler(async (req, res) => {
     End_Date,
     EndDateType,
   } = req.body;
-  if (
-    !Leave_Reason ||
-    !LEAVE_TYPE ||
-    !Start_Date ||
-    !StartDateType ||
-    !End_Date ||
-    !EndDateType
-  ) {
+  if (!Leave_Reason || !LEAVE_TYPE || !Start_Date || !StartDateType) {
     throw new ApiError('All fields are required', 400);
   }
   const user = await User.findById(req.user._id);
@@ -31,11 +24,22 @@ const createLeave = AsyncHandler(async (req, res) => {
   }
 
   const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const timeDiff = Math.abs(end - start);
-    const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    return diffDays;
+    if (req.body.End_Date && req.body.End_Date !== req.body.Start_Date) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const timeDiff = Math.abs(end - start);
+      const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } else if (
+      req.body.StartDateType === 'First_Half' ||
+      req.body.StartDateType === 'Second_Half'
+    ) {
+      const days = 0.5;
+      return days;
+    } else if (req.body.StartDateType === 'Full_Day') {
+      const days = 1;
+      return days;
+    }
   };
 
   try {
@@ -49,10 +53,9 @@ const createLeave = AsyncHandler(async (req, res) => {
         .split('/')
         .join('-'),
       StartDateType,
-      End_Date: new Date(End_Date)
-        .toLocaleDateString('en-CA')
-        .split('/')
-        .join('-'),
+      End_Date: req.body.End_Date
+        ? new Date(End_Date).toLocaleDateString('en-CA').split('/').join('-')
+        : '',
       EndDateType,
       Days: calculateDays(Start_Date, End_Date),
     });
@@ -114,11 +117,22 @@ const deleteLeave = AsyncHandler(async (req, res) => {
 
 const updateLeave = AsyncHandler(async (req, res) => {
   const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const timeDiff = Math.abs(end - start);
-    const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    return diffDays;
+    if (req.body.End_Date) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const timeDiff = Math.abs(end - start);
+      const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } else if (
+      req.body.data.StartDateType === 'First_Half' ||
+      req.body.data.StartDateType === 'Second_Half'
+    ) {
+      const days = 0.5;
+      return days;
+    } else if (req.body.data.StartDateType === 'Full_Day') {
+      const days = 1;
+      return days;
+    }
   };
 
   const leave = await Leave.findById(req.body.id);
@@ -135,12 +149,13 @@ const updateLeave = AsyncHandler(async (req, res) => {
   leave.Days = calculateDays(req.body.data.Start_Date, req.body.data.End_Date);
 
   const updatedLeave = await leave.save();
+
   const newLeave = {
     Leave_Reason: updatedLeave.Leave_Reason,
     LEAVE_TYPE: updatedLeave.LEAVE_TYPE,
     Start_Date: updatedLeave.Start_Date,
     StartDateType: updatedLeave.StartDateType,
-    End_Date: updatedLeave.End_Date,
+    End_Date: updatedLeave.End_Date ? updatedLeave.End_Date : '',
     EndDateType: updatedLeave.EndDateType,
     Days: updatedLeave.Days,
   };
