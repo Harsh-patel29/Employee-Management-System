@@ -117,7 +117,7 @@ function Row({ row, openDialog, navigate, openSheet }) {
                       This action cannot be undone. This will permanently delete
                       the leave.
                       <Button
-                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800 cursor-pointer"
                         onClick={() => {
                           dispatch(deleteLeave({ data: row._id }));
                         }}

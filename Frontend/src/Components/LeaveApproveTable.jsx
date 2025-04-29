@@ -81,7 +81,7 @@ function Row({ row, openDialog, navigate }) {
                         dispatch(approveLeave(row._id));
                         setdialogOpen(false);
                       }}
-                      className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
+                      className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
                     >
                       Approve
                     </Button>
@@ -96,7 +96,7 @@ function Row({ row, openDialog, navigate }) {
                 }}
                 asChild
               >
-                <Button className="px-4 py-2 cursor-pointer bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+                <Button className="px-4 py-2 cursor-pointer bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] ">
                   Reject
                 </Button>
               </DialogTrigger>
@@ -111,7 +111,7 @@ function Row({ row, openDialog, navigate }) {
                         dispatch(rejectLeave(row._id));
                         setrejectDialogOpen(false);
                       }}
-                      className=" flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]"
+                      className="flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
                     >
                       Reject
                     </Button>
@@ -173,6 +173,7 @@ const LeaveApproveTable = () => {
         position: 'top-right',
         autoClose: 3000,
       });
+      dispatch(getAllLeave());
       dispatch(resetRejectedLeave());
     }
   }, [rejectedLeave]);

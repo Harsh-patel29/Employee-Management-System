@@ -42,7 +42,7 @@ const DashBoard = () => {
   );
 
   return (
-    <div className="bg-[#ffffff] rounded-xl xl:min-h-[450px]  lg:min-h-auto h-full  justify-center transition-all duration-300 ">
+    <div className="bg-[#ffffff] rounded-xl xl:min-h-[450px]  lg:min-h-auto h-full max-xs:bg-black justify-center transition-all duration-300 ">
       <div className=" ">
         <div className="ml-6 ">
           <h5 className="text-[20.8px] text-start font-[Inter,sans-serif] font-[600]">

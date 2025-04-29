@@ -94,7 +94,7 @@ function Row({ row, openDialog, openSheet }) {
                         This action cannot be undone. This will permanently
                         delete the holiday.
                         <Button
-                          className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                          className="flex w-full mt-4 bg-red-600 hover:bg-red-800 cursor-pointer"
                           onClick={() => {
                             dispatch(deleteHoliday({ data: row._id }));
                             setDialogOpen(false);
@@ -233,7 +233,7 @@ const HolidayTable = () => {
   ];
   return (
     <>
-      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
+      <div className="inline-flex justify-between w-full bg-white h-15 rounded-lg mt-1 mb-2">
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Holiday
         </h5>

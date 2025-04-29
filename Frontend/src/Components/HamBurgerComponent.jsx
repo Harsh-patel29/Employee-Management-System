@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import Navigation from '../pages/Navigation';
 import {
-  collapedSideBar,
-  expandSideBar,
   notVisible,
   visible,
 } from '../feature/ToggelSideBar/ToggleSideBarSlice.js';

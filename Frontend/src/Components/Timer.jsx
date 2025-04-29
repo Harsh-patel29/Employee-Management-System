@@ -100,6 +100,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
       t.Status !== 'Done' &&
       t.Status !== 'Backlog'
   );
+
   const taskOptions = filteredTask?.map((t) => ({
     value: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,
     label: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,

@@ -11,7 +11,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '../Components/components/ui/form';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
@@ -23,7 +22,10 @@ import {
 } from '../Components/components/ui/popover';
 import { Checkbox } from '../Components/components/ui/checkbox';
 import { getWeekOffById } from '../feature/weekofffetch/weekoffslice';
-
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from '../Components/components/ui/radio-group';
 const formSchema = z.object({
   WeekOffName: z.string().min(1, 'WeekOff is required'),
   Effective_Date: z.string().min(1, {
@@ -288,7 +290,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                     }}
                     type="text"
                     placeholder="Enter WeekOff"
-                    className="h-[36px] rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </FormControl>
                 <div>
@@ -318,7 +320,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                 <FormControl>
                   <DatePicker
                     {...field}
-                    className="h-[36px] w-full p-[12px] border border-gray-300 rounded-sm  outline-none"
+                    className="w-full p-3 h-[36.5px] border border-gray-300 rounded-sm text-[rgb(0,0,0)] text-[15px] font-[450] outline-none"
                     placeholderText="Start Date"
                     onChange={(date) => {
                       field.onChange(date);
@@ -379,7 +381,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                           <Checkbox
                             className="form-checkbox h-5 w-5 cursor-pointer border-2 border-[#879ac1] shadow-xl"
                             checked={formData.days[day].weekOff}
-                            onCheckedChange={(s) =>
+                            onCheckedChange={() =>
                               handleCheckboxChange(day, 'weekOff')
                             }
                             disabled={formData.days[day].halfDay}

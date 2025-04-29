@@ -42,7 +42,7 @@ function App() {
           className={`grid transition-all duration-500 ${isVisible ? 'grid-cols-[auto_1fr]' : ''}`}
         >
           <aside
-            className={`transition-all duration-600 bg-gray-100 overflow-hidden ${isVisible ? '' : 'hidden'} ${isExpanded ? 'w-64' : 'w-29'}`}
+            className={`transition-all duration-600 bg-gray-100 overflow-hidden  ${isVisible ? '' : 'hidden'} ${isExpanded ? 'w-64 max-xs:w-0' : 'w-29 max-xs:w-0'}`}
           >
             <Navigation />
           </aside>

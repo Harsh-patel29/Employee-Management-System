@@ -101,7 +101,7 @@ const ProjectDetail = () => {
   }, [totalassignedusers]);
 
   return (
-    <div className="rounded-md ml-28 top-26 shadow  lg:w-[90%] transition-all duration-300 bg-gray-50">
+    <div className="rounded-md  shadow p-8 transition-all duration-300 bg-gray-50">
       <div className="bg-gray-50  flex flex-col h-full">
         <div className="bg-[#6eaffe] rounded-lg p-4 mb-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">

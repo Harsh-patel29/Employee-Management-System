@@ -286,7 +286,7 @@ const Navigation = () => {
   return (
     <div
       style={{ position: 'absolute', zIndex: '50 ' }}
-      className={`${!isMobile || isVisible ? 'flex' : 'hidden '} `}
+      className={`${!isMobile || isVisible ? 'flex' : 'hidden'} `}
     >
       <nav className="transform transition-all translate-x-0 duration-45 delay-0 w-[114px] left-0 top-[78px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px] shadow-[4px_11px_12px_#8a8f93b8]  bg-[#fff] h-[100vh] fixed z-[11] border-r-[solid] border-r-[1px] ">
         <ul

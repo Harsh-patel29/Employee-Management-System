@@ -43,7 +43,7 @@ function Row({ row, openDialog }) {
                   }}
                   asChild
                 >
-                  <MdDelete className="font-semibold text-lg text-[#ff3b30] flex" />
+                  <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -52,7 +52,7 @@ function Row({ row, openDialog }) {
                       This action cannot be undone. This will permanently delete
                       the task timer.
                       <Button
-                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800 cursor-pointer"
                         onClick={() => {
                           dispatch(deleteTaskTimer({ data: row._id }));
                         }}

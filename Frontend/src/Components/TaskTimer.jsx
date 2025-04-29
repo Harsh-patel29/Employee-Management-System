@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Timer from './Timer';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTaskByUser } from '../feature/tasktimerfetch/tasktimerslice.js';
+
 const TaskTimer = () => {
+  const dispatch = useDispatch();
   const [openTimer, setOpenTimer] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+
   return (
     <div className="fixed bottom-2 right-2 m-4">
       <button
-        onClick={() => setOpenTimer(true)}
+        onClick={() => {
+          setOpenTimer(true);
+          dispatch(getTaskByUser({ user: user.Name }));
+        }}
         className="bg-transparent border-[rgb(120,173,196)] border-2 text-white p-2 rounded-full flex items-center justify-center cursor-pointer"
       >
         <svg

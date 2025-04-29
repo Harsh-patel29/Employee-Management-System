@@ -447,8 +447,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          <div className="flex xl:flex-row lg:flex-col md:flex-col sm:flex-col max-sm:flex-col w-full h-full justify-between items-start pb-3 ">
-            <div className="flex flex-col xl:w-[810px] 2xl:w-full w-full">
+          <div className="flex xl:flex-row lg:flex-row xl:gap-x-4 lg:gap-x-4 md:flex-row sm:flex-col max-sm:flex-col w-full h-full justify-between items-start pb-3 ">
+            <div className="flex flex-col px-2 min-md:w-[65%] max-md:w-full">
               <FormField
                 control={control}
                 name="description"
@@ -646,14 +646,14 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </button>
                     </div>
                     {Tasks.todo && (
-                      <div className="flex overflow-y-auto flex-col ml-2 mt-2 w-full max-h-[300px]">
+                      <div className="flex overflow-y-auto flex-col mt-2 items-center w-[100%] pl-6  max-h-[300px]">
                         {Object.entries(Tasks.todo).map(([key, value]) => (
                           <div
                             key={key}
-                            className="mb-1  flex justify-between items-center relative"
+                            className="mb-1 w-full  flex justify-between items-center relative"
                           >
                             <div
-                              className={`flex  min-h-[45px] justify-start items-center pl-2 w-full h-full cursor-pointer rounded-md ${value.todoStatus ? ' bg-[rgb(211,248,211)]' : ' bg-[rgb(241,236,236)] hover:bg-[rgba(225,232,237,255)]'}`}
+                              className={`flex  min-h-[45px] justify-start items-center pl-2 w-full  h-full cursor-pointer rounded-md ${value.todoStatus ? ' bg-[rgb(211,248,211)]' : ' bg-[rgb(241,236,236)] hover:bg-[rgba(225,232,237,255)]'}`}
                             >
                               <input
                                 type="checkbox"
@@ -771,7 +771,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 control={control}
                 name="comments"
                 render={({ field }) => (
-                  <FormItem className="w-[98%] flex flex-col mt-6 bg-white shadow-2xl border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
+                  <FormItem className="w-full flex flex-col mt-6 bg-white shadow-2xl sm:shadow border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
                     <FormLabel
                       className="flex items-start mt-2 text-[20px]  ml-5 font-[100] font-[Inter,sans-serif] 
                           text-decoration-line: underline decoration-[rgb(205,179,162)]"
@@ -924,7 +924,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         />
                         <button
                           id="comment-send-button"
-                          className="mb-3 disabled:cursor-not-allowed "
+                          className="mb-3 disabled:cursor-not-allowed cursor-pointer"
                           onClick={() => {
                             handleUpdateTask('comments', {
                               Attachments:
@@ -1100,14 +1100,20 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 )}
               />
             </div>
-            <div className="xl:mr-20 pb-6 lg:flex md:flex sm:flex max-sm:flex   lg:justify-center md:justify-center sm:justify-center max-sm:justify-center   lg:w-full xl:w-[34%] max:sm:w-full">
-              <div className="flex flex-col gap-4 border max:sm:w-[50%] lg:mt-6  md:mt-6 sm:md-6 max-sm:mt-6 xl:mt-0   border-l-1 border-t-0 border-b-0 border-r-0 border-gray-300">
+            <div className="pb-6 min-md:w-[35%] max-md:w-full">
+              <h2
+                className="flex items-start mt-6 mb-1 text-[20px]  ml-6 font-[100] font-[Inter,sans-serif] 
+                 text-decoration-line: underline decoration-[rgb(205,179,162)] min-md:hidden"
+              >
+                Project Details
+              </h2>
+              <div className="flex flex-col max-md:w-full w-[90%] gap-2.5 max-md:border-0 border border-l-1 border-t-0 border-b-0 border-r-0 border-gray-300">
                 <FormField
                   control={control}
                   name="Project"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1181,7 +1187,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Status"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1251,7 +1257,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Asignee"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1922,8 +1928,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <path d="M10.404 5.11l-1.015-1.014-5.075 5.074c-0.841 0.841-0.841 2.204 0 3.044s2.204 0.841 3.045 0l6.090-6.089c1.402-1.401 1.402-3.673 0-5.074s-3.674-1.402-5.075 0l-6.394 6.393c-0.005 0.005-0.010 0.009-0.014 0.013-1.955 1.955-1.955 5.123 0 7.077s5.123 1.954 7.078 0c0.004-0.004 0.008-0.009 0.013-0.014l0.001 0.001 4.365-4.364-1.015-1.014-4.365 4.363c-0.005 0.004-0.009 0.009-0.013 0.013-1.392 1.392-3.656 1.392-5.048 0s-1.392-3.655 0-5.047c0.005-0.005 0.009-0.009 0.014-0.013l-0.001-0.001 6.395-6.393c0.839-0.84 2.205-0.84 3.045 0s0.839 2.205 0 3.044l-6.090 6.089c-0.28 0.28-0.735 0.28-1.015 0s-0.28-0.735 0-1.014l5.075-5.075z"></path>
                           </svg>
                         </div>
-                        <div className="flex w-full justify-start gap-4">
-                          <h2 className="text-[rgb(120, 122, 126)] text-[15px] ">
+                        <div className="flex w-full justify-start items-center gap-4">
+                          <h2 className="text-[rgb(120, 122, 126)] text-[15px] w-28 ">
                             Attachments {`(${Tasks?.Attachments?.length})`}:
                           </h2>
                           <label className="cursor-pointer">

@@ -67,7 +67,7 @@ export default function HolidayForm({ onSubmit, mode, id }) {
   return (
     <Form {...control}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-        <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
+        <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4 mb-2">
           <h1 className="text-xl w-full">
             {mode === 'update' ? 'Update Holiday' : 'Create Holiday'}
           </h1>
@@ -128,23 +128,25 @@ export default function HolidayForm({ onSubmit, mode, id }) {
           name="holiday_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                className={
-                  errors?.holiday_name
-                    ? 'text-[#737373]'
-                    : 'text-sm font-medium text-gray-700'
-                }
-              >
-                Holiday Name
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="text"
-                  placeholder="Enter Holiday"
-                  className="w-full h-10 rounded-sm flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </FormControl>
+              <div className="flex flex-col gap-y-2">
+                <FormLabel
+                  className={
+                    errors?.holiday_name
+                      ? 'text-[#737373]'
+                      : 'text-sm font-medium text-gray-700'
+                  }
+                >
+                  Holiday Name
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    placeholder="Enter Holiday"
+                    className="w-full h-9.5 rounded-sm p-3 flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </FormControl>
+              </div>
               <div>
                 {errors?.holiday_name && (
                   <span className="text-red-500 font-semibold">
@@ -172,8 +174,8 @@ export default function HolidayForm({ onSubmit, mode, id }) {
               <FormControl>
                 <DatePicker
                   {...field}
-                  className="w-full h-9.5  border border-gray-300 rounded-sm  outline-none"
-                  placeholderText="   Start Date"
+                  className="w-full h-9.5 p-3 border border-gray-300 rounded-sm text-[rgb(0,0,0)] text-[15px] font-[450] outline-none"
+                  placeholderText="Start Date"
                   selected={field.value}
                   onChange={(date) => {
                     field.onChange(date);
@@ -219,8 +221,8 @@ export default function HolidayForm({ onSubmit, mode, id }) {
               <FormControl>
                 <DatePicker
                   {...field}
-                  className="w-full h-9.5  border border-gray-300 rounded-sm  outline-none"
-                  placeholderText="   End Date"
+                  className="w-full h-9.5 p-3  border border-gray-300 rounded-sm text-[rgb(0,0,0)] text-[15px] font-[450] outline-none"
+                  placeholderText="End Date"
                   selected={field.value}
                   onChange={(date) => {
                     field.onChange(date);

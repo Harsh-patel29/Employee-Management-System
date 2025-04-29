@@ -128,7 +128,7 @@ function Row({ row, openDialog, navigate }) {
                       This action cannot be undone. This will permanently delete
                       the task.
                       <Button
-                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800"
+                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800  cursor-pointer"
                         onClick={() => {
                           navigate('/productivity/tasks');
                           dispatch(deleteTask(row.CODE));

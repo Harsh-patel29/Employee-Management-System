@@ -373,7 +373,7 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
         />
         <Button
           type="submit"
-          className={`${logoloading ? 'opacity-50 cursor-not-allowed' : ''} w-[40%] ml-50 focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg mt-6`}
+          className={`${logoloading ? 'opacity-50 cursor-not-allowed' : ''} w-[40%] cursor-pointer ml-50 focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg mt-6`}
         >
           {mode === 'update' ? 'Update' : 'Create'}
         </Button>
