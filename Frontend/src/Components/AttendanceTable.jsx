@@ -15,6 +15,7 @@ import { useDispatch } from 'react-redux';
 import {
   fetchAttendance,
   openAttendanceSheet,
+  AddRegularization,
 } from '../feature/attendancefetch/attendanceSlice.js';
 import {
   Sheet,
@@ -22,6 +23,8 @@ import {
   SheetHeader,
   SheetFooter,
   SheetTitle,
+  SheetTrigger,
+  SheetDescription,
 } from '../Components/components/ui/sheet';
 import { Button } from '../Components/components/ui/button';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -33,6 +36,7 @@ import { Link } from 'react-router-dom';
 import Loader from './Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
 import ExporttoExcel from './Export.jsx';
+import RegularizationForm from './RegularizationForm.jsx';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -190,12 +194,11 @@ export default function CollapsibleTable() {
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
+  const [sheetopen, setsheetopen] = React.useState(false);
 
   const { newattendance, loading } = useSelector(
     (state) => state.markAttendance
   );
-
-  const { user } = useSelector((state) => state.auth);
 
   React.useEffect(() => {
     dispatch(fetchAttendance());
@@ -287,6 +290,41 @@ export default function CollapsibleTable() {
           Attendance
         </h5>
         <div className="flex items-center">
+          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
+            <SheetTrigger>
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+                <svg
+                  className="h-6 w-6"
+                  stroke="currentColor"
+                  fill="none"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  height="1em"
+                  width="1em"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <title>create</title>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Regularization
+              </div>
+            </SheetTrigger>
+            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
+              <SheetHeader>
+                <SheetDescription>
+                  <RegularizationForm
+                    onSubmit={(data) => {
+                      dispatch(AddRegularization(data));
+                    }}
+                  />
+                </SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
           <ExporttoExcel
             data={formattedData}
             fileName="Attendance"
@@ -333,7 +371,6 @@ export default function CollapsibleTable() {
           </button>
         </div>
       </div>
-
       <Sheet open={openFilterSheet} onOpenChange={setOpenFilterSheet}>
         <SheetContent className="min-w-2xl">
           <SheetHeader>

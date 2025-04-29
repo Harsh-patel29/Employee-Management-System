@@ -3,14 +3,12 @@ import { upload } from '../Middlewares/multer.Middleware.js';
 import {
   uploadAttendance,
   getAttendance,
+  AddRegularization,
 } from '../Controllers/Attendance.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { isAuth } from '../Middlewares/authMiddleware.js';
-import multer from 'multer';
 
 const router = Router();
-
-const UploadText = multer();
 
 router
   .route('/attendance')
@@ -32,5 +30,5 @@ router
   });
 
 router.route('/attendanceDetail').get(authenticate, isAuth, getAttendance);
-
+router.route('/regularization').post(authenticate, AddRegularization);
 export default router;

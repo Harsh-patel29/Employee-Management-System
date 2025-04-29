@@ -5,8 +5,7 @@ import { uploadOnCloudinary } from '../Utils/cloudinary.js';
 import { ApiError } from '../Utils/ApiError.js';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
-import dotenv from 'dotenv';
-dotenv.config();
+import { Regularization } from '../Models/regularization.model.js';
 
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
   const diffMs = endTime - startTime;
@@ -235,4 +234,35 @@ const getAttendance = AsyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, values[0], 'Attendance fetched Successfully'));
 });
-export { uploadAttendance, getAttendance };
+
+const AddRegularization = AsyncHandler(async (req, res) => {
+  const { Date, MissingPunch, Reason, Remarks } = req.body;
+
+  if (!Date || !MissingPunch || !Reason || !Remarks) {
+    throw new ApiError(400, 'All fields are required');
+  }
+  const UserId = req.user._id;
+  try {
+    const regularization = await Regularization.create({
+      User: UserId,
+      Date: Date,
+      MissingPunch: MissingPunch,
+      Reason: Reason,
+      Remarks: Remarks,
+    });
+    await regularization.save();
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          regularization,
+          'Regularization created Successfully'
+        )
+      );
+  } catch (error) {
+    throw new ApiError(500, error, 'Regularization creation failed');
+  }
+});
+
+export { uploadAttendance, getAttendance, AddRegularization };

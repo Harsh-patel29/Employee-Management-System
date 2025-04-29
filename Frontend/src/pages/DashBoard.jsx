@@ -42,7 +42,7 @@ const DashBoard = () => {
   );
 
   return (
-    <div className="bg-[#ffffff] rounded-xl xl:min-h-[450px]  lg:min-h-auto h-full max-xs:bg-black justify-center transition-all duration-300 ">
+    <div className="bg-[#ffffff] rounded-xl xl:min-h-[450px]  lg:min-h-auto h-full  justify-center transition-all duration-300 ">
       <div className=" ">
         <div className="ml-6 ">
           <h5 className="text-[20.8px] text-start font-[Inter,sans-serif] font-[600]">
@@ -81,12 +81,12 @@ const DashBoard = () => {
             </div>
           </div>{' '}
         </div>
-        <div className="flex w-full gap-2 mb-5 px-4 ">
-          <div className="w-[30%] ">
+        <div className="flex w-full gap-2 mb-5 px-4 max-sm:flex-col">
+          <div className="w-[30%] max-sm:w-full">
             <h1 className="ml-4 font-semibold text-[20.8px] mb-4">Log Hours</h1>
             <DashAttendanceTable />
           </div>
-          <div className="w-[70%] ">
+          <div className="w-[70%] max-sm:w-full">
             <h1 className="ml-4 font-semibold text-[20.8px] mb-4">
               Pending Task List
             </h1>
