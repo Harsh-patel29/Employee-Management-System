@@ -4,7 +4,7 @@ const regularizationSchema = new Schema(
   {
     User: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
+      ref: 'User',
     },
     Date: {
       type: String,
@@ -21,6 +21,12 @@ const regularizationSchema = new Schema(
     Remarks: {
       type: String,
       required: true,
+    },
+    Status: {
+      type: String,
+      enum: ['Pending', 'Approved', 'Rejected'],
+      required: true,
+      default: 'Pending',
     },
   },
   { timestamps: true }

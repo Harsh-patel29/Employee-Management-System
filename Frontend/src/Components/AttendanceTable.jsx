@@ -16,6 +16,7 @@ import {
   fetchAttendance,
   openAttendanceSheet,
   AddRegularization,
+  resetRegularization,
 } from '../feature/attendancefetch/attendanceSlice.js';
 import {
   Sheet,
@@ -37,6 +38,7 @@ import Loader from './Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
 import ExporttoExcel from './Export.jsx';
 import RegularizationForm from './RegularizationForm.jsx';
+import { Bounce, toast } from 'react-toastify';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -61,7 +63,7 @@ function convertSecondsToTimeString(totalSeconds) {
   return timeString;
 }
 
-function Row({ row, openMap }) {
+function Row({ row }) {
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
 
@@ -99,7 +101,10 @@ function Row({ row, openMap }) {
         <TableCell>{row.formattedLogHours}</TableCell>
         <TableCell>
           <Link
-            onClick={() => openMap()}
+            onClick={() => {
+              const url = `https://www.google.com/maps?q=${row.Latitude},${row.Longitude}`;
+              window.open(url, '_blank');
+            }}
             className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
           >
             View
@@ -145,18 +150,29 @@ function Row({ row, openMap }) {
                     >
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>
-                        <img
-                          src={attendance.Image}
-                          alt="Attendance"
-                          className="w-12 h-12 object-cover rounded-3xl"
-                        />
+                        {attendance.Image === '' ? (
+                          <img
+                            src="./download.png"
+                            alt="Attendance"
+                            className="w-8 h-8 object-cover rounded-3xl"
+                          />
+                        ) : (
+                          <img
+                            src={attendance.Image}
+                            alt="Attendance"
+                            className="w-12 h-12 object-cover rounded-3xl"
+                          />
+                        )}
                       </TableCell>
                       <TableCell>
                         {new Date(attendance.AttendAt).toLocaleTimeString()}
                       </TableCell>
                       <TableCell>
                         <Link
-                          onClick={() => openMap()}
+                          onClick={() => {
+                            const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
+                            window.open(url, '_blank');
+                          }}
                           className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
                         >
                           {' '}
@@ -196,7 +212,7 @@ export default function CollapsibleTable() {
   const [filteredAttendances, setFilteredAttendances] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
 
-  const { newattendance, loading } = useSelector(
+  const { newattendance, loading, createdRegularization } = useSelector(
     (state) => state.markAttendance
   );
 
@@ -210,6 +226,17 @@ export default function CollapsibleTable() {
       setFilteredAttendances(newattendance.message);
     }
   }, [newattendance]);
+
+  React.useEffect(() => {
+    if (createdRegularization?.success) {
+      toast.success('Regularization created Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      setsheetopen(false);
+      dispatch(resetRegularization());
+    }
+  }, [createdRegularization]);
 
   React.useEffect(() => {
     if (!fromDate && !toDate) {
@@ -233,19 +260,30 @@ export default function CollapsibleTable() {
     const image = d.map((item) => item.Image);
     const attendAt = d.map((item) => item.AttendAt);
     const otherRecords = d.filter((item) => item);
-    const lastTimeIn = otherRecords.findLast((e) => e);
+    const sorted = otherRecords.sort(
+      (a, b) => new Date(a.AttendAt) - new Date(b.AttendAt)
+    );
+
+    const lastTimeIn = sorted.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
-    const userName = d.map((item) => item.UserName);
+    const userName = d.map((name) => name.userName);
 
     return {
       index: index + 1,
-      Image: (
-        <img
-          src={image[0]}
-          alt="Attendance"
-          className="w-8 h-8 object-cover rounded-3xl"
-        />
-      ),
+      Image:
+        image[0] === '' ? (
+          <img
+            src="./download.png"
+            alt="Attendance"
+            className="w-8 h-8 object-cover rounded-3xl"
+          />
+        ) : (
+          <img
+            src={image[0]}
+            alt="Attendance"
+            className="w-8 h-8 object-cover rounded-3xl"
+          />
+        ),
       Date: date.date,
       User: userName[0],
       AttendAt: new Date(attendAt[0]).toLocaleTimeString(),
@@ -263,7 +301,6 @@ export default function CollapsibleTable() {
           )
         : formatTime(lastTimeIn?.LogHours),
       otherAttendances: otherRecords,
-      Location: attendances?.Location,
       Latitude: lastTimeIn?.Latitude,
       Longitude: lastTimeIn?.Longitude,
     };
@@ -422,12 +459,6 @@ export default function CollapsibleTable() {
         data={formattedData}
         RowComponent={Row}
         pagination={true}
-        rowProps={{
-          openMap: () => {
-            const url = `https://www.google.com/maps?q=${formattedData[0]?.Latitude},${formattedData[0]?.Longitude}`;
-            window.open(url, '_blank');
-          },
-        }}
       />
     </>
   );

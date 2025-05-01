@@ -4,10 +4,12 @@ import {
   uploadAttendance,
   getAttendance,
   AddRegularization,
+  getRegularization,
+  ApproveRegularization,
+  getLogHours,
 } from '../Controllers/Attendance.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { isAuth } from '../Middlewares/authMiddleware.js';
-
 const router = Router();
 
 router
@@ -31,4 +33,8 @@ router
 
 router.route('/attendanceDetail').get(authenticate, isAuth, getAttendance);
 router.route('/regularization').post(authenticate, AddRegularization);
+router.route('/getRegularization').get(authenticate, getRegularization);
+router
+  .route('/getApprovedRegularization')
+  .post(authenticate, ApproveRegularization);
 export default router;

@@ -215,7 +215,7 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
                       : 'text-[16px] font-[500]'
                   }
                 >
-                  Leave Type
+                  Missing Punch
                 </FormLabel>
                 <FormControl>
                   <div className="w-full flex text-2xl">
@@ -255,7 +255,7 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
                       : 'text-sm font-medium text-gray-700'
                   }
                 >
-                  Leave Reason
+                  Reason
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -287,7 +287,7 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
                       : 'text-sm font-medium text-gray-700'
                   }
                 >
-                  Leave Reason
+                  Remarks
                 </FormLabel>
                 <FormControl>
                   <Input

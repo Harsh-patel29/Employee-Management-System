@@ -19,17 +19,114 @@ const formatSecondsToHHMMSS = (totalSeconds) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+const getLogHours = async (userId) => {
+  let logHours = 0;
+  const currentTime = new Date();
+  const todayAttendance = await Attendance.aggregate([
+    {
+      $match: {
+        User: userId,
+      },
+    },
+    {
+      $addFields: {
+        attendDateOnly: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$AttendAt',
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$attendDateOnly',
+        attendances: {
+          $push: '$$ROOT',
+        },
+      },
+    },
+    {
+      $project: {
+        'attendances.AttendAt': 1,
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+  console.log(todayAttendance);
+
+  const a = todayAttendance.map((item) => item.attendances);
+  console.log('a', a);
+
+  const lastTimeIn = a[0];
+  console.log('lastTimeIn', lastTimeIn);
+
+  const isEmpty = a.filter((item) => item.length > 0);
+  console.log('isEmpty', isEmpty.length !== 0);
+
+  const isfirst = a.filter((item) => item.length === 1);
+  const firstAttendAt = isfirst?.[0]?.map((item) => item.AttendAt);
+  console.log('first', isfirst);
+  console.log('firstAttendAt', firstAttendAt);
+
+  const b = a.map((item) => item.length);
+
+  const isOdd = b.map((item) => item % 2 !== 1);
+  console.log('isOdd', isOdd);
+
+  let formattedLogHours = formatSecondsToHHMMSS(logHours);
+
+  if (isEmpty.length !== 0) {
+    if (firstAttendAt) {
+      const inTime = new Date(firstAttendAt);
+      logHours = calculateTimeDifferenceInSeconds(inTime, currentTime);
+    } else {
+      if (isOdd.includes(false)) {
+        //even
+        const totallogHours = a[0].map((total) => total.AttendAt);
+
+        const sorted = totallogHours.sort((a, b) => b - a);
+        console.log('sorted', sorted);
+
+        for (let i = 1; i < totallogHours.length; i++) {
+          const a = new Date(sorted[i]);
+          const b = new Date(sorted[i - 1]);
+          const ab = new Date(sorted[i]).toLocaleTimeString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+          });
+          const bc = new Date(sorted[i - 1]).toLocaleTimeString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+          });
+          console.log(bc, ab);
+          logHours += calculateTimeDifferenceInSeconds(a, b);
+        }
+      }
+    }
+    formattedLogHours = formatSecondsToHHMMSS(logHours);
+    console.log('loghours', formattedLogHours);
+  }
+  // if (a[0].length > 0) {
+  //   if (new Date() - new Date(a[0].AttendAt) < 1000 * 60 * 1) {
+  //     throw new ApiError(
+  //       404,
+  //       'Attendance can be marked only after 1 minute of time out'
+  //     );
+  //   }
+  // }
+  return { formattedLogHours, isOdd, isEmpty, lastTimeIn, currentTime };
+};
+
 const uploadAttendance = AsyncHandler(async (req, res) => {
   const body = JSON.parse(JSON.stringify(req.body));
-
-  const userId = new mongoose.Types.ObjectId(req.user._id);
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
-
-  const userName = await User.find({ _id: userId });
-  console.log(userName[0].Name);
-
+  const userId = new mongoose.Types.ObjectId(req.user._id);
+  const { formattedLogHours, currentTime, isEmpty, isOdd, lastTimeIn } =
+    await getLogHours(userId);
   const { Latitude, Longitude } = body;
-
   if (!ImageLocalPath) {
     throw new ApiError(404, 'Image is required for attendance');
   }
@@ -43,85 +140,21 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     throw new ApiError(500, 'Failed to upload Attendance');
   }
 
-  let logHours = 0;
-  const currentTime = new Date();
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const todayAttendance = await Attendance.find({
-    User: userId,
-    AttendAt: { $gte: todayStart, $lte: todayEnd },
-  }).sort({ AttendAt: -1 });
-  const isOdd = todayAttendance.length % 2 !== 1;
-
-  const isEmpty = todayAttendance.length !== 0;
-
-  let lastAttendanceTime = null;
-  let formattedLogHours = formatSecondsToHHMMSS(logHours);
-  if (todayAttendance.length > 0) {
-    if (todayAttendance.length === 1) {
-      const inTime = new Date(todayAttendance[0].AttendAt);
-      logHours = calculateTimeDifferenceInSeconds(inTime, currentTime);
-    } else {
-      if (todayAttendance.length % 2 === 1) {
-        const lastAttendanceTime = new Date(
-          todayAttendance[todayAttendance.length - 1].AttendAt
-        );
-        logHours = calculateTimeDifferenceInSeconds(
-          lastAttendanceTime,
-          currentTime
-        );
-      }
-      for (let i = 0; i < todayAttendance.length - 1; i += 2) {
-        const inTime = new Date(todayAttendance[i].AttendAt);
-        const outTime = new Date(todayAttendance[i + 1].AttendAt);
-        logHours += calculateTimeDifferenceInSeconds(inTime, outTime);
-      }
-    }
-    formattedLogHours = formatSecondsToHHMMSS(logHours);
-  }
-
-  if (todayAttendance.length > 0) {
-    if (new Date() - new Date(todayAttendance[0].AttendAt) < 1000 * 60 * 1) {
-      throw new ApiError(
-        404,
-        'Attendance can be marked only after 1 minute of time out'
-      );
-    }
-  }
-
-  const nowIST = new Date().toLocaleString('en-IN', {
-    timeZone: 'Asia/Kolkata',
-  });
-  const currentDateIST = new Date(nowIST);
-
-  // Set 7:00 PM for today in IST
-  const sevenPMIST = new Date(nowIST);
-  sevenPMIST.setHours(19, 0, 0, 0); // 19:00:00.000
-
-  // Comparison
-  if (currentDateIST >= sevenPMIST) {
-    logHours = calculateTimeDifferenceInSeconds(
-      todayAttendance[0].AttendAt,
-      sevenPMIST
-    );
-    formattedLogHours = formatSecondsToHHMMSS(logHours);
-  }
-
   try {
     const attendance = await Attendance.create({
-      Image: Image.url,
+      Image: Image?.url,
       User: userId,
-      UserName: userName[0].Name,
-      AttendAt: isOdd || isEmpty ? currentTime : todayAttendance[0].AttendAt,
+      AttendAt: isOdd
+        ? currentTime
+        : lastTimeIn && lastTimeIn[0]?.AttendAt
+          ? lastTimeIn[0].AttendAt
+          : currentTime,
       LogHours: formattedLogHours,
       Latitude: Latitude ? Number(Latitude) : undefined,
       Longitude: Longitude ? Number(Longitude) : undefined,
     });
-
+    console.log(attendance);
+    getLogHours(userId);
     return res
       .status(200)
       .json(
@@ -140,7 +173,19 @@ const getAttendance = AsyncHandler(async (req, res) => {
   if (ViewAccess === true) {
     AllAttendance = await Attendance.aggregate([
       {
+        $lookup: {
+          from: 'users',
+          localField: 'User',
+          foreignField: '_id',
+          as: 'userInfo',
+        },
+      },
+      {
+        $unwind: '$userInfo',
+      },
+      {
         $addFields: {
+          userName: '$userInfo.Name',
           attendDateOnly: {
             $dateToString: {
               format: '%Y-%m-%d',
@@ -177,7 +222,19 @@ const getAttendance = AsyncHandler(async (req, res) => {
   } else {
     AllAttendance = await Attendance.aggregate([
       {
+        $lookup: {
+          from: 'users',
+          localField: 'User',
+          foreignField: '_id',
+          as: 'userInfo',
+        },
+      },
+      {
+        $unwind: '$userInfo',
+      },
+      {
         $addFields: {
+          userName: '$userInfo.Name',
           attendDateOnly: {
             $dateToString: {
               format: '%Y-%m-%d',
@@ -216,7 +273,6 @@ const getAttendance = AsyncHandler(async (req, res) => {
         },
       },
     ]);
-    // AllAttendance.filter((item) => item.User !== req.user._id);
   }
 
   const userAttendances = {};
@@ -265,4 +321,76 @@ const AddRegularization = AsyncHandler(async (req, res) => {
   }
 });
 
-export { uploadAttendance, getAttendance, AddRegularization };
+const getRegularization = AsyncHandler(async (req, res) => {
+  const regularization = await Regularization.find({})
+    .populate('User', 'Name')
+    .sort({ createdAt: -1 });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        regularization,
+        'Regularization fethced successfully'
+      )
+    );
+});
+
+const ApproveRegularization = AsyncHandler(async (req, res) => {
+  const { id } = req.body;
+  const regularization = await Regularization.findById(id);
+  if (!regularization) {
+    throw new ApiError(400, 'Regularization not found');
+  }
+  const date = new Date(regularization.Date).toISOString().split('T')[0];
+  const b = await Attendance.find({ User: regularization.User });
+  const match = b.filter(
+    (item) => new Date(item.AttendAt).toISOString().split('T')[0] === date
+  );
+  // console.log(match);
+
+  const datePart = regularization.Date; // e.g., '2025-05-01'
+  const timePart = regularization.MissingPunch; // e.g., '10:00'
+  let attendDateTime;
+  const localDate = new Date(`${datePart}T${timePart}:00`);
+  const tzOffset = localDate.getTimezoneOffset() * 60000;
+  attendDateTime = new Date(localDate.getTime() - tzOffset);
+  const { currentTime, formattedLogHours, isEmpty, isOdd, lastTimeIn } =
+    await getLogHours(regularization.User);
+
+  try {
+    const newAttendance = new Attendance({
+      Image: ``,
+      User: regularization.User,
+      AttendAt: localDate,
+      LogHours: formattedLogHours,
+      Latitude: '',
+      Longitude: '',
+    });
+    const savedAttendance = await newAttendance.save();
+    console.log('Created attendance from regularization:', savedAttendance);
+    return (
+      res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            regularization,
+            'Regularization fetched successfully'
+          )
+        ),
+      savedAttendance
+    );
+  } catch (error) {
+    throw new ApiError(500, 'failed');
+  }
+});
+
+export {
+  getLogHours,
+  uploadAttendance,
+  getAttendance,
+  AddRegularization,
+  getRegularization,
+  ApproveRegularization,
+};
