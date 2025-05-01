@@ -36,7 +36,7 @@ function Row({ row }) {
     <React.Fragment>
       <TableRow>
         <TableCell>{row.index}</TableCell>
-        <TableCell>{row.attendances[0].UserName}</TableCell>
+        <TableCell>{row.attendances[0].userName}</TableCell>
         <TableCell>
           {' '}
           {isOdd

@@ -15,14 +15,38 @@ dotenv.config({
 
 const seedData = async () => {
   const id = new mongoose.Types.ObjectId('67ee522c3a81d4b972d1ff5a');
+  const dateToDelete = new Date('2025-05-01');
+
+  const startOfDay = new Date(
+    Date.UTC(
+      dateToDelete.getUTCFullYear(),
+      dateToDelete.getUTCMonth(),
+      dateToDelete.getUTCDate(),
+      0,
+      0,
+      0,
+      0
+    )
+  );
+
+  const endOfDay = new Date(
+    Date.UTC(
+      dateToDelete.getUTCFullYear(),
+      dateToDelete.getUTCMonth(),
+      dateToDelete.getUTCDate(),
+      23,
+      59,
+      59,
+      999
+    )
+  );
   try {
-    const AdminRole = await Attendance.updateMany(
-      {
-        User: new mongoose.Types.ObjectId('67acc5cb74d98535e0f80a26'),
-        UserName: { $exists: false },
+    const AdminRole = await Attendance.deleteMany({
+      AttendAt: {
+        $gte: startOfDay,
+        $lte: endOfDay,
       },
-      { $set: { UserName: 'Harsh Patel' } }
-    );
+    });
     // const manageUser = await UserAccess.deleteOne({
     //   manageUser: 0,
     //   manageUserAccess: 0,
@@ -31,6 +55,7 @@ const seedData = async () => {
 
     // AdminRole.permission = [manageUser._id];
     // await AdminRole.save();
+    console.log(`${AdminRole.deletedCount} records deleted.`);
     console.log('Seeding dones', AdminRole);
   } catch (error) {
     throw new ApiError(500, 'Seeding failed', error);

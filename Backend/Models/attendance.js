@@ -4,19 +4,15 @@ const AttendanceSchema = new Schema(
   {
     Image: {
       type: String,
-      required: true,
+      // required: true,
     },
     User: {
       type: Schema.Types.ObjectId,
-      ref: 'Users',
+      ref: 'User',
       required: true,
-    },
-    UserName: {
-      type: String,
     },
     AttendAt: {
       type: Date,
-      default: '19:00:00',
     },
     LogHours: {
       type: String,

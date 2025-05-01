@@ -76,6 +76,37 @@ export const AddRegularization = createAsyncThunk(
   }
 );
 
+export const GetRegularization = createAsyncThunk(
+  'auth/getRegularization',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        'http://localhost:8000/api/v2/attendance/getRegularization',
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
+export const ApprovedRegularization = createAsyncThunk(
+  'auth/ApprovedRegularization',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v2/attendance/getApprovedRegularization',
+        { id },
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
 const markattendanceSlice = createSlice({
   name: 'markAttendance',
   initialState: {
@@ -86,6 +117,8 @@ const markattendanceSlice = createSlice({
     userDetails: null,
     newattendance: [],
     createdRegularization: null,
+    fetchedRegularization: [],
+    approvedRegularization: [],
     error: null,
     loading: false,
   },
@@ -104,6 +137,9 @@ const markattendanceSlice = createSlice({
     },
     setLastOperation: (state, action) => {
       state.lastOperation = action.payload;
+    },
+    resetRegularization: (state) => {
+      state.createdRegularization = null;
     },
   },
   extraReducers: (builder) => {
@@ -164,6 +200,30 @@ const markattendanceSlice = createSlice({
       .addCase(AddRegularization.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(GetRegularization.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(GetRegularization.fulfilled, (state, action) => {
+        state.fetchedRegularization = action.payload;
+        state.loading = false;
+      })
+      .addCase(GetRegularization.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(ApprovedRegularization.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(ApprovedRegularization.fulfilled, (state, action) => {
+        state.approvedRegularization = action.payload;
+        state.loading = false;
+      })
+      .addCase(ApprovedRegularization.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
@@ -172,5 +232,6 @@ export const {
   openAttendanceSheet,
   closeAttendanceSheet,
   setLastOperation,
+  resetRegularization,
 } = markattendanceSlice.actions;
 export default markattendanceSlice.reducer;
