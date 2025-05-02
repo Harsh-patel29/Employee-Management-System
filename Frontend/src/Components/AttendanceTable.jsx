@@ -267,6 +267,7 @@ export default function CollapsibleTable() {
     const lastTimeIn = sorted.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
     const userName = d.map((name) => name.userName);
+    console.log(lastTimeIn);
 
     return {
       index: index + 1,
