@@ -7,6 +7,7 @@ import {
   getRegularization,
   ApproveRegularization,
   getLogHours,
+  RejectRegularization,
 } from '../Controllers/Attendance.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { isAuth } from '../Middlewares/authMiddleware.js';
@@ -37,4 +38,5 @@ router.route('/getRegularization').get(authenticate, getRegularization);
 router
   .route('/getApprovedRegularization')
   .post(authenticate, ApproveRegularization);
+router.route('/RejectRegularization').post(authenticate, RejectRegularization);
 export default router;

@@ -107,6 +107,21 @@ export const ApprovedRegularization = createAsyncThunk(
   }
 );
 
+export const RejectRegularization = createAsyncThunk(
+  'auth/RejectRegularization',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v2/attendance/RejectRegularization',
+        { id },
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
 const markattendanceSlice = createSlice({
   name: 'markAttendance',
   initialState: {
@@ -119,6 +134,7 @@ const markattendanceSlice = createSlice({
     createdRegularization: null,
     fetchedRegularization: [],
     approvedRegularization: [],
+    rejectedRegularization: [],
     error: null,
     loading: false,
   },
@@ -140,6 +156,8 @@ const markattendanceSlice = createSlice({
     },
     resetRegularization: (state) => {
       state.createdRegularization = null;
+      state.approvedRegularization = null;
+      state.rejectedRegularization = null;
     },
   },
   extraReducers: (builder) => {
@@ -222,6 +240,18 @@ const markattendanceSlice = createSlice({
         state.loading = false;
       })
       .addCase(ApprovedRegularization.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(RejectRegularization.pending, (state) => {
+        state.error = null;
+        state.loading = true;
+      })
+      .addCase(RejectRegularization.fulfilled, (state, action) => {
+        state.rejectedRegularization = action.payload;
+        state.loading = false;
+      })
+      .addCase(RejectRegularization.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

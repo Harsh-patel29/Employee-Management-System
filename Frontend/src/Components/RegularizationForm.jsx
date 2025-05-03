@@ -2,12 +2,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '../Components/components/ui/button';
-import Select from 'react-select';
 import { Input } from '../Components/components/ui/input';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
-import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import {
   Form,
   FormItem,
@@ -16,10 +13,6 @@ import {
   FormField,
 } from '../Components/components/ui/form';
 import { SheetClose } from '../Components/components/ui/sheet';
-import {
-  getLeaveById,
-  getCreatedLeave,
-} from '../feature/leavefetch/createleaveSlice';
 import TimePicker from 'react-time-picker';
 const formSchema = z.object({
   Date: z.string().min(1, { message: 'Date is Required' }),
@@ -28,39 +21,21 @@ const formSchema = z.object({
   Remarks: z.string().min(1, { message: 'Remark is Required' }),
 });
 
-export default function RegularizationForm({ onSubmit, mode, id }) {
-  const [leaveType, setLeaveType] = useState([]);
-  const [startDate, setStartDate] = useState([]);
-  const { leaveById, createdLeaves, allLeave } = useSelector(
-    (state) => state.leave
-  );
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (mode === 'update' && id) {
-      dispatch(getLeaveById(id));
-    }
-  }, [dispatch, mode, id]);
-
-  useEffect(() => {
-    dispatch(getCreatedLeave());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (createdLeaves?.message) {
-      setLeaveType(createdLeaves?.message);
-    }
-  }, [createdLeaves, allLeave]);
-
+export default function RegularizationForm({
+  onSubmit,
+  mode,
+  id,
+  Login,
+  LastLogin,
+}) {
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      Date: '',
+      Date: mode === 'Direct' ? id : '',
       MissingPunch: '',
       Reason: '',
       Remarks: '',
@@ -68,37 +43,6 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
       EndDateType: '',
     },
   });
-
-  const LeaveTypeOptions = leaveType?.map((value) => ({
-    label: value?.Leave_Reason,
-    value: value?.Leave_Reason,
-  }));
-
-  const StartDateTypeOptions = [
-    { value: 'First_Half', label: 'First Half' },
-    { value: 'Second_Half', label: 'Second Half' },
-    { value: 'Full_Day', label: 'Full Day' },
-  ];
-
-  const EndDateTypeOptions = [
-    { value: 'First_Half', label: 'First Half' },
-    { value: 'Second_Half', label: 'Second Half' },
-    { value: 'Full_Day', label: 'Full Day' },
-  ];
-
-  useEffect(() => {
-    if (mode === 'update' && leaveById?.message) {
-      const detail = leaveById?.message;
-      reset({
-        Leave_Reason: detail?.Leave_Reason,
-        LEAVE_TYPE: detail?.LEAVE_TYPE,
-        Start_Date: detail?.Start_Date,
-        StartDateType: detail?.StartDateType,
-        End_Date: detail?.End_Date,
-        EndDateType: detail?.EndDateType,
-      });
-    }
-  }, [mode, leaveById, reset, id]);
 
   return (
     <>
@@ -155,54 +99,81 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
               </Button>
             </SheetClose>
           </div>
-
-          <FormField
-            control={control}
-            name="Date"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex flex-col">
-                  <FormLabel
-                    className={
-                      errors?.Date ? 'text-[#737373]' : 'text-[16px] font-[500]'
-                    }
-                  >
-                    Date
-                  </FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
-                      placeholderText="Select Date"
-                      autoComplete="off"
-                      selected={field.value ? new Date(field.value) : null} // convert string -> Date
-                      onChange={(date) => {
-                        const localDate = date
-                          ? new Date(
-                              date.getTime() - date.getTimezoneOffset() * 60000
-                            )
-                              .toISOString()
-                              .split('T')[0]
-                          : '';
-                        field.onChange(localDate); // store only string
-                      }}
-                      dateFormat="dd-MM-yyyy"
-                      showYearDropdown
-                      scrollableYearDropdown
-                      yearDropdownItemNumber={100}
-                      isClearable
-                    />
-                  </FormControl>
-                </div>
-                <div>
-                  {errors?.Date && (
-                    <span className="text-red-500 font-semibold">
-                      {errors.Date.message}
-                    </span>
-                  )}
-                </div>
-              </FormItem>
-            )}
-          />
+          {mode === 'Direct' && (
+            <div className="flex w-full justify-between mb-3  mt-3">
+              <div>
+                <p className="font-semibold">
+                  <div>Date</div>
+                  <div>{id}</div>
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold">
+                  <div>Login</div>
+                  <div>{Login}</div>
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold">
+                  <div>Last Login</div>
+                  <div>{LastLogin}</div>
+                </p>
+              </div>
+            </div>
+          )}
+          {mode !== 'Direct' && (
+            <FormField
+              control={control}
+              name="Date"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-col">
+                    <FormLabel
+                      className={
+                        errors?.Date
+                          ? 'text-[#737373]'
+                          : 'text-[16px] font-[500]'
+                      }
+                    >
+                      Date
+                    </FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
+                        placeholderText="Select Date"
+                        autoComplete="off"
+                        value={mode === 'Direct' ? id : ''}
+                        selected={field.value ? new Date(field.value) : null} // convert string -> Date
+                        onChange={(date) => {
+                          const localDate = date
+                            ? new Date(
+                                date.getTime() -
+                                  date.getTimezoneOffset() * 60000
+                              )
+                                .toISOString()
+                                .split('T')[0]
+                            : '';
+                          field.onChange(localDate); // store only string
+                        }}
+                        dateFormat="dd-MM-yyyy"
+                        showYearDropdown
+                        scrollableYearDropdown
+                        yearDropdownItemNumber={100}
+                        isClearable
+                      />
+                    </FormControl>
+                  </div>
+                  <div>
+                    {errors?.Date && (
+                      <span className="text-red-500 font-semibold">
+                        {errors.Date.message}
+                      </span>
+                    )}
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={control}
             name="MissingPunch"
@@ -230,7 +201,6 @@ export default function RegularizationForm({ onSubmit, mode, id }) {
                       value={field.value}
                       onChange={(value) => field.onChange(value)}
                     />
-                    {console.log(field)}
                   </div>
                 </FormControl>
                 <div>

@@ -39,6 +39,7 @@ import ReusableTable from './ReusableTable.jsx';
 import ExporttoExcel from './Export.jsx';
 import RegularizationForm from './RegularizationForm.jsx';
 import { Bounce, toast } from 'react-toastify';
+import { FaEdit } from 'react-icons/fa';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -64,9 +65,10 @@ function convertSecondsToTimeString(totalSeconds) {
 }
 
 function Row({ row }) {
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
-
+  const [DirectSheet, setDirectSheet] = React.useState(false);
   return (
     <React.Fragment>
       <TableRow
@@ -109,6 +111,31 @@ function Row({ row }) {
           >
             View
           </Link>
+        </TableCell>
+
+        <TableCell>
+          <div className="flex  justify-center">
+            <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
+              <SheetTrigger asChild>
+                <FaEdit className="cursor-pointer font-semibold text-lg text-[#d7d869]" />
+              </SheetTrigger>
+              <SheetContent className="bg-white min-w-xl">
+                <SheetHeader>
+                  <SheetDescription>
+                    <RegularizationForm
+                      mode="Direct"
+                      id={row.Date}
+                      Login={row.AttendAt}
+                      LastLogin={row.TimeOut}
+                      onSubmit={(data) => {
+                        dispatch(AddRegularization(data));
+                      }}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          </div>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -264,10 +291,12 @@ export default function CollapsibleTable() {
       (a, b) => new Date(a.AttendAt) - new Date(b.AttendAt)
     );
 
+    const sb = attendAt.map((item) => item);
+    const sortedAttendAt = sb.sort((a, b) => new Date(a) - new Date(b));
+
     const lastTimeIn = sorted.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
     const userName = d.map((name) => name.userName);
-    console.log(lastTimeIn);
 
     return {
       index: index + 1,
@@ -287,7 +316,7 @@ export default function CollapsibleTable() {
         ),
       Date: date.date,
       User: userName[0],
-      AttendAt: new Date(attendAt[0]).toLocaleTimeString(),
+      AttendAt: new Date(sortedAttendAt[0]).toLocaleTimeString(),
       TimeOut: isOdd
         ? new Date().toLocaleTimeString()
         : new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
@@ -317,6 +346,7 @@ export default function CollapsibleTable() {
     { field: 'timeOut', headerName: 'Time Out' },
     { field: 'logHours', headerName: 'Log Hours' },
     { field: 'location', headerName: 'Location' },
+    { field: 'regularization', headerName: 'Regularization' },
   ];
 
   return loading ? (

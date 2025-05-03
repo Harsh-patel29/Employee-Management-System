@@ -24,6 +24,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   GetRegularization,
   ApprovedRegularization,
+  RejectRegularization,
+  resetRegularization,
 } from '../feature/attendancefetch/attendanceSlice.js';
 
 import { Bounce, toast } from 'react-toastify';
@@ -95,11 +97,10 @@ function Row({ row, openDialog }) {
                 <DialogHeader>
                   <DialogTitle>Are you sure?</DialogTitle>
                   <DialogDescription>
-                    This action cannot be undone.Once rejected, the leave can't
-                    be approved.
+                    Are you sure? You want to Reject this Regularization
                     <Button
                       onClick={() => {
-                        dispatch(rejectLeave(row._id));
+                        dispatch(RejectRegularization(row._id));
                         setrejectDialogOpen(false);
                       }}
                       className="flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
@@ -118,9 +119,12 @@ function Row({ row, openDialog }) {
 }
 
 const RegularizationTable = () => {
-  const { fetchedRegularization, error } = useSelector(
-    (state) => state.markAttendance
-  );
+  const {
+    fetchedRegularization,
+    error,
+    approvedRegularization,
+    rejectedRegularization,
+  } = useSelector((state) => state.markAttendance);
   const [Regularization, setRegularization] = React.useState([]);
   const [dialogOpen, setdialogOpen] = React.useState(false);
   const navigate = useNavigate();
@@ -136,33 +140,40 @@ const RegularizationTable = () => {
     }
   }, [fetchedRegularization]);
 
+  const filteredRegularization = Regularization.filter(
+    (item) => item.Status === 'Pending'
+  );
+  console.log(Regularization);
+
+  console.log(filteredRegularization);
+
   const openDialog = () => {
     setTimeout(() => {
       setdialogOpen(true);
     }, 0);
   };
 
-  //   React.useEffect(() => {
-  //     if (approvedLeave?.success) {
-  //       toast.success('Leave approved Successfully', {
-  //         position: 'top-right',
-  //         autoClose: 3000,
-  //       });
-  //       dispatch(getAllLeave());
-  //       dispatch(resetApprovedLeave());
-  //     }
-  //   }, [approvedLeave]);
+  React.useEffect(() => {
+    if (approvedRegularization?.success) {
+      toast.success('Regularization approved Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      dispatch(GetRegularization());
+      dispatch(resetRegularization());
+    }
+  }, [approvedRegularization]);
 
-  //   React.useEffect(() => {
-  //     if (rejectedLeave?.success) {
-  //       toast.success('Leave rejected Successfully', {
-  //         position: 'top-right',
-  //         autoClose: 3000,
-  //       });
-  //       dispatch(getAllLeave());
-  //       dispatch(resetRejectedLeave());
-  //     }
-  //   }, [rejectedLeave]);
+  React.useEffect(() => {
+    if (rejectedRegularization?.success) {
+      toast.success('Regularization rejected Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      dispatch(GetRegularization());
+      dispatch(resetRegularization());
+    }
+  }, [rejectedRegularization]);
 
   React.useEffect(() => {
     if (error) {
@@ -202,7 +213,7 @@ const RegularizationTable = () => {
       <ReusableTable
         width="full"
         columns={columns}
-        data={Regularization}
+        data={filteredRegularization}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, navigate }}
