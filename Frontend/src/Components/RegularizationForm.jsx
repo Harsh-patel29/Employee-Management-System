@@ -1,3 +1,4 @@
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,7 +14,7 @@ import {
   FormField,
 } from '../Components/components/ui/form';
 import { SheetClose } from '../Components/components/ui/sheet';
-import TimePicker from 'react-time-picker';
+
 const formSchema = z.object({
   Date: z.string().min(1, { message: 'Date is Required' }),
   MissingPunch: z.string().min(1, { message: 'Please enter valid Time' }),
@@ -28,9 +29,91 @@ export default function RegularizationForm({
   Login,
   LastLogin,
 }) {
+  const [hour, setHour] = React.useState('00');
+  const [minute, setMinute] = React.useState('00');
+  const [period, setPeriod] = React.useState('AM');
+  const formatWithZero = (val) => (val < 10 ? `0${val}` : `${val}`);
+
+  const getFormattedTime = (h, m, p) => {
+    let hourNum = parseInt(h);
+    if (p === 'PM' && hourNum !== 12) hourNum += 12;
+    if (p === 'AM' && hourNum === 12) hourNum = 0;
+
+    const hourStr = hourNum.toString().padStart(2, '0');
+    const minStr = m.padStart(2, '0');
+
+    return `${hourStr}:${minStr}`;
+  };
+
+  const increaseHour = (onChange) => {
+    let newHour = (parseInt(hour, 10) + 1) % 13;
+    newHour = newHour === 0 ? 1 : newHour;
+    const formatted = formatWithZero(newHour);
+    setHour(formatted);
+    onChange(formatted);
+  };
+
+  const decreaseHour = (onChange) => {
+    let newHour = parseInt(hour) - 1;
+    if (newHour < 0) newHour = 12;
+    const formatted = formatWithZero(newHour);
+    setHour(formatted);
+    onChange(formatted);
+  };
+
+  const handleHourChange = (e, onChange) => {
+    const value = e.target.value;
+    const num = parseInt(value);
+    const formatted = isNaN(num) ? '00' : formatWithZero(num);
+    setHour(formatted);
+    onChange(formatted);
+  };
+
+  const increaseMinute = (onChange) => {
+    let newMinute = (parseInt(minute) + 5) % 60;
+    newMinute = newMinute;
+    const formatted = formatWithZero(newMinute);
+    setMinute(formatted);
+    onChange(formatted);
+  };
+
+  const decreaseMinute = (onChange) => {
+    let newMinute = parseInt(minute) - 5;
+    if (newMinute < 0) newMinute = 59;
+    const formatted = formatWithZero(newMinute);
+    setMinute(formatted);
+    onChange(formatted);
+  };
+
+  const handleMinuteChange = (e) => {
+    const value = e.target.value;
+    const num = parseInt(value);
+    const formatted = isNaN(num) ? '00' : formatWithZero(num);
+    setMinute(formatted);
+    onChange(formatted);
+  };
+  const togglePeriod = (onChange) => {
+    setPeriod((prev) => {
+      const newPeriod = prev === 'AM' ? 'PM' : 'AM';
+      onChange(newPeriod);
+      return newPeriod;
+    });
+  };
+
+  const handlesSubmit = (data) => {
+    const formattedTime = getFormattedTime(hour, minute, period);
+    const updatedData = {
+      ...data,
+      MissingPunch: formattedTime,
+    };
+
+    onSubmit(updatedData);
+  };
+
   const {
     control,
     handleSubmit,
+    register,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -47,7 +130,10 @@ export default function RegularizationForm({
   return (
     <>
       <Form {...control}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+        <form
+          onSubmit={handleSubmit(handlesSubmit)}
+          className="flex flex-col gap-2"
+        >
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
             <h1 className="text-xl w-full">Create Regularization</h1>
             <Button
@@ -142,7 +228,6 @@ export default function RegularizationForm({
                         className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
                         placeholderText="Select Date"
                         autoComplete="off"
-                        value={mode === 'Direct' ? id : ''}
                         selected={field.value ? new Date(field.value) : null} // convert string -> Date
                         onChange={(date) => {
                           const localDate = date
@@ -155,6 +240,7 @@ export default function RegularizationForm({
                             : '';
                           field.onChange(localDate); // store only string
                         }}
+                        maxDate={new Date()}
                         dateFormat="dd-MM-yyyy"
                         showYearDropdown
                         scrollableYearDropdown
@@ -189,18 +275,124 @@ export default function RegularizationForm({
                   Missing Punch
                 </FormLabel>
                 <FormControl>
-                  <div className="w-full flex text-2xl">
-                    <TimePicker
-                      className="w-full h-9.5"
-                      clockIcon
-                      hourPlaceholder="00"
-                      minutePlaceholder="00"
-                      clearIcon
-                      clockAriaLabel
-                      openClockOnFocus={false}
-                      value={field.value}
-                      onChange={(value) => field.onChange(value)}
-                    />
+                  <div className="w-[40%] flex mt-2 text-xl items-center">
+                    <div className="flex w-full flex-col gap-1 items-center">
+                      <button
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          console.log(field.value);
+                          increaseHour(field.onChange);
+                        }}
+                      >
+                        <svg
+                          stroke="currentColor"
+                          fill="currentColor"
+                          strokeWidth="0"
+                          viewBox="0 0 24 24"
+                          height="1em"
+                          width="1em"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M18.78 15.78a.749.749 0 0 1-1.06 0L12 10.061 6.28 15.78a.749.749 0 1 1-1.06-1.06l6.25-6.25a.749.749 0 0 1 1.06 0l6.25 6.25a.749.749 0 0 1 0 1.06Z"></path>
+                        </svg>
+                      </button>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="12"
+                        accept="d"
+                        value={hour}
+                        placeholder="00"
+                        {...register('MissingPunch')}
+                        onChange={(e) => handleHourChange(e, field.onChange)}
+                        className="h-9.5 w-15 rounded-sm flex text-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      <button
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          console.log(field.value);
+                          e.preventDefault();
+                          decreaseHour(field.onChange);
+                        }}
+                      >
+                        <svg
+                          stroke="currentColor"
+                          fill="currentColor"
+                          stroke-width="0"
+                          viewBox="0 0 24 24"
+                          height="1em"
+                          width="1em"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M5.22 8.22a.749.749 0 0 0 0 1.06l6.25 6.25a.749.749 0 0 0 1.06 0l6.25-6.25a.749.749 0 1 0-1.06-1.06L12 13.939 6.28 8.22a.749.749 0 0 0-1.06 0Z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="mb-2">:</p>
+                    <div className="flex w-full flex-col items-center gap-1">
+                      <button
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          console.log(field.value);
+                          e.preventDefault();
+                          increaseMinute(field.onChange);
+                        }}
+                      >
+                        <svg
+                          stroke="currentColor"
+                          fill="currentColor"
+                          strokeWidth="0"
+                          viewBox="0 0 24 24"
+                          height="1em"
+                          width="1em"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M18.78 15.78a.749.749 0 0 1-1.06 0L12 10.061 6.28 15.78a.749.749 0 1 1-1.06-1.06l6.25-6.25a.749.749 0 0 1 1.06 0l6.25 6.25a.749.749 0 0 1 0 1.06Z"></path>
+                        </svg>
+                      </button>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="59"
+                        placeholder="00"
+                        value={minute}
+                        onChange={handleMinuteChange}
+                        className="h-9.5 w-15 rounded-sm flex items-center text-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      <button
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          console.log(field.value);
+                          decreaseMinute(field.onChange);
+                        }}
+                      >
+                        <svg
+                          stroke="currentColor"
+                          fill="currentColor"
+                          stroke-width="0"
+                          viewBox="0 0 24 24"
+                          height="1em"
+                          width="1em"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M5.22 8.22a.749.749 0 0 0 0 1.06l6.25 6.25a.749.749 0 0 0 1.06 0l6.25-6.25a.749.749 0 1 0-1.06-1.06L12 13.939 6.28 8.22a.749.749 0 0 0-1.06 0Z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <div id="Meridiem Toggler">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          console.log(field.value);
+                          togglePeriod(field.onChange);
+                        }}
+                        className="border cursor-pointer border-gray-300 rounded-sm px-4 py-2 h-9.5 text-center text-sm shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      >
+                        {period}
+                      </button>
+                    </div>
                   </div>
                 </FormControl>
                 <div>

@@ -109,6 +109,11 @@ const Navigation = () => {
           link: 'attendance/regularization',
         },
         {
+          key: 'Missed punch Regularization',
+          name: 'Missed punch Regularization',
+          link: 'attendance/missedPunchRegularization',
+        },
+        {
           key: 'Monthly Report',
           name: 'Monthly Report',
           link: 'attendance/monthlyReport',

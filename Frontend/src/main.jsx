@@ -29,6 +29,7 @@ import LeaveApprove from './pages/LeaveApprove.jsx';
 import TaskTimerPage from './pages/TaskTimerPage.jsx';
 import Holiday from './pages/Holiday.jsx';
 import WeekOff from './pages/Weekoff.jsx';
+import MissedPunchRegularization from './pages/MissedPunchRegularization.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -55,6 +56,10 @@ const router = createBrowserRouter(
             element={<Regularization />}
           />
           <Route path="attendance/monthlyReport" element={<MonthlyReport />} />
+          <Route
+            path="attendance/missedPunchRegularization"
+            element={<MissedPunchRegularization />}
+          />
           <Route path="/productivity/project" element={<Project />}>
             <Route
               path="/productivity/project/delete/:id"

@@ -51,7 +51,7 @@ const Login = () => {
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white text-gray-900 bg-[#f4f4f4]">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white text-gray-900 ">
         <div className="border border-[#338db5] rounded-xl flex flex-col items-center p-6 w-full max-w-[380px] mx-4">
           <div className="w-full">
             <img

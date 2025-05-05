@@ -143,9 +143,6 @@ const RegularizationTable = () => {
   const filteredRegularization = Regularization.filter(
     (item) => item.Status === 'Pending'
   );
-  console.log(Regularization);
-
-  console.log(filteredRegularization);
 
   const openDialog = () => {
     setTimeout(() => {

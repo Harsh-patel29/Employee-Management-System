@@ -12,11 +12,6 @@ const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
   return Math.round(diffMs / 1000);
 };
 
-function parseTimeString(timeStr) {
-  const [h, m, s] = timeStr.split(':').map(Number);
-  return h * 3600 + m * 60 + s;
-}
-
 const formatSecondsToHHMMSS = (totalSeconds) => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -91,11 +86,9 @@ const getLogHours = async (userId, mode, match, date) => {
     },
   ]);
 
-  // console.log('today', todayAttendance);
-  const a = todayAttendance.map((item) => item.attendances);
+  const a = todayAttendance?.map((item) => item.attendances);
   const todayAttendancelength = a?.[0]?.map((item) => item.AttendAt);
-  // console.log('a', a);
-  // console.log('lenght', todayAttendancelength);
+
   const lastTimeIn = a?.[0]?.findLast((e) => e);
 
   const b = a.map((item) => item.length);
@@ -144,21 +137,19 @@ const getLogHours = async (userId, mode, match, date) => {
       const bc = new Date(sorted[i + 1]).toLocaleTimeString('en-IN', {
         timeZone: 'Asia/Kolkata',
       });
-      console.log(ab, bc);
+
       logHours += calculateTimeDifferenceInSeconds(a, b);
     }
   }
-
-  // if (a[0].length > 0) {
-  //   if (new Date() - new Date(a[0].AttendAt) < 1000 * 60 * 1) {
-  //     throw new ApiError(
-  //       404,
-  //       'Attendance can be marked only after 1 minute of time out'
-  //     );
-  //   }
-  // }
+  if (a[0]?.length > 0) {
+    if (new Date() - new Date(a[0].AttendAt) < 1000 * 60 * 1) {
+      throw new ApiError(
+        404,
+        'Attendance can be marked only after 1 minute of time out'
+      );
+    }
+  }
   formattedLogHours = formatSecondsToHHMMSS(logHours);
-  console.log('logHours', formattedLogHours);
 
   return { formattedLogHours, isOdd, lastTimeIn, currentTime };
 };
@@ -208,7 +199,6 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
     );
     attendance.LogHours = formattedLogHours;
     await attendance.save();
-
     return res
       .status(200)
       .json(
@@ -461,6 +451,24 @@ const RejectRegularization = AsyncHandler(async (req, res) => {
     );
 });
 
+const getRegularizationbyDateandUser = AsyncHandler(async (req, res) => {
+  const { user, Date } = req.body;
+
+  const regularization = await Regularization.find({ Date: Date, User: user });
+  if (!regularization) {
+    throw new ApiError(400, 'regularization not found');
+  }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        regularization,
+        'Regularization fetched successfully'
+      )
+    );
+});
+
 export {
   getLogHours,
   uploadAttendance,
@@ -469,4 +477,5 @@ export {
   getRegularization,
   ApproveRegularization,
   RejectRegularization,
+  getRegularizationbyDateandUser,
 };

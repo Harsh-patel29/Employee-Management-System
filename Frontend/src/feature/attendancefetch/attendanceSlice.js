@@ -122,6 +122,23 @@ export const RejectRegularization = createAsyncThunk(
     }
   }
 );
+
+export const getRegularizationbyDateandUser = createAsyncThunk(
+  'auth/getRegularizationbyDetail',
+  async ({ Date, user }, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:8000/api/v2/attendance/getRegularizaitonDetail',
+        { Date: Date, user: user },
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
 const markattendanceSlice = createSlice({
   name: 'markAttendance',
   initialState: {
@@ -135,6 +152,7 @@ const markattendanceSlice = createSlice({
     fetchedRegularization: [],
     approvedRegularization: [],
     rejectedRegularization: [],
+    fetchedRegularizationByDetail: [],
     error: null,
     loading: false,
   },
@@ -158,6 +176,9 @@ const markattendanceSlice = createSlice({
       state.createdRegularization = null;
       state.approvedRegularization = null;
       state.rejectedRegularization = null;
+    },
+    resetRegularizationByDetail: (state) => {
+      state.fetchedRegularizationByDetail = null;
     },
   },
   extraReducers: (builder) => {
@@ -254,6 +275,18 @@ const markattendanceSlice = createSlice({
       .addCase(RejectRegularization.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(getRegularizationbyDateandUser.pending, (state) => {
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(getRegularizationbyDateandUser.fulfilled, (state, action) => {
+        state.fetchedRegularizationByDetail = action.payload;
+        state.loading = false;
+      })
+      .addCase(getRegularizationbyDateandUser.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
@@ -263,5 +296,6 @@ export const {
   closeAttendanceSheet,
   setLastOperation,
   resetRegularization,
+  resetRegularizationByDetail,
 } = markattendanceSlice.actions;
 export default markattendanceSlice.reducer;

@@ -17,6 +17,7 @@ import {
   openAttendanceSheet,
   AddRegularization,
   resetRegularization,
+  GetRegularization,
 } from '../feature/attendancefetch/attendanceSlice.js';
 import {
   Sheet,
@@ -27,6 +28,14 @@ import {
   SheetTrigger,
   SheetDescription,
 } from '../Components/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../Components/components/ui/dialog';
 import { Button } from '../Components/components/ui/button';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -40,6 +49,8 @@ import ExporttoExcel from './Export.jsx';
 import RegularizationForm from './RegularizationForm.jsx';
 import { Bounce, toast } from 'react-toastify';
 import { FaEdit } from 'react-icons/fa';
+import { FaInfoCircle } from 'react-icons/fa';
+import RegularizationDetailTable from './RegularizationDetailTable.jsx';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -54,21 +65,31 @@ const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
 
 function convertSecondsToTimeString(totalSeconds) {
   totalSeconds = Math.abs(totalSeconds);
-
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-
   const timeString = `${hours}:${minutes}:${seconds}`;
-
   return timeString;
 }
 
 function Row({ row }) {
   const dispatch = useDispatch();
+
   const [open, setOpen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
+  const { fetchedRegularization } = useSelector(
+    (state) => state.markAttendance
+  );
   const [DirectSheet, setDirectSheet] = React.useState(false);
+  const [detail, setdetail] = React.useState([]);
+
+  React.useEffect(() => {
+    if (fetchedRegularization?.message) {
+      setdetail(fetchedRegularization.message);
+    }
+  }, [fetchedRegularization]);
+  const matchedWithRegularization = detail.map((item) => item.Date);
+
   return (
     <React.Fragment>
       <TableRow
@@ -95,7 +116,9 @@ function Row({ row }) {
           </IconButton>
         </TableCell>
         <TableCell>{row.index}</TableCell>
-        <TableCell>{row.Image}</TableCell>
+        <TableCell className="">
+          <div className="flex justify-center">{row.Image}</div>
+        </TableCell>
         <TableCell>{row.Date}</TableCell>
         <TableCell>{row.User}</TableCell>
         <TableCell>{row.AttendAt}</TableCell>
@@ -112,29 +135,57 @@ function Row({ row }) {
             View
           </Link>
         </TableCell>
-
         <TableCell>
-          <div className="flex  justify-center">
-            <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
-              <SheetTrigger asChild>
-                <FaEdit className="cursor-pointer font-semibold text-lg text-[#d7d869]" />
-              </SheetTrigger>
-              <SheetContent className="bg-white min-w-xl">
-                <SheetHeader>
-                  <SheetDescription>
-                    <RegularizationForm
-                      mode="Direct"
-                      id={row.Date}
-                      Login={row.AttendAt}
-                      LastLogin={row.TimeOut}
-                      onSubmit={(data) => {
-                        dispatch(AddRegularization(data));
-                      }}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
+          <div className="flex justify-center gap-2">
+            {row.otherAttendances.length % 2 === 1 && (
+              <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
+                <SheetTrigger asChild>
+                  <FaEdit className="cursor-pointer font-semibold text-xl text-[#d7d869]" />
+                </SheetTrigger>
+                <SheetContent className="bg-white min-w-xl">
+                  <SheetHeader>
+                    <SheetDescription>
+                      <RegularizationForm
+                        mode="Direct"
+                        id={row.Date}
+                        Login={row.AttendAt}
+                        LastLogin={row.TimeOut}
+                        onSubmit={(data) => {
+                          dispatch(AddRegularization(data));
+                        }}
+                      />
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+            )}
+            {matchedWithRegularization.find((item) => item === row.Date) && (
+              <div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <FaInfoCircle className="cursor-pointer font-semibold text-xl text-[#338db5]" />
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="text-gray-700 text-3xl font-[sans-serif,Inter] border-b-1  border-gray-700">
+                        Regularization Details
+                      </DialogTitle>
+                      <DialogDescription>
+                        <div className="inset-0 flex  z-50">
+                          <div className=" rounded-2xl shadow-none w-[100%] max-w-md relative">
+                            <RegularizationDetailTable
+                              Date={row.Date}
+                              UserName={row.User}
+                              user={row.userId}
+                            />
+                          </div>
+                        </div>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
           </div>
         </TableCell>
       </TableRow>
@@ -177,19 +228,21 @@ function Row({ row }) {
                     >
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>
-                        {attendance.Image === '' ? (
-                          <img
-                            src="./download.png"
-                            alt="Attendance"
-                            className="w-8 h-8 object-cover rounded-3xl"
-                          />
-                        ) : (
-                          <img
-                            src={attendance.Image}
-                            alt="Attendance"
-                            className="w-12 h-12 object-cover rounded-3xl"
-                          />
-                        )}
+                        <div className="flex justify-center">
+                          {attendance.Image === '' ? (
+                            <img
+                              src="./download.png"
+                              alt="Attendance"
+                              className="w-8 h-8 object-cover rounded-3xl"
+                            />
+                          ) : (
+                            <img
+                              src={attendance.Image}
+                              alt="Attendance"
+                              className="w-8 h-8 object-cover rounded-3xl"
+                            />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {new Date(attendance.AttendAt).toLocaleTimeString()}
@@ -233,6 +286,7 @@ Row.propTypes = {
 export default function CollapsibleTable() {
   const dispatch = useDispatch();
   const [openFilterSheet, setOpenFilterSheet] = React.useState(false);
+  const [isOpen, setisOpen] = React.useState(false);
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
@@ -245,6 +299,7 @@ export default function CollapsibleTable() {
 
   React.useEffect(() => {
     dispatch(fetchAttendance());
+    dispatch(GetRegularization());
   }, []);
 
   React.useEffect(() => {
@@ -297,6 +352,7 @@ export default function CollapsibleTable() {
     const lastTimeIn = sorted.findLast((e) => e);
     const isOdd = d.length % 2 === 1;
     const userName = d.map((name) => name.userName);
+    const userId = d.map((id) => id.User);
 
     return {
       index: index + 1,
@@ -316,6 +372,7 @@ export default function CollapsibleTable() {
         ),
       Date: date.date,
       User: userName[0],
+      userId: userId[0],
       AttendAt: new Date(sortedAttendAt[0]).toLocaleTimeString(),
       TimeOut: isOdd
         ? new Date().toLocaleTimeString()
