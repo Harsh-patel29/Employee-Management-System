@@ -6,7 +6,8 @@ import { ApiError } from '../Utils/ApiError.js';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { Regularization } from '../Models/regularization.model.js';
-
+import { WeekOff } from '../Models/weekoff.model.js';
+import { Holiday } from '../Models/holiday.model.js';
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
   const diffMs = endTime - startTime;
   return Math.round(diffMs / 1000);
@@ -17,6 +18,18 @@ const formatSecondsToHHMMSS = (totalSeconds) => {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   return `${hours}:${minutes}:${seconds}`;
+};
+
+const timeToSeconds = (timeStr) => {
+  const [h, m, s] = timeStr.split(':').map(Number);
+  return h * 3600 + m * 60 + s;
+};
+
+const secondsToTime = (totalSeconds) => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
 const getLogHours = async (userId, mode, match, date) => {
@@ -130,30 +143,49 @@ const getLogHours = async (userId, mode, match, date) => {
     for (let i = 0; i < sorted?.length - 1; i += 2) {
       const a = new Date(sorted[i]);
       const b = new Date(sorted[i + 1]);
-
-      const ab = new Date(sorted[i]).toLocaleTimeString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-      });
-      const bc = new Date(sorted[i + 1]).toLocaleTimeString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-      });
-
       logHours += calculateTimeDifferenceInSeconds(a, b);
     }
+    // {
+    //   for (let i = sorted.length - 1; i >= 0; i--) {
+    //     const a = new Date(sorted[i]);
+    //     const b = new Date(sorted[i + 1]);
+    //     if (b - a < 1000 * 60 * 1 === true) {
+    //       throw new ApiError(
+    //         400,
+    //         'Attendance can only be marked after 1 minute of timeout'
+    //       );
+    //     }
+    //   }
+    //   return -1; // return -1 if no true found
+    // }
   }
-  if (a[0]?.length > 0) {
-    if (new Date() - new Date(a[0].AttendAt) < 1000 * 60 * 1) {
-      throw new ApiError(
-        404,
-        'Attendance can be marked only after 1 minute of time out'
-      );
-    }
-  }
+
   formattedLogHours = formatSecondsToHHMMSS(logHours);
 
   return { formattedLogHours, isOdd, lastTimeIn, currentTime };
 };
 
+const daysInMonth = (month, year) => {
+  switch (month) {
+    case 1: // January
+    case 3: // March
+    case 5: // May
+    case 7: // July
+    case 8: // August
+    case 10: // October
+    case 12: // December
+      return 31;
+    case 4: // April
+    case 6: // June
+    case 9: // September
+    case 11: // November
+      return 30;
+    case 2: // February
+      return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28;
+    default:
+      return -1; // Invalid month
+  }
+};
 const uploadAttendance = AsyncHandler(async (req, res) => {
   const body = JSON.parse(JSON.stringify(req.body));
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
@@ -469,6 +501,140 @@ const getRegularizationbyDateandUser = AsyncHandler(async (req, res) => {
     );
 });
 
+const fetchMonthlyReport = AsyncHandler(async (req, res) => {
+  const weekOff = await WeekOff.find({});
+  const holiday = await Holiday.find({});
+
+  const holidayDays = holiday.map((item) =>
+    Math.abs(new Date(item.End_Date) - new Date(item.Start_Date))
+  );
+
+  const formattedDays = holidayDays.map((item) =>
+    Math.ceil(item / (1000 * 60 * 60 * 24) + 1)
+  );
+
+  const totalHolidayDays = formattedDays.reduce((sum, val) => sum + val, 0);
+
+  const month = new Date(weekOff[0].Effective_Date).getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, '0');
+
+  const year = new Date(weekOff[0].Effective_Date).getFullYear();
+  const LogHours = await Attendance.aggregate([
+    {
+      $addFields: {
+        attendMonthOnly: {
+          $dateToString: {
+            format: '%m',
+            date: '$AttendAt',
+          },
+        },
+        attendDateOnly: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$AttendAt',
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          month: '$attendMonthOnly',
+          date: '$attendDateOnly',
+        },
+        logHours: {
+          $push: '$$ROOT',
+        },
+      },
+    },
+    {
+      $sort: {
+        '_id.date': 1,
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.month',
+        dates: {
+          $push: {
+            date: '$_id.date',
+            logHours: '$logHours',
+          },
+        },
+      },
+    },
+    {
+      $match: {
+        _id: formattedMonth,
+      },
+    },
+    {
+      $project: {
+        'dates.date': 1,
+        'dates.logHours.LogHours': 1,
+      },
+    },
+    {
+      $project: {
+        dates: {
+          $map: {
+            input: '$dates',
+            as: 'd',
+            in: {
+              date: '$$d.date',
+              LogHours: {
+                $arrayElemAt: [
+                  '$$d.logHours',
+                  {
+                    $subtract: [
+                      {
+                        $size: '$$d.logHours',
+                      },
+                      1,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  const TypeofWeek = weekOff[0]?.days?.map((item) => item.type);
+  const FullDay = TypeofWeek.filter((item) => item === 'Full Day');
+  const HalfDay = TypeofWeek.filter((item) => item === 'Half Day');
+  const weekoff = TypeofWeek.filter((item) => item === 'WeekOff');
+  const OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff.length) * 8}:00:00`;
+  const formattedData = LogHours.map((item) => item.dates);
+  const logHours = formattedData[0].map((item) => item.LogHours.LogHours);
+  const dataforEachDate = formattedData[0];
+
+  const totalSeconds = logHours.reduce(
+    (sum, item) => sum + timeToSeconds(item),
+    0
+  );
+
+  const WorkingHours = secondsToTime(totalSeconds);
+
+  const officialSeconds = timeToSeconds(OfficalHours);
+  const workingSeconds = timeToSeconds(WorkingHours);
+  const pendingSeconds = officialSeconds - workingSeconds;
+  const PendingHours = secondsToTime(pendingSeconds);
+
+  const data = [
+    {
+      officialHours: OfficalHours,
+      workingHours: WorkingHours,
+      pendingHours: PendingHours,
+      dataforEachDate: dataforEachDate,
+    },
+  ];
+
+  return res.status(200).json(new ApiResponse(200, data, 'Fetched'));
+});
+
 export {
   getLogHours,
   uploadAttendance,
@@ -478,4 +644,5 @@ export {
   ApproveRegularization,
   RejectRegularization,
   getRegularizationbyDateandUser,
+  fetchMonthlyReport,
 };
