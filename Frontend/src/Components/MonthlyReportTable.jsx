@@ -41,22 +41,13 @@ function Row({ row, z }) {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>Harsh Patel</TableCell>
-        {dateColumns.map((headerDate) => {
-          const formattedHeader = headerDate.split(' ')[1];
-          const matched = row.dataforEachDate.find(
-            (entry) => formatToUK(entry.date) === formattedHeader
-          );
-
-          return (
-            <TableCell key={headerDate}>
-              {matched ? matched.LogHours.LogHours : '00:00:00'}
-            </TableCell>
-          );
-        })}
-        <TableCell>{row.OfficialHours}</TableCell>
-        <TableCell>{row.WorkingHours}</TableCell>
-        <TableCell>{row.PendingHours}</TableCell>
+        <TableCell>{row.userName}</TableCell>
+        {row.logs.map((item) => (
+          <TableCell>{item.logHours}</TableCell>
+        ))}
+        <TableCell>{row.officialHours}</TableCell>
+        <TableCell>{row.workingHours}</TableCell>
+        <TableCell>{row.pendingHours}</TableCell>
       </TableRow>
     </React.Fragment>
   );
@@ -77,7 +68,6 @@ const MonthlyReportTable = () => {
       setDetail(fetchedMonthlyReportDetail.message);
     }
   }, [fetchedMonthlyReportDetail]);
-  console.log(detail);
 
   const days = getDaysinMonth(2025, 4);
 
@@ -96,25 +86,11 @@ const MonthlyReportTable = () => {
   ];
   const z = columns.map((item) => item.headerName);
 
-  const data = detail.map((item, index) => {
-    const date = item.dataforEachDate;
-    const matchedDates = date.map((item) => item.date);
-    const abs = z.slice(1, 31);
-
-    const c = matchedDates.filter((item) => item);
-    return {
-      OfficialHours: item.officialHours,
-      PendingHours: item.pendingHours,
-      WorkingHours: item.workingHours,
-      dataforEachDate: date,
-    };
-  });
-
   return (
     <ReusableTable
       columns={columns}
       RowComponent={Row}
-      data={data}
+      data={detail}
       rowProps={{ z }}
     />
   );

@@ -638,21 +638,26 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       ...item,
       officialHours: OfficalHours,
       workingHours: item.totalLogHours,
-      pendingHours: secondsToTime(Math.max(pendingSeconds, 0)), // prevent negative
+      pendingHours: secondsToTime(Math.max(pendingSeconds, 0)),
     };
   });
 
   const getAllDatesInMonth = (year, month) => {
     const dates = [];
-    const date = new Date(year, month - 1, 1);
-    while (date.getMonth() === month - 1) {
-      dates.push(date.toISOString().slice(0, 10)); // Format: YYYY-MM-DD
-      date.setDate(date.getDate() + 1);
+
+    const date = new Date(Date.UTC(year, month - 1, 1));
+
+    const targetMonth = month - 1;
+
+    while (date.getUTCMonth() === targetMonth) {
+      dates.push(date.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+      date.setUTCDate(date.getUTCDate() + 1);
     }
+
     return dates;
   };
 
-  const allDates = getAllDatesInMonth(2025, 4); // For April 2025
+  const allDates = getAllDatesInMonth(2025, 4);
 
   const normalizedData = updatedLogHours.map((user) => {
     const logsMap = new Map(user.logs.map((log) => [log.date, log.LogHours]));
@@ -664,13 +669,13 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
     return {
       userName: user.userName,
+      officialHours: OfficalHours,
       totalLogHours: user.totalLogHours,
       pendingHours: user.pendingHours,
       workingHours: user.workingHours,
       logs: fullLogs,
     };
   });
-  console.log(normalizedData);
 
   return res.status(200).json(new ApiResponse(200, normalizedData, 'Fetched'));
 });
