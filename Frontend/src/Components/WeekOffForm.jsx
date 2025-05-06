@@ -337,6 +337,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                     scrollableYearDropdown
                     yearDropdownItemNumber={100}
                     isClearable={true}
+                    autoComplete="off"
                   />
                 </FormControl>
                 <div>

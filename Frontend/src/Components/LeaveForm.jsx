@@ -32,7 +32,8 @@ const formSchema = z.object({
 
 export default function LeaveForm({ onSubmit, mode, id }) {
   const [leaveType, setLeaveType] = useState([]);
-  const [startDate, setStartDate] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const { leaveById, createdLeaves, allLeave } = useSelector(
     (state) => state.leave
   );
@@ -59,6 +60,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
     handleSubmit,
     reset,
     formState: { errors },
+    setValue,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,7 +86,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
 
   const EndDateTypeOptions = [
     { value: 'First_Half', label: 'First Half' },
-    { value: 'Second_Half', label: 'Second Half' },
+    // { value: 'Second_Half', label: 'Second Half' },
     { value: 'Full_Day', label: 'Full Day' },
   ];
 
@@ -302,6 +304,13 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                         .split('T')[0];
                       field.onChange(localDate);
                       setStartDate(localDate);
+                      if (endDate && new Date(localDate) > new Date(endDate)) {
+                        setEndDate('');
+                        setValue('End_Date', '', {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }
                     }}
                     dateFormat="dd-MM-yyyy"
                     showYearDropdown
@@ -450,6 +459,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                         ?.toISOString()
                         .split('T')[0];
                       field.onChange(localDate);
+                      setEndDate(localDate);
                     }}
                     minDate={startDate}
                     dateFormat="DD-MM-YYYY"

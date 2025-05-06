@@ -328,14 +328,14 @@ export default function TaskTable() {
             <TasksFilterSheet />
           </button>
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
             onClick={() => {
               handleViewChange('list');
               dispatch(getAllTasks());
             }}
           >
             <svg
-              className="w-6 h-6"
+              className="w-6 h-6 "
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -353,7 +353,7 @@ export default function TaskTable() {
             </svg>
           </button>
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
             onClick={() => handleViewChange('board')}
           >
             <svg
@@ -376,7 +376,7 @@ export default function TaskTable() {
             </svg>
           </button>
           <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
             onClick={() => handleViewChange('kanban')}
           >
             <svg

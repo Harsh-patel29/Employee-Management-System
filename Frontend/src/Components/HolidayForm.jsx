@@ -16,6 +16,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { SheetClose } from '../Components/components/ui/sheet';
 import { getHolidayById } from '../feature/hoildayfetch/hoildaySlice.js';
+
 const formSchema = z.object({
   holiday_name: z.string().min(1, {
     message: 'Hoilday Name is required',
@@ -31,13 +32,14 @@ const formSchema = z.object({
 export default function HolidayForm({ onSubmit, mode, id }) {
   const dispatch = useDispatch();
   const { holidayById } = useSelector((state) => state.holiday);
-  const [startDate, setStartDate] = useState([]);
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
+    setValue,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -186,12 +188,20 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                       .split('T')[0];
                     field.onChange(localDate);
                     setStartDate(localDate);
+                    if (endDate && new Date(localDate) > new Date(endDate)) {
+                      setEndDate('');
+                      setValue('End_Date', '', {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }
                   }}
                   dateFormat="dd-MM-yyyy"
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
                   isClearable={true}
+                  autoComplete="off"
                 />
               </FormControl>
               <div>
@@ -224,6 +234,8 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                   className="w-full h-9.5 p-3  border border-gray-300 rounded-sm text-[rgb(0,0,0)] text-[15px] font-[450] outline-none"
                   placeholderText="End Date"
                   selected={field.value}
+                  disabled={!startDate}
+                  minDate={startDate}
                   onChange={(date) => {
                     field.onChange(date);
                     const localDate = new Date(
@@ -232,12 +244,14 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                       ?.toISOString()
                       .split('T')[0];
                     field.onChange(localDate);
+                    setEndDate(localDate);
                   }}
                   dateFormat="dd-MM-yyyy"
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
                   isClearable={true}
+                  autoComplete="off"
                 />
               </FormControl>
               <div>

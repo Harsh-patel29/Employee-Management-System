@@ -582,7 +582,6 @@ export default function AdminForm({ onSubmit, mode }) {
           <>
             <div></div>
             <div></div>
-            <div></div>
             <Button
               type="submit"
               className="w-[90%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"

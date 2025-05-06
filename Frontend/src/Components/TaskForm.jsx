@@ -90,8 +90,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [currentPublicId, setCurrentPublicId] = useState('');
   const [currentvalue, setCurrentvalue] = useState('');
   const [localAttachments, setLocalAttachments] = useState([]);
-  const [hours, setHours] = useState('');
-  const [minutes, setMinutes] = useState('');
+  const [hour, setHour] = useState('');
+  const [minute, setMinute] = useState('');
   const users = useSelector((state) => state.getuser);
   const { user } = useSelector((state) => state.auth);
 
@@ -354,6 +354,29 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   const isDeleteable = user?.user?.Name;
 
+  const handleMinuteChange = (e) => {
+    const value = e.target.value;
+    const num = parseInt(value);
+    const formatted = isNaN(num) ? '00' : formatWithZero(num);
+    setMinute(formatted);
+    onChange(formatted);
+  };
+  const formatWithZero = (val) => (val < 10 ? `0${val}` : `${val}`);
+  const getFormattedTime = (h, m, p) => {
+    let hourNum = parseInt(h);
+
+    const hourStr = hourNum.toString().padStart(2, '0');
+    const minStr = m.padStart(2, '0');
+    return `${hourStr}:${minStr}`;
+  };
+
+  const handleHourChange = (e, onChange) => {
+    const value = e.target.value;
+    const num = parseInt(value);
+    const formatted = isNaN(num) ? '00' : formatWithZero(num);
+    setHour(formatted);
+    onChange(formatted);
+  };
   return (
     <>
       <div className="mt-4"></div>
@@ -646,18 +669,27 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </button>
                     </div>
                     {Tasks.todo && (
-                      <div className="flex overflow-y-auto flex-col mt-2 items-center w-[100%] pl-6  max-h-[300px]">
+                      <div className="flex overflow-y-auto flex-col mt-2 items-center w-[100%] pl-6 max-h-[300px]">
                         {Object.entries(Tasks.todo).map(([key, value]) => (
                           <div
                             key={key}
-                            className="mb-1 w-full  flex justify-between items-center relative"
+                            className="mb-1 w-full flex justify-between items-center relative"
                           >
                             <div
-                              className={`flex  min-h-[45px] justify-start items-center pl-2 w-full  h-full cursor-pointer rounded-md ${value.todoStatus ? ' bg-[rgb(211,248,211)]' : ' bg-[rgb(241,236,236)] hover:bg-[rgba(225,232,237,255)]'}`}
+                              className={`flex min-h-[45px] justify-start items-center pl-2 w-full  h-full cursor-pointer rounded-md ${value.todoStatus ? ' bg-[rgb(211,248,211)]' : ' bg-[rgb(241,236,236)] hover:bg-[rgba(225,232,237,255)]'}`}
+                              onClick={() => {
+                                setOpenTodoUpdateDialog(true);
+                                const updatedData = {
+                                  todoIndex: parseInt(key),
+                                  todoStatus: !value.todoStatus,
+                                };
+                                setOpenTodoUpdateDialog(true);
+                                settodochecked(updatedData);
+                              }}
                             >
                               <input
                                 type="checkbox"
-                                className="w-5 h-5 flex items-center"
+                                className="w-5 h-5 flex items-center cursor-pointer"
                                 checked={value.todoStatus}
                                 onChange={() => {
                                   const updatedData = {
@@ -1083,8 +1115,17 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   />
                                 </div>
                               ) : (
-                                <div className="relative w-180 h-150">
-                                  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                <div
+                                  className="relative w-180 h-150"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      n;
+                                    }
+                                  }}
+                                >
+                                  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
                                     <Viewer
                                       fileUrl={selectedFile}
                                       plugins={[defaultLayoutPluginInstance]}
@@ -1569,27 +1610,31 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         {showEstimatedTimeField && (
                           <FormControl>
                             <div
-                              className="flex items-center gap-2  text-sm text-[rgb(115,122,126)]"
+                              className="flex items-center text-sm text-[rgb(115,122,126)]"
                               {...field}
                             >
-                              <input
+                              <Input
                                 type="number"
-                                value={hours}
-                                onChange={(e) => setHours(e.target.value)}
-                                placeholder="Hours"
-                                min="0"
-                                className="w-17 px-2 py-1 text-sm text-center text-gray-800 rounded-md focus:outline-none"
+                                value={hour}
+                                placeholder="00"
+                                defaultValue={hour}
+                                onChange={(e) =>
+                                  handleHourChange(e, field.onChange)
+                                }
+                                className=" w-10 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                               />
-
-                              <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                              <span className="text-lg mb-0.5 font-semibold text-gray-700 ">
                                 :
                               </span>
-                              <input
-                                type="text"
-                                value={minutes}
-                                onChange={handleMinutesChange}
-                                placeholder="Minutes"
-                                className="w-16 px-2 py-1 text-sm text-center text-gray-800  rounded-md focus:outline-none"
+                              <Input
+                                type="number"
+                                min="0"
+                                max="59"
+                                placeholder="00"
+                                defaultValue={minute}
+                                value={minute}
+                                onChange={handleMinuteChange}
+                                className="h-9.5 w-15 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                               />
                             </div>
                           </FormControl>
@@ -1605,22 +1650,9 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             showEstimatedTimeField ? 'cursor-pointer' : 'hidden'
                           }
                           onClick={() => {
-                            const [existingHours, existingMinutes] = (
-                              field.value || '0:00'
-                            ).split(':');
-
-                            const finalHours =
-                              hours !== '' ? hours : existingHours;
-                            const finalMinutes =
-                              minutes !== '' ? minutes : existingMinutes;
-
-                            const paddedMinutes = finalMinutes
-                              .toString()
-                              .padStart(2, '0');
-
                             handleUpdateTask(
                               'EstimatedTime',
-                              `${finalHours}:${paddedMinutes}`
+                              `${hour}:${minute}`
                             );
                           }}
                         >

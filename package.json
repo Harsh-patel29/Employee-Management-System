@@ -16,6 +16,7 @@
     "@mantine/core": "^7.16.3",
     "@mantine/hooks": "^7.16.3",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
+    "@react-pdf-viewer/core": "^3.12.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.6.0",
     "concurrently": "^9.1.2",
@@ -27,6 +28,7 @@
     "mongoose": "^8.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.9",
+    "pdfjs-dist": "^5.2.133",
     "react-loader-spinner": "^6.1.6"
   },
   "devDependencies": {

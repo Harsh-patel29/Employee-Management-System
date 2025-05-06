@@ -6,6 +6,37 @@ import { AsyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 
+const calculateLeaveDays = (startDate, endDate, startDateType, endDateType) => {
+  const MS_IN_DAY = 1000 * 60 * 60 * 24;
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : null;
+  if (!end) {
+    if (startDateType === 'Full_Day') return 1;
+    if (startDateType === 'First_Half' || startDateType === 'Second_Half')
+      return 0.5;
+    return 0;
+  }
+  let diffDays = (end - start) / MS_IN_DAY;
+
+  if (diffDays < 0) return 0;
+
+  let totalDays = diffDays;
+
+  if (startDateType === 'Full_Day') {
+    totalDays += 1;
+  } else {
+    totalDays += 0.5;
+  }
+
+  if (endDateType === 'Full_Day') {
+    totalDays += 0;
+  } else {
+    totalDays += 0.5;
+  }
+
+  return totalDays;
+};
+
 const createLeave = AsyncHandler(async (req, res) => {
   const {
     Leave_Reason,
@@ -15,6 +46,7 @@ const createLeave = AsyncHandler(async (req, res) => {
     End_Date,
     EndDateType,
   } = req.body;
+
   if (!Leave_Reason || !LEAVE_TYPE || !Start_Date || !StartDateType) {
     throw new ApiError('All fields are required', 400);
   }
@@ -22,25 +54,6 @@ const createLeave = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError('User not found', 404);
   }
-
-  const calculateDays = (startDate, endDate) => {
-    if (req.body.End_Date && req.body.End_Date !== req.body.Start_Date) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const timeDiff = Math.abs(end - start);
-      const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-      return diffDays;
-    } else if (
-      req.body.StartDateType === 'First_Half' ||
-      req.body.StartDateType === 'Second_Half'
-    ) {
-      const days = 0.5;
-      return days;
-    } else if (req.body.StartDateType === 'Full_Day') {
-      const days = 1;
-      return days;
-    }
-  };
 
   try {
     const leave = await Leave.create({
@@ -57,7 +70,12 @@ const createLeave = AsyncHandler(async (req, res) => {
         ? new Date(End_Date).toLocaleDateString('en-CA').split('/').join('-')
         : '',
       EndDateType,
-      Days: calculateDays(Start_Date, End_Date),
+      Days: calculateLeaveDays(
+        Start_Date,
+        End_Date,
+        StartDateType,
+        EndDateType
+      ),
     });
     await leave.save();
     return res
@@ -116,25 +134,6 @@ const deleteLeave = AsyncHandler(async (req, res) => {
 });
 
 const updateLeave = AsyncHandler(async (req, res) => {
-  const calculateDays = (startDate, endDate) => {
-    if (req.body.End_Date) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const timeDiff = Math.abs(end - start);
-      const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-      return diffDays;
-    } else if (
-      req.body.data.StartDateType === 'First_Half' ||
-      req.body.data.StartDateType === 'Second_Half'
-    ) {
-      const days = 0.5;
-      return days;
-    } else if (req.body.data.StartDateType === 'Full_Day') {
-      const days = 1;
-      return days;
-    }
-  };
-
   const leave = await Leave.findById(req.body.id);
   if (!leave) {
     throw new ApiError('Leave not found', 404);
@@ -146,7 +145,12 @@ const updateLeave = AsyncHandler(async (req, res) => {
   leave.StartDateType = req.body.data.StartDateType;
   leave.End_Date = req.body.data.End_Date;
   leave.EndDateType = req.body.data.EndDateType;
-  leave.Days = calculateDays(req.body.data.Start_Date, req.body.data.End_Date);
+  leave.Days = calculateLeaveDays(
+    req.body.data.Start_Date,
+    req.body.data.End_Date,
+    req.body.data.StartDateType,
+    req.body.data.EndDateType
+  );
 
   const updatedLeave = await leave.save();
 

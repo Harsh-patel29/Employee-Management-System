@@ -139,6 +139,21 @@ export const getRegularizationbyDateandUser = createAsyncThunk(
   }
 );
 
+export const getMonthlyReportDetail = createAsyncThunk(
+  'auth/getMonthlyReport',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        'http://localhost:8000/api/v2/attendance/getMonthlyReportDetails',
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data || error?.message);
+    }
+  }
+);
+
 const markattendanceSlice = createSlice({
   name: 'markAttendance',
   initialState: {
@@ -153,6 +168,7 @@ const markattendanceSlice = createSlice({
     approvedRegularization: [],
     rejectedRegularization: [],
     fetchedRegularizationByDetail: [],
+    fetchedMonthlyReportDetail: [],
     error: null,
     loading: false,
   },
@@ -285,6 +301,18 @@ const markattendanceSlice = createSlice({
         state.loading = false;
       })
       .addCase(getRegularizationbyDateandUser.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(getMonthlyReportDetail.pending, (state) => {
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(getMonthlyReportDetail.fulfilled, (state, action) => {
+        state.fetchedMonthlyReportDetail = action.payload;
+        state.loading = false;
+      })
+      .addCase(getMonthlyReportDetail.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

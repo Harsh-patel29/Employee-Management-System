@@ -520,119 +520,159 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
   const year = new Date(weekOff[0].Effective_Date).getFullYear();
   const LogHours = await Attendance.aggregate([
-    {
-      $addFields: {
-        attendMonthOnly: {
-          $dateToString: {
-            format: '%m',
-            date: '$AttendAt',
+    [
+      {
+        $addFields: {
+          attendMonthOnly: {
+            $dateToString: {
+              format: '%m',
+              date: '$AttendAt',
+            },
           },
-        },
-        attendDateOnly: {
-          $dateToString: {
-            format: '%Y-%m-%d',
-            date: '$AttendAt',
-          },
-        },
-      },
-    },
-    {
-      $group: {
-        _id: {
-          month: '$attendMonthOnly',
-          date: '$attendDateOnly',
-        },
-        logHours: {
-          $push: '$$ROOT',
-        },
-      },
-    },
-    {
-      $sort: {
-        '_id.date': 1,
-      },
-    },
-    {
-      $group: {
-        _id: '$_id.month',
-        dates: {
-          $push: {
-            date: '$_id.date',
-            logHours: '$logHours',
+          attendDateOnly: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$AttendAt',
+            },
           },
         },
       },
-    },
-    {
-      $match: {
-        _id: formattedMonth,
+      {
+        $group: {
+          _id: {
+            month: '$attendMonthOnly',
+            date: '$attendDateOnly',
+            UserName: '$UserName',
+          },
+          logHours: {
+            $push: '$$ROOT',
+          },
+        },
       },
-    },
-    {
-      $project: {
-        'dates.date': 1,
-        'dates.logHours.LogHours': 1,
+      {
+        $sort: {
+          '_id.UserName': 1,
+          '_id.date': 1,
+        },
       },
-    },
-    {
-      $project: {
-        dates: {
-          $map: {
-            input: '$dates',
-            as: 'd',
-            in: {
-              date: '$$d.date',
-              LogHours: {
-                $arrayElemAt: [
-                  '$$d.logHours',
-                  {
-                    $subtract: [
-                      {
-                        $size: '$$d.logHours',
-                      },
-                      1,
-                    ],
-                  },
-                ],
+      {
+        $group: {
+          _id: {
+            month: '$_id.month',
+            UserName: '$_id.UserName',
+          },
+          dates: {
+            $push: {
+              date: '$_id.date',
+              logHours: '$logHours',
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          '_id.month': formattedMonth,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          dates: {
+            $map: {
+              input: '$dates',
+              as: 'd',
+              in: {
+                date: '$$d.date',
+                LogHours: {
+                  $arrayElemAt: [
+                    '$$d.logHours',
+                    {
+                      $subtract: [
+                        {
+                          $size: '$$d.logHours',
+                        },
+                        1,
+                      ],
+                    },
+                  ],
+                },
               },
             },
           },
         },
       },
-    },
+    ],
   ]);
 
   const TypeofWeek = weekOff[0]?.days?.map((item) => item.type);
-  const FullDay = TypeofWeek.filter((item) => item === 'Full Day');
-  const HalfDay = TypeofWeek.filter((item) => item === 'Half Day');
   const weekoff = TypeofWeek.filter((item) => item === 'WeekOff');
   const OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff.length) * 8}:00:00`;
-  const formattedData = LogHours.map((item) => item.dates);
-  const logHours = formattedData[0].map((item) => item.LogHours.LogHours);
-  const dataforEachDate = formattedData[0];
 
-  const totalSeconds = logHours.reduce(
-    (sum, item) => sum + timeToSeconds(item),
-    0
-  );
+  const formattedData = LogHours.map((userEntry) => {
+    return {
+      userName: userEntry._id.UserName,
+      logs: userEntry.dates.map((entry) => ({
+        date: entry.date,
+        LogHours: entry.LogHours?.LogHours || '00:00:00',
+      })),
+    };
+  });
 
-  const WorkingHours = secondsToTime(totalSeconds);
+  const logHours = formattedData.map((user) => {
+    const totalSeconds = user.logs.reduce((acc, curr) => {
+      return acc + timeToSeconds(curr.LogHours);
+    }, 0);
+
+    return {
+      ...user,
+      totalLogHours: secondsToTime(totalSeconds),
+    };
+  });
 
   const officialSeconds = timeToSeconds(OfficalHours);
-  const workingSeconds = timeToSeconds(WorkingHours);
-  const pendingSeconds = officialSeconds - workingSeconds;
-  const PendingHours = secondsToTime(pendingSeconds);
+  const updatedLogHours = logHours.map((item) => {
+    const workingSeconds = timeToSeconds(item.totalLogHours);
+    const pendingSeconds = officialSeconds - workingSeconds;
 
-  const data = [
-    {
+    return {
+      ...item,
       officialHours: OfficalHours,
-      workingHours: WorkingHours,
-      pendingHours: PendingHours,
-      dataforEachDate: dataforEachDate,
-    },
-  ];
+      workingHours: item.totalLogHours,
+      pendingHours: secondsToTime(Math.max(pendingSeconds, 0)), // prevent negative
+    };
+  });
 
-  return res.status(200).json(new ApiResponse(200, data, 'Fetched'));
+  const getAllDatesInMonth = (year, month) => {
+    const dates = [];
+    const date = new Date(year, month - 1, 1);
+    while (date.getMonth() === month - 1) {
+      dates.push(date.toISOString().slice(0, 10)); // Format: YYYY-MM-DD
+      date.setDate(date.getDate() + 1);
+    }
+    return dates;
+  };
+
+  const allDates = getAllDatesInMonth(2025, 4); // For April 2025
+
+  const normalizedData = updatedLogHours.map((user) => {
+    const logsMap = new Map(user.logs.map((log) => [log.date, log.LogHours]));
+
+    const fullLogs = allDates.map((date) => ({
+      date,
+      logHours: logsMap.get(date) || '00:00:00',
+    }));
+
+    return {
+      userName: user.userName,
+      totalLogHours: user.totalLogHours,
+      pendingHours: user.pendingHours,
+      workingHours: user.workingHours,
+      logs: fullLogs,
+    };
+  });
+  console.log(normalizedData);
+
+  return res.status(200).json(new ApiResponse(200, normalizedData, 'Fetched'));
 });
 
 export {
