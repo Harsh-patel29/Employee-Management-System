@@ -91,6 +91,7 @@ const weekOffSlice = createSlice({
     resetWeekOff: (state) => {
       state.allWeekOff = [];
       state.createdWeekOff = null;
+      state.updatedWeekOff = null;
       state.deletedWeekOff = null;
       state.loading = false;
       state.error = null;

@@ -77,9 +77,15 @@ const createWeekOff = AsyncHandler(async (req, res) => {
 
 const getAllWeekoff = AsyncHandler(async (req, res) => {
   const weekOff = await WeekOff.find({}).sort({ createdAt: -1 });
+  const formattedWeekOff = weekOff.map((item) => ({
+    ...item.toObject(),
+    Effective_Date: item.Effective_Date.toISOString().split('T')[0],
+  }));
   return res
     .status(201)
-    .json(new ApiResponse(201, weekOff, 'WeekOff fetched successfully'));
+    .json(
+      new ApiResponse(201, formattedWeekOff, 'WeekOff fetched successfully')
+    );
 });
 
 const getWeekOffById = AsyncHandler(async (req, res) => {

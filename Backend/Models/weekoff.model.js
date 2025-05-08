@@ -32,7 +32,7 @@ const weekOffSchema = new Schema(
       required: true,
     },
     Effective_Date: {
-      type: String,
+      type: Date,
       required: true,
     },
     days: {

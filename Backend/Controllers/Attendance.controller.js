@@ -502,7 +502,26 @@ const getRegularizationbyDateandUser = AsyncHandler(async (req, res) => {
 });
 
 const fetchMonthlyReport = AsyncHandler(async (req, res) => {
-  const weekOff = await WeekOff.find({});
+  const getWeekOffsByMonthYear = async (selectedMonth, slectedYear) => {
+    const startdate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1));
+    const enddate = new Date(
+      Date.UTC(slectedYear, selectedMonth, 0, 23, 59, 59, 999)
+    );
+
+    const requestedWeekOff = await WeekOff.find({
+      Effective_Date: {
+        $gte: startdate,
+        $lte: enddate,
+      },
+    });
+
+    return requestedWeekOff;
+  };
+  const selectedMonth = 5; // May
+  const selectedYear = 2025;
+
+  const weekOff = await getWeekOffsByMonthYear(selectedMonth, selectedYear);
+
   const holiday = await Holiday.find({});
 
   const holidayDays = holiday.map((item) =>
@@ -517,10 +536,29 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
   const month = new Date(weekOff[0].Effective_Date).getMonth() + 1;
   const formattedMonth = month.toString().padStart(2, '0');
-
   const year = new Date(weekOff[0].Effective_Date).getFullYear();
+
   const LogHours = await Attendance.aggregate([
     [
+      {
+        $lookup: {
+          from: 'leaves',
+          localField: 'UserName',
+          foreignField: 'userName',
+          as: 'result',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'User',
+          foreignField: '_id',
+          as: 'userData',
+        },
+      },
+      {
+        $unwind: '$userData',
+      },
       {
         $addFields: {
           attendMonthOnly: {
@@ -542,7 +580,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
           _id: {
             month: '$attendMonthOnly',
             date: '$attendDateOnly',
-            UserName: '$UserName',
+            UserName: '$userData.Name',
           },
           logHours: {
             $push: '$$ROOT',
@@ -604,9 +642,39 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     ],
   ]);
 
-  const TypeofWeek = weekOff[0]?.days?.map((item) => item.type);
+  const TypeofWeek = weekOff[0]?.days?.map(
+    (item) => `${item.type} - ${item.weeks}`
+  );
   const weekoff = TypeofWeek.filter((item) => item === 'WeekOff');
   const OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff.length) * 8}:00:00`;
+
+  const weekOffDay = () => {
+    const result = [];
+    for (let i = 0; i < TypeofWeek.length; i++) {
+      const days = () => {
+        switch (i) {
+          case 0:
+            return 'Monday';
+          case 1:
+            return 'TuesDay';
+          case 2:
+            return 'WednesDay';
+          case 3:
+            return 'ThrusDay';
+          case 4:
+            return 'Friday';
+          case 5:
+            return 'Saturday';
+          case 6:
+            return 'Sunday';
+          default:
+            return '';
+        }
+      };
+      result.push(`${days()} - ${TypeofWeek[i]}`);
+    }
+    return result;
+  };
 
   const formattedData = LogHours.map((userEntry) => {
     return {
@@ -614,6 +682,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       logs: userEntry.dates.map((entry) => ({
         date: entry.date,
         LogHours: entry.LogHours?.LogHours || '00:00:00',
+        Leave: entry.LogHours.result,
       })),
     };
   });
@@ -650,30 +719,45 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     const targetMonth = month - 1;
 
     while (date.getUTCMonth() === targetMonth) {
-      dates.push(date.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+      dates.push(date.toISOString().split('T')[0]);
       date.setUTCDate(date.getUTCDate() + 1);
     }
 
     return dates;
   };
 
-  const allDates = getAllDatesInMonth(2025, 4);
+  const allDates = getAllDatesInMonth(2025, 5);
 
   const normalizedData = updatedLogHours.map((user) => {
     const logsMap = new Map(user.logs.map((log) => [log.date, log.LogHours]));
 
+    const leave = user?.logs?.map((leave) => leave.Leave);
+    const leaveData = leave[0].map((Leave) => {
+      return {
+        StartDate: Leave.Start_Date,
+        EndDate: Leave.End_Date,
+        Days: Leave.End_Date,
+        StartDateType: Leave.StartDateType,
+        EndDateType: Leave.EndDateType,
+        Status: Leave.Status,
+      };
+    });
+
     const fullLogs = allDates.map((date) => ({
       date,
       logHours: logsMap.get(date) || '00:00:00',
+      leaveData,
     }));
 
     return {
       userName: user.userName,
+      id: user.id,
       officialHours: OfficalHours,
       totalLogHours: user.totalLogHours,
       pendingHours: user.pendingHours,
       workingHours: user.workingHours,
       logs: fullLogs,
+      weekOffDays: weekOffDay(),
     };
   });
 
