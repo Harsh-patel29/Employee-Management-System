@@ -28,10 +28,26 @@ const calculateLeaveDays = (startDate, endDate, startDateType, endDateType) => {
     totalDays += 0.5;
   }
 
-  if (endDateType === 'Full_Day') {
+  if (endDateType === 'Full_Day' && startDateType !== endDateType) {
     totalDays += 0;
   } else {
     totalDays += 0.5;
+  }
+
+  if (startDate === endDate) {
+    if (
+      startDateType === 'Full_Day' ||
+      (startDateType === 'First_Half' && endDateType === 'Second_Half') ||
+      endDateType === 'First_Half' ||
+      startDateType === 'Second_Half'
+    ) {
+      totalDays = 1;
+    } else if (
+      (startDateType === 'First_Half' || startDateType === 'Second_Half') &&
+      (endDateType === 'First_Half' || endDateType === 'Second_Half')
+    ) {
+      totalDays = 0.5;
+    }
   }
 
   return totalDays;

@@ -145,7 +145,7 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                     {...field}
                     type="text"
                     placeholder="Enter Holiday"
-                    className="w-full h-9.5 rounded-sm p-3 flex items-center shadow-none border border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="w-full h-9.5 rounded-sm p-3 flex items-center shadow-none border text-black border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </FormControl>
               </div>

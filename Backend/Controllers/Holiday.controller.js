@@ -35,11 +35,16 @@ const updateHoliday = AsyncHandler(async (req, res) => {
   if (!holiday) {
     throw new ApiError(404, 'Holiday not found');
   }
-  const Holidayexists = await Holiday.find({
-    holiday_name: req.body.data.holiday_name,
-  });
-  if (Holidayexists) {
-    throw new ApiError(400, 'Holiday already exists');
+  if (
+    req.body.data.holiday_name &&
+    req.body.data.holiday_name !== holiday.holiday_name
+  ) {
+    const Holidayexists = await Holiday.findOne({
+      holiday_name: req.body.data.holiday_name,
+    });
+    if (Holidayexists) {
+      throw new ApiError(400, 'Holiday already exists');
+    }
   }
   holiday.holiday_name = req.body.data.holiday_name;
   holiday.Start_Date = req.body.data.Start_Date;

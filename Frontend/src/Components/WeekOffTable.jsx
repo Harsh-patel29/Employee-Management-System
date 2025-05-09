@@ -50,17 +50,7 @@ function Row({ row, openDialog, openSheet }) {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const { updatedWeekOff } = useSelector((state) => state.weekoff);
   const { user } = useSelector((state) => state.auth);
-  React.useEffect(() => {
-    if (updatedWeekOff?.success) {
-      toast.success('WeekOff updated Successfully', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
-      setupdatesheetopen(false);
-      dispatch(getAllWeekOff());
-      dispatch(resetWeekOff());
-    }
-  }, [updatedWeekOff]);
+
   return (
     <React.Fragment>
       <TableRow>
@@ -97,8 +87,8 @@ function Row({ row, openDialog, openSheet }) {
                     <SheetDescription>
                       <WeekOffForm
                         onSubmit={(data) => {
-                          console.log(data);
                           dispatch(updateWeekOff({ data, id: row._id }));
+                          setupdatesheetopen(false);
                         }}
                         mode="update"
                       />
@@ -225,7 +215,6 @@ export default function WeekOffTable() {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = React.useState(false);
   const [weekoff, setweekoff] = React.useState([]);
-  const [days, setdays] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { allWeekOff, createdWeekOff, deletedWeekOff, updatedWeekOff } =
@@ -270,22 +259,28 @@ export default function WeekOffTable() {
   };
 
   React.useEffect(() => {
-    const weekoffdays = weekoff.map((day) => {
-      setdays(day?.days);
-    });
-  }, [weekoff]);
-
-  React.useEffect(() => {
     if (createdWeekOff?.success) {
       toast.success('WeekOff created Successfully', {
         position: 'top-right',
         autoClose: 3000,
       });
-      setsheetopen(false);
+
       dispatch(getAllWeekOff());
       dispatch(resetWeekOff());
     }
   }, [createdWeekOff]);
+
+  React.useEffect(() => {
+    if (updatedWeekOff?.success) {
+      toast.success('WeekOff updated Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      setupdatesheetopen(false);
+      dispatch(getAllWeekOff());
+      dispatch(resetWeekOff());
+    }
+  }, [updatedWeekOff]);
 
   React.useEffect(() => {
     if (deletedWeekOff?.success) {

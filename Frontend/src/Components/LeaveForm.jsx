@@ -21,19 +21,40 @@ import {
   getCreatedLeave,
 } from '../feature/leavefetch/createleaveSlice';
 
-const formSchema = z.object({
-  Leave_Reason: z.string().min(1, { message: 'Leave Reason is Required' }),
-  LEAVE_TYPE: z.string().min(1, { message: 'Leave Type is Required' }),
-  Start_Date: z.string().min(1, { message: 'Start Date is Required' }),
-  StartDateType: z.string().min(1, { message: 'Start Day Type is Required' }),
-  End_Date: z.string().optional(),
-  EndDateType: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    Leave_Reason: z.string().min(1, { message: 'Leave Reason is Required' }),
+    LEAVE_TYPE: z.string().min(1, { message: 'Leave Type is Required' }),
+    Start_Date: z
+      .string({
+        required_error: 'Start Date is Required',
+        invalid_type_error: 'Start Date must be a string',
+      })
+      .min(1, { message: 'Start Date is Required' })
+      .nullable()
+      .refine((val) => val !== null, { message: 'Start Date is Required' }),
+    StartDateType: z.string().min(1, { message: 'Start Day Type is Required' }),
+    End_Date: z.string().optional().nullable(),
+    EndDateType: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.End_Date) {
+        return !!data.EndDateType;
+      }
+      return true;
+    },
+    {
+      message: 'End Day Type is Required',
+      path: ['EndDateType'],
+    }
+  );
 
 export default function LeaveForm({ onSubmit, mode, id }) {
   const [leaveType, setLeaveType] = useState([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [endDateType, setendDateType] = useState('');
   const { leaveById, createdLeaves, allLeave } = useSelector(
     (state) => state.leave
   );
@@ -86,13 +107,15 @@ export default function LeaveForm({ onSubmit, mode, id }) {
 
   const EndDateTypeOptions = [
     { value: 'First_Half', label: 'First Half' },
-    // { value: 'Second_Half', label: 'Second Half' },
+    { value: 'Second_Half', label: 'Second Half' },
     { value: 'Full_Day', label: 'Full Day' },
   ];
 
   useEffect(() => {
     if (mode === 'update' && leaveById?.message) {
       const detail = leaveById?.message;
+      setStartDate(detail?.Start_Date);
+      setEndDate(detail?.End_Date);
       reset({
         Leave_Reason: detail?.Leave_Reason,
         LEAVE_TYPE: detail?.LEAVE_TYPE,
@@ -135,7 +158,10 @@ export default function LeaveForm({ onSubmit, mode, id }) {
               {mode === 'update' ? 'Update' : 'Create'}
             </Button>
             <SheetClose>
-              <Button className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer">
+              <Button
+                type="button"
+                className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
+              >
                 <svg
                   className="w-10 h-10"
                   stroke="currentColor"
@@ -278,7 +304,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
             control={control}
             name="Start_Date"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem className="flex flex-col ">
                 <FormLabel
                   className={
                     errors?.Start_Date
@@ -289,35 +315,40 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                   Start Date
                 </FormLabel>
                 <FormControl>
-                  <DatePicker
-                    {...field}
-                    className="w-full h-9.5  border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3  outline-none"
-                    placeholderText="Start Date"
-                    autoComplete="off"
-                    selected={field.value}
-                    onChange={(date) => {
-                      field.onChange(date);
-                      const localDate = new Date(
-                        date?.getTime() - date?.getTimezoneOffset() * 60000
-                      )
-                        ?.toISOString()
-                        .split('T')[0];
-                      field.onChange(localDate);
-                      setStartDate(localDate);
-                      if (endDate && new Date(localDate) > new Date(endDate)) {
-                        setEndDate('');
-                        setValue('End_Date', '', {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                    dateFormat="dd-MM-yyyy"
-                    showYearDropdown
-                    scrollableYearDropdown
-                    yearDropdownItemNumber={100}
-                    isClearable={true}
-                  />
+                  <div className="w-full" {...field}>
+                    <DatePicker
+                      wrapperClassName="w-full"
+                      className=" h-9.5 border w-full border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3  outline-none"
+                      placeholderText="Start Date"
+                      autoComplete="off"
+                      onChange={(date) => {
+                        field.onChange(date);
+                        const localDate = new Date(
+                          date?.getTime() - date?.getTimezoneOffset() * 60000
+                        )
+                          ?.toISOString()
+                          .split('T')[0];
+                        field.onChange(localDate);
+                        setStartDate(localDate);
+                        if (
+                          endDate &&
+                          new Date(localDate) > new Date(endDate)
+                        ) {
+                          setEndDate('');
+                          setValue('End_Date', '', {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
+                      selected={field.value}
+                      dateFormat="dd-MM-yyyy"
+                      showYearDropdown
+                      scrollableYearDropdown
+                      yearDropdownItemNumber={100}
+                      isClearable={true}
+                    />
+                  </div>
                 </FormControl>
                 <div>
                   {errors?.Start_Date && (
@@ -415,7 +446,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                     isClearable={true}
                     options={StartDateTypeOptions}
                     onChange={(value) => {
-                      field.onChange(value.value);
+                      field.onChange(value ? value.value : '');
                     }}
                   />
                 </FormControl>
@@ -444,30 +475,32 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                   End Date
                 </FormLabel>
                 <FormControl>
-                  <DatePicker
-                    {...field}
-                    className="w-full h-9.5 border border-gray-300 p-3 text-[rgb(0,0,0)] text-[15px] font-[450]  rounded-sm outline-none"
-                    autoComplete="off"
-                    placeholderText="End Date"
-                    selected={field.value}
-                    disabled={!startDate}
-                    onChange={(date) => {
-                      field.onChange(date);
-                      const localDate = new Date(
-                        date?.getTime() - date?.getTimezoneOffset() * 60000
-                      )
-                        ?.toISOString()
-                        .split('T')[0];
-                      field.onChange(localDate);
-                      setEndDate(localDate);
-                    }}
-                    minDate={startDate}
-                    dateFormat="DD-MM-YYYY"
-                    showYearDropdown
-                    scrollableYearDropdown
-                    yearDropdownItemNumber={100}
-                    isClearable={true}
-                  />
+                  <div className="w-full" {...field}>
+                    <DatePicker
+                      wrapperClassName="w-full"
+                      className="h-9.5 border w-full border-gray-300 p-3 text-[rgb(0,0,0)] text-[15px] font-[450]  rounded-sm outline-none"
+                      autoComplete="off"
+                      placeholderText="End Date"
+                      selected={field.value}
+                      disabled={!startDate}
+                      onChange={(date) => {
+                        field.onChange(date);
+                        const localDate = new Date(
+                          date?.getTime() - date?.getTimezoneOffset() * 60000
+                        )
+                          ?.toISOString()
+                          .split('T')[0];
+                        field.onChange(localDate);
+                        setEndDate(localDate ? localDate : '');
+                      }}
+                      minDate={startDate}
+                      dateFormat="dd-MM-yyyy"
+                      showYearDropdown
+                      scrollableYearDropdown
+                      yearDropdownItemNumber={100}
+                      isClearable={true}
+                    />
+                  </div>
                 </FormControl>
                 <div>
                   {errors?.End_Date && (
@@ -536,15 +569,19 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                     value={
                       typeof field.value === 'string'
                         ? EndDateTypeOptions.find(
-                            (option) => option.value === field.value
+                            (option) => option.value === endDateType
                           )
-                        : field.value
+                        : endDateType
                     }
                     placeholder="Select End Day Leave"
                     isClearable={true}
                     options={EndDateTypeOptions}
                     onChange={(value) => {
-                      field.onChange(value.value);
+                      field.onChange(value ? value.value : '');
+                      setendDateType(value ? value.value : '');
+                      if (!endDate) {
+                        setendDateType('');
+                      }
                     }}
                   />
                 </FormControl>

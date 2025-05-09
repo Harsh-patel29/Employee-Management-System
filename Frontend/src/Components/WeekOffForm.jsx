@@ -90,7 +90,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
       const detail = weekOffbyId.message;
       reset({
         WeekOffName: detail.WeekOffName,
-        Effective_Date: detail.Effective_Date,
+        Effective_Date: detail.Effective_Date.split('T')[0],
       });
     }
   }, [mode, weekOffbyId, reset, id]);
@@ -113,16 +113,20 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
   ];
 
   const handleCheckboxChange = (day, type) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      days: {
-        ...prevState.days,
-        [day]: {
-          ...prevState.days[day],
-          [type]: !prevState.days[day][type],
+    setFormData((prevState) => {
+      const isChecked = !prevState.days[day][type];
+      return {
+        ...prevState,
+        days: {
+          ...prevState.days,
+          [day]: {
+            ...prevState.days[day],
+            weekOff: type === 'weekOff' ? isChecked : false,
+            halfDay: type === 'halfDay' ? isChecked : false,
+          },
         },
-      },
-    }));
+      };
+    });
   };
 
   useEffect(() => {
@@ -203,7 +207,6 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
       };
     }
   };
-  console.log(isWeekOffChecked);
 
   return (
     <Form {...control}>
@@ -386,11 +389,9 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                             onCheckedChange={() =>
                               handleCheckboxChange(day, 'weekOff')
                             }
-                            disabled={formData.days[day].halfDay}
                           />
                           <Checkbox
                             className="form-checkbox h-5 w-5 cursor-pointer rounded border-2 border-[#879ac1] shadow-xl"
-                            disabled={formData.days[day].weekOff}
                             checked={formData.days[day].halfDay}
                             onCheckedChange={() =>
                               handleCheckboxChange(day, 'halfDay')

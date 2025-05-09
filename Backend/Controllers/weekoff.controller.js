@@ -97,6 +97,7 @@ const getAllWeekoff = AsyncHandler(async (req, res) => {
 const getWeekOffById = AsyncHandler(async (req, res) => {
   const { id } = req.body;
   const weekoff = await WeekOff.findById(id);
+
   if (!weekoff) {
     throw new ApiError(400, 'WeekOff not found');
   }
@@ -128,7 +129,7 @@ const updateWeekOff = AsyncHandler(async (req, res) => {
 
         const hasSelectedWeeks = Array.isArray(weeks) && weeks.length > 0;
         if (hasSelectedWeeks) {
-          type = 'WeekOff';
+          type = type;
         } else if (!hasSelectedWeeks && type === '') {
           type = 'Full Day';
         }
