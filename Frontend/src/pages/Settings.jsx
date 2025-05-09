@@ -1,319 +1,56 @@
-// import React, { useEffect, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useParams, useNavigate } from "react-router";
-// import axios from "axios";
-// import { Button } from "../Components/components/ui/button";
-// import { Switch } from "../Components/components/ui/switch";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuGroup,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger,
-// } from "../Components/components/ui/dropdown";
-// import { getChangeDetail } from "../feature/datafetch/ChangeFetch.js";
-
-// const updateAccess = (userId, key, value) => {
-//   return axios.put(
-//     `http://localhost:8000/api/v1/user/settings/fetch/${userId}`,
-//     { key, value },
-//     {
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     }
-//   );
-// };
-
-// const Settings = () => {
-//   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
-//   const theme = useSelector((state) => state.theme.theme);
-
-//   const dispatch = useDispatch();
-
-//   const { id } = useParams();
-
-//   const [userid, setuserid] = useState(id);
-
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     setuserid(id);
-//   }, [id]);
-
-//   const detail = useSelector((state) => state.ChangeAccess);
-//   const getPermissionById = async (id) => {
-//     dispatch(getChangeDetail(id));
-//   };
-
-//   const [permissions, setPermissions] = useState({});
-//   useEffect(() => {
-//     if (detail?.detail?.message) {
-//       setPermissions({ ...detail.detail.message });
-//     }
-//   }, [detail]);
-
-//   const handleToggle = (key, checked) => {
-//     setPermissions((prev) => ({
-//       ...prev,
-//       [key]: checked,
-//     }));
-//     updateAccess(userid, key, checked)
-//       .then((response) => {})
-//       .catch((err) => console.error(err));
-//   };
-
-//   return (
-//     <div
-//       className={`absolute flex flex-col justify-evenly rounded-md lg:ml-30 md:ml-25 sm:ml-30 mt-20 shadow-xl min-w-0 xl:w-[80%] xl:h-[70%]
-//          lg:h-[80%] lg:w-[85%] md:h-[85%] md:w-[80%] sm:h-[80%] sm:w-[80%] transition-all duration-300 ${
-//            isExpanded
-//              ? "xl:scale-x-90 xl:left-15 xl:right-10 lg:scale-x-90 md:scale-x-80 sm:scale-x-80 "
-//              : "xl:scale-x-100 xl:left-10 lg:scale-x-100 lg:left-7 md:scale-x-100 sm:scale-x-100"
-//          }
-//       ${theme === "light" ? "bg-white" : "bg-[#0b0d12]"}
-//         `}
-//     >
-//       <DropdownMenu
-//         onOpenChange={(open) => {
-//           if (!open) {
-//             navigate(`/settings`);
-//           } else {
-//             navigate(`/settings/67ac6426aef8063f23746a75`);
-//             getPermissionById("67ac6426aef8063f23746a75");
-//           }
-//         }}
-//       >
-//         <DropdownMenuTrigger
-//           asChild
-//           className={`${
-//             theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
-//           } h-20 text-xl`}
-//         >
-//           <Button
-//             variant="outline"
-//             className={`w-full ${
-//               theme === "light" ? "" : "hover:bg-[#374151]"
-//             }`}
-//           >
-//             Admin
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent
-//           className={`w-4xl ${
-//             theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
-//           }`}
-//         >
-//           <DropdownMenuLabel className="flex justify-center ">
-//             Access
-//           </DropdownMenuLabel>
-//           <DropdownMenuSeparator />
-//           <DropdownMenuGroup>
-//             {Object.keys(permissions).length > 0 ? (
-//               Object.entries(permissions).map(([key, value]) => (
-//                 <DropdownMenuItem
-//                   key={key}
-//                   className="flex justify-between items-center"
-//                 >
-//                   <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
-//                   <Switch
-//                     onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
-//                     checked={value}
-//                     onCheckedChange={(checked) => handleToggle(key, checked)}
-//                     className="data-[state=checked]:bg-blue-500"
-//                   />
-//                 </DropdownMenuItem>
-//               ))
-//             ) : (
-//               <p className="text-center bg-[#374151] text-gray-500">
-//                 No permissions found
-//               </p>
-//             )}
-//           </DropdownMenuGroup>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
-//       <DropdownMenu
-//         onOpenChange={(open) => {
-//           if (!open) {
-//             navigate(`/settings`);
-//           } else {
-//             navigate(`/settings/67ac67accbab2e409938d0ce`);
-//             getPermissionById("67ac67accbab2e409938d0ce");
-//           }
-//         }}
-//       >
-//         <DropdownMenuTrigger
-//           asChild
-//           className={`${
-//             theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
-//           } h-20 text-xl`}
-//         >
-//           <Button
-//             variant="outline"
-//             className={`w-full ${
-//               theme === "light" ? "" : "hover:bg-[#374151]"
-//             }`}
-//           >
-//             Developer
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent
-//           className={`w-4xl ${
-//             theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd] "
-//           }`}
-//         >
-//           <DropdownMenuLabel className="flex justify-center">
-//             Access
-//           </DropdownMenuLabel>
-//           <DropdownMenuSeparator />
-//           <DropdownMenuGroup>
-//             {Object.keys(permissions).length > 0 ? (
-//               Object.entries(permissions).map(([key, value]) => (
-//                 <DropdownMenuItem
-//                   key={key}
-//                   className="flex justify-between items-center"
-//                 >
-//                   <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
-//                   <Switch
-//                     onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
-//                     checked={value}
-//                     onCheckedChange={(checked) => handleToggle(key, checked)}
-//                     className="data-[state=checked]:bg-blue-500"
-//                   />
-//                 </DropdownMenuItem>
-//               ))
-//             ) : (
-//               <p className="text-center text-gray-500">No permissions found</p>
-//             )}
-//           </DropdownMenuGroup>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
-//       <DropdownMenu
-//         onOpenChange={(open) => {
-//           if (!open) {
-//             navigate(`/settings`);
-//           } else {
-//             navigate(`/settings/67ac67db190f041e27634fb3`);
-//             getPermissionById("67ac67db190f041e27634fb3");
-//           }
-//         }}
-//       >
-//         <DropdownMenuTrigger
-//           asChild
-//           className={`${
-//             theme === "light" ? "bg-[#bfdbfe]" : "bg-[#161b22] border-[#374151]"
-//           } h-20 text-xl`}
-//         >
-//           <Button
-//             variant="outline"
-//             className={`w-full ${
-//               theme === "light" ? "" : "hover:bg-[#374151]"
-//             }`}
-//           >
-//             HR
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent
-//           className={`w-4xl ${
-//             theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
-//           }`}
-//         >
-//           <DropdownMenuLabel className="flex justify-center">
-//             Access
-//           </DropdownMenuLabel>
-//           <DropdownMenuSeparator />
-//           <DropdownMenuGroup>
-//             {Object.keys(permissions).length > 0 ? (
-//               Object.entries(permissions).map(([key, value]) => (
-//                 <DropdownMenuItem
-//                   key={key}
-//                   className="flex justify-between items-center"
-//                 >
-//                   <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
-//                   <Switch
-//                     onClick={(e) => e.stopPropagation()} // prevents dropdown from closing when clicked
-//                     checked={value}
-//                     onCheckedChange={(checked) => handleToggle(key, checked)}
-//                     className="data-[state=checked]:bg-blue-500"
-//                   />
-//                 </DropdownMenuItem>
-//               ))
-//             ) : (
-//               <p className="text-center text-gray-500">No permissions found</p>
-//             )}
-//           </DropdownMenuGroup>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
-//       <DropdownMenu
-//         onOpenChange={(open) => {
-//           if (!open) {
-//             navigate(`/settings`);
-//           } else {
-//             navigate(`/settings/67ac67fe40c38b9cb8e3186e`);
-//             getPermissionById("67ac67fe40c38b9cb8e3186e");
-//           }
-//         }}
-//       >
-//         <DropdownMenuTrigger
-//           asChild
-//           className={`${
-//             theme === "light"
-//               ? "bg-[#bfdbfe] border"
-//               : "bg-[#161b22] border-[#374151]"
-//           } h-20 text-xl`}
-//         >
-//           <Button
-//             variant="outline"
-//             className={`w-full ${
-//               theme === "light" ? "" : "hover:bg-[#374151]"
-//             }`}
-//           >
-//             Product_Manager
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent
-//           className={`w-4xl ${
-//             theme === "light" ? "" : "bg-[#23272F] text-[#eaf4fd]"
-//           }`}
-//         >
-//           <DropdownMenuLabel className="flex justify-center">
-//             Access
-//           </DropdownMenuLabel>
-//           <DropdownMenuSeparator />
-//           <DropdownMenuGroup>
-//             {Object.keys(permissions).length > 0 ? (
-//               Object.entries(permissions).map(([key, value]) => (
-//                 <DropdownMenuItem
-//                   key={key}
-//                   className="flex justify-between items-center hover:bg-[#374151]"
-//                 >
-//                   <strong className="text-sm">{key.replace(/_/g, " ")}</strong>
-//                   <Switch
-//                     onClick={(e) => e.stopPropagation()}
-//                     checked={value}
-//                     onCheckedChange={(checked) => handleToggle(key, checked)}
-//                     className="data-[state=checked]:bg-blue-500 "
-//                   />
-//                 </DropdownMenuItem>
-//               ))
-//             ) : (
-//               <p className="text-center text-gray-500">No permissions found</p>
-//             )}
-//           </DropdownMenuGroup>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
-//     </div>
-//   );
-// };
-
-// export default Settings;
-
 import React from 'react';
-
 const Settings = () => {
-  return <div>Settings</div>;
+  return (
+    <>
+      <div className=" w-full px-2 font-semibold text-3xl h-full mb-2">
+        Settings
+      </div>
+      <div className=" ml-8 mt-5 flex gap-x-8 ">
+        <div className="bg-white min-w-[25%] w-auto cursor-pointer shadow-xl rounded-xl flex h-auto flex-col">
+          <div className="flex h-auto min-h-24">
+            <div className="flex h-full ml-2 items-center justify-center">
+              <img
+                src="./SMTP_Image.png"
+                className="h-15 w-15 rounded-md"
+                alt="SMTP Image"
+              />
+            </div>
+            <div className="flex flex-col  justify-center px-2">
+              <h1 className="font-semibold text-xl">SMTP Settings</h1>
+              <p className="text-gray-400">Configure email server settings</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white min-w-[25%] w-auto cursor-pointer rounded-xl shadow-xl flex items-center justify-center">
+          <div className="flex h-full ml-2 items-center justify-center">
+            <svg
+              class="w-15 h-15 text-[#006bb3]"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="square"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>
+          </div>
+          <div className="flex flex-col  justify-center px-2">
+            <h1 className="font-semibold text-xl">Attendance Settings</h1>
+            <p className="text-gray-400">
+              Maintain Attendance rules and policies
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default Settings;

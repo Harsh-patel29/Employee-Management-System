@@ -39,13 +39,16 @@ const formSchema = z
   })
   .refine(
     (data) => {
-      if (data.End_Date) {
-        return !!data.EndDateType;
+      if (
+        (data.End_Date && !data.EndDateType) ||
+        (!data.End_Date && data.EndDateType)
+      ) {
+        return false;
       }
       return true;
     },
     {
-      message: 'End Day Type is Required',
+      message: 'End Date and End Day Type must both be filled or both be empty',
       path: ['EndDateType'],
     }
   );
@@ -54,7 +57,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
   const [leaveType, setLeaveType] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [endDateType, setendDateType] = useState('');
+
   const { leaveById, createdLeaves, allLeave } = useSelector(
     (state) => state.leave
   );
@@ -116,6 +119,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
       const detail = leaveById?.message;
       setStartDate(detail?.Start_Date);
       setEndDate(detail?.End_Date);
+
       reset({
         Leave_Reason: detail?.Leave_Reason,
         LEAVE_TYPE: detail?.LEAVE_TYPE,
@@ -336,6 +340,10 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                         ) {
                           setEndDate('');
                           setValue('End_Date', '', {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                          setValue('EndDateType', '', {
                             shouldValidate: true,
                             shouldDirty: true,
                           });
@@ -569,19 +577,15 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                     value={
                       typeof field.value === 'string'
                         ? EndDateTypeOptions.find(
-                            (option) => option.value === endDateType
+                            (option) => option.value === field.value
                           )
-                        : endDateType
+                        : field.value
                     }
                     placeholder="Select End Day Leave"
                     isClearable={true}
                     options={EndDateTypeOptions}
                     onChange={(value) => {
                       field.onChange(value ? value.value : '');
-                      setendDateType(value ? value.value : '');
-                      if (!endDate) {
-                        setendDateType('');
-                      }
                     }}
                   />
                 </FormControl>
