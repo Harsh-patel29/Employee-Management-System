@@ -109,6 +109,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
     'Second Week',
     'Third Week',
     'Fourth Week',
+    'Fifth Week',
   ];
 
   const handleCheckboxChange = (day, type) => {

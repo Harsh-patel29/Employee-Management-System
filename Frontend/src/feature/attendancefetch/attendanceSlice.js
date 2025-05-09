@@ -141,10 +141,11 @@ export const getRegularizationbyDateandUser = createAsyncThunk(
 
 export const getMonthlyReportDetail = createAsyncThunk(
   'auth/getMonthlyReport',
-  async (_, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await axios.get(
+      const res = await axios.post(
         'http://localhost:8000/api/v2/attendance/getMonthlyReportDetails',
+        data,
         { withCredentials: true }
       );
       return res.data;
@@ -169,6 +170,7 @@ const markattendanceSlice = createSlice({
     rejectedRegularization: [],
     fetchedRegularizationByDetail: [],
     fetchedMonthlyReportDetail: [],
+    message: '',
     error: null,
     loading: false,
   },
@@ -309,8 +311,8 @@ const markattendanceSlice = createSlice({
         state.loading = false;
       })
       .addCase(getMonthlyReportDetail.fulfilled, (state, action) => {
-        state.fetchedMonthlyReportDetail = action.payload;
         state.loading = false;
+        state.fetchedMonthlyReportDetail = action.payload;
       })
       .addCase(getMonthlyReportDetail.rejected, (state, action) => {
         state.error = action.payload;

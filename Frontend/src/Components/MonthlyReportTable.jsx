@@ -5,6 +5,7 @@ import TableRow from '@mui/material/TableRow';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMonthlyReportDetail } from '../feature/attendancefetch/attendanceSlice.js';
 import { fetchHoliday } from '../feature/hoildayfetch/hoildaySlice.js';
+import Select from 'react-select';
 
 const getDaysinMonth = (year, month) => {
   const days = [];
@@ -36,10 +37,14 @@ function getDatesInRange(start, end) {
   return dates;
 }
 
-function Row({ row, z }) {
+function Row({ row }) {
+  const { fetchedMonthlyReportDetail } = useSelector(
+    (state) => state.markAttendance
+  );
+
   const dispatch = useDispatch();
   const [HolidayDate, SetHolidayDate] = React.useState([]);
-  const [Leave, SetLeave] = React.useState([]);
+
   const { allHoliday } = useSelector((state) => state.holiday);
 
   React.useEffect(() => {
@@ -130,6 +135,7 @@ function Row({ row, z }) {
           const leaveEntry = item.leaveData.find((leave) => {
             if (leave.Status !== 'Approved') return false;
             const start = new Date(leave.StartDate);
+
             const end = leave.EndDate ? new Date(leave.EndDate) : start;
             return currentDate >= start && currentDate <= end;
           });
@@ -140,22 +146,17 @@ function Row({ row, z }) {
           const weekOfMonth = getWeekOfMonth(item.date);
           const weekLabel = weekNames[weekOfMonth - 1];
           const logHours = item.logHours;
-
           const isZero = logHours === '00:00:00' || logHours === '0:0:0';
 
-          const logSeconds = parseTimeToSeconds(logHours); // assume you defined this earlier
+          const logSeconds = parseTimeToSeconds(logHours);
           const isUnderTime = logSeconds < 4 * 3600;
           const isHalfDay = logSeconds >= 4 * 3600 && logSeconds < 6 * 3600;
 
           let status = isZero ? 'A' : 'P';
 
-          // 1️⃣ Holiday check
           if (holidayDatesSet.has(item.date)) {
             status = isZero ? 'H' : 'POH';
-          }
-
-          // 2️⃣ Leave check
-          else if (leaveEntry) {
+          } else if (leaveEntry) {
             const isHalf = !Number.isInteger(leaveEntry.Days);
             const startDate = new Date(leaveEntry.StartDate);
             const endDate = leaveEntry.EndDate
@@ -179,10 +180,7 @@ function Row({ row, z }) {
             } else {
               status = isZero ? 'L' : 'POL';
             }
-          }
-
-          // 3️⃣ WeekOff check (only if not on Leave or Holiday)
-          else if (weekOffMap[dayName]) {
+          } else if (weekOffMap[dayName]) {
             const { type, weeks } = weekOffMap[dayName];
             const appliesToThisWeek =
               weeks.includes('All') || weeks.includes(weekLabel);
@@ -196,10 +194,7 @@ function Row({ row, z }) {
                 status = 'L';
               }
             }
-          }
-
-          // 4️⃣ Attendance-based rules (only if no higher priority status assigned)
-          else {
+          } else {
             if (isZero) {
               status = 'A';
             } else if (isHalfDay) {
@@ -224,15 +219,65 @@ function Row({ row, z }) {
   );
 }
 
+const monthOptions = [
+  { value: '01', label: 'Januaray' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
+];
+
+const monthName = monthOptions.map((item) => item.label);
+
+const getMonthByName = (monthNumber) => {
+  if (monthNumber >= 1 && monthNumber <= 12) {
+    return monthName[monthNumber - 1];
+  } else {
+    return 'Invalid month number';
+  }
+};
+
+const currentMonth = new Date().getMonth() + 1;
+
+const currentYear = new Date().getFullYear();
+const YearDropdown = () => {
+  const startYear = 2000;
+  const years = Array.from(
+    { length: currentYear - startYear + 1 },
+    (_, index) => {
+      const year = startYear + index;
+      return { value: year, label: year.toString() };
+    }
+  ).reverse();
+  return years;
+};
+
 const MonthlyReportTable = () => {
   const [detail, setDetail] = React.useState([]);
+  const [selectedMonth, setSelectedMonth] = React.useState(`0${currentMonth}`);
+  const [selectedYear, setSelectedYear] = React.useState(currentYear);
+  const dispatch = useDispatch();
   const { fetchedMonthlyReportDetail } = useSelector(
     (state) => state.markAttendance
   );
-  const dispatch = useDispatch();
+
+  const data = {
+    selectedMonth,
+    selectedYear,
+  };
+
   React.useEffect(() => {
-    dispatch(getMonthlyReportDetail());
-  }, []);
+    if (selectedMonth && selectedYear) {
+      dispatch(getMonthlyReportDetail(data));
+    }
+  }, [selectedMonth, selectedYear]);
 
   React.useEffect(() => {
     if (fetchedMonthlyReportDetail?.message) {
@@ -240,7 +285,9 @@ const MonthlyReportTable = () => {
     }
   }, [fetchedMonthlyReportDetail]);
 
-  const days = getDaysinMonth(2025, 5);
+  const days = getDaysinMonth(selectedYear, selectedMonth);
+
+  const monthByName = getMonthByName(selectedMonth);
 
   const columns = [
     { field: 'UserName', headerName: 'UserName' },
@@ -255,14 +302,84 @@ const MonthlyReportTable = () => {
     { field: 'Working_Hours', headerName: 'Working Hours' },
     { field: 'Pending_Hours', headerName: 'Pending Hours' },
   ];
-  const z = columns.map((item) => item.headerName);
 
   return (
     <>
-      <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+      <div className="inline-flex justify-between w-full px-2 bg-white h-15 rounded-md  mb-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
           Attendance Monthly Report
         </h5>
+        <h2 className="flex items-center text-[22px] mr-10">
+          {monthByName}-{selectedYear}
+        </h2>
+        <div className="flex gap-2 items-center">
+          <Select
+            styles={{
+              control: (baseStyles) => ({
+                ...baseStyles,
+                fontSize: '15px',
+                backgroundColor: 'transparent',
+                width: 'auto',
+              }),
+              placeholder: (baseStyles) => ({
+                ...baseStyles,
+                fontSize: '15px',
+                width: 'auto',
+              }),
+              option: (baseStyles, state) => ({
+                ...baseStyles,
+                backgroundColor: state.isFocused ? 'rgb(51,141,181)' : 'white',
+                color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                ':hover': {
+                  backgroundColor: 'rgb(51,141,181)',
+                },
+              }),
+              menu: (baseStyles) => ({
+                ...baseStyles,
+                backgroundColor: 'white',
+                minWidth: '120px',
+              }),
+            }}
+            className="z-50"
+            placeholder={monthByName}
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.value)}
+            options={monthOptions}
+          />
+          <Select
+            styles={{
+              control: (baseStyles) => ({
+                ...baseStyles,
+                fontSize: '15px',
+                backgroundColor: 'transparent',
+                width: 'auto',
+              }),
+              placeholder: (baseStyles) => ({
+                ...baseStyles,
+                fontSize: '15px',
+                width: 'auto',
+              }),
+              option: (baseStyles, state) => ({
+                ...baseStyles,
+                backgroundColor: state.isFocused ? 'rgb(51,141,181)' : 'white',
+                color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                ':hover': {
+                  backgroundColor: 'rgb(51,141,181)',
+                },
+              }),
+              menu: (baseStyles) => ({
+                ...baseStyles,
+                backgroundColor: 'white',
+                minWidth: '120px',
+              }),
+            }}
+            className="z-50"
+            placeholder={selectedYear}
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.value)}
+            options={YearDropdown()}
+          />
+        </div>
       </div>
       <div className="flex gap-x-2 w-auto mb-2 overflow-x-auto">
         <div className="border border-[#03C04A] px-2 text-[#03C04A] rounded-sm">
@@ -271,23 +388,25 @@ const MonthlyReportTable = () => {
         <div className="border border-[red] px-2 text-[red] rounded-sm">
           A --- Absent
         </div>
-        <div className="border border-[purple] px-2 text-[purple]">
+        <div className="border border-[purple] px-2 text-[purple] rounded-sm">
           HD --- Half Day
         </div>
-        <div className="border border-[gray]  text-[gray] px-2">
+        <div className="border border-[gray]  text-[gray] px-2 rounded-sm">
           W --- WeekOff
         </div>
-        <div className="border border-[orange] text-[orange] px-2">
+        <div className="border border-[orange] text-[orange] px-2 rounded-sm">
           H --- Holiday
         </div>
-        <div className="border border-[blue] text-[blue] px-2">L --- Leave</div>
-        <div className="border border-[teal] text-[teal] px-2">
+        <div className="border border-[blue] text-[blue] px-2 rounded-sm">
+          L --- Leave
+        </div>
+        <div className="border border-[teal] text-[teal] px-2 rounded-sm">
           POW --- Present on WeekOff
         </div>
-        <div className="border border-[brown] text-[brown] px-2">
+        <div className="border border-[brown] text-[brown] px-2 rounded-sm">
           POH --- Present on Holiday
         </div>
-        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto">
+        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto rounded-sm">
           POL --- Present on Leave
         </div>
       </div>
@@ -295,9 +414,9 @@ const MonthlyReportTable = () => {
         columns={columns}
         RowComponent={Row}
         data={detail}
-        rowProps={{ z }}
         padding="1"
         width="99%"
+        rowProps={{ detail }}
         containerStyle={{ borderRadius: 0 }}
         cellStyle={{ border: 2 }}
         tableStyle={{

@@ -44,5 +44,5 @@ router.route('/RejectRegularization').post(authenticate, RejectRegularization);
 router
   .route('/getRegularizaitonDetail')
   .post(authenticate, getRegularizationbyDateandUser);
-router.route('/getMonthlyReportDetails').get(authenticate, fetchMonthlyReport);
+router.route('/getMonthlyReportDetails').post(authenticate, fetchMonthlyReport);
 export default router;

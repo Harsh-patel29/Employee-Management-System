@@ -12,7 +12,13 @@ const Days = [
   'Saturday',
   'Sunday',
 ];
-const defaultWeeks = ['First Week', 'Second Week', 'Third Week', 'Fourth Week'];
+const defaultWeeks = [
+  'First Week',
+  'Second Week',
+  'Third Week',
+  'Fourth Week',
+  'Fifth Week',
+];
 const createWeekOff = AsyncHandler(async (req, res) => {
   const { WeekOffName, Effective_Date, days } = req.body;
 

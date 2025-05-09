@@ -21,7 +21,13 @@ const DaySchema = new mongoose.Schema({
   },
   weeks: {
     type: [String],
-    enum: ['First Week', 'Second Week', 'Third Week', 'Fourth Week'],
+    enum: [
+      'First Week',
+      'Second Week',
+      'Third Week',
+      'Fourth Week',
+      'Fifth Week',
+    ],
   },
 });
 

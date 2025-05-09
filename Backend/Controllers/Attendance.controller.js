@@ -145,19 +145,6 @@ const getLogHours = async (userId, mode, match, date) => {
       const b = new Date(sorted[i + 1]);
       logHours += calculateTimeDifferenceInSeconds(a, b);
     }
-    // {
-    //   for (let i = sorted.length - 1; i >= 0; i--) {
-    //     const a = new Date(sorted[i]);
-    //     const b = new Date(sorted[i + 1]);
-    //     if (b - a < 1000 * 60 * 1 === true) {
-    //       throw new ApiError(
-    //         400,
-    //         'Attendance can only be marked after 1 minute of timeout'
-    //       );
-    //     }
-    //   }
-    //   return -1; // return -1 if no true found
-    // }
   }
 
   formattedLogHours = formatSecondsToHHMMSS(logHours);
@@ -502,23 +489,18 @@ const getRegularizationbyDateandUser = AsyncHandler(async (req, res) => {
 });
 
 const fetchMonthlyReport = AsyncHandler(async (req, res) => {
-  const getWeekOffsByMonthYear = async (selectedMonth, slectedYear) => {
-    const startdate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1));
-    const enddate = new Date(
-      Date.UTC(slectedYear, selectedMonth, 0, 23, 59, 59, 999)
-    );
+  const { selectedMonth, selectedYear } = req.body;
+  const getWeekOffsByMonthYear = async (selectedMonth, selectedYear) => {
+    const startOfNextMonth = new Date(Date.UTC(selectedYear, selectedMonth, 1));
 
     const requestedWeekOff = await WeekOff.find({
-      Effective_Date: {
-        $gte: startdate,
-        $lte: enddate,
-      },
-    });
+      Effective_Date: { $lt: startOfNextMonth },
+    })
+      .sort({ Effective_Date: -1 })
+      .limit(1);
 
     return requestedWeekOff;
   };
-  const selectedMonth = 5; // May
-  const selectedYear = 2025;
 
   const weekOff = await getWeekOffsByMonthYear(selectedMonth, selectedYear);
 
@@ -534,20 +516,12 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
   const totalHolidayDays = formattedDays.reduce((sum, val) => sum + val, 0);
 
-  const month = new Date(weekOff[0].Effective_Date).getMonth() + 1;
-  const formattedMonth = month.toString().padStart(2, '0');
-  const year = new Date(weekOff[0].Effective_Date).getFullYear();
+  const month = new Date(weekOff[0]?.Effective_Date).getMonth() + 1;
+
+  const year = new Date(weekOff[0]?.Effective_Date).getFullYear();
 
   const LogHours = await Attendance.aggregate([
     [
-      {
-        $lookup: {
-          from: 'leaves',
-          localField: 'UserName',
-          foreignField: 'userName',
-          as: 'result',
-        },
-      },
       {
         $lookup: {
           from: 'users',
@@ -558,6 +532,14 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       },
       {
         $unwind: '$userData',
+      },
+      {
+        $lookup: {
+          from: 'leaves',
+          localField: 'userData.Name',
+          foreignField: 'userName',
+          as: 'result',
+        },
       },
       {
         $addFields: {
@@ -609,7 +591,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       },
       {
         $match: {
-          '_id.month': formattedMonth,
+          '_id.month': selectedMonth,
         },
       },
       {
@@ -645,8 +627,8 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
   const TypeofWeek = weekOff[0]?.days?.map(
     (item) => `${item.type} - ${item.weeks}`
   );
-  const weekoff = TypeofWeek.filter((item) => item === 'WeekOff');
-  const OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff.length) * 8}:00:00`;
+  const weekoff = TypeofWeek?.filter((item) => item === 'WeekOff');
+  const OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff?.length) * 8}:00:00`;
 
   const weekOffDay = () => {
     const result = [];
@@ -676,7 +658,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     return result;
   };
 
-  const formattedData = LogHours.map((userEntry) => {
+  const formattedData = LogHours?.map((userEntry) => {
     return {
       userName: userEntry._id.UserName,
       logs: userEntry.dates.map((entry) => ({
@@ -697,7 +679,6 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       totalLogHours: secondsToTime(totalSeconds),
     };
   });
-
   const officialSeconds = timeToSeconds(OfficalHours);
   const updatedLogHours = logHours.map((item) => {
     const workingSeconds = timeToSeconds(item.totalLogHours);
@@ -726,12 +707,12 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     return dates;
   };
 
-  const allDates = getAllDatesInMonth(2025, 5);
+  const allDates = getAllDatesInMonth(selectedYear, selectedMonth);
 
   const normalizedData = updatedLogHours.map((user) => {
     const logsMap = new Map(user.logs.map((log) => [log.date, log.LogHours]));
-
     const leave = user?.logs?.map((leave) => leave.Leave);
+
     const leaveData = leave[0].map((Leave) => {
       return {
         StartDate: Leave.Start_Date,
@@ -761,7 +742,15 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     };
   });
 
-  return res.status(200).json(new ApiResponse(200, normalizedData, 'Fetched'));
+  if (normalizedData.length === 0) {
+    return res
+      .status(200)
+      .json(new ApiResponse(400, [], 'No records to be display'));
+  } else {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, normalizedData, 'Fetched'));
+  }
 });
 
 export {
