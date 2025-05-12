@@ -27,9 +27,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.3",
     "nodemon": "^3.1.9",
     "pdfjs-dist": "^5.2.133",
-    "react-loader-spinner": "^6.1.6"
+    "react-loader-spinner": "^6.1.6",
+    "resend": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

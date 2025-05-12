@@ -18,7 +18,7 @@ import {
 } from '../Components/components/ui/popover';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { getUser } from '../feature/datafetch/userfetchSlice.js';
 import { getRoles } from '../feature/rolesfetch/getrolesSlice.js';
@@ -127,10 +127,12 @@ export default function AdminForm({ onSubmit, mode }) {
     label: user.Name,
     value: user.Name,
   }));
+
   const genderOptions = [
     { value: 'MALE', label: 'MALE' },
     { value: 'FEMALE', label: 'FEMALE' },
   ];
+
   return (
     <>
       <Form {...control}>
@@ -368,71 +370,70 @@ export default function AdminForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          {user.user.role === 'Admin' && (
-            <FormField
-              control={control}
-              name="DATE_OF_JOINING"
-              render={({ field }) => (
-                <FormItem className="w-[90%] h-16 ">
-                  <FormLabel
-                    className={`${errors?.DATE_OF_JOINING ? 'text-[#737373] ' : ''}`}
-                  >
-                    Date Of Joining
-                  </FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Input
-                          type="text"
-                          className="justify-evenly shadow"
-                          value={
-                            field.value
-                              ? new Date(field.value).toLocaleDateString(
-                                  'en-CA'
-                                )
-                              : ''
+
+          <FormField
+            control={control}
+            name="DATE_OF_JOINING"
+            render={({ field }) => (
+              <FormItem className="w-[90%] h-16 ">
+                <FormLabel
+                  className={`${errors?.DATE_OF_JOINING ? 'text-[#737373] ' : ''}`}
+                >
+                  Date Of Joining
+                </FormLabel>
+                <FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Input
+                        disabled={user.user.role !== 'Admin'}
+                        type="text"
+                        className="justify-evenly shadow disabled:text-black"
+                        value={
+                          field.value
+                            ? new Date(field.value).toLocaleDateString('en-CA')
+                            : ''
+                        }
+                        onChange={field.onChange}
+                        placeholder="Select Date"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="p-0 w-20 h-0"
+                      style={{ pointerEvents: 'auto' }}
+                    >
+                      <DatePicker
+                        selected={field.value ? new Date(field.value) : null}
+                        onChange={(date) => {
+                          if (date) {
+                            const localDate = new Date(
+                              date.getTime() - date.getTimezoneOffset() * 60000
+                            );
+                            field.onChange(
+                              localDate.toISOString().split('T')[0]
+                            );
                           }
-                          onChange={field.onChange}
-                          placeholder="Select Date"
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="p-0 w-20 h-0"
-                        style={{ pointerEvents: 'auto' }}
-                      >
-                        <DatePicker
-                          selected={field.value ? new Date(field.value) : null}
-                          onChange={(date) => {
-                            if (date) {
-                              const localDate = new Date(
-                                date.getTime() -
-                                  date.getTimezoneOffset() * 60000
-                              );
-                              field.onChange(
-                                localDate.toISOString().split('T')[0]
-                              );
-                            }
-                          }}
-                          inline
-                          dateFormat="yyyy-MM-dd"
-                          showYearDropdown
-                          scrollableYearDropdown
-                          yearDropdownItemNumber={100}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <div>
-                    {errors?.DATE_OF_JOINING && (
-                      <span className="text-red-500 font-semibold">
-                        {errors.DATE_OF_JOINING.message}
-                      </span>
-                    )}
-                  </div>
-                </FormItem>
-              )}
-            />
-          )}
+                        }}
+                        disabled={user.user.role !== 'Admin'}
+                        inline
+                        dateFormat="yyyy-MM-dd"
+                        showYearDropdown
+                        scrollableYearDropdown
+                        yearDropdownItemNumber={100}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormControl>
+                <div>
+                  {errors?.DATE_OF_JOINING && (
+                    <span className="text-red-500 font-semibold">
+                      {errors.DATE_OF_JOINING.message}
+                    </span>
+                  )}
+                </div>
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={control}
             name="Designation"
@@ -511,6 +512,7 @@ export default function AdminForm({ onSubmit, mode }) {
                       }),
                     }}
                     {...field}
+                    isDisabled={user.user.role !== 'Admin'}
                     placeholder={field.value || 'Select'}
                     value={field.value}
                     onChange={(selectedOptions) => {
@@ -568,6 +570,7 @@ export default function AdminForm({ onSubmit, mode }) {
                       }),
                     }}
                     {...field}
+                    isDisabled={user.user.role !== 'Admin'}
                     placeholder={field.value || 'Select'}
                     value={field.value}
                     onChange={(selectedOptions) => {
@@ -582,6 +585,7 @@ export default function AdminForm({ onSubmit, mode }) {
           <>
             <div></div>
             <div></div>
+
             <Button
               type="submit"
               className="w-[90%] focus:ring focus:ring-blue-400 bg-blue-600 hover:bg-blue-700 rounded-lg"

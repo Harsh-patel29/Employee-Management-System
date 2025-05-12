@@ -27,6 +27,8 @@ import leaveRoute from './Routes/leaveRoute.js';
 import tasktimerRoute from './Routes/tasktimerRoute.js';
 import holidayRoute from './Routes/holidayRoute.js';
 import weekoffRoute from './Routes/weekoffRoute.js';
+import smtpRoute from './Routes/smtpRoute.js';
+
 app.use('/api/v1/user', userRoute);
 app.use('/api/v2/attendance', attendanceRoute);
 app.use('/api/v3/project', projectRoute);
@@ -35,6 +37,7 @@ app.use('/api/v5/leave', leaveRoute);
 app.use('/api/v6/tasktimer', tasktimerRoute);
 app.use('/api/v7/holiday', holidayRoute);
 app.use('/api/v8/weekoff', weekoffRoute);
+app.use('/api/v9/smtp', smtpRoute);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

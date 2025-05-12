@@ -5,6 +5,201 @@ import { CreateLeave } from '../Models/createleavemodel.js';
 import { AsyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import nodemailer from 'nodemailer';
+import { SMTP } from '../Models/smtp.model.js';
+
+const sendMail = async (leaveData, Name) => {
+  const SMTPData = await SMTP.find({});
+  const data = SMTPData[0];
+
+  const leave = await Leave.find({ userName: Name }).sort({
+    createdAt: -1,
+  });
+  const latestLeave = leave[0];
+  const leavecreator = await User.findOne({ Name: latestLeave.userName });
+  const reportingManager = leavecreator.ReportingManager;
+  const reportingManagerDetail = await User.findOne({ Name: reportingManager });
+  const reportingManagerEmail = reportingManagerDetail.Email;
+  const AdminUser = await User.find({ role: 'Admin' });
+  const AdminUserEmail = AdminUser.map((item) => item.Email);
+  const totalEmails = AdminUserEmail.concat(
+    reportingManagerEmail,
+    data.BBC_Email
+  );
+
+  const BBC_Email = [...new Set(totalEmails)];
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: data.User_Email,
+        pass: process.env.APP_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `${data.From_Name} <${data.User_Email}>`,
+      to: '',
+      bcc: BBC_Email,
+      subject: `Leave Application -${leaveData.userName} (${leaveData.EMPCODE})`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+            }
+            .header {
+              background-color: #0056b3;
+              color: white;
+              padding: 15px;
+              text-align: center;
+              border-radius: 5px 5px 0 0;
+            }
+            .content {
+              padding: 20px;
+            }
+            .leave-details {
+              margin-top: 20px;
+              background-color: #f9f9f9;
+              padding: 20px;
+              border-radius: 5px;
+            }
+            .detail-item {
+              margin-bottom: 12px;
+              display: flex;
+              flex-direction: column;
+            }
+            .detail-label {
+              font-weight: bold;
+              margin-bottom: 3px;
+              color: #555;
+            }
+            .detail-value {
+              padding-left: 5px;
+            }
+            .footer {
+              margin-top: 20px;
+              text-align: center;
+              font-size: 14px;
+              color: #777;
+            }
+            .status {
+              display: inline-block;
+              padding: 5px 10px;
+              border-radius: 3px;
+              background-color: #ffc107;
+              color: #000;
+              font-weight: bold;
+            }
+            .divider {
+              height: 1px;
+              background-color: #eee;
+              margin: 15px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>Leave Application</h2>
+            </div>
+            <div class="content">
+              <p>Dear HR Team,</p>
+              <p>Please find below the details of a leave application submitted by <strong>${leaveData.userName}</strong>:</p>
+              
+              <div class="leave-details">
+                <div class="detail-item">
+                  <div class="detail-label">Employee Name</div>
+                  <div class="detail-value">${leaveData.userName}</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Employee Code</div>
+                  <div class="detail-value">${leaveData.EMPCODE}</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Leave Type</div>
+                  <div class="detail-value">${leaveData.LEAVE_TYPE}</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Duration</div>
+                  <div class="detail-value">${leaveData.Days} day(s)</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">From</div>
+                  <div class="detail-value">${leaveData.Start_Date} (${leaveData.StartDateType.replace('_', ' ')})</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">To</div>
+                  <div class="detail-value">${leaveData.End_Date} (${leaveData.EndDateType.replace('_', ' ')})</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Reason</div>
+                  <div class="detail-value">${leaveData.Leave_Reason}</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Status</div>
+                  <div class="detail-value"><span class="status">${leaveData.Status}</span></div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="detail-item">
+                  <div class="detail-label">Submitted On</div>
+                  <div class="detail-value">${new Date(leaveData.updatedAt).toLocaleString()}</div>
+                </div>
+              </div>
+              
+              <p>This application requires your review and approval. Please login to the Employee Management System to approve or reject this request.</p>
+              
+              <p>Thank you,<br>Employee Management System</p>
+            </div>
+            <div class="footer">
+              <p>This is an automated email. Please do not reply to this message.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Message sent: %s', info.messageId);
+  } catch (error) {
+    console.error('Error sending leave notification email:', error);
+  }
+};
 
 const calculateLeaveDays = (startDate, endDate, startDateType, endDateType) => {
   const MS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -28,7 +223,7 @@ const calculateLeaveDays = (startDate, endDate, startDateType, endDateType) => {
     totalDays += 0.5;
   }
 
-  if (endDateType === 'Full_Day' && startDateType !== endDateType) {
+  if (endDateType === 'Full_Day') {
     totalDays += 0;
   } else {
     totalDays += 0.5;
@@ -93,10 +288,26 @@ const createLeave = AsyncHandler(async (req, res) => {
         EndDateType
       ),
     });
-    await leave.save();
+    const savedLeave = await leave.save();
+
+    try {
+      await sendMail(savedLeave, req.user.Name);
+      return res
+        .status(201)
+        .json(new ApiResponse(201, savedLeave, 'Leave Created Successfully'));
+    } catch (emailError) {
+      console.error('Error sending Email:', emailError);
+    }
+
     return res
       .status(200)
-      .json(new ApiResponse(200, leave, 'Leave Created Successfully'));
+      .json(
+        new ApiResponse(
+          200,
+          savedLeave,
+          'Leave Created Successfully (Email notification failed)'
+        )
+      );
   } catch (error) {
     throw new ApiError(500, error, 'Leave creation failed');
   }
@@ -179,6 +390,30 @@ const updateLeave = AsyncHandler(async (req, res) => {
     EndDateType: updatedLeave.EndDateType,
     Days: updatedLeave.Days,
   };
+
+  const updatedLeaveData = {
+    Leave_Reason: updatedLeave.Leave_Reason,
+    EMPCODE: leave.EMPCODE,
+    userName: leave.userName,
+    LEAVE_TYPE: updatedLeave.LEAVE_TYPE,
+    Start_Date: updatedLeave.Start_Date,
+    StartDateType: updatedLeave.StartDateType,
+    End_Date: updatedLeave.End_Date,
+    EndDateType: updatedLeave.EndDateType,
+    Days: leave.Days,
+    Status: leave.Status,
+    updatedAt: leave.updatedAt,
+  };
+
+  try {
+    await sendMail(updatedLeaveData);
+    return res
+      .status(201)
+      .json(new ApiResponse(201, newLeave, 'Leave Updated Successfully'));
+  } catch (emailError) {
+    console.error('Error sending Email:', emailError);
+  }
+
   return res
     .status(200)
     .json(new ApiResponse(200, newLeave, 'Leave Updated Successfully'));
