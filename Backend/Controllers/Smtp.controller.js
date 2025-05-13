@@ -79,7 +79,9 @@ const updateSMTP = AsyncHandler(async (req, res) => {
     From_Name: updatedData.From_Name,
     Email_From: updatedData.Email_From,
     BBC_Email: data.BBC_Email,
+    Attendance: data.Attendance,
   };
+
   return res
     .status(200)
     .json(new ApiResponse(200, newData, 'SMTP Updated Successfully'));

@@ -13,16 +13,16 @@ import {
 } from '../Components/components/ui/form';
 import { useDispatch, useSelector } from 'react-redux';
 import { Switch } from '../Components/components/ui/switch';
-import { getSMTP } from '../feature/smtpfetch/smtpSlice';
+import { getSMTP, resetUpdateSMTP } from '../feature/smtpfetch/smtpSlice';
 import { SheetClose } from '../Components/components/ui/sheet';
-
+import { toast } from 'react-toastify';
 const formSchema = z.object({
   AttendanceSetting: z.record(z.boolean()).default({}),
 });
 
 export default function AttendanceSettingForm({ onSubmit }) {
   const [accessData, setAccessData] = React.useState({});
-  const { fetchedsmtp } = useSelector((state) => state.smtpSlice);
+  const { fetchedsmtp, updatedsmtp } = useSelector((state) => state.smtpSlice);
   const dispatch = useDispatch();
 
   React.useEffect(() => {
@@ -64,6 +64,16 @@ export default function AttendanceSettingForm({ onSubmit }) {
     };
     onSubmit(updatedData);
   };
+
+  React.useEffect(() => {
+    if (updatedsmtp?.success) {
+      toast.success('Attendance settings  updated Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      dispatch(resetUpdateSMTP());
+    }
+  }, [updatedsmtp]);
 
   return (
     <>

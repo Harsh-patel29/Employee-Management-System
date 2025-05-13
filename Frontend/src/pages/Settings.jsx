@@ -54,10 +54,6 @@ const Settings = () => {
 
   React.useEffect(() => {
     if (updatedsmtp?.success) {
-      toast.success('SMTP updated Successfully', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
       dispatch(resetUpdateSMTP());
       setAttendancesheetopen(false);
       setsheetopen(false);

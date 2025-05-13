@@ -11,10 +11,11 @@ import {
   FormControl,
   FormField,
 } from '../Components/components/ui/form';
-import { getSMTP } from '../feature/smtpfetch/smtpSlice.js';
+import { getSMTP, resetUpdateSMTP } from '../feature/smtpfetch/smtpSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { SheetClose } from '../Components/components/ui/sheet';
+import { toast } from 'react-toastify';
 
 const formSchema = z.object({
   Host: z.string().min(1, { message: 'Host Name is Required' }),
@@ -43,7 +44,7 @@ const formSchema = z.object({
 });
 
 export default function SmtpForm({ onSubmit, mode }) {
-  const { fetchedsmtp } = useSelector((state) => state.smtpSlice);
+  const { fetchedsmtp, updatedsmtp } = useSelector((state) => state.smtpSlice);
   const dispatch = useDispatch();
   useEffect(() => {
     if (mode === 'update') {
@@ -93,6 +94,17 @@ export default function SmtpForm({ onSubmit, mode }) {
     };
     onSubmit(updatedData);
   };
+
+  React.useEffect(() => {
+    if (updatedsmtp?.success) {
+      toast.success('SMTP Settings updated Successfully', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      dispatch(resetUpdateSMTP());
+    }
+  }, [updatedsmtp]);
+
   return (
     <>
       <Form {...control}>
