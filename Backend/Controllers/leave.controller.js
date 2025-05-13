@@ -22,10 +22,7 @@ const sendMail = async (leaveData, Name) => {
   const reportingManagerEmail = reportingManagerDetail.Email;
   const AdminUser = await User.find({ role: 'Admin' });
   const AdminUserEmail = AdminUser.map((item) => item.Email);
-  const totalEmails = AdminUserEmail.concat(
-    reportingManagerEmail,
-    data.BBC_Email
-  );
+  const totalEmails = AdminUserEmail.concat(reportingManagerEmail);
 
   const BBC_Email = [...new Set(totalEmails)];
 
@@ -40,7 +37,7 @@ const sendMail = async (leaveData, Name) => {
 
     const mailOptions = {
       from: `${data.From_Name} <${data.User_Email}>`,
-      to: '',
+      to: data.BBC_Email,
       bcc: BBC_Email,
       subject: `Leave Application -${leaveData.userName} (${leaveData.EMPCODE})`,
       html: `
@@ -153,35 +150,31 @@ const sendMail = async (leaveData, Name) => {
                   <div class="detail-value">${leaveData.Start_Date} (${leaveData.StartDateType.replace('_', ' ')})</div>
                 </div>
                 
-                <div class="divider"></div>
-                
-                <div class="detail-item">
+
+                ${
+                  leaveData.End_Date
+                    ? `
+                  <div>
+                  <div class="divider"></div>
+                  <div class="detail-item">
                   <div class="detail-label">To</div>
-                  <div class="detail-value">${leaveData.End_Date} (${leaveData.EndDateType.replace('_', ' ')})</div>
-                </div>
+                  <div class="detail-value">
+                  ${leaveData.End_Date} (
+                  ${leaveData.EndDateType.replace('_', ' ')})
+                  </div>
+                  </div>
+                  </div>
+                    `
+                    : ''
+                }
                 
                 <div class="divider"></div>
                 
                 <div class="detail-item">
                   <div class="detail-label">Reason</div>
                   <div class="detail-value">${leaveData.Leave_Reason}</div>
-                </div>
-                
-                <div class="divider"></div>
-                
-                <div class="detail-item">
-                  <div class="detail-label">Status</div>
-                  <div class="detail-value"><span class="status">${leaveData.Status}</span></div>
-                </div>
-                
-                <div class="divider"></div>
-                
-                <div class="detail-item">
-                  <div class="detail-label">Submitted On</div>
-                  <div class="detail-value">${new Date(leaveData.updatedAt).toLocaleString()}</div>
-                </div>
-              </div>
-              
+                </div>                
+            
               <p>This application requires your review and approval. Please login to the Employee Management System to approve or reject this request.</p>
               
               <p>Thank you,<br>Employee Management System</p>
@@ -205,44 +198,37 @@ const calculateLeaveDays = (startDate, endDate, startDateType, endDateType) => {
   const MS_IN_DAY = 1000 * 60 * 60 * 24;
   const start = new Date(startDate);
   const end = endDate ? new Date(endDate) : null;
+
   if (!end) {
+    // Single-day leave
     if (startDateType === 'Full_Day') return 1;
     if (startDateType === 'First_Half' || startDateType === 'Second_Half')
       return 0.5;
     return 0;
   }
-  let diffDays = (end - start) / MS_IN_DAY;
 
-  if (diffDays < 0) return 0;
+  const isSameDay = start.toDateString() === end.toDateString();
+  let totalDays = 0;
 
-  let totalDays = diffDays;
-
-  if (startDateType === 'Full_Day') {
-    totalDays += 1;
-  } else {
-    totalDays += 0.5;
-  }
-
-  if (endDateType === 'Full_Day') {
-    totalDays += 0;
-  } else {
-    totalDays += 0.5;
-  }
-
-  if (startDate === endDate) {
-    if (
-      startDateType === 'Full_Day' ||
-      (startDateType === 'First_Half' && endDateType === 'Second_Half') ||
-      endDateType === 'First_Half' ||
-      startDateType === 'Second_Half'
-    ) {
+  if (isSameDay) {
+    if (startDateType === 'Full_Day') {
       totalDays = 1;
     } else if (
-      (startDateType === 'First_Half' || startDateType === 'Second_Half') &&
-      (endDateType === 'First_Half' || endDateType === 'Second_Half')
+      startDateType === 'First_Half' &&
+      endDateType === 'Second_Half'
     ) {
+      totalDays = 1;
+    } else if (startDateType === endDateType) {
       totalDays = 0.5;
+    } else {
+      totalDays = 1;
     }
+  } else {
+    const diffDays = Math.floor((end - start) / MS_IN_DAY);
+    if (diffDays < 0) return 0;
+    totalDays += startDateType === 'Full_Day' ? 1 : 0.5;
+    totalDays += diffDays - 1;
+    totalDays += endDateType === 'Full_Day' ? 1 : 0.5;
   }
 
   return totalDays;
@@ -291,7 +277,11 @@ const createLeave = AsyncHandler(async (req, res) => {
     const savedLeave = await leave.save();
 
     try {
-      await sendMail(savedLeave, req.user.Name);
+      sendMail(savedLeave, req.user.Name)
+        .then(() => console.log('Email sent successfully'))
+        .catch((emailError) =>
+          console.error('Error sending Email:', emailError)
+        );
       return res
         .status(201)
         .json(new ApiResponse(201, savedLeave, 'Leave Created Successfully'));
@@ -406,7 +396,13 @@ const updateLeave = AsyncHandler(async (req, res) => {
   };
 
   try {
-    await sendMail(updatedLeaveData);
+    sendMail(updatedLeaveData, req.user.Name)
+      .then(() => {
+        console.log('Email sent Successfully');
+      })
+      .catch((emailErr) => {
+        console.log('Error in uploading email', emailErr);
+      });
     return res
       .status(201)
       .json(new ApiResponse(201, newLeave, 'Leave Updated Successfully'));

@@ -16,7 +16,6 @@ import {
 import { getSMTP } from '../feature/smtpfetch/smtpSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 
 function MarkAttendance() {
   const [isImageRequired, setisImageRequired] = React.useState(true);
@@ -70,12 +69,13 @@ function MarkAttendance() {
             videoRef.current.srcObject = stream;
           }
         })
-        .catch((error) =>
+        .catch((error) => {
+          document.getElementById('AttendanceButton').disabled = true;
           toast.error('Error accessing camera', {
             position: 'top-right',
             autoClose: 3000,
-          })
-        );
+          });
+        });
     }
     if (!isSheetOpen) {
       stopCamera();
@@ -158,6 +158,7 @@ function MarkAttendance() {
           <canvas ref={canvasRef} className="hidden"></canvas>
           <div className="flex justify-center mt-4">
             <Button
+              id="AttendanceButton"
               onClick={captureImage}
               disabled={isSubmitting}
               className="px-6 py-2 mt-6 cursor-pointer bg-white text-black hover:bg-gray-50 border-black border disabled:opacity-50 disabled:cursor-not-allowed"
