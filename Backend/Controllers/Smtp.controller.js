@@ -54,8 +54,6 @@ const getSMTPDetail = AsyncHandler(async (req, res) => {
 });
 
 const updateSMTP = AsyncHandler(async (req, res) => {
-  console.log(req.body.Attendance);
-
   const smtp = await SMTP.find({});
   const data = smtp[0];
 
@@ -70,6 +68,7 @@ const updateSMTP = AsyncHandler(async (req, res) => {
   data.Email_From = req.body.Email_From;
   data.BBC_Email = req.body.BBC_Email;
   data.Attendance = req.body.Attendance;
+
   const updatedData = await data.save();
 
   const newData = {

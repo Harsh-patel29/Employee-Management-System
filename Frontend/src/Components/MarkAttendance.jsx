@@ -13,16 +13,32 @@ import {
   resetAttendance,
   fetchAttendance,
 } from '../feature/attendancefetch/attendanceSlice.js';
+import { getSMTP } from '../feature/smtpfetch/smtpSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 function MarkAttendance() {
+  const [isImageRequired, setisImageRequired] = React.useState(true);
   const { attendance, error, isSheetOpen, isSubmitting } = useSelector(
     (state) => state.markAttendance
   );
+  const { fetchedsmtp, updatedsmtp } = useSelector((state) => state.smtpSlice);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(getSMTP());
+  }, [updatedsmtp]);
+
+  React.useEffect(() => {
+    if (fetchedsmtp?.message) {
+      const value = Object.values(fetchedsmtp?.message?.[0]?.Attendance);
+      setisImageRequired(value);
+    }
+  }, [fetchedsmtp]);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (attendance?.success === true) {
@@ -46,7 +62,7 @@ function MarkAttendance() {
   }, [error]);
 
   useEffect(() => {
-    if (isSheetOpen) {
+    if (isSheetOpen && isImageRequired[0] === true) {
       navigator.mediaDevices
         .getUserMedia({ video: true })
         .then((stream) => {
@@ -88,10 +104,16 @@ function MarkAttendance() {
     const base64 = canvas.toDataURL('image/png');
     const response = await fetch(base64);
     const blob = await response.blob();
-
-    const file = new File([blob], 'attendance.png', {
-      type: 'image/png',
-    });
+    let file;
+    if (isImageRequired[0] === true) {
+      file = new File([blob], 'attendance.png', {
+        type: 'image/png',
+      });
+    } else {
+      const response = await fetch('./download.png');
+      const fallBackBlob = await response.blob();
+      file = new File([fallBackBlob], 'attendance.png', { type: 'image/png' });
+    }
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(

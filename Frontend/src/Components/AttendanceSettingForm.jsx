@@ -17,7 +17,7 @@ import { getSMTP } from '../feature/smtpfetch/smtpSlice';
 import { SheetClose } from '../Components/components/ui/sheet';
 
 const formSchema = z.object({
-  AttendanceSetting: z.record(z.record(z.boolean())).default({}),
+  AttendanceSetting: z.record(z.boolean()).default({}),
 });
 
 export default function AttendanceSettingForm({ onSubmit }) {
@@ -31,7 +31,7 @@ export default function AttendanceSettingForm({ onSubmit }) {
 
   React.useEffect(() => {
     if (fetchedsmtp?.message) {
-      setAccessData(fetchedsmtp?.message[0].Attendance);
+      setAccessData(fetchedsmtp?.message[0]?.Attendance);
     } else {
       setAccessData([]);
     }
@@ -41,6 +41,7 @@ export default function AttendanceSettingForm({ onSubmit }) {
     control,
     handleSubmit,
     getValues,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -49,16 +50,21 @@ export default function AttendanceSettingForm({ onSubmit }) {
     },
   });
 
+  React.useEffect(() => {
+    reset({
+      AttendanceSetting: fetchedsmtp?.message[0]?.Attendance,
+    });
+  }, [fetchedsmtp]);
+
   const submit = () => {
     const attendanceSettings = getValues('AttendanceSetting');
-    console.log(attendanceSettings);
-
     const updatedData = {
       ...fetchedsmtp?.message[0],
       Attendance: attendanceSettings,
     };
     onSubmit(updatedData);
   };
+
   return (
     <>
       <Form {...control}>
@@ -125,34 +131,23 @@ export default function AttendanceSettingForm({ onSubmit }) {
               <FormItem>
                 <FormLabel></FormLabel>
                 <div>
-                  {Object.entries(accessData).map(([category, permissions]) => (
+                  {Object.entries(accessData).map(([category]) => (
                     <div key={category} className="mb-4">
-                      {console.log(permissions)}
                       <h6 className="mt-4 text-lg font-semibold">{category}</h6>
                       <div className="space-y-2">
                         <div
-                          key={permissions}
+                          key={category}
                           className="flex items-center justify-between"
                         >
-                          <label htmlFor={`${category}-${permissions}`}>
-                            {Object.values(Permissions)}
-                          </label>
-
                           <Switch
-                            id={`${category}-${permissions}`}
-                            checked={
-                              field.value?.[category]?.[permissions] || false
-                            }
+                            id={`${category}`}
+                            checked={field.value?.[category] || false}
                             onCheckedChange={(checked) => {
                               const updatedValue = {
                                 ...field.value,
-                                [category]: {
-                                  ...(field.value?.[category] || {}),
-                                  [permissions]: checked,
-                                },
+                                [category]: checked,
                               };
                               field.onChange(updatedValue);
-                              console.log(updatedValue);
                             }}
                             className="data-[state=checked]:bg-[#006bb3] data-[state=unchecked]:bg-gray-200"
                           />

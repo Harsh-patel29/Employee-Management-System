@@ -47,7 +47,7 @@ const Settings = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      resetCreateSMTP();
+      dispatch(resetCreateSMTP());
       setsheetopen(false);
     }
   }, [smtp]);
@@ -58,7 +58,8 @@ const Settings = () => {
         position: 'top-right',
         autoClose: 3000,
       });
-      resetUpdateSMTP();
+      dispatch(resetUpdateSMTP());
+      setAttendancesheetopen(false);
       setsheetopen(false);
     }
   }, [updatedsmtp]);
@@ -89,13 +90,13 @@ const Settings = () => {
                       <SmtpForm
                         mode={mode}
                         onSubmit={(data) => {
-                          console.log(data);
-
                           {
                             mode === 'update'
                               ? dispatch(updateSMTP(data))
                               : dispatch(createSMTP(data));
                           }
+                          dispatch(resetUpdateSMTP());
+                          dispatch(resetCreateSMTP());
                         }}
                       />
                     </SheetDescription>
@@ -143,8 +144,6 @@ const Settings = () => {
                   <SheetDescription>
                     <AttendanceSettingForm
                       onSubmit={(data) => {
-                        console.log(data);
-
                         dispatch(updateSMTP(data));
                       }}
                     />

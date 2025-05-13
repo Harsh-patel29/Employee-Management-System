@@ -15,7 +15,7 @@ dotenv.config({
 
 const seedData = async () => {
   const id = new mongoose.Types.ObjectId('67ee522c3a81d4b972d1ff5a');
-  const dateToDelete = new Date('2025-05-02');
+  const dateToDelete = new Date('2025-05-13');
 
   const startOfDay = new Date(
     Date.UTC(

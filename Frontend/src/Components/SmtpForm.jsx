@@ -55,6 +55,7 @@ export default function SmtpForm({ onSubmit, mode }) {
     control,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -84,10 +85,18 @@ export default function SmtpForm({ onSubmit, mode }) {
     }
   }, [reset, mode, fetchedsmtp]);
 
+  const submit = () => {
+    const data = getValues();
+    const updatedData = {
+      ...data,
+      Attendance: fetchedsmtp?.message[0]?.Attendance,
+    };
+    onSubmit(updatedData);
+  };
   return (
     <>
       <Form {...control}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+        <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-2">
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
             <h1 className="text-xl w-full">
               {' '}

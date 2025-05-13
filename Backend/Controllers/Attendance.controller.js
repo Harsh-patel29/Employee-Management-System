@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User } from '../Models/user.model.js';
+import { SMTP } from '../Models/smtp.model.js';
 import { Attendance } from '../Models/attendance.js';
 import { uploadOnCloudinary } from '../Utils/cloudinary.js';
 import { ApiError } from '../Utils/ApiError.js';
@@ -8,6 +8,7 @@ import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { Regularization } from '../Models/regularization.model.js';
 import { WeekOff } from '../Models/weekoff.model.js';
 import { Holiday } from '../Models/holiday.model.js';
+
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
   const diffMs = endTime - startTime;
   return Math.round(diffMs / 1000);
@@ -175,6 +176,7 @@ const daysInMonth = (month, year) => {
 };
 const uploadAttendance = AsyncHandler(async (req, res) => {
   const body = JSON.parse(JSON.stringify(req.body));
+
   const ImageLocalPath = req.files?.attendance?.[0]?.path;
   const userId = new mongoose.Types.ObjectId(req.user._id);
   const { currentTime, isOdd, lastTimeIn } = await getLogHours(
