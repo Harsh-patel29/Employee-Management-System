@@ -17,6 +17,7 @@ import taskTimerSliceReducer from '../feature/tasktimerfetch/tasktimerslice.js';
 import holidaySliceReducer from '../feature/hoildayfetch/hoildaySlice.js';
 import weekOffSliceReducer from '../feature/weekofffetch/weekoffslice.js';
 import smtpSliceReducer from '../feature/smtpfetch/smtpSlice.js';
+import otpSliceReducer from '../feature/otpfetch/otpSlice.js';
 
 export default configureStore({
   reducer: {
@@ -38,5 +39,6 @@ export default configureStore({
     holiday: holidaySliceReducer,
     weekoff: weekOffSliceReducer,
     smtpSlice: smtpSliceReducer,
+    otpSlice: otpSliceReducer,
   },
 });

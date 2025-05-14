@@ -30,6 +30,8 @@ import TaskTimerPage from './pages/TaskTimerPage.jsx';
 import Holiday from './pages/Holiday.jsx';
 import WeekOff from './pages/Weekoff.jsx';
 import MissedPunchRegularization from './pages/MissedPunchRegularization.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -86,6 +88,7 @@ const router = createBrowserRouter(
         </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>
+      <Route path="/forgotPassword" element={<ForgotPassword />}></Route>
     </>
   )
 );

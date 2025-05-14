@@ -8,6 +8,14 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { resetError } from '../feature/datafetch/datafetchSlice.js';
 import Loader from '../Components/Loader.jsx';
+import { Link } from 'react-router';
+import {
+  verifyOtp,
+  resetOtp,
+  resetVerifyOtp,
+  resetPasswordField,
+  resendOTP,
+} from '../feature/otpfetch/otpSlice.js';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,6 +31,15 @@ const Login = () => {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  const resetFormState = () => {
+    dispatch(resetVerifyOtp());
+    dispatch(resetOtp());
+  };
+
+  useEffect(() => {
+    resetFormState();
+  }, [location.key]);
 
   useEffect(() => {
     if (error) {
@@ -62,7 +79,10 @@ const Login = () => {
             <p className="text-[#667085] text-center  font-[Inter,sans-serif]">
               Welcome back!! Please enter your details.
             </p>
-            <LoginForm onSubmit={handleSubmit} />
+            <LoginForm onSubmit={handleSubmit} mode="Login" />
+            <h5 className="flex justify-end px-2 mt-2 cursor-pointer">
+              <Link to="/forgotPassword">Forgot Password</Link>
+            </h5>
           </div>
         </div>
       </div>
