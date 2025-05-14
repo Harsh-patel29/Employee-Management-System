@@ -88,7 +88,7 @@ const verifyOtp = AsyncHandler(async (req, res) => {
 const resendOtp = AsyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  const MAX_RESENDS = 3;
+  const MAX_RESENDS = 2;
 
   const user = await User.findOne({ Email: email });
   if (!user) throw new ApiError(404, 'User not found');

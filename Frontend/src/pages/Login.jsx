@@ -81,7 +81,9 @@ const Login = () => {
             </p>
             <LoginForm onSubmit={handleSubmit} mode="Login" />
             <h5 className="flex justify-end px-2 mt-2 cursor-pointer">
-              <Link to="/forgotPassword">Forgot Password</Link>
+              <Link to="/forgotPassword" className="text-[rgb(44,102,132)]">
+                Forgot Password
+              </Link>
             </h5>
           </div>
         </div>

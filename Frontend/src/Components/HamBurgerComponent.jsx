@@ -14,13 +14,10 @@ export default function HamburgerController({ isOpen, onClick }) {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Initial check
     checkScreenSize();
 
-    // Listen for window resize
     window.addEventListener('resize', checkScreenSize);
 
-    // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 

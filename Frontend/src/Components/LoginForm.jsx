@@ -13,16 +13,12 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import {
   generateOtp,
-  resetError,
   resetOtp,
   resetPassword,
   resetPasswordField,
-  resetVerifyOtp,
 } from '../feature/otpfetch/otpSlice.js';
-import { useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
-import { toast, Bounce } from 'react-toastify';
-import Loader from '../Components/Loader.jsx';
 
 const formSchema = (mode) => {
   let schemaFields = {};
@@ -57,11 +53,9 @@ const formSchema = (mode) => {
 
 export default function LoginForm({ onSubmit, mode }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   const { loading } = useSelector((state) => state.auth);
-  const { otp, Loading, resetedPassword, error } = useSelector(
-    (state) => state.otpSlice
-  );
+  const { otp, Loading } = useSelector((state) => state.otpSlice);
 
   const {
     control,
