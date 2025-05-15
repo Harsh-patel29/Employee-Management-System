@@ -111,10 +111,24 @@ const getLogHours = async (userId, mode, match, date) => {
 
   let formattedLogHours = formatSecondsToHHMMSS(logHours);
 
+  const todayDateOnly = currentTime.toISOString().split('T')[0];
+  const sevenPMIstInUtc = new Date(`${todayDateOnly}T13:30:00.000Z`);
+
+  const isPastSevenPmIst = currentTime > sevenPMIstInUtc;
+
+  let timeforCalculation = currentTime;
+
+  if (
+    (isPastSevenPmIst && todayAttendancelength?.length === 1) ||
+    todayAttendancelength?.length % 2 == 1
+  ) {
+    timeforCalculation = sevenPMIstInUtc;
+  }
+
   if (mode === 'regularized') {
     if (todayAttendancelength?.length === 0) {
       const inTime = date;
-      logHours = calculateTimeDifferenceInSeconds(inTime, currentTime);
+      logHours = calculateTimeDifferenceInSeconds(inTime, timeforCalculation);
     } else if (
       todayAttendancelength?.length === 1 ||
       todayAttendancelength?.length % 2 == 1
@@ -129,7 +143,7 @@ const getLogHours = async (userId, mode, match, date) => {
     ) {
       logHours = calculateTimeDifferenceInSeconds(
         lastTimeIn.AttendAt,
-        currentTime
+        timeforCalculation
       );
     }
   }
@@ -150,8 +164,86 @@ const getLogHours = async (userId, mode, match, date) => {
 
   formattedLogHours = formatSecondsToHHMMSS(logHours);
 
-  return { formattedLogHours, isOdd, lastTimeIn, currentTime };
+  return {
+    formattedLogHours,
+    isOdd,
+    lastTimeIn,
+    currentTime,
+    cutoffApplied:
+      (isPastSevenPmIst && todayAttendancelength?.length === 1) ||
+      todayAttendancelength?.length % 2 == 1,
+    cutoffTime: sevenPMIstInUtc,
+  };
 };
+
+const updateAttendanceWithCutoff = AsyncHandler(async (req, res) => {
+  try {
+    const currentTime = new Date();
+    const todayDate = currentTime.toISOString().split('T')[0];
+    const sevenPmIstInUtc = new Date(`${todayDate}T06:55:00.000Z`); // 7 PM IST is 13:30 UTC
+
+    if (currentTime <= sevenPmIstInUtc) {
+      console.log('Not yet 7 PM IST, skipping attendance update');
+      return;
+    }
+    const usersWithOddAttendance = await Attendance.aggregate([
+      {
+        $addFields: {
+          attendDateOnly: {
+            $dateToString: { format: '%Y-%m-%d', date: '$AttendAt' },
+          },
+        },
+      },
+      {
+        $match: {
+          attendDateOnly: todayDate,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: '$User',
+            date: '$attendDateOnly',
+          },
+          count: { $sum: 1 },
+          attendances: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $match: {
+          count: { $mod: [2, 1] }, // Only odd counts
+        },
+      },
+    ]);
+
+    for (const userRecord of usersWithOddAttendance) {
+      const userId = userRecord._id.user;
+      const attendances = userRecord.attendances;
+
+      attendances.sort((a, b) => new Date(a.AttendAt) - new Date(b.AttendAt));
+      const lastCheckIn = attendances[attendances.length - 1];
+
+      const logHoursInSeconds = calculateTimeDifferenceInSeconds(
+        new Date(lastCheckIn.AttendAt),
+        sevenPmIstInUtc
+      );
+      const formattedLogHours = formatSecondsToHHMMSS(logHoursInSeconds);
+      await Attendance.findByIdAndUpdate(lastCheckIn._id, {
+        $set: {
+          LogHours: formattedLogHours,
+          LogHoursInSeconds: logHoursInSeconds,
+          CutoffApplied: true,
+        },
+      });
+      console.log(
+        `Updated attendance for user ${userId} with log hours ${formattedLogHours}`
+      );
+    }
+    console.log('Completed 7 PM cutoff attendance update');
+  } catch (error) {
+    console.error('Error updating attendance with cutoff:', error);
+  }
+});
 
 const daysInMonth = (month, year) => {
   switch (month) {
@@ -339,6 +431,7 @@ const getAttendance = AsyncHandler(async (req, res) => {
       },
     ]);
   }
+  await updateAttendanceWithCutoff();
   const userAttendances = {};
   AllAttendance.forEach((attendance) => {
     if (!userAttendances[attendance.User]) {

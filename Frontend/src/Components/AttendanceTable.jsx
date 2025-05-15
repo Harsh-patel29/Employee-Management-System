@@ -377,7 +377,7 @@ export default function CollapsibleTable() {
       TimeOut: isOdd
         ? new Date().toLocaleTimeString()
         : new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
-      formattedLogHours: isOdd
+      formattedLogHours: !isOdd
         ? formatTime(
             convertSecondsToTimeString(
               calculateTimeDifferenceInSeconds(
