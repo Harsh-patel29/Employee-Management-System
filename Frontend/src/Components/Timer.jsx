@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, Play, StopCircle } from 'lucide-react';
+import { Play, StopCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader } from './components/ui/dialog';
-import { Button } from './components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   createTaskTimer,
@@ -9,6 +8,7 @@ import {
   updateTaskTimer,
   getTaskByUser,
 } from '../feature/tasktimerfetch/tasktimerslice.js';
+import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
 import Select from 'react-select';
 import { Input } from './components/ui/input';
 const Timer = ({ openTimer, setOpenTimer }) => {
@@ -102,6 +102,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
     value: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,
     label: `${t.CODE}${t?.title ? `- ${t?.title}` : ''}`,
   }));
+
   const taskCode = selectedTask?.label.split('-')[0];
 
   useEffect(() => {
@@ -154,6 +155,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
               </div>
               <div className="flex flex-col gap-2 justify-center mt-4">
                 <Select
+                  isDisabled={isRunning}
                   className="w-full"
                   options={taskOptions}
                   onChange={(option) => {
@@ -166,6 +168,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                   value={selectedTask}
                 />
                 <Input
+                  disabled={isRunning}
                   type="text"
                   placeholder="Enter Message"
                   className="w-full shadow-none border border-gray-300 rounded-sm"
@@ -202,7 +205,6 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                           id: user.Name,
                         })
                       );
-
                       setHasSentData(false);
                     }}
                   >
@@ -219,8 +221,12 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                     className="w-5 h-5 flex items-center justify-center disabled:cursor-not-allowed"
                     onClick={() => {
                       dispatch(
-                        updateTaskTimer({ data: { id: taskId }, id: user.Name })
+                        updateTaskTimer({
+                          data: { id: taskId, TaskCode: taskCode },
+                          id: user.Name,
+                        })
                       );
+                      dispatch(getAllTasks());
                     }}
                   >
                     <StopCircle

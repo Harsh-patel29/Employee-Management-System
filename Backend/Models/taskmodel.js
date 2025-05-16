@@ -55,7 +55,7 @@ const taskSchema = new Schema(
     Project: {
       type: String,
     },
-    Totatime: {
+    Totaltime: {
       type: String,
       default: '00:00:00',
     },
@@ -84,6 +84,20 @@ const taskSchema = new Schema(
           type: String,
         },
         orignalname: {
+          type: String,
+        },
+      },
+    ],
+    UserTaskTime: [
+      {
+        User: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        totalDuration: {
+          type: String,
+        },
+        Name: {
           type: String,
         },
       },

@@ -50,10 +50,18 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { FileText } from 'lucide-react';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
-import 'react-clock/dist/Clock.css';
 import Loader from './Loader';
+
+const formatDuration = (ms) => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+    2,
+    '0'
+  );
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -69,6 +77,7 @@ const formSchema = z.object({
   EstimatedTime: z.string().optional(),
   Users: z.any().optional(),
   Attachments: z.any().optional(),
+  UserTaskTime: z.any(),
 });
 
 export default function TaskUpdateForm({ onSubmit, mode }) {
@@ -87,11 +96,10 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [openTaskAttachmentDialog, setOpenTaskAttachmentDialog] =
     useState(false);
+  const [showUserTaskTimer, setshowUserTaskTimer] = useState(false);
   const [currentPublicId, setCurrentPublicId] = useState('');
   const [currentvalue, setCurrentvalue] = useState('');
   const [localAttachments, setLocalAttachments] = useState([]);
-  const [hour, setHour] = useState('');
-  const [minute, setMinute] = useState('');
   const users = useSelector((state) => state.getuser);
   const { user } = useSelector((state) => state.auth);
 
@@ -129,7 +137,10 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   const [selectedDocx, setSelectedDocx] = useState(null);
   const [selectedFileType, setSelectedFileType] = useState(null);
   const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [hours, setHours] = useState('00');
+  const [minutes, setMinutes] = useState('00');
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
+
   useEffect(() => {
     if (updatedTask?.success) {
       setShowTitleField(false);
@@ -197,6 +208,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       EstimatedTime: '',
       Users: '',
       Attachments: [],
+      UserTaskTime: [],
     },
   });
 
@@ -217,6 +229,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
         CreatedBy: Tasks.createdBy || '',
         Users: Tasks.Users || [],
         Attachments: Tasks.Attachments || [],
+        UserTaskTime: Tasks.UserTaskTime || [],
       });
       setSelectedUsers(Tasks.Users || []);
     }
@@ -252,6 +265,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
       dispatch(resetTask());
     };
   };
+
   const handleAttachmentChange = (e) => {
     const files = Array.from(e.target.files);
     dispatch(Attachment(files))
@@ -318,16 +332,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     }
   }, [Tasks]);
 
-  const handleMinutesChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      const num = parseInt(value, 10);
-      if (value === '' || (num >= 0 && num <= 59)) {
-        setMinutes(value);
-      }
-    }
-  };
-
   const projectOptions = projectName?.map((value) => ({
     label: value,
     value: value,
@@ -346,6 +350,13 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     value: value,
   }));
 
+  const userOptions = assignedName
+    ?.filter((value) => !Tasks.Users.includes(value))
+    .map((value) => ({
+      label: value,
+      value: value,
+    }));
+
   const deleteUser = (userToDelete) => {
     const updatedUsers = Tasks?.Users?.filter((user) => user !== userToDelete);
     setSelectedUsers(updatedUsers);
@@ -354,29 +365,59 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   const isDeleteable = user?.user?.Name;
 
+  const handleHourChange = (e) => {
+    let newValue = e.target.value;
+
+    newValue = newValue.replace(/[^0-9]/g, '');
+
+    if (hours === '00' && newValue.length === 3 && newValue.startsWith('00')) {
+      newValue = newValue.charAt(2);
+    }
+
+    const formattedValue = newValue === '0' ? '0' : newValue.replace(/^0+/, '');
+    setHours(formattedValue);
+  };
+
   const handleMinuteChange = (e) => {
-    const value = e.target.value;
-    const num = parseInt(value);
-    const formatted = isNaN(num) ? '00' : formatWithZero(num);
-    setMinute(formatted);
-    onChange(formatted);
-  };
-  const formatWithZero = (val) => (val < 10 ? `0${val}` : `${val}`);
-  const getFormattedTime = (h, m, p) => {
-    let hourNum = parseInt(h);
+    let newValue = e.target.value;
 
-    const hourStr = hourNum.toString().padStart(2, '0');
-    const minStr = m.padStart(2, '0');
-    return `${hourStr}:${minStr}`;
+    newValue = newValue.replace(/[^0-9]/g, '');
+
+    if (
+      minutes === '00' &&
+      newValue.length === 3 &&
+      newValue.startsWith('00')
+    ) {
+      newValue = newValue.charAt(2);
+    }
+
+    const formattedValue = newValue === '0' ? '0' : newValue.replace(/^0+/, '');
+
+    if (parseInt(formattedValue, 10) > 59) {
+      setMinutes('59');
+    } else {
+      setMinutes(formattedValue);
+    }
   };
 
-  const handleHourChange = (e, onChange) => {
-    const value = e.target.value;
-    const num = parseInt(value);
-    const formatted = isNaN(num) ? '00' : formatWithZero(num);
-    setHour(formatted);
-    onChange(formatted);
+  const handleBlur = (field) => {
+    if (field === 'hours') {
+      setHours(hours === '' ? '00' : hours);
+    } else if (field === 'minutes') {
+      setMinutes(minutes === '' ? '00' : minutes.padStart(2, '0'));
+    }
   };
+
+  const formatTimeForDb = () => {
+    const formattedHours = hours || '0';
+    const formattedMinutes = minutes.padStart(2, '0');
+    return `${formattedHours}:${formattedMinutes}`;
+  };
+
+  const handleSave = () => {
+    handleUpdateTask('EstimatedTime', formatTimeForDb());
+  };
+
   return (
     <>
       <div className="mt-4"></div>
@@ -1154,7 +1195,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Project"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1182,6 +1223,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 fontSize: '15px',
                                 color: 'rgb(120, 122, 126)',
                                 backgroundColor: 'transparent',
+                                padding: '0',
                               }),
                               placeholder: (baseStyles) => ({
                                 ...baseStyles,
@@ -1228,7 +1270,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Status"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1243,7 +1285,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <path d="M11.1115 12C11.5662 14.004 13.3584 15.5 15.5 15.5C17.6416 15.5 19.4338 14.004 19.8885 12H22V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V12H11.1115ZM5 16H7V18H5V16ZM15.5 13.5C14.1193 13.5 13 12.3807 13 11C13 9.61929 14.1193 8.5 15.5 8.5C16.8807 8.5 18 9.61929 18 11C18 12.3807 16.8807 13.5 15.5 13.5ZM11.1115 10H2V4C2 3.44772 2.44772 3 3 3H21C21.5523 3 22 3.44772 22 4V10H19.8885C19.4338 7.99601 17.6416 6.5 15.5 6.5C13.3584 6.5 11.5662 7.99601 11.1115 10Z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-w-10">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Status:
                         </h2>
                         <FormControl>
@@ -1256,6 +1298,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 fontSize: '15px',
                                 color: 'rgb(120, 122, 126)',
                                 backgroundColor: 'transparent',
+                                padding: '0',
                               }),
                               placeholder: (baseStyles) => ({
                                 ...baseStyles,
@@ -1273,10 +1316,12 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 ':hover': {
                                   backgroundColor: 'rgb(51,141,181)',
                                 },
+                                minWidth: 120,
                               }),
                               menu: (baseStyles) => ({
                                 ...baseStyles,
                                 backgroundColor: 'white',
+                                minWidth: 120,
                               }),
                             }}
                             className="text-[rgb(120, 122, 126)] text-[14px]"
@@ -1298,7 +1343,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Asignee"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11  rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="rgb(155,159,167)"
@@ -1326,8 +1371,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 fontSize: '15px',
                                 color: 'rgb(120, 122, 126)',
                                 backgroundColor: 'transparent',
-                                minWidth: '120px',
                                 width: 'auto',
+                                padding: '0',
                               }),
                               placeholder: (baseStyles) => ({
                                 ...baseStyles,
@@ -1389,7 +1434,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <path d="M436 160H12c-6.6 0-12-5.4-12-12v-36c0-26.5 21.5-48 48-48h48V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h128V12c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v52h48c26.5 0 48 21.5 48 48v36c0 6.6-5.4 12-12 12zM12 192h424c6.6 0 12 5.4 12 12v260c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V204c0-6.6 5.4-12 12-12zm316 140c0-6.6-5.4-12-12-12h-60v-60c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v60h-60c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h60v60c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12v-60h60c6.6 0 12-5.4 12-12v-40z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] ">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Start Date:
                         </h2>
                         <div className="flex w-[30%] items-center">
@@ -1397,7 +1442,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <Popover>
                               <PopoverTrigger>
                                 <Input
-                                  className="text-[rgb(120,122,126)]"
+                                  className="text-[rgb(120,122,126)] p-0"
                                   type="text"
                                   style={{
                                     border: 'none',
@@ -1501,7 +1546,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <Popover>
                               <PopoverTrigger asChild>
                                 <Input
-                                  className="text-[rgb(120,122,126)]"
+                                  className="text-[rgb(120,122,126)] p-0"
                                   disabled={!Tasks?.StartDate}
                                   type=""
                                   style={{
@@ -1614,26 +1659,26 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               {...field}
                             >
                               <Input
-                                type="number"
-                                value={hour}
-                                placeholder="00"
-                                defaultValue={hour}
-                                onChange={(e) =>
-                                  handleHourChange(e, field.onChange)
-                                }
+                                type="text"
+                                inputMode="numeric"
+                                value={hours}
+                                onChange={handleHourChange}
+                                onBlur={() => handleBlur('hours')}
+                                onClick={() => hours === '00' && setHours('')}
                                 className=" w-10 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                               />
                               <span className="text-lg mb-0.5 font-semibold text-gray-700 ">
                                 :
                               </span>
                               <Input
-                                type="number"
-                                min="0"
-                                max="59"
-                                placeholder="00"
-                                defaultValue={minute}
-                                value={minute}
+                                type="text"
+                                inputMode="numeric"
+                                value={minutes}
                                 onChange={handleMinuteChange}
+                                onBlur={() => handleBlur('minutes')}
+                                onClick={() =>
+                                  minutes === '00' && setMinutes('')
+                                }
                                 className="h-9.5 w-15 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                               />
                             </div>
@@ -1649,12 +1694,9 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           className={
                             showEstimatedTimeField ? 'cursor-pointer' : 'hidden'
                           }
-                          onClick={() => {
-                            handleUpdateTask(
-                              'EstimatedTime',
-                              `${hour}:${minute}`
-                            );
-                          }}
+                          onClick={() =>
+                            handleUpdateTask('EstimatedTime', formatTimeForDb())
+                          }
                         >
                           <svg
                             class="w-6 h-6"
@@ -1801,7 +1843,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   'Users'
                                 );
                               }}
-                              options={asigneeOptions}
+                              isSearchable={false}
+                              options={userOptions}
                             />
                           </FormControl>
                           <div className=" flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">
@@ -1866,7 +1909,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                     className="cursor-pointer flex justify-between items-center h-auto pb-2 pt-1"
                                   >
                                     <span className="flex gap-4 items-center">
-                                      <p className="bg-[rgba(61,66,179,0.92)] text-white text-center rounded-full w-7 h-7 flex items-center  justify-center">
+                                      <p className="flex w-7 h-7 items-center justify-center rounded-full bg-[rgba(61,66,179,0.92)] text-white">
                                         {user
                                           .split(' ')
                                           .map((name) => name[0])
@@ -2165,7 +2208,109 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                {Tasks?.Totaltime !== '00:00:00' && (
+                  <FormField
+                    control={control}
+                    name="UserTaskTime"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                          <div className="ml-2.5 text-[rgb(155,159,167)]">
+                            <svg
+                              stroke="currentColor"
+                              fill="currentColor"
+                              stroke-width="0"
+                              version="1.1"
+                              viewBox="0 0 16 16"
+                              class="tasks-item-icon"
+                              height="1em"
+                              width="1em"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M10.404 5.11l-1.015-1.014-5.075 5.074c-0.841 0.841-0.841 2.204 0 3.044s2.204 0.841 3.045 0l6.090-6.089c1.402-1.401 1.402-3.673 0-5.074s-3.674-1.402-5.075 0l-6.394 6.393c-0.005 0.005-0.010 0.009-0.014 0.013-1.955 1.955-1.955 5.123 0 7.077s5.123 1.954 7.078 0c0.004-0.004 0.008-0.009 0.013-0.014l0.001 0.001 4.365-4.364-1.015-1.014-4.365 4.363c-0.005 0.004-0.009 0.009-0.013 0.013-1.392 1.392-3.656 1.392-5.048 0s-1.392-3.655 0-5.047c0.005-0.005 0.009-0.009 0.014-0.013l-0.001-0.001 6.395-6.393c0.839-0.84 2.205-0.84 3.045 0s0.839 2.205 0 3.044l-6.090 6.089c-0.28 0.28-0.735 0.28-1.015 0s-0.28-0.735 0-1.014l5.075-5.075z"></path>
+                            </svg>
+                          </div>
+                          <div className="flex w-full justify-start items-center gap-4">
+                            <h2 className="flex gap-x-6 text-[rgb(120, 122, 126)] text-[15px] ">
+                              <p>Users Task Time:</p>
+                              <p>{formatDuration(Tasks?.Totaltime)}</p>
+                            </h2>
+                          </div>
+                          <div className="flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">
+                            {Tasks?.UserTaskTime?.length > 0 &&
+                              showUserTaskTimer === false && (
+                                <button
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setshowUserTaskTimer(true);
+                                  }}
+                                >
+                                  <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    stroke-width="0"
+                                    viewBox="0 0 24 24"
+                                    class="tasks-item-icon"
+                                    height="1em"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                    <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
+                                  </svg>
+                                </button>
+                              )}
 
+                            {Tasks?.UserTaskTime?.length > 0 &&
+                              showUserTaskTimer === true && (
+                                <button
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setshowUserTaskTimer(false);
+                                  }}
+                                >
+                                  <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    stroke-width="0"
+                                    viewBox="0 0 24 24"
+                                    class="tasks-item-icon"
+                                    height="1em"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                    <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path>
+                                  </svg>
+                                </button>
+                              )}
+                          </div>
+                          <FormControl></FormControl>
+                        </FormLabel>
+                        {showUserTaskTimer === true &&
+                          Tasks?.UserTaskTime?.length > 0 && (
+                            <div className="h-auto p-2 rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                              {Tasks?.UserTaskTime?.length > 0 &&
+                                showUserTaskTimer === true && (
+                                  <div className="flex flex-col  justify-end font-light text-[15px] font-[rgb(115,115,115)] gap-2">
+                                    {Tasks?.UserTaskTime?.map((user) => (
+                                      <h1 key={user._id}>
+                                        <p className="flex gap-x-8">
+                                          <h6 className="w-20">{user.Name} </h6>
+                                          <h6>
+                                            {formatDuration(user.totalDuration)}
+                                          </h6>
+                                        </p>
+                                      </h1>
+                                    ))}
+                                  </div>
+                                )}
+                            </div>
+                          )}
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={control}
                   name="CreatedBy"
@@ -2189,7 +2334,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Created By:
                         </h2>
-
                         <FormControl>
                           <Input
                             type="text"
@@ -2201,7 +2345,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             }}
                             defaultValue={Tasks?.createdBy}
                             readOnly
-                            className=" flex  font-semibold  w-[30%] overflow-x-auto"
+                            className=" flex font-semibold w-[30%] overflow-x-auto p-0"
                             {...field}
                           />
                         </FormControl>
@@ -2235,7 +2379,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Created At:
                         </h2>
-
                         <FormControl>
                           <Input
                             type="text"
@@ -2251,7 +2394,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 : ''
                             }
                             readOnly
-                            className=" flex   w-[60%] overflow-x-auto"
+                            className=" flex w-[59%] overflow-x-auto p-0"
                             {...field}
                           />
                         </FormControl>

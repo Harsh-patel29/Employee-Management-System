@@ -33,7 +33,7 @@ const createTask = AsyncHandler(async (req, res) => {
       todo: [],
       comments: [],
       Project: '',
-      Totatime: '00:00:00',
+      Totaltime: '00:00:00',
       Status: 'Backlog',
       Asignee: user.Name,
       StartDate,
@@ -41,6 +41,7 @@ const createTask = AsyncHandler(async (req, res) => {
       EstimatedTime,
       Users: user.Name,
       Attachments,
+      UserTaskTime: [],
       createdBy: user.Name,
     });
     await task.save();
@@ -55,6 +56,7 @@ const createTask = AsyncHandler(async (req, res) => {
 const getAlltasks = AsyncHandler(async (req, res) => {
   const rolesPermission = req.permission;
   const ViewAccess = rolesPermission?.task.canViewAllTask;
+
   let allTasks;
   if (ViewAccess === true) {
     allTasks = await Task.find({}).sort({ createdAt: -1 });
@@ -63,6 +65,7 @@ const getAlltasks = AsyncHandler(async (req, res) => {
       createdAt: -1,
     });
   }
+
   return res
     .status(200)
     .json(new ApiResponse(200, allTasks, 'All Tasks fetched successfully'));
@@ -134,31 +137,53 @@ const updateTask = AsyncHandler(async (req, res) => {
     if (!task) {
       throw new ApiError(404, 'Task not found');
     }
-
-    // const totalTime = await TaskTimer.aggregate([
-    //   {
-    //     $lookup: {
-    //       from: 'tasks',
-    //       localField: 'TaskId',
-    //       foreignField: 'CODE',
-    //       as: 'result',
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       result: 1,
-    //     },
-    //   },
-    // ]);
-
-    // console.log(totalTime);
+    const totalTimePipeline = await TaskTimer.aggregate([
+      {
+        $lookup: {
+          from: 'tasks',
+          localField: 'TaskId',
+          foreignField: 'CODE',
+          as: 'result',
+        },
+      },
+      {
+        $match: {
+          'result.CODE': id,
+        },
+      },
+      {
+        $unwind: {
+          path: '$result',
+        },
+      },
+      {
+        $group: {
+          _id: '$result.CODE',
+          totalDuration: {
+            $sum: {
+              $convert: {
+                input: '$Duration',
+                to: 'int',
+                onError: 0,
+                onNull: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          totalDuration: 1,
+        },
+      },
+    ]);
 
     const updateData = {
       title: req.body.title,
       description: req.body.description,
       Project: req.body.Project,
       EndDate: req.body.EndDate,
-      Totatime: req.body.Totatime,
+      Totaltime: totalTimePipeline[0]?.totalDuration,
       EstimatedTime: req.body.EstimatedTime,
       Users: req.body.Users,
       Attachments: req.body.Attachments,
@@ -184,7 +209,12 @@ const updateTask = AsyncHandler(async (req, res) => {
     }
 
     if (todo) {
-      updateData.$push.todo = todo;
+      updateData.$push = {
+        todo: {
+          $each: [todo],
+          $position: 0,
+        },
+      };
     }
 
     if (todoIndex !== undefined && todoStatus !== undefined) {
@@ -242,6 +272,65 @@ const getTaskById = AsyncHandler(async (req, res) => {
   const assigneName = req.assignedName;
   const name = assigneName.map((item) => item.sdk.map((item) => item.Name));
 
+  const totalTimePipeline = await TaskTimer.aggregate([
+    {
+      $lookup: {
+        from: 'tasks',
+        localField: 'TaskId',
+        foreignField: 'CODE',
+        as: 'result',
+      },
+    },
+    {
+      $unwind: {
+        path: '$result',
+      },
+    },
+    {
+      $match: {
+        'result.CODE': id,
+      },
+    },
+    {
+      $group: {
+        _id: '$User',
+        totalDuration: {
+          $sum: {
+            $convert: {
+              input: '$Duration',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'userinfo',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userinfo',
+      },
+    },
+    {
+      $project: {
+        User: 1,
+        totalDuration: 1,
+        Name: '$userinfo.Name',
+      },
+    },
+  ]);
+  await Task.updateOne(
+    { CODE: id, UserTaskTime: { $ne: totalTimePipeline } },
+    { $set: { UserTaskTime: totalTimePipeline } }
+  );
   const task = await Task.findOne({ CODE: id });
   const data = {
     task,
@@ -251,6 +340,7 @@ const getTaskById = AsyncHandler(async (req, res) => {
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }
+
   return res
     .status(200)
     .json(new ApiResponse(200, data, 'Task fetched successfully'));

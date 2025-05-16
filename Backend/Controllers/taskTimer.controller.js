@@ -7,25 +7,25 @@ import { AsyncHandler } from '../Utils/AsyncHandler.js';
 
 const formatDuration = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours}h: ${minutes}m ${seconds}s`;
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+    2,
+    '0'
+  );
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
 };
 
 const createTaskTimer = AsyncHandler(async (req, res) => {
   const { TaskId, Message } = req.body.data;
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
+
   const task = await Task.findOne({ CODE: TaskId });
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }
   const taskTimer = await TaskTimer.create({
     TaskId,
-    User: user.Name,
+    User: req.user._id,
     Message,
     StartTime: new Date(),
     EndTime: null,
@@ -38,12 +38,13 @@ const createTaskTimer = AsyncHandler(async (req, res) => {
 });
 
 const updateTaskTimer = AsyncHandler(async (req, res) => {
-  const { id } = req.body.data;
+  const { id, TaskCode } = req.body.data;
 
   const user = await User.findById(req.user._id);
   if (!user) {
     throw new ApiError(404, 'User not found');
   }
+
   const taskTimer = await TaskTimer.findById(id);
   if (!taskTimer) {
     throw new ApiError(404, 'Task timer not found');
@@ -51,6 +52,51 @@ const updateTaskTimer = AsyncHandler(async (req, res) => {
   taskTimer.EndTime = new Date();
   taskTimer.Duration = taskTimer.EndTime - taskTimer.StartTime;
   await taskTimer.save();
+  const totalTime = await TaskTimer.aggregate([
+    {
+      $lookup: {
+        from: 'tasks',
+        localField: 'TaskId',
+        foreignField: 'CODE',
+        as: 'result',
+      },
+    },
+    {
+      $unwind: {
+        path: '$result',
+      },
+    },
+    {
+      $match: {
+        'result.CODE': TaskCode,
+      },
+    },
+    {
+      $group: {
+        _id: '$result.CODE',
+        totalDuration: {
+          $sum: {
+            $convert: {
+              input: '$Duration',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        totalDuration: 1,
+      },
+    },
+  ]);
+
+  await Task.findOneAndUpdate(
+    { CODE: TaskCode },
+    { Totaltime: totalTime[0].totalDuration }
+  );
   return res
     .status(200)
     .json(new ApiResponse(200, taskTimer, 'Task timer updated successfully'));
@@ -63,14 +109,18 @@ const getTaskTimer = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, 'User not found');
   }
-  const taskTimer = await TaskTimer.findOne({ TaskId, User: user.Name });
+  const taskTimer = await TaskTimer.findOne({
+    TaskId,
+    User: req.user._id,
+  }).populate('User');
+
   if (!taskTimer) {
     throw new ApiError(404, 'Task timer not found');
   }
   const finalData = {
     _id: taskTimer._id,
     TaskId: taskTimer.TaskId,
-    User: taskTimer.User,
+    User: taskTimer.User.Name,
     StartTime: new Date(taskTimer.StartTime).toLocaleString('en-IN', {
       timeZone: 'Asia/Kolkata',
     }),
@@ -102,6 +152,7 @@ const getTaskByUser = AsyncHandler(async (req, res) => {
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }
+
   return res
     .status(200)
     .json(new ApiResponse(200, task, 'Task fetched successfully'));
@@ -113,15 +164,20 @@ const getAllTaskTimer = AsyncHandler(async (req, res) => {
   const ViewAccess = rolesPermission?.taskTimer.canViewOthersTaskTimer;
   let taskTimer;
   if (ViewAccess === true) {
-    taskTimer = await TaskTimer.find({}).sort({ createdAt: -1 });
+    taskTimer = await TaskTimer.find({})
+      .populate('User')
+      .sort({ createdAt: -1 });
   } else {
-    taskTimer = await TaskTimer.find({ User: user }).sort({ createdAt: -1 });
+    taskTimer = await TaskTimer.find({ User: req.user._id })
+      .populate('User')
+      .sort({ createdAt: -1 });
   }
+
   const finalData = taskTimer.map((item) => {
     return {
       _id: item._id,
       TaskId: item.TaskId,
-      User: item.User,
+      User: item.User.Name,
       StartTime: new Date(item.StartTime).toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata',
       }),

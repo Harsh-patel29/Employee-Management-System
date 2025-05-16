@@ -1,5 +1,5 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { useNavigate, useParams } from 'react-router';
@@ -32,11 +32,24 @@ import ReusableTable from './ReusableTable';
 import KanbanView from './KanbanView';
 import TaskUpdateForm from './TaskForm.jsx';
 import TasksFilterSheet from './TasksFilterSheet.jsx';
+
+function formatDuration(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+    2,
+    '0'
+  );
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
 function Row({ row, openDialog, navigate }) {
   const { id } = useParams();
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
   const { user } = useSelector((state) => state.auth);
+  console.log(row.Totaltime === '00:00:00');
 
   const dispatch = useDispatch();
   return (
@@ -69,7 +82,11 @@ function Row({ row, openDialog, navigate }) {
         <TableCell sx={{ color: 'inherit' }}>{row.StartDate}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.EndDate}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.Project}</TableCell>
-        <TableCell sx={{ color: 'inherit' }}>{row.Totatime}</TableCell>
+        <TableCell sx={{ color: 'inherit' }}>
+          {row.Totaltime === '00:00:00'
+            ? formatDuration(0)
+            : formatDuration(row.Totaltime)}
+        </TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.createdBy}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.Status}</TableCell>
         <TableCell sx={{ color: 'inherit' }}>{row.Asignee}</TableCell>

@@ -6,7 +6,8 @@ const tasktimerSchema = new Schema(
       type: String,
     },
     User: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     StartTime: {
       type: Date,
