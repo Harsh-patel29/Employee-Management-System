@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { SMTP } from '../Models/smtp.model.js';
 import { Attendance } from '../Models/attendance.js';
 import { uploadOnCloudinary } from '../Utils/cloudinary.js';
 import { ApiError } from '../Utils/ApiError.js';
@@ -8,7 +7,7 @@ import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { Regularization } from '../Models/regularization.model.js';
 import { WeekOff } from '../Models/weekoff.model.js';
 import { Holiday } from '../Models/holiday.model.js';
-
+import { fromZonedTime, format } from 'date-fns-tz';
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
   const diffMs = endTime - startTime;
   return Math.round(diffMs / 1000);
@@ -40,12 +39,16 @@ const getLogHours = async (userId, mode, match, date) => {
   let matchQuery = {};
   let pipeline = {};
   const matchedAttendance = match;
+
   if (mode === 'regularized') {
-    d = matchedAttendance?.map(
-      (item) => new Date(item.AttendAt).toISOString().split('T')[0]
-    );
+    d = matchedAttendance?.map((item) => {
+      const istDate = fromZonedTime(new Date(item.AttendAt), 'Asia/Kolkata');
+      return format(istDate, 'yyyy-MM-dd', { timeZone: 'Asia/Kolkata' });
+    });
   }
-  const todaydate = currentTime.toISOString().split('T')[0];
+
+  const zonedDate = fromZonedTime(currentTime, 'Asia/Kolkata');
+  const todaydate = format(zonedDate, 'yyyy-MM-dd', 'Asia/Kolkata');
 
   if (mode === 'upload') {
     matchQuery = {
@@ -73,6 +76,7 @@ const getLogHours = async (userId, mode, match, date) => {
           $dateToString: {
             format: '%Y-%m-%d',
             date: '$AttendAt',
+            timezone: 'Asia/Kolkata',
           },
         },
       },
@@ -109,56 +113,48 @@ const getLogHours = async (userId, mode, match, date) => {
 
   const isOdd = b.map((item) => item % 2 === 1);
 
+  const todayDateOnly = currentTime.toISOString().split('T')[0];
+
+  let sevenPmIstInUtc;
+  let regularizedDate;
+
+  sevenPmIstInUtc = new Date(`${todayDateOnly}T13:30:00.000Z`);
   let formattedLogHours = formatSecondsToHHMMSS(logHours);
 
-  const todayDateOnly = currentTime.toISOString().split('T')[0];
-  const sevenPMIstInUtc = new Date(`${todayDateOnly}T13:30:00.000Z`);
-
-  const isPastSevenPmIst = currentTime > sevenPMIstInUtc;
-
-  let timeforCalculation = currentTime;
-
-  if (
-    (isPastSevenPmIst && todayAttendancelength?.length === 1) ||
-    todayAttendancelength?.length % 2 == 1
-  ) {
-    timeforCalculation = sevenPMIstInUtc;
-  }
-
   if (mode === 'regularized') {
-    if (todayAttendancelength?.length === 0) {
-      const inTime = date;
-      logHours = calculateTimeDifferenceInSeconds(inTime, timeforCalculation);
-    } else if (
-      todayAttendancelength?.length === 1 ||
-      todayAttendancelength?.length % 2 == 1
-    ) {
-      const inTime = date;
-      logHours = calculateTimeDifferenceInSeconds(match[0].AttendAt, inTime);
-    }
-  } else {
-    if (
-      todayAttendancelength?.length === 1 ||
-      todayAttendancelength?.length % 2 === 1
-    ) {
-      logHours = calculateTimeDifferenceInSeconds(
-        lastTimeIn.AttendAt,
-        timeforCalculation
-      );
-    }
+    regularizedDate = date.toISOString().split('T')[0];
+    sevenPmIstInUtc = new Date(`${regularizedDate}T13:30:00.000Z`);
   }
 
-  if (
-    todayAttendancelength?.length !== 0 &&
-    todayAttendancelength?.length % 2 !== 1
-  ) {
-    const totallogHours = a?.[0]?.map((total) => total.AttendAt);
-    const sorted = totallogHours?.sort((a, b) => a - b);
+  if (mode === 'regularized' && todayAttendance?.length === 0) {
+    logHours += calculateTimeDifferenceInSeconds(date, sevenPmIstInUtc);
+  }
 
-    for (let i = 0; i < sorted?.length - 1; i += 2) {
-      const a = new Date(sorted[i]);
-      const b = new Date(sorted[i + 1]);
-      logHours += calculateTimeDifferenceInSeconds(a, b);
+  const isPastSevenPmIst = currentTime > sevenPmIstInUtc;
+
+  if (todayAttendancelength?.length > 0) {
+    const totallogHours = a?.[0]?.map((total) => total.AttendAt);
+    const sorted = totallogHours?.sort((a, b) => new Date(a) - new Date(b));
+
+    const pairsToProcess = Math.floor(sorted.length / 2);
+
+    for (let i = 0; i < pairsToProcess * 2; i += 2) {
+      const timeIn = new Date(sorted[i]);
+      const timeOut = new Date(sorted[i + 1]);
+      logHours += calculateTimeDifferenceInSeconds(timeIn, timeOut);
+    }
+
+    if (sorted.length % 2 === 1) {
+      const lastCheckIn = new Date(sorted[sorted.length - 1]);
+
+      if (isPastSevenPmIst) {
+        logHours += calculateTimeDifferenceInSeconds(
+          lastCheckIn,
+          sevenPmIstInUtc
+        );
+      } else {
+        logHours += calculateTimeDifferenceInSeconds(lastCheckIn, currentTime);
+      }
     }
   }
 
@@ -172,15 +168,15 @@ const getLogHours = async (userId, mode, match, date) => {
     cutoffApplied:
       (isPastSevenPmIst && todayAttendancelength?.length === 1) ||
       todayAttendancelength?.length % 2 == 1,
-    cutoffTime: sevenPMIstInUtc,
+    cutoffTime: sevenPmIstInUtc,
   };
 };
 
-const updateAttendanceWithCutoff = AsyncHandler(async (req, res) => {
+const updateAttendanceWithCutoff = async () => {
   try {
     const currentTime = new Date();
     const todayDate = currentTime.toISOString().split('T')[0];
-    const sevenPmIstInUtc = new Date(`${todayDate}T06:55:00.000Z`); // 7 PM IST is 13:30 UTC
+    const sevenPmIstInUtc = new Date(`${todayDate}T13:30:00.000Z`); // 7 PM IST is 13:30 UTC
 
     if (currentTime <= sevenPmIstInUtc) {
       console.log('Not yet 7 PM IST, skipping attendance update');
@@ -211,39 +207,38 @@ const updateAttendanceWithCutoff = AsyncHandler(async (req, res) => {
       },
       {
         $match: {
-          count: { $mod: [2, 1] }, // Only odd counts
+          count: { $mod: [2, 1] },
         },
       },
     ]);
 
     for (const userRecord of usersWithOddAttendance) {
       const userId = userRecord._id.user;
-      const attendances = userRecord.attendances;
+      const logHoursResult = await getLogHours(userId, 'upload', null, null);
 
-      attendances.sort((a, b) => new Date(a.AttendAt) - new Date(b.AttendAt));
-      const lastCheckIn = attendances[attendances.length - 1];
+      const lastAttendance = await Attendance.findOne({
+        User: userId,
+      })
+        .sort({ AttendAt: -1 })
+        .limit(1);
 
-      const logHoursInSeconds = calculateTimeDifferenceInSeconds(
-        new Date(lastCheckIn.AttendAt),
-        sevenPmIstInUtc
-      );
-      const formattedLogHours = formatSecondsToHHMMSS(logHoursInSeconds);
-      await Attendance.findByIdAndUpdate(lastCheckIn._id, {
-        $set: {
-          LogHours: formattedLogHours,
-          LogHoursInSeconds: logHoursInSeconds,
-          CutoffApplied: true,
-        },
-      });
-      console.log(
-        `Updated attendance for user ${userId} with log hours ${formattedLogHours}`
-      );
+      if (lastAttendance) {
+        await Attendance.findByIdAndUpdate(lastAttendance._id, {
+          $set: {
+            LogHours: logHoursResult.formattedLogHours,
+          },
+        });
+
+        console.log(
+          `Updated attendance for user ${userId} with log hours ${logHoursResult.formattedLogHours}`
+        );
+      }
     }
     console.log('Completed 7 PM cutoff attendance update');
   } catch (error) {
     console.error('Error updating attendance with cutoff:', error);
   }
-});
+};
 
 const daysInMonth = (month, year) => {
   switch (month) {
@@ -347,6 +342,7 @@ const getAttendance = AsyncHandler(async (req, res) => {
             $dateToString: {
               format: '%Y-%m-%d',
               date: '$AttendAt',
+              timezone: 'Asia/Kolkata',
             },
           },
         },
@@ -396,6 +392,7 @@ const getAttendance = AsyncHandler(async (req, res) => {
             $dateToString: {
               format: '%Y-%m-%d',
               date: '$AttendAt',
+              timezone: 'Asia/Kolkata',
             },
           },
         },
@@ -431,7 +428,7 @@ const getAttendance = AsyncHandler(async (req, res) => {
       },
     ]);
   }
-  await updateAttendanceWithCutoff();
+
   const userAttendances = {};
   AllAttendance.forEach((attendance) => {
     if (!userAttendances[attendance.User]) {
@@ -509,40 +506,43 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
     )
     .sort((a, b) => a.AttendAt - b.AttendAt);
 
-  const localDate = new Date(
-    `${regularization.Date}T${regularization.MissingPunch}:00`
-  );
+  const localDate = `${regularization.Date}T${regularization.MissingPunch}`;
+
+  const utcDate = fromZonedTime(localDate, 'Asia/Kolkata');
+  const sevenPmIstInUtc = new Date(`${regularization.Date}T13:30:00.000Z`);
+  const isPastSevenPmIst = utcDate >= sevenPmIstInUtc;
 
   try {
-    const newAttendance = new Attendance({
-      Image: ``,
-      User: regularization.User,
-      AttendAt: localDate,
-
-      Latitude: '',
-      Longitude: '',
-    });
-    await newAttendance.save();
-    const { formattedLogHours } = await getLogHours(
-      regularization.User,
-      'regularized',
-      match,
-      localDate
-    );
-    newAttendance.LogHours = formattedLogHours;
-    await getLogHours(regularization.User, 'regularized', match, localDate);
-    await newAttendance.save();
+    if (!isPastSevenPmIst) {
+      const newAttendance = new Attendance({
+        Image: ``,
+        User: regularization.User,
+        AttendAt: utcDate,
+        Latitude: '',
+        Longitude: '',
+      });
+      await newAttendance.save();
+      const { formattedLogHours } = await getLogHours(
+        regularization.User,
+        'regularized',
+        match,
+        utcDate
+      );
+      newAttendance.LogHours = formattedLogHours;
+      await getLogHours(regularization.User, 'regularized', match, utcDate);
+      await newAttendance.save();
+    }
     return res
       .status(200)
       .json(
         new ApiResponse(
           200,
           regularization,
-          'Regularization fetched successfully'
+          'Regularization Approved successfully'
         )
       );
   } catch (error) {
-    throw new ApiError(500, 'failed');
+    throw new ApiError(500, error, 'failed');
   }
 });
 
@@ -858,4 +858,5 @@ export {
   RejectRegularization,
   getRegularizationbyDateandUser,
   fetchMonthlyReport,
+  updateAttendanceWithCutoff,
 };

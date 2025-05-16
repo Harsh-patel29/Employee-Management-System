@@ -1,12 +1,11 @@
 import * as React from 'react';
-import PropTypes, { func } from 'prop-types';
+import PropTypes from 'prop-types';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { useSelector, useDispatch } from 'react-redux';
 import ReusableTable from './ReusableTable.jsx';
 import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
 import { useNavigate } from 'react-router';
-import { Table } from '@mui/material';
 function Row({ row }) {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -53,7 +52,6 @@ Row.propTypes = {
 export default function DashTaskTable() {
   const dispatch = useDispatch();
   const [Tasks, setTasks] = React.useState([]);
-  const [taskid, settaskid] = React.useState();
   const { tasks } = useSelector((state) => state.task);
 
   React.useEffect(() => {

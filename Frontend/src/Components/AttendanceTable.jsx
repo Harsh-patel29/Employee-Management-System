@@ -51,11 +51,12 @@ import { Bounce, toast } from 'react-toastify';
 import { FaEdit } from 'react-icons/fa';
 import { FaInfoCircle } from 'react-icons/fa';
 import RegularizationDetailTable from './RegularizationDetailTable.jsx';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
   const [hours, minutes, seconds] = timeString.split(':');
-  return `${hours.padStart(2, '0')}:${minutes}:${seconds.padStart(2, '0')}`;
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`;
 };
 
 const calculateTimeDifferenceInSeconds = (startTime, endTime) => {
@@ -337,11 +338,14 @@ export default function CollapsibleTable() {
     }
   }, [fromDate, toDate, attendances]);
 
+  const now = new Date();
+
   const formattedData = attendances?.map((date, index) => {
     const d = date?.attendances?.map((item) => item);
     const image = d.map((item) => item.Image);
     const attendAt = d.map((item) => item.AttendAt);
     const otherRecords = d.filter((item) => item);
+
     const sorted = otherRecords.sort(
       (a, b) => new Date(a.AttendAt) - new Date(b.AttendAt)
     );
@@ -350,9 +354,30 @@ export default function CollapsibleTable() {
     const sortedAttendAt = sb.sort((a, b) => new Date(a) - new Date(b));
 
     const lastTimeIn = sorted.findLast((e) => e);
+
     const isOdd = d.length % 2 === 1;
     const userName = d.map((name) => name.userName);
     const userId = d.map((id) => id.User);
+
+    const sevenPmIstInUtc = new Date(`${date.date}T13:30:00.000Z`);
+
+    const isAfter7PMIST = now >= sevenPmIstInUtc;
+    const formattedTime = formatInTimeZone(
+      sortedAttendAt[0],
+      'Asia/Kolkata',
+      ' hh:mm:ss a'
+    );
+
+    const timeOut = formatInTimeZone(
+      lastTimeIn?.AttendAt,
+      'Asia/Kolkata',
+      'hh:mm:ss a'
+    );
+
+    const sevenPMFormatted = new Date(sevenPmIstInUtc).toLocaleTimeString();
+    const punchedInAt = new Date(lastTimeIn?.AttendAt);
+    const isPunchedInBefore7PM = punchedInAt < sevenPmIstInUtc;
+    const isPunchedInAfter7PM = punchedInAt >= sevenPmIstInUtc;
 
     return {
       index: index + 1,
@@ -373,20 +398,23 @@ export default function CollapsibleTable() {
       Date: date.date,
       User: userName[0],
       userId: userId[0],
-      AttendAt: new Date(sortedAttendAt[0]).toLocaleTimeString(),
+      AttendAt: formattedTime,
       TimeOut: isOdd
-        ? new Date().toLocaleTimeString()
-        : new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
-      formattedLogHours: !isOdd
-        ? formatTime(
-            convertSecondsToTimeString(
-              calculateTimeDifferenceInSeconds(
-                new Date(lastTimeIn?.AttendAt),
-                new Date()
+        ? isAfter7PMIST && isPunchedInBefore7PM
+          ? sevenPMFormatted
+          : new Date().toLocaleTimeString()
+        : timeOut,
+      formattedLogHours:
+        isOdd && (!isAfter7PMIST || isPunchedInAfter7PM)
+          ? formatTime(
+              convertSecondsToTimeString(
+                calculateTimeDifferenceInSeconds(
+                  new Date(lastTimeIn?.AttendAt),
+                  new Date()
+                )
               )
             )
-          )
-        : formatTime(lastTimeIn?.LogHours),
+          : formatTime(lastTimeIn?.LogHours),
       otherAttendances: otherRecords,
       Latitude: lastTimeIn?.Latitude,
       Longitude: lastTimeIn?.Longitude,
@@ -444,6 +472,7 @@ export default function CollapsibleTable() {
                   <RegularizationForm
                     onSubmit={(data) => {
                       dispatch(AddRegularization(data));
+                      dispatch(fetchAttendance());
                     }}
                   />
                 </SheetDescription>

@@ -79,12 +79,13 @@ export default function DashAttendanceTable() {
   }, [newattendance]);
 
   const latestAttendance = {};
+  const currentTime = new Date();
+  const todayDateOnly = currentTime.toISOString().split('T')[0];
+
   attendances.forEach((item, index) => {
     const { user, date } = item;
-    if (
-      !latestAttendance[user] ||
-      new Date(date) > new Date(latestAttendance[user])
-    ) {
+
+    if (date === todayDateOnly) {
       latestAttendance[user] = { ...item, index };
     }
   });
