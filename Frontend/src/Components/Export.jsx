@@ -15,6 +15,7 @@ const ExporttoExcel = ({ data, fileName }) => {
     >
       <button className="cursor-pointer">
         <svg
+          className="h-6 w-6"
           stroke="currentColor"
           fill="none"
           stroke-width="2"

@@ -104,10 +104,25 @@ const getLogHours = async (userId, mode, match, date) => {
     },
   ]);
 
-  const a = todayAttendance?.map((item) => item.attendances);
-  const todayAttendancelength = a?.[0]?.map((item) => item.AttendAt);
+  const matchLast = match?.findLast((e) => e);
 
+  const a = todayAttendance?.map((item) => item.attendances);
+
+  const todayAttendancelength = a?.[0]?.map((item) => item.AttendAt);
   const lastTimeIn = a?.[0]?.findLast((e) => e);
+  console.log(lastTimeIn);
+  console.log(matchLast?.LogHours);
+
+  let displayLogHours = lastTimeIn?.LogHours;
+
+  // if (match.length <= 2) {
+  //   const matchLastTime = new Date(matchLast.AttendAt).getTime();
+  //   const lastTimeInTime = new Date(lastTimeIn.AttendAt).getTime();
+  //   if (matchLastTime > lastTimeInTime) {
+  //     // Swap to use matchLast's log hours instead
+  //     displayLogHours = matchLast.LogHours;
+  //   }
+  // }
 
   const b = a.map((item) => item.length);
 
@@ -135,7 +150,6 @@ const getLogHours = async (userId, mode, match, date) => {
   if (todayAttendancelength?.length > 0) {
     const totallogHours = a?.[0]?.map((total) => total.AttendAt);
     const sorted = totallogHours?.sort((a, b) => new Date(a) - new Date(b));
-
     const pairsToProcess = Math.floor(sorted.length / 2);
 
     for (let i = 0; i < pairsToProcess * 2; i += 2) {
@@ -146,12 +160,15 @@ const getLogHours = async (userId, mode, match, date) => {
 
     if (sorted.length % 2 === 1) {
       const lastCheckIn = new Date(sorted[sorted.length - 1]);
-
       if (isPastSevenPmIst) {
-        logHours += calculateTimeDifferenceInSeconds(
-          lastCheckIn,
-          sevenPmIstInUtc
-        );
+        if (mode === 'regularized') {
+          formattedLogHours = matchLast.LogHours;
+        } else {
+          logHours += calculateTimeDifferenceInSeconds(
+            lastCheckIn,
+            sevenPmIstInUtc
+          );
+        }
       } else {
         logHours += calculateTimeDifferenceInSeconds(lastCheckIn, currentTime);
       }
@@ -274,6 +291,15 @@ const uploadAttendance = AsyncHandler(async (req, res) => {
   const { Latitude, Longitude } = body;
   if (!ImageLocalPath) {
     throw new ApiError(404, 'Image is required for attendance');
+  }
+  const lastTime = new Date(lastTimeIn?.AttendAt).getTime();
+  const current = new Date().getTime();
+
+  if (current - lastTime < 60 * 1000) {
+    throw new ApiError(
+      409,
+      'Attendance can only be marked after 1 min of TimeOut'
+    );
   }
 
   let Image;
@@ -450,7 +476,12 @@ const AddRegularization = AsyncHandler(async (req, res) => {
   if (!Date || !MissingPunch || !Reason || !Remarks) {
     throw new ApiError(400, 'All fields are required');
   }
-  const UserId = req.user._id;
+  let UserId;
+  UserId = req.user?._id;
+  if (req.user.role === 'Admin') {
+    UserId = req.body.UserId;
+  }
+
   try {
     const regularization = await Regularization.create({
       User: UserId,
@@ -505,6 +536,7 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
         new Date(regularization.Date).toLocaleDateString()
     )
     .sort((a, b) => a.AttendAt - b.AttendAt);
+  const matchLast = match?.findLast((e) => e);
 
   const localDate = `${regularization.Date}T${regularization.MissingPunch}`;
 
@@ -513,25 +545,34 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
   const isPastSevenPmIst = utcDate >= sevenPmIstInUtc;
 
   try {
-    if (!isPastSevenPmIst) {
-      const newAttendance = new Attendance({
-        Image: ``,
-        User: regularization.User,
-        AttendAt: utcDate,
-        Latitude: '',
-        Longitude: '',
-      });
-      await newAttendance.save();
-      const { formattedLogHours } = await getLogHours(
-        regularization.User,
-        'regularized',
-        match,
-        utcDate
-      );
-      newAttendance.LogHours = formattedLogHours;
-      await getLogHours(regularization.User, 'regularized', match, utcDate);
-      await newAttendance.save();
+    const newAttendance = new Attendance({
+      Image: ``,
+      User: regularization.User,
+      AttendAt: utcDate,
+      Latitude: '',
+      Longitude: '',
+    });
+    await newAttendance.save();
+    const { formattedLogHours } = await getLogHours(
+      regularization.User,
+      'regularized',
+      match,
+      utcDate
+    );
+    newAttendance.LogHours = formattedLogHours;
+    if (match.length <= 2) {
+      const matchLastTime = new Date(matchLast.AttendAt).getTime();
+      const lastTimeInTime = new Date(newAttendance.AttendAt).getTime();
+
+      if (matchLastTime > lastTimeInTime) {
+        newAttendance.LogHours = matchLast.LogHours;
+      }
     }
+
+    await getLogHours(regularization.User, 'regularized', match, utcDate);
+
+    await newAttendance.save();
+
     return res
       .status(200)
       .json(
@@ -642,12 +683,14 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
             $dateToString: {
               format: '%m',
               date: '$AttendAt',
+              timezone: 'Asia/Kolkata',
             },
           },
           attendDateOnly: {
             $dateToString: {
               format: '%Y-%m-%d',
               date: '$AttendAt',
+              timezone: 'Asia/Kolkata',
             },
           },
         },
@@ -774,6 +817,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
       totalLogHours: secondsToTime(totalSeconds),
     };
   });
+
   const officialSeconds = timeToSeconds(OfficalHours);
   const updatedLogHours = logHours.map((item) => {
     const workingSeconds = timeToSeconds(item.totalLogHours);
@@ -837,15 +881,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     };
   });
 
-  if (normalizedData.length === 0) {
-    return res
-      .status(200)
-      .json(new ApiResponse(400, [], 'No records to be display'));
-  } else {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, normalizedData, 'Fetched'));
-  }
+  return res.status(200).json(new ApiResponse(200, normalizedData, 'Fetched'));
 });
 
 export {

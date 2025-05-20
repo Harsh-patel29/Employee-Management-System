@@ -354,7 +354,6 @@ export default function AdminForm({ onSubmit, mode }) {
                     placeholder={field.value || 'Select'}
                     value={field.value}
                     onChange={(selectedOptions) => {
-                      console.log(field.value);
                       field.onChange(selectedOptions.value);
                     }}
                     options={genderOptions}

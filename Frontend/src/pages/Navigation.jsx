@@ -114,7 +114,7 @@ const Navigation = () => {
           link: 'attendance/missedPunchRegularization',
         },
         {
-          key: 'Monthly Report',
+          key: 'Monthly_Report',
           name: 'Monthly Report',
           link: 'attendance/monthlyReport',
         },
@@ -239,19 +239,27 @@ const Navigation = () => {
     const permissionMap = {
       leaveType: { category: 'leave', permission: 'canManageLeaveStatus' },
       PendingLeave: { category: 'leave', permission: 'canViewAllPendingLeave' },
+      Regularization: {
+        category: 'Attendance',
+        permission: user.user?.role === 'Admin',
+      },
+      Monthly_Report: {
+        category: 'Attendance',
+        permission: user.user?.role === 'Admin',
+      },
     };
 
     const permissionInfo = permissionMap[subItem.key];
-
     if (!permissionInfo) return true;
 
     return (
-      user.permission &&
-      user.permission[permissionInfo.category] &&
-      user.permission[permissionInfo.category][permissionInfo.permission] ===
-        true
+      (user.permission &&
+        user.permission[permissionInfo.category] &&
+        user.permission[permissionInfo.category][permissionInfo.permission]) ||
+      (user.user.role === 'Admin') === true
     );
   };
+
   const dispatch = useDispatch();
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   const isVisible = useSelector((state) => state.Sidebar.visible);

@@ -217,8 +217,8 @@ export default function MissedPunchRegularizationTable() {
   const isToday = new Date().toISOString().split('T')[0];
   const isOdd = oddPunch.filter((item) => {
     return (
-      item.length % 2 == 1 ||
-      item.some((entry) => entry.attendDateOnly === isToday)
+      item.length % 2 == 1 &&
+      item.some((entry) => entry.attendDateOnly !== isToday)
     );
   });
 

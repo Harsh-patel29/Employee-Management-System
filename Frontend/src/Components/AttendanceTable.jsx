@@ -73,6 +73,11 @@ function convertSecondsToTimeString(totalSeconds) {
   return timeString;
 }
 
+function convertTimeStringToSeconds(timeStr) {
+  const [h, m, s] = timeStr.split(':').map(Number);
+  return h * 3600 + m * 60 + s;
+}
+
 function Row({ row }) {
   const dispatch = useDispatch();
 
@@ -81,6 +86,8 @@ function Row({ row }) {
   const { fetchedRegularization } = useSelector(
     (state) => state.markAttendance
   );
+  const { user } = useSelector((state) => state.auth);
+
   const [DirectSheet, setDirectSheet] = React.useState(false);
   const [detail, setdetail] = React.useState([]);
 
@@ -138,28 +145,35 @@ function Row({ row }) {
         </TableCell>
         <TableCell>
           <div className="flex justify-center gap-2">
-            {row.otherAttendances.length % 2 === 1 && (
-              <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
-                <SheetTrigger asChild>
-                  <FaEdit className="cursor-pointer font-semibold text-xl text-[#d7d869]" />
-                </SheetTrigger>
-                <SheetContent className="bg-white min-w-xl">
-                  <SheetHeader>
-                    <SheetDescription>
-                      <RegularizationForm
-                        mode="Direct"
-                        id={row.Date}
-                        Login={row.AttendAt}
-                        LastLogin={row.TimeOut}
-                        onSubmit={(data) => {
-                          dispatch(AddRegularization(data));
-                        }}
-                      />
-                    </SheetDescription>
-                  </SheetHeader>
-                </SheetContent>
-              </Sheet>
-            )}
+            {(row.otherAttendances.length % 2 === 1 ||
+              row.otherAttendances.some(
+                (entry) =>
+                  entry.attendDateOnly ===
+                  new Date().toISOString().split('T')[0]
+              )) &&
+              (user.user.role === 'Admin' || user.user.Name === row.User) && (
+                <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
+                  <SheetTrigger asChild>
+                    <FaEdit className="cursor-pointer font-semibold text-xl text-[#d7d869]" />
+                  </SheetTrigger>
+                  <SheetContent className="bg-white min-w-xl">
+                    <SheetHeader>
+                      <SheetDescription>
+                        <RegularizationForm
+                          mode="Direct"
+                          id={row.Date}
+                          Login={row.AttendAt}
+                          LastLogin={row.TimeOut}
+                          onSubmit={(data) => {
+                            dispatch(AddRegularization(data));
+                            dispatch(fetchAttendance());
+                          }}
+                        />
+                      </SheetDescription>
+                    </SheetHeader>
+                  </SheetContent>
+                </Sheet>
+              )}
             {matchedWithRegularization.find((item) => item === row.Date) && (
               <div>
                 <Dialog>
@@ -339,6 +353,7 @@ export default function CollapsibleTable() {
   }, [fromDate, toDate, attendances]);
 
   const now = new Date();
+  const today = new Date().toISOString().split('T')[0];
 
   const formattedData = attendances?.map((date, index) => {
     const d = date?.attendances?.map((item) => item);
@@ -355,6 +370,22 @@ export default function CollapsibleTable() {
 
     const lastTimeIn = sorted.findLast((e) => e);
 
+    const latestEntry = sorted.slice(0, sorted.length - 1);
+    const lastEntry = latestEntry.findLast((e) => e);
+
+    const originalSeconds = convertTimeStringToSeconds(
+      lastEntry?.LogHours || '00:00:00'
+    );
+
+    const secondsSincePunchIn = calculateTimeDifferenceInSeconds(
+      new Date(lastTimeIn?.AttendAt),
+      new Date()
+    );
+
+    const totalSeconds = originalSeconds + secondsSincePunchIn;
+
+    const updatedLogTime = convertSecondsToTimeString(totalSeconds);
+
     const isOdd = d.length % 2 === 1;
     const userName = d.map((name) => name.userName);
     const userId = d.map((id) => id.User);
@@ -362,6 +393,7 @@ export default function CollapsibleTable() {
     const sevenPmIstInUtc = new Date(`${date.date}T13:30:00.000Z`);
 
     const isAfter7PMIST = now >= sevenPmIstInUtc;
+
     const formattedTime = formatInTimeZone(
       sortedAttendAt[0],
       'Asia/Kolkata',
@@ -399,21 +431,21 @@ export default function CollapsibleTable() {
       User: userName[0],
       userId: userId[0],
       AttendAt: formattedTime,
-      TimeOut: isOdd
-        ? isAfter7PMIST && isPunchedInBefore7PM
-          ? sevenPMFormatted
-          : new Date().toLocaleTimeString()
-        : timeOut,
+      TimeOut:
+        (isOdd && !isAfter7PMIST) ||
+        (isPunchedInAfter7PM && today === date.date && isOdd)
+          ? // If main condition is true, evaluate these nested conditions
+            isOdd && isAfter7PMIST
+            ? sevenPMFormatted // If odd and after 7PM
+            : isOdd && today === date.date
+              ? new Date().toLocaleTimeString() // If odd and today's date
+              : new Date(lastTimeIn?.AttendAt).toLocaleTimeString() // Otherwise
+          : // If main condition is false
+            new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
       formattedLogHours:
-        isOdd && (!isAfter7PMIST || isPunchedInAfter7PM)
-          ? formatTime(
-              convertSecondsToTimeString(
-                calculateTimeDifferenceInSeconds(
-                  new Date(lastTimeIn?.AttendAt),
-                  new Date()
-                )
-              )
-            )
+        (isOdd && !isAfter7PMIST) ||
+        (isPunchedInAfter7PM && today === date.date && isOdd)
+          ? formatTime(updatedLogTime)
           : formatTime(lastTimeIn?.LogHours),
       otherAttendances: otherRecords,
       Latitude: lastTimeIn?.Latitude,
@@ -445,7 +477,7 @@ export default function CollapsibleTable() {
         <div className="flex items-center">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center  hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   className="h-6 w-6"
                   stroke="currentColor"
@@ -489,6 +521,7 @@ export default function CollapsibleTable() {
             onClick={() => setOpenFilterSheet(true)}
           >
             <svg
+              className="h-6 w-6"
               stroke="currentColor"
               fill="currentColor"
               stroke-width="0"
@@ -505,7 +538,7 @@ export default function CollapsibleTable() {
           </button>
           <button
             onClick={() => dispatch(openAttendanceSheet())}
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
           >
             <svg
               stroke="currentColor"
@@ -513,8 +546,7 @@ export default function CollapsibleTable() {
               stroke-width="0"
               viewBox="0 0 512 512"
               class="theme-btn-color"
-              height="1em"
-              width="1em"
+              className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"
               style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
             >

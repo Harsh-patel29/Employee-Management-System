@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,13 +14,42 @@ import {
   FormField,
 } from '../Components/components/ui/form';
 import { SheetClose } from '../Components/components/ui/sheet';
+import Select from 'react-select';
+import { fetchuser } from '../feature/createuserfetch/createuserSlice.js';
+import { useSelector, useDispatch } from 'react-redux';
 
-const formSchema = z.object({
-  Date: z.string().min(1, { message: 'Date is Required' }),
-  MissingPunch: z.string().min(1, { message: 'Please enter valid Time' }),
-  Reason: z.string().min(1, { message: 'Reason is  Required' }),
-  Remarks: z.string().min(1, { message: 'Remark is Required' }),
-});
+const formSchema = (role) => {
+  let schemaFields = {};
+
+  if (role === 'Admin') {
+    (schemaFields.Date = z.string().min(1, { message: 'Date is Required' })),
+      (schemaFields.MissingPunch = z
+        .string()
+        .min(1, { message: 'Please enter valid Time' })),
+      (schemaFields.Reason = z
+        .string()
+        .min(1, { message: 'Reason is  Required' })),
+      (schemaFields.Remarks = z
+        .string()
+        .min(1, { message: 'Remark is Required' })),
+      (schemaFields.UserId = z
+        .string()
+        .min(1, { message: 'Please Select User' }));
+  } else {
+    (schemaFields.Date = z.string().min(1, { message: 'Date is Required' })),
+      (schemaFields.MissingPunch = z
+        .string()
+        .min(1, { message: 'Please enter valid Time' })),
+      (schemaFields.Reason = z
+        .string()
+        .min(1, { message: 'Reason is  Required' })),
+      (schemaFields.Remarks = z
+        .string()
+        .min(1, { message: 'Remark is Required' }));
+  }
+  let schema = z.object(schemaFields);
+  return schema;
+};
 
 export default function RegularizationForm({
   onSubmit,
@@ -29,10 +58,24 @@ export default function RegularizationForm({
   Login,
   LastLogin,
 }) {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { fetchusers } = useSelector((state) => state.createuser);
+  const [users, setUsers] = React.useState([]);
   const [hour, setHour] = React.useState('00');
   const [minute, setMinute] = React.useState('00');
   const [period, setPeriod] = React.useState('AM');
   const formatWithZero = (val) => (val < 10 ? `0${val}` : `${val}`);
+
+  React.useEffect(() => {
+    dispatch(fetchuser());
+  }, []);
+
+  React.useEffect(() => {
+    if (fetchusers?.message) {
+      setUsers(fetchusers.message);
+    }
+  }, [fetchusers]);
 
   const getFormattedTime = (h, m, p) => {
     let hourNum = parseInt(h);
@@ -100,6 +143,27 @@ export default function RegularizationForm({
     });
   };
 
+  const fetchedUserDetailsOptions = users.map((item) => ({
+    value: item._id,
+    label: item.Name,
+  }));
+
+  const {
+    control,
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(formSchema(user.user.role)),
+    defaultValues: {
+      Date: mode === 'Direct' ? id : '',
+      MissingPunch: '',
+      Reason: '',
+      Remarks: '',
+      UserId: '',
+    },
+  });
+
   const handlesSubmit = (data) => {
     const formattedTime = getFormattedTime(hour, minute, period);
     const updatedData = {
@@ -109,23 +173,6 @@ export default function RegularizationForm({
 
     onSubmit(updatedData);
   };
-
-  const {
-    control,
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      Date: mode === 'Direct' ? id : '',
-      MissingPunch: '',
-      Reason: '',
-      Remarks: '',
-      End_Date: '',
-      EndDateType: '',
-    },
-  });
 
   return (
     <>
@@ -161,7 +208,10 @@ export default function RegularizationForm({
               {mode === 'update' ? 'Update' : 'Create'}
             </Button>
             <SheetClose>
-              <Button className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer">
+              <Button
+                type="button"
+                className="bg-white text-red-500 border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
+              >
                 <svg
                   className="w-10 h-10"
                   stroke="currentColor"
@@ -207,59 +257,131 @@ export default function RegularizationForm({
               </div>
             </div>
           )}
-          {mode !== 'Direct' && (
-            <FormField
-              control={control}
-              name="Date"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex flex-col">
+          <div
+            className={`${user.user.role === 'Admin' ? 'flex items-center justify-between' : ''}`}
+          >
+            {mode !== 'Direct' && (
+              <FormField
+                control={control}
+                name="Date"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex flex-col">
+                      <FormLabel
+                        className={
+                          errors?.Date
+                            ? 'text-[#737373]'
+                            : 'text-[16px] text-gray-700 font-[500]'
+                        }
+                      >
+                        Date
+                      </FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
+                          placeholderText="Select Date"
+                          autoComplete="off"
+                          selected={field.value ? new Date(field.value) : null} // convert string -> Date
+                          onChange={(date) => {
+                            const localDate = date
+                              ? new Date(
+                                  date.getTime() -
+                                    date.getTimezoneOffset() * 60000
+                                )
+                                  .toISOString()
+                                  .split('T')[0]
+                              : '';
+                            field.onChange(localDate); // store only string
+                          }}
+                          maxDate={new Date()}
+                          dateFormat="dd-MM-yyyy"
+                          showYearDropdown
+                          scrollableYearDropdown
+                          yearDropdownItemNumber={100}
+                          isClearable
+                        />
+                      </FormControl>
+                    </div>
+                    <div>
+                      {errors?.Date && (
+                        <span className="text-red-500 font-semibold">
+                          {errors.Date.message}
+                        </span>
+                      )}
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+            {user.user.role === 'Admin' && (
+              <FormField
+                control={control}
+                name="UserId"
+                render={({ field }) => (
+                  <FormItem className="w-[40%] gap-0 flex flex-col">
                     <FormLabel
                       className={
-                        errors?.Date
-                          ? 'text-[#737373]'
-                          : 'text-[16px] font-[500]'
+                        errors?.UserId
+                          ? 'text-[#737373] mb-0.5'
+                          : 'text-sm font-medium text-gray-700 mb-0.5 '
                       }
                     >
-                      Date
+                      User
                     </FormLabel>
                     <FormControl>
-                      <DatePicker
-                        className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
-                        placeholderText="Select Date"
-                        autoComplete="off"
-                        selected={field.value ? new Date(field.value) : null} // convert string -> Date
-                        onChange={(date) => {
-                          const localDate = date
-                            ? new Date(
-                                date.getTime() -
-                                  date.getTimezoneOffset() * 60000
-                              )
-                                .toISOString()
-                                .split('T')[0]
-                            : '';
-                          field.onChange(localDate); // store only string
+                      <Select
+                        styles={{
+                          control: (baseStyles) => ({
+                            ...baseStyles,
+                            boxShadow: 'none',
+                            fontSize: '15px',
+                            color: 'rgb(120, 122, 126)',
+                            width: '100%',
+                            borderRadius: '6px',
+                          }),
+                          placeholder: (baseStyles) => ({
+                            ...baseStyles,
+                            color: 'rgb(120, 122, 126)',
+                            fontSize: '15px',
+                          }),
+                          option: (baseStyles, state) => ({
+                            ...baseStyles,
+                            backgroundColor: state.isFocused
+                              ? 'rgb(51,141,181)'
+                              : 'white',
+                            color: state.isFocused
+                              ? 'white'
+                              : 'rgb(120, 122, 126)',
+                            ':hover': {
+                              backgroundColor: 'rgb(51,141,181)',
+                            },
+                          }),
+                          menu: (baseStyles) => ({
+                            ...baseStyles,
+                            backgroundColor: 'white',
+                          }),
                         }}
-                        maxDate={new Date()}
-                        dateFormat="dd-MM-yyyy"
-                        showYearDropdown
-                        scrollableYearDropdown
-                        yearDropdownItemNumber={100}
-                        isClearable
+                        {...field}
+                        placeholder={field.value || 'Select'}
+                        value={field.label}
+                        onChange={(selectedOption) => {
+                          field.onChange(selectedOption.value);
+                        }}
+                        options={fetchedUserDetailsOptions}
                       />
                     </FormControl>
-                  </div>
-                  <div>
-                    {errors?.Date && (
-                      <span className="text-red-500 font-semibold">
-                        {errors.Date.message}
-                      </span>
-                    )}
-                  </div>
-                </FormItem>
-              )}
-            />
-          )}
+                    <div>
+                      {errors?.UserId && (
+                        <span className="text-red-500 font-semibold">
+                          {errors.UserId.message}
+                        </span>
+                      )}
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
           <FormField
             control={control}
             name="MissingPunch"
@@ -269,7 +391,7 @@ export default function RegularizationForm({
                   className={
                     errors?.MissingPunch
                       ? 'text-[#737373]'
-                      : 'text-[16px] font-[500]'
+                      : 'text-[16px] text-gray-700 font-[500]'
                   }
                 >
                   Missing Punch

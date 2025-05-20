@@ -49,7 +49,7 @@ function Row({ row }) {
 
   React.useEffect(() => {
     dispatch(fetchHoliday());
-  }, []);
+  }, [dispatch]);
 
   React.useEffect(() => {
     if (allHoliday?.message) {
