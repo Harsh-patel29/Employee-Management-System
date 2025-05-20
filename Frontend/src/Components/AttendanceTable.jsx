@@ -432,10 +432,11 @@ export default function CollapsibleTable() {
       userId: userId[0],
       AttendAt: formattedTime,
       TimeOut:
-        (isOdd && !isAfter7PMIST) ||
+        isOdd ||
+        isAfter7PMIST ||
         (isPunchedInAfter7PM && today === date.date && isOdd)
           ? // If main condition is true, evaluate these nested conditions
-            isOdd && isAfter7PMIST
+            isOdd && isPunchedInBefore7PM
             ? sevenPMFormatted // If odd and after 7PM
             : isOdd && today === date.date
               ? new Date().toLocaleTimeString() // If odd and today's date

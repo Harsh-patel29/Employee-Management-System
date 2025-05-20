@@ -37,6 +37,13 @@ function getDatesInRange(start, end) {
   return dates;
 }
 
+function formatLogHours(logHourStr) {
+  const [h, m, s] = logHourStr
+    .split(':')
+    .map((n) => String(n).padStart(2, '0'));
+  return `${h}:${m}:${s}`;
+}
+
 function Row({ row }) {
   const { fetchedMonthlyReportDetail } = useSelector(
     (state) => state.markAttendance
@@ -203,11 +210,12 @@ function Row({ row }) {
               status = 'A';
             }
           }
+          console.log(item.logHours);
 
           return (
             <TableCell key={item.date} sx={{ color: getColorByStatus(status) }}>
               <div style={{ fontWeight: 'bold' }}>{status}</div>
-              <div>{item.logHours}</div>
+              <div>{formatLogHours(item.logHours)}</div>
             </TableCell>
           );
         })}

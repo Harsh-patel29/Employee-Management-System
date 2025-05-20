@@ -365,12 +365,23 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
   const isDeleteable = user?.user?.Name;
 
+  useEffect(() => {
+    if (Tasks?.EstimatedTime) {
+      const [hrs, mins] = Tasks?.EstimatedTime?.split(':');
+      setHours(hrs || '00');
+      setMinutes(mins || '00');
+    } else {
+      setHours('00');
+      setMinutes('00');
+    }
+  }, [Tasks?.EstimatedTime]);
+
   const handleHourChange = (e) => {
     let newValue = e.target.value;
 
     newValue = newValue.replace(/[^0-9]/g, '');
 
-    if (hours === '00' && newValue.length === 3 && newValue.startsWith('00')) {
+    if (hours === '00' && newValue.length === 2 && newValue.startsWith('00')) {
       newValue = newValue.charAt(2);
     }
 
@@ -379,25 +390,16 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   };
 
   const handleMinuteChange = (e) => {
-    let newValue = e.target.value;
+    let value = e.target.value;
 
-    newValue = newValue.replace(/[^0-9]/g, '');
+    value = value.replace(/[^0-9]/g, '');
 
-    if (
-      minutes === '00' &&
-      newValue.length === 3 &&
-      newValue.startsWith('00')
-    ) {
-      newValue = newValue.charAt(2);
-    }
+    if (value.length > 2) return;
 
-    const formattedValue = newValue === '0' ? '0' : newValue.replace(/^0+/, '');
+    const num = parseInt(value, 10);
 
-    if (parseInt(formattedValue, 10) > 59) {
-      setMinutes('59');
-    } else {
-      setMinutes(formattedValue);
-    }
+    if (isNaN(num) || num > 59) return;
+    setMinutes(value);
   };
 
   const handleBlur = (field) => {
@@ -409,14 +411,16 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   };
 
   const formatTimeForDb = () => {
-    const formattedHours = hours || '0';
-    const formattedMinutes = minutes.padStart(2, '0');
+    const formattedHours = hours.padStart(2, '0') || '00';
+    const formattedMinutes = minutes.padStart(2, '0') || '00';
     return `${formattedHours}:${formattedMinutes}`;
   };
 
   const handleSave = () => {
-    handleUpdateTask('EstimatedTime', formatTimeForDb());
+    const formattedTime = formatTimeForDb();
+    handleUpdateTask('EstimatedTime', formattedTime);
   };
+  console.log(hours, minutes);
 
   return (
     <>
@@ -1652,92 +1656,95 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
                           Estimated Time:
                         </h2>
-                        {showEstimatedTimeField && (
-                          <FormControl>
-                            <div
-                              className="flex items-center text-sm text-[rgb(115,122,126)]"
-                              {...field}
+                        <FormControl {...field}>
+                          <div>
+                            {showEstimatedTimeField && (
+                              <div className="flex items-center text-[rgb(115,122,126)]">
+                                <Input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={hours}
+                                  onChange={handleHourChange}
+                                  onBlur={() => handleBlur('hours')}
+                                  onClick={() => hours === '00' && setHours('')}
+                                  className=" w-10 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                />
+
+                                <span className="text-lg mb-0.5 font-semibold text-gray-700">
+                                  :
+                                </span>
+
+                                <Input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={minutes}
+                                  onChange={handleMinuteChange}
+                                  onBlur={() => handleBlur('minutes')}
+                                  onClick={() =>
+                                    minutes === '00' && setMinutes('')
+                                  }
+                                  className="h-9.5 w-15 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <div className="flex items-center">
+                          {Tasks?.EstimatedTime &&
+                            showEstimatedTimeField === false && (
+                              <div className="text-[rgb(120,122,126)] text-[15px]">
+                                {Tasks?.EstimatedTime}
+                              </div>
+                            )}
+                          <button
+                            className={
+                              showEstimatedTimeField
+                                ? 'cursor-pointer'
+                                : 'hidden'
+                            }
+                            onClick={handleSave}
+                          >
+                            <svg
+                              class="w-6 h-6"
+                              width="24"
+                              height="24"
+                              stroke="currentColor"
+                              fill="rgb(51,141,181)"
+                              stroke-width="0"
+                              viewBox="0 0 512 512"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <Input
-                                type="text"
-                                inputMode="numeric"
-                                value={hours}
-                                onChange={handleHourChange}
-                                onBlur={() => handleBlur('hours')}
-                                onClick={() => hours === '00' && setHours('')}
-                                className=" w-10 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                              />
-                              <span className="text-lg mb-0.5 font-semibold text-gray-700 ">
-                                :
-                              </span>
-                              <Input
-                                type="text"
-                                inputMode="numeric"
-                                value={minutes}
-                                onChange={handleMinuteChange}
-                                onBlur={() => handleBlur('minutes')}
-                                onClick={() =>
-                                  minutes === '00' && setMinutes('')
-                                }
-                                className="h-9.5 w-15 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                              />
-                            </div>
-                          </FormControl>
-                        )}
-                        {Tasks?.EstimatedTime &&
-                          showEstimatedTimeField === false && (
-                            <div className="text-[rgb(120,122,126)]">
-                              {Tasks?.EstimatedTime}
-                            </div>
-                          )}
-                        <button
-                          className={
-                            showEstimatedTimeField ? 'cursor-pointer' : 'hidden'
-                          }
-                          onClick={() =>
-                            handleUpdateTask('EstimatedTime', formatTimeForDb())
-                          }
-                        >
-                          <svg
-                            class="w-6 h-6"
-                            width="24"
-                            height="24"
-                            stroke="currentColor"
-                            fill="rgb(51,141,181)"
-                            stroke-width="0"
-                            viewBox="0 0 512 512"
-                            xmlns="http://www.w3.org/2000/svg"
+                              <path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path>
+                            </svg>
+                          </button>
+                          <div
+                            onClick={() => {
+                              setShowEstimatedTimeField(true);
+                            }}
+                            className={`${
+                              showEstimatedTimeField
+                                ? 'hidden'
+                                : ' ml-10 cursor-pointer'
+                            } `}
                           >
-                            <path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path>
-                          </svg>
-                        </button>
-                        <div
-                          onClick={() => {
-                            setShowEstimatedTimeField(true);
-                          }}
-                          className={`${
-                            showEstimatedTimeField
-                              ? 'hidden'
-                              : ' ml-10 cursor-pointer'
-                          }`}
-                        >
-                          <svg
-                            class="w-6 h-6"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke="rgb(51,141,181)"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"
-                            />
-                          </svg>
+                            <svg
+                              class="w-6 h-6"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="rgb(51,141,181)"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </FormLabel>
                     </FormItem>
@@ -1849,6 +1856,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           </FormControl>
                           <div className=" flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">
                             {Tasks?.Users?.length > 0 &&
+                              Tasks?.Project.length > 0 &&
                               showUserDropDown === false && (
                                 <button
                                   className="cursor-pointer"

@@ -4,6 +4,7 @@ import DashAttendanceTable from '../Components/DashAttendanceTable';
 import DashTaskTable from '../Components/DashTaskTable';
 import { getProjects } from '../feature/projectfetch/createproject';
 import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
+
 const DashBoard = () => {
   const dispatch = useDispatch();
   const [Tasks, setTasks] = React.useState([]);

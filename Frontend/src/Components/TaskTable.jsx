@@ -49,8 +49,6 @@ function Row({ row, openDialog, navigate }) {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const theme = useSelector((state) => state.theme.theme);
   const { user } = useSelector((state) => state.auth);
-  console.log(row.Totaltime === '00:00:00');
-
   const dispatch = useDispatch();
   return (
     <React.Fragment>
