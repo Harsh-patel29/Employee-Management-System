@@ -47,6 +47,7 @@ import Loader from '../Components/Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
 import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 import ExporttoExcel from './Export.jsx';
+import { TableContainer } from '@mui/material';
 function Row({
   row,
   canUpdateUser,
@@ -190,51 +191,53 @@ function Row({
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Table
-                sx={{
-                  alignContent: 'center',
-                }}
-              >
-                <TableHead
+              <TableContainer sx={{ borderRadius: 3 }}>
+                <Table
                   sx={{
-                    backgroundColor: '#c1dde9',
+                    alignContent: 'center',
                   }}
                 >
-                  <TableRow
-                    sx={{ borderRadius: 2 }}
-                    className=" border-gray-200 border-2"
+                  <TableHead
+                    sx={{
+                      backgroundColor: '#c1dde9',
+                    }}
                   >
-                    <TableCell className="border-2 border-gray-200">
-                      Date of Joining
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Mobile Number
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Email
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Date of Birth
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow className="border-2 border-gray-200">
-                    <TableCell className="border-2 border-gray-200">
-                      {row.DATE_OF_JOINING}
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      {row.Mobile_Number}
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      {row.Email}
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      {row.Date_of_Birth}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                    <TableRow
+                      sx={{ borderRadius: 2 }}
+                      className=" border-gray-200 border-2"
+                    >
+                      <TableCell className="border-2 border-gray-200">
+                        Date of Joining
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Mobile Number
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Email
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Date of Birth
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow className="border-2 border-gray-200">
+                      <TableCell className="border-2 border-gray-200">
+                        {row.DATE_OF_JOINING}
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        {row.Mobile_Number}
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        {row.Email}
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        {row.Date_of_Birth}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           </Collapse>
         </TableCell>

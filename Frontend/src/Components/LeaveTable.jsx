@@ -316,6 +316,12 @@ const LeaveTable = () => {
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, openSheet, navigate }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 1,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

@@ -52,6 +52,7 @@ import { FaEdit } from 'react-icons/fa';
 import { FaInfoCircle } from 'react-icons/fa';
 import RegularizationDetailTable from './RegularizationDetailTable.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
+import { TableContainer } from '@mui/material';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -206,8 +207,9 @@ function Row({ row }) {
       </TableRow>
       <TableRow>
         <TableCell
+          className="w-full"
           style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={7}
+          colSpan={10}
           sx={{
             backgroundColor: 'white',
             color: 'black',
@@ -217,67 +219,74 @@ function Row({ row }) {
             <Box
               sx={{
                 margin: 1,
+                paddingX: '320px',
               }}
             >
-              <Table size="medium" className="ml-36">
-                <TableHead
-                  sx={{
-                    backgroundColor: '#c1dde9',
-                  }}
-                >
-                  <TableRow>
-                    <TableCell>#</TableCell>
-                    <TableCell>Image</TableCell>
-                    <TableCell>Time In</TableCell>
-                    <TableCell>Location</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {row?.otherAttendances?.map((attendance, idx) => (
-                    <TableRow
-                      key={idx}
-                      sx={{
-                        backgroundColor: 'white',
-                        color: 'black',
-                      }}
-                    >
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-center">
-                          {attendance.Image === '' ? (
-                            <img
-                              src="./download.png"
-                              alt="Attendance"
-                              className="w-8 h-8 object-cover rounded-3xl"
-                            />
-                          ) : (
-                            <img
-                              src={attendance.Image}
-                              alt="Attendance"
-                              className="w-8 h-8 object-cover rounded-3xl"
-                            />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(attendance.AttendAt).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          onClick={() => {
-                            const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
-                            window.open(url, '_blank');
-                          }}
-                          className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
-                        >
-                          {' '}
-                          Map View
-                        </Link>
-                      </TableCell>
+              <TableContainer
+                sx={{ borderRadius: 2 }}
+                className="border border-gray-200"
+              >
+                <Table size="medium">
+                  <TableHead
+                    sx={{
+                      backgroundColor: '#c1dde9',
+                      border: 'black',
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell>#</TableCell>
+                      <TableCell>Image</TableCell>
+                      <TableCell>Time In</TableCell>
+                      <TableCell>Coordinates</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {row?.otherAttendances?.map((attendance, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          backgroundColor: 'white',
+                          color: 'black',
+                        }}
+                      >
+                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>
+                          <div className="flex justify-center">
+                            {attendance.Image === '' ? (
+                              <img
+                                src="./download.png"
+                                alt="Attendance"
+                                className="w-8 h-8 object-cover rounded-3xl"
+                              />
+                            ) : (
+                              <img
+                                src={attendance.Image}
+                                alt="Attendance"
+                                className="w-8 h-8 object-cover rounded-3xl"
+                              />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(attendance.AttendAt).toLocaleTimeString()}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            onClick={() => {
+                              const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
+                              window.open(url, '_blank');
+                            }}
+                            className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
+                          >
+                            {' '}
+                            Map View
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           </Collapse>
         </TableCell>
@@ -435,14 +444,12 @@ export default function CollapsibleTable() {
         isOdd ||
         isAfter7PMIST ||
         (isPunchedInAfter7PM && today === date.date && isOdd)
-          ? // If main condition is true, evaluate these nested conditions
-            isOdd && isPunchedInBefore7PM
-            ? sevenPMFormatted // If odd and after 7PM
+          ? isOdd && isPunchedInBefore7PM
+            ? sevenPMFormatted
             : isOdd && today === date.date
-              ? new Date().toLocaleTimeString() // If odd and today's date
-              : new Date(lastTimeIn?.AttendAt).toLocaleTimeString() // Otherwise
-          : // If main condition is false
-            new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
+              ? new Date().toLocaleTimeString()
+              : new Date(lastTimeIn?.AttendAt).toLocaleTimeString()
+          : new Date(lastTimeIn?.AttendAt).toLocaleTimeString(),
       formattedLogHours:
         (isOdd && !isAfter7PMIST) ||
         (isPunchedInAfter7PM && today === date.date && isOdd)

@@ -135,7 +135,7 @@ function Row({ row, openDialog, openSheet }) {
       <TableRow>
         <TableCell
           style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={7}
+          colSpan={5}
           sx={{
             backgroundColor: 'white',
             color: 'black',
@@ -147,54 +147,63 @@ function Row({ row, openDialog, openSheet }) {
                 margin: 2,
               }}
             >
-              <Table>
-                <TableHead
-                  sx={{
-                    backgroundColor: '#c1dde9',
-                  }}
-                >
-                  <TableRow
-                    sx={{ borderRadius: 2 }}
-                    className=" border-gray-200 border-2"
+              <TableContainer sx={{ borderRadius: 3 }} className="border ">
+                <Table>
+                  <TableHead
+                    sx={{
+                      backgroundColor: '#c1dde9',
+                    }}
                   >
-                    <TableCell className="border-2 border-gray-200">
-                      Monday
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      TuesDay
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      WednesDay
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      ThursDay
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Friday
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Saturday
-                    </TableCell>
-                    <TableCell className="border-2 border-gray-200">
-                      Sunday
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow className="border-2 border-gray-200">
-                    {row?.days?.map((day, idx) => (
-                      <TableCell key={idx} className="border-2 border-gray-200">
-                        {day.type}
-                        {day.weeks?.length > 0 && (
-                          <div style={{ fontSize: '0.85rem', color: 'black' }}>
-                            ({day.weeks.join(', ')})
-                          </div>
-                        )}
+                    <TableRow
+                      sx={{ borderRadius: 2 }}
+                      className=" border-gray-200 border-2"
+                    >
+                      <TableCell className="border-2 border-gray-200">
+                        Monday
                       </TableCell>
-                    ))}
-                  </TableRow>
-                </TableBody>
-              </Table>
+                      <TableCell className="border-2 border-gray-200">
+                        TuesDay
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        WednesDay
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        ThursDay
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Friday
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Saturday
+                      </TableCell>
+                      <TableCell className="border-2 border-gray-200">
+                        Sunday
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow className="border-2 border-gray-200">
+                      {row?.days?.map((day, idx) => (
+                        <TableCell
+                          key={idx}
+                          className="border-2 border-gray-200"
+                        >
+                          {day.type}
+
+                          {console.log(day.weeks.length === 5)}
+                          {day.weeks?.length > 0 && day.weeks.length !== 5 && (
+                            <div
+                              style={{ fontSize: '0.85rem', color: 'black' }}
+                            >
+                              ({day.weeks.join(', ')})
+                            </div>
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           </Collapse>
         </TableCell>

@@ -29,6 +29,7 @@ import Loader from './Loader.jsx';
 import { Link } from 'react-router-dom';
 import { AddRegularization } from '../feature/attendancefetch/attendanceSlice.js';
 import { Bounce, toast } from 'react-toastify';
+import { TableContainer } from '@mui/material';
 
 function Row({ row }) {
   const [open, setOpen] = React.useState(false);
@@ -91,8 +92,9 @@ function Row({ row }) {
       </TableRow>
       <TableRow>
         <TableCell
+          className="w-full"
           style={{ paddingBottom: 0, paddingTop: 0 }}
-          colSpan={7}
+          colSpan={9}
           sx={{
             backgroundColor: 'white',
             color: 'black',
@@ -102,67 +104,73 @@ function Row({ row }) {
             <Box
               sx={{
                 margin: 1,
+                paddingX: '320px',
               }}
             >
-              <Table size="medium" className="ml-36">
-                <TableHead
-                  sx={{
-                    backgroundColor: '#c1dde9',
-                  }}
-                >
-                  <TableRow>
-                    <TableCell>#</TableCell>
-                    <TableCell>Image</TableCell>
-                    <TableCell>Time In</TableCell>
-                    <TableCell>Location</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {row?.otherAttendances?.map((attendance, idx) => (
-                    <TableRow
-                      key={idx}
-                      sx={{
-                        backgroundColor: 'white',
-                        color: 'black',
-                      }}
-                    >
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-center">
-                          {attendance.Image === '' ? (
-                            <img
-                              src="./download.png"
-                              alt="Attendance"
-                              className="w-8 h-8 object-cover rounded-3xl"
-                            />
-                          ) : (
-                            <img
-                              src={attendance.Image}
-                              alt="Attendance"
-                              className="w-8 h-8 object-cover rounded-3xl"
-                            />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(attendance.AttendAt).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          onClick={() => {
-                            const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
-                            window.open(url, '_blank');
-                          }}
-                          className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
-                        >
-                          {' '}
-                          Map View
-                        </Link>
-                      </TableCell>
+              <TableContainer
+                sx={{ borderRadius: 2 }}
+                className="border border-gray-200"
+              >
+                <Table size="medium" className="">
+                  <TableHead
+                    sx={{
+                      backgroundColor: '#c1dde9',
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell>#</TableCell>
+                      <TableCell>Image</TableCell>
+                      <TableCell>Time In</TableCell>
+                      <TableCell>Location</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {row?.otherAttendances?.map((attendance, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          backgroundColor: 'white',
+                          color: 'black',
+                        }}
+                      >
+                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>
+                          <div className="flex justify-center">
+                            {attendance.Image === '' ? (
+                              <img
+                                src="./download.png"
+                                alt="Attendance"
+                                className="w-8 h-8 object-cover rounded-3xl"
+                              />
+                            ) : (
+                              <img
+                                src={attendance.Image}
+                                alt="Attendance"
+                                className="w-8 h-8 object-cover rounded-3xl"
+                              />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(attendance.AttendAt).toLocaleTimeString()}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            onClick={() => {
+                              const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
+                              window.open(url, '_blank');
+                            }}
+                            className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
+                          >
+                            {' '}
+                            Map View
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Box>
           </Collapse>
         </TableCell>

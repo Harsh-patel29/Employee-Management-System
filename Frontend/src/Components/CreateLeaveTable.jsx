@@ -43,12 +43,11 @@ function Row({ row, openSheet, openDialog, navigate }) {
   return (
     <React.Fragment>
       <TableRow>
+        <TableCell>{row.index}</TableCell>
+        <TableCell>{row.Leave_Reason}</TableCell>
+        <TableCell>{row.Leave_Code}</TableCell>
         <TableCell>
-          <div className="flex ml-8 justify-start">{row.Leave_Reason}</div>
-        </TableCell>
-        <TableCell className="w-[75%]">{row.Leave_Code}</TableCell>
-        <TableCell>
-          <div className="flex items-center gap-2 justify-center">
+          <div className="flex items-center justify-center gap-2 ">
             {user.permission.leaveType.canUpdateLeaveType && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
                 <SheetTrigger
@@ -112,6 +111,7 @@ function Row({ row, openSheet, openDialog, navigate }) {
 
 Row.propTypes = {
   row: PropTypes.shape({
+    index: PropTypes.string,
     name: PropTypes.string,
     code: PropTypes.string,
   }).isRequired,
@@ -209,6 +209,7 @@ export default function CreateLeaveTable() {
   };
 
   const columns = [
+    { field: 'index', headerName: '#' },
     { field: 'Leave_Reason', headerName: 'Leave Reason' },
     { field: 'Leave_Code', headerName: 'Leave Code' },
     { field: 'Action', headerName: 'Action' },
