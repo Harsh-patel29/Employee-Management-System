@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -10,24 +10,31 @@ import {
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { useDispatch } from 'react-redux';
-import { setFilter } from '../feature/filterSlice/filterSlice';
+import { setFilter, clearFilter } from '../feature/filterSlice/filterSlice';
 import { Button } from '../Components/components/ui/button';
 
-export default function WeekOffFilterSheet() {
+export default function WeekOffFilterSheet({ screen }) {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = useState(false);
   const [effectiveDate, seteffectiveDate] = useState(null);
-
-  const handleFilter = (effectiveDate) => {
+  const [todate, settodate] = useState(null);
+  const handleFilter = (effectiveDate, toDate) => {
     dispatch(
       setFilter({
-        Effective_Date: effectiveDate,
+        screen,
+        values: {
+          Effective_Date: effectiveDate,
+          toDate: todate,
+        },
       })
     );
   };
-  const clearFilter = () => {
-    dispatch(setFilter());
-  };
+
+  useEffect(() => {
+    if (todate < effectiveDate) {
+      settodate(null);
+    }
+  }, [effectiveDate, todate]);
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -57,13 +64,9 @@ export default function WeekOffFilterSheet() {
               id="clear-filter"
               className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
-                clearFilter();
-                setAsigneeoption(null);
-                setprojectoption(null);
-                settaskoption(null);
-                setfromdate(null);
+                dispatch(clearFilter({ screen }));
+                seteffectiveDate(null);
                 settodate(null);
-                setstatusoption(null);
               }}
             >
               Clear All
@@ -86,7 +89,10 @@ export default function WeekOffFilterSheet() {
                   onChange={(date) => {
                     seteffectiveDate(date);
                     if (!date) {
-                      handleFilter(null);
+                      handleFilter(
+                        null,
+                        todate !== '' ? todate?.toLocaleDateString('en-CA') : ''
+                      );
                       return;
                     }
                     const localDate = new Date(
@@ -100,7 +106,45 @@ export default function WeekOffFilterSheet() {
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
-                  isClearable={true}
+                  isClearable={!!effectiveDate}
+                />
+              </div>
+              <div className="flex flex-col gap-2 items-start w-[46%]">
+                <label>To</label>
+                <DatePicker
+                  minDate={effectiveDate}
+                  className="w-full border-2 border-gray-300 h-10 rounded-sm p-2"
+                  placeholderText="DD-MM-YYYY"
+                  selected={todate}
+                  value={todate}
+                  onChange={(date) => {
+                    settodate(date);
+                    if (!date) {
+                      handleFilter(
+                        effectiveDate !== ''
+                          ? effectiveDate?.toLocaleDateString('en-CA')
+                          : '',
+                        null
+                      );
+                      return;
+                    }
+                    const localDate = new Date(
+                      date?.getTime() - date?.getTimezoneOffset() * 60000
+                    )
+                      ?.toISOString()
+                      .split('T')[0];
+                    handleFilter(
+                      effectiveDate !== ''
+                        ? effectiveDate?.toLocaleDateString('en-CA')
+                        : '',
+                      localDate
+                    );
+                  }}
+                  showYearDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100}
+                  dateFormat="dd-MM-yyyy"
+                  isClearable={!!todate}
                 />
               </div>
             </div>

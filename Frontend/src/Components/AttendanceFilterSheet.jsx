@@ -13,77 +13,38 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setFilter, clearFilter } from '../feature/filterSlice/filterSlice';
 import { Button } from '../Components/components/ui/button';
 import { fetchuser } from '../feature/createuserfetch/createuserSlice.js';
-import { getProjects } from '../feature/projectfetch/createproject.js';
-import { getAllTasks } from '../feature/taskfetch/taskfetchSlice.js';
 
-export default function TasksFilterSheet({ screen }) {
+export default function AttendanceFilterSheet({ screen }) {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = useState(false);
-  const [Asigneeoption, setAsigneeoption] = useState(null);
-  const [projectoption, setprojectoption] = useState(null);
-  const [taskoption, settaskoption] = useState(null);
+  const [User, setUser] = useState(null);
   const [todate, settodate] = useState(null);
   const [fromdate, setfromdate] = useState(null);
-  const [statusoption, setstatusoption] = useState(null);
   const { fetchusers, loading } = useSelector((state) => state.createuser);
-  const { projects } = useSelector((state) => state.project);
-  const { tasks } = useSelector((state) => state.task);
+
   useEffect(() => {
     dispatch(fetchuser());
-    dispatch(getProjects());
-    dispatch(getAllTasks());
   }, [dispatch]);
 
-  const handleFilter = (
-    value,
-    projectValue,
-    taskValue,
-    startDate,
-    endDate,
-    statusValue
-  ) => {
+  const handleFilter = (value, startDate, endDate) => {
     dispatch(
       setFilter({
         screen,
         values: {
-          Asignee: value?.label,
-          Project: projectValue?.label,
-          Task: taskValue?.label,
+          User: value?.label,
           StartDate: startDate,
           EndDate: endDate,
-          Status: statusValue,
         },
       })
     );
   };
-  const assigneeOptions = fetchusers?.message
+
+  const UserOptions = fetchusers?.message
     ? fetchusers.message.map((user) => ({
         value: user._id,
         label: user.Name,
       }))
     : [];
-
-  const projectOptions = projects?.message
-    ? projects.message.map((project) => ({
-        value: project._id,
-        label: project.name,
-      }))
-    : [];
-
-  const taskOptions = tasks?.message
-    ? tasks?.message.map((code) => ({
-        value: code,
-        label: code.CODE,
-      }))
-    : [];
-
-  const statusOptions = [
-    { value: 'Backlog', label: 'Backlog' },
-    { value: 'In_Progress', label: 'In_Progress' },
-    { value: 'Completed', label: 'Completed' },
-    { value: 'Done', label: 'Done' },
-    { value: 'Deployed', label: 'Deployed' },
-  ];
 
   useEffect(() => {
     if (todate < fromdate) {
@@ -120,12 +81,9 @@ export default function TasksFilterSheet({ screen }) {
               className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
                 dispatch(clearFilter({ screen }));
-                setAsigneeoption(null);
-                setprojectoption(null);
-                settaskoption(null);
+                setUser(null);
                 setfromdate(null);
                 settodate(null);
-                setstatusoption(null);
               }}
             >
               Clear All
@@ -138,53 +96,15 @@ export default function TasksFilterSheet({ screen }) {
           </SheetClose>
           <div className="font-[Inter,sans-serif]">
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] font-[500]">Assignee</label>
+              <label className="text-[16px] font-[500]">User</label>
               <Select
-                value={Asigneeoption}
-                id="assignee-filter"
+                value={User}
+                id="User-filter"
                 isClearable={true}
-                options={assigneeOptions}
+                options={UserOptions}
                 onChange={(value) => {
-                  handleFilter(
-                    value,
-                    projectoption,
-                    taskoption,
-                    fromdate,
-                    todate,
-                    statusoption?.label
-                  );
-                  setAsigneeoption(value);
-                }}
-                isLoading={loading}
-                isDisabled={loading}
-              />
-              <label className="text-[16px] font-[500]">Project</label>
-              <Select
-                value={projectoption}
-                isClearable={true}
-                options={projectOptions}
-                onChange={(value) => {
-                  handleFilter(assigneeOptions, value, projectOptions);
-                  setprojectoption(value);
-                }}
-                isLoading={loading}
-                isDisabled={loading}
-              />
-              <label className="text-[16px] font-[500]">Task</label>
-              <Select
-                value={taskoption}
-                isClearable={true}
-                options={taskOptions}
-                onChange={(value) => {
-                  handleFilter(
-                    Asigneeoption,
-                    projectoption,
-                    value,
-                    fromdate,
-                    todate,
-                    statusoption?.label
-                  );
-                  settaskoption(value);
+                  handleFilter(value, fromdate, todate);
+                  setUser(value);
                 }}
                 isLoading={loading}
                 isDisabled={loading}
@@ -201,14 +121,9 @@ export default function TasksFilterSheet({ screen }) {
                     setfromdate(date);
                     if (!date) {
                       handleFilter(
-                        Asigneeoption,
-                        projectoption,
-                        taskoption,
+                        User,
                         null,
-                        todate !== ''
-                          ? todate?.toLocaleDateString('en-CA')
-                          : '',
-                        statusoption?.label
+                        todate !== '' ? todate?.toLocaleDateString('en-CA') : ''
                       );
                       return;
                     }
@@ -218,12 +133,9 @@ export default function TasksFilterSheet({ screen }) {
                       ?.toISOString()
                       .split('T')[0];
                     handleFilter(
-                      Asigneeoption,
-                      projectoption,
-                      taskoption,
+                      User,
                       localDate,
-                      todate !== '' ? todate?.toLocaleDateString('en-CA') : '',
-                      statusoption?.label
+                      todate !== '' ? todate?.toLocaleDateString('en-CA') : ''
                     );
                   }}
                   dateFormat="dd-MM-yyyy"
@@ -245,14 +157,11 @@ export default function TasksFilterSheet({ screen }) {
                     settodate(date);
                     if (!date) {
                       handleFilter(
-                        Asigneeoption,
-                        projectoption,
-                        taskoption,
+                        User,
                         fromdate !== ''
                           ? fromdate?.toLocaleDateString('en-CA')
                           : '',
-                        null,
-                        statusoption?.label
+                        null
                       );
                       return;
                     }
@@ -262,14 +171,11 @@ export default function TasksFilterSheet({ screen }) {
                       ?.toISOString()
                       .split('T')[0];
                     handleFilter(
-                      Asigneeoption,
-                      projectoption,
-                      taskoption,
+                      User,
                       fromdate !== ''
                         ? fromdate?.toLocaleDateString('en-CA')
                         : '',
-                      localDate,
-                      statusoption?.label
+                      localDate
                     );
                   }}
                   showYearDropdown
@@ -279,27 +185,6 @@ export default function TasksFilterSheet({ screen }) {
                   isClearable={true}
                 />
               </div>
-            </div>
-            <div className="flex flex-col gap-2 mt-6">
-              <label className="text-[16px] font-[500]">Task Status</label>
-              <Select
-                value={statusoption}
-                isClearable={true}
-                options={statusOptions}
-                onChange={(value) => {
-                  handleFilter(
-                    Asigneeoption,
-                    projectoption,
-                    taskoption,
-                    fromdate,
-                    todate,
-                    value?.label
-                  );
-                  setstatusoption(value);
-                }}
-                isLoading={loading}
-                isDisabled={loading}
-              />
             </div>
           </div>
         </SheetHeader>

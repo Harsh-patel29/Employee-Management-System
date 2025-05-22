@@ -30,6 +30,7 @@ import { Link } from 'react-router-dom';
 import { AddRegularization } from '../feature/attendancefetch/attendanceSlice.js';
 import { Bounce, toast } from 'react-toastify';
 import { TableContainer } from '@mui/material';
+import AttendanceFilterSheet from './AttendanceFilterSheet.jsx';
 
 function Row({ row }) {
   const [open, setOpen] = React.useState(false);
@@ -194,7 +195,9 @@ Row.propTypes = {
 export default function MissedPunchRegularizationTable() {
   const [attendances, setAttendances] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
-  const [DirectSheet, setDirectSheet] = React.useState(false);
+  const filterValue = useSelector(
+    (state) => state.filter.filterValue.MissedPunchRegularization
+  );
   const { newattendance, loading, createdRegularization } = useSelector(
     (state) => state.markAttendance
   );
@@ -274,6 +277,29 @@ export default function MissedPunchRegularizationTable() {
       Longitude: lastTimeIn?.Longitude,
     };
   });
+
+  const filteredData = formattedData?.filter((item) => {
+    const itemDate = new Date(item.Date);
+
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const userMatch = !filterValue.User || item.User === filterValue.User;
+    const startDate = filterValue.StartDate
+      ? new Date(filterValue.StartDate)
+      : null;
+    const endDate = filterValue.EndDate ? new Date(filterValue.EndDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return userMatch && dateRangeMatch;
+  });
+
   const columns = [
     { field: 'expand', headerName: '', width: 50 },
     { field: 'index', headerName: '#' },
@@ -294,6 +320,7 @@ export default function MissedPunchRegularizationTable() {
           Missing Punch Regularization
         </h5>
         <div className="flex items-center">
+          <AttendanceFilterSheet screen="MissedPunchRegularization" />
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger>
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
@@ -335,7 +362,7 @@ export default function MissedPunchRegularizationTable() {
       <ReusableTable
         width="full"
         columns={columns}
-        data={formattedData}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         tableStyle={{

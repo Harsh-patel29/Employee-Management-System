@@ -10,23 +10,29 @@ import {
 import Select from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
-import { useDispatch } from 'react-redux';
-import { setFilter } from '../feature/filterSlice/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFilter, clearFilter } from '../feature/filterSlice/filterSlice';
 import { Button } from '../Components/components/ui/button';
 
-export default function LeaveFilterSheet() {
+export default function LeaveFilterSheet({ screen }) {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = useState(false);
   const [LeaveStatus, setLeaveStatus] = useState(null);
+  const [User, setUser] = useState(null);
   const [fromDate, setfromDate] = useState('');
   const [toDate, settoDate] = useState('');
+  const { fetchusers, loading } = useSelector((state) => state.createuser);
 
-  const handleFilter = (value, StartDate, EndDate) => {
+  const handleFilter = (UserName, value, StartDate, EndDate) => {
     dispatch(
       setFilter({
-        Status: value?.label,
-        Start_Date: StartDate,
-        End_Date: EndDate,
+        screen,
+        values: {
+          User: UserName?.label,
+          Status: value?.label,
+          Start_Date: StartDate,
+          End_Date: EndDate,
+        },
       })
     );
   };
@@ -37,9 +43,13 @@ export default function LeaveFilterSheet() {
     { value: 'Rejected', label: 'Rejected' },
   ];
 
-  const clearFilter = () => {
-    dispatch(setFilter());
-  };
+  const UserOptions = fetchusers?.message
+    ? fetchusers.message.map((user) => ({
+        value: user._id,
+        label: user.Name,
+      }))
+    : [];
+
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger>
@@ -68,7 +78,8 @@ export default function LeaveFilterSheet() {
               id="clear-filter"
               className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
-                clearFilter();
+                dispatch(clearFilter({ screen }));
+                setUser('');
                 setLeaveStatus(null);
                 setfromDate('');
                 settoDate('');
@@ -82,20 +93,36 @@ export default function LeaveFilterSheet() {
               &times;
             </Button>
           </SheetClose>
-          <SheetDescription></SheetDescription>
-          <div className="mt-3 font-[Inter,sans-serif]">
+          <div className="font-[Inter,sans-serif]">
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] font-[500]">Leave Status</label>
+              <label className="text-[16px] font-[500]">User</label>
               <Select
-                value={LeaveStatus}
-                id="LeaveStatus-filter"
+                value={User}
+                id="User-filter"
                 isClearable={true}
-                options={leaveStatus}
+                options={UserOptions}
                 onChange={(value) => {
-                  handleFilter(value, fromDate, toDate);
-                  setLeaveStatus(value);
+                  handleFilter(value, leaveStatus, fromDate, toDate);
+                  setUser(value);
                 }}
+                isLoading={loading}
+                isDisabled={loading}
               />
+              {screen === 'Leave' && (
+                <>
+                  <label className="text-[16px] font-[500]">Leave Status</label>
+                  <Select
+                    value={LeaveStatus}
+                    id="LeaveStatus-filter"
+                    isClearable={true}
+                    options={leaveStatus}
+                    onChange={(value) => {
+                      handleFilter(User, value, fromDate, toDate);
+                      setLeaveStatus(value);
+                    }}
+                  />
+                </>
+              )}
             </div>
             <div className=" flex justify-between w-full mt-6 gap-4">
               <div className="flex flex-col gap-2 w-[46%]">
@@ -108,9 +135,10 @@ export default function LeaveFilterSheet() {
                     setfromDate(date);
                     if (!date) {
                       handleFilter(
+                        User,
                         LeaveStatus,
                         null,
-                        toDate?.toLocaleDateString('en-CA')
+                        toDate !== '' ? toDate?.toLocaleDateString('en-CA') : ''
                       );
                       return;
                     }
@@ -120,16 +148,17 @@ export default function LeaveFilterSheet() {
                       ?.toISOString()
                       .split('T')[0];
                     handleFilter(
+                      User,
                       LeaveStatus,
                       localDate,
-                      toDate?.toLocaleDateString('en-CA')
+                      toDate !== '' ? toDate?.toLocaleDateString('en-CA') : ''
                     );
                   }}
                   dateFormat="dd-MM-yyyy"
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
-                  isClearable={true}
+                  isClearable={!!fromDate}
                 />
               </div>
               <div className="flex flex-col gap-2 items-start w-[46%]">
@@ -142,8 +171,11 @@ export default function LeaveFilterSheet() {
                     settoDate(date);
                     if (!date) {
                       handleFilter(
+                        User,
                         LeaveStatus,
-                        fromDate?.toLocaleDateString('en-CA'),
+                        fromDate !== ''
+                          ? fromDate?.toLocaleDateString('en-CA')
+                          : '',
                         null
                       );
                       return;
@@ -154,8 +186,11 @@ export default function LeaveFilterSheet() {
                       ?.toISOString()
                       .split('T')[0];
                     handleFilter(
+                      User,
                       LeaveStatus,
-                      fromDate?.toLocaleDateString('en-CA'),
+                      fromDate !== ''
+                        ? fromDate?.toLocaleDateString('en-CA')
+                        : '',
                       localDate
                     );
                   }}
@@ -163,7 +198,7 @@ export default function LeaveFilterSheet() {
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
                   dateFormat="dd-MM-yyyy"
-                  isClearable={true}
+                  isClearable={!!toDate}
                 />
               </div>
             </div>

@@ -9,15 +9,15 @@ import {
 } from '../Components/components/ui/sheet';
 import Select from 'react-select';
 import { useDispatch } from 'react-redux';
-import { setFilter } from '../feature/filterSlice/filterSlice';
+import { setFilter, clearFilter } from '../feature/filterSlice/filterSlice';
 import { Button } from '../Components/components/ui/button';
 
-export default function ProjectFilterSheet() {
+export default function ProjectFilterSheet({ screen }) {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = useState(false);
   const [ProjectStatus, setProjectStatus] = useState(null);
   const handleFilter = (value) => {
-    dispatch(setFilter({ progress_status: value?.label }));
+    dispatch(setFilter({ screen, values: { progress_status: value?.label } }));
   };
   const projectOptions = [
     { value: 'Pending', label: 'Pending' },
@@ -26,9 +26,6 @@ export default function ProjectFilterSheet() {
     { value: 'Completed', label: 'Completed' },
     { value: 'Scrapped', label: 'Scrapped' },
   ];
-  const clearFilter = () => {
-    dispatch(setFilter({}));
-  };
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -58,7 +55,7 @@ export default function ProjectFilterSheet() {
               id="clear-filter"
               className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
-                clearFilter();
+                dispatch(clearFilter({ screen }));
                 setProjectStatus(null);
               }}
             >

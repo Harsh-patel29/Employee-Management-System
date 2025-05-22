@@ -45,15 +45,15 @@ import {
 } from '../feature/createuserfetch/createuserSlice.js';
 import Loader from '../Components/Loader.jsx';
 import ReusableTable from './ReusableTable.jsx';
-import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
 import ExporttoExcel from './Export.jsx';
 import { TableContainer } from '@mui/material';
+import UserFilterSheet from './UserFilterSheet.jsx';
+
 function Row({
   row,
-  canUpdateUser,
   openSheet,
   navigate,
-  isDefault,
+
   openDialog,
 }) {
   const [open, setOpen] = React.useState(false);
@@ -272,7 +272,7 @@ export default function CollapsibleTable() {
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [userid, setuserid] = React.useState(id);
   const [dialogOpen, setdialogOpen] = React.useState(false);
-
+  const filterValue = useSelector((state) => state.filter.filterValue.User);
   const dispatch = useDispatch();
 
   const { createduser, fetchusers, deleteduser, updateduser, loading, error } =
@@ -316,7 +316,6 @@ export default function CollapsibleTable() {
     getDetail();
   }, []);
 
-  // Fetch users
   React.useEffect(() => {
     dispatch(fetchuser());
   }, []);
@@ -325,6 +324,7 @@ export default function CollapsibleTable() {
     if (fetchusers?.message) {
       setUsers(fetchusers.message);
     }
+
     const createrole = user.permission.user.can_add_user;
     if (createrole === true) {
       setcanAddUser(true);
@@ -337,7 +337,22 @@ export default function CollapsibleTable() {
     }
   }, [fetchusers]);
 
-  // Create Users
+  const filteredData = users?.filter((item) => {
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const userMatch =
+      !filterValue.UserName || item.Name === filterValue.UserName;
+    const roleMatch = !filterValue.Role || item.role === filterValue.Role;
+    const ReportingManagerMatch =
+      !filterValue.ReportingManager ||
+      item.ReportingManager === filterValue.ReportingManager;
+
+    return userMatch && roleMatch && ReportingManagerMatch;
+  });
 
   React.useEffect(() => {
     if (sheetopen === true) {
@@ -513,12 +528,13 @@ export default function CollapsibleTable() {
               className="bg-blue-500 text-white px-4 py-2 rounded-md"
             />
           )}
+          <UserFilterSheet screen="User" />
         </div>
       </div>
       <ReusableTable
         width="full"
         columns={columns}
-        data={users}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         rowProps={{

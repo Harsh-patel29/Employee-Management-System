@@ -394,6 +394,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
 
     value = value.replace(/[^0-9]/g, '');
 
+    if (value === '') {
+      setMinutes('');
+      return;
+    }
+
     if (value.length > 2) return;
 
     const num = parseInt(value, 10);
@@ -420,7 +425,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     const formattedTime = formatTimeForDb();
     handleUpdateTask('EstimatedTime', formattedTime);
   };
-  console.log(hours, minutes);
 
   return (
     <>
@@ -600,7 +604,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={control}
                 name="todo"
@@ -685,7 +688,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               }
                             }}
                             {...field}
-                          ></Input>
+                          />
                         </FormControl>
                       )}
                       <button
@@ -843,23 +846,21 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={control}
                 name="comments"
                 render={({ field }) => (
-                  <FormItem className="w-full flex flex-col mt-6 bg-white shadow-2xl sm:shadow border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 pb-8 rounded-md ml-2 overflow-y-auto">
+                  <FormItem
+                    className={`w-full flex flex-col mt-6 ${currentAttachments.length > 0 ? 'bg-[rgba(249,249,249,0.65)] pb-0' : 'bg-white pb-8'} shadow-2xl sm:shadow border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 rounded-md ml-2 overflow-y-auto`}
+                  >
                     <FormLabel
-                      className="flex items-start mt-2 text-[20px]  ml-5 font-[100] font-[Inter,sans-serif] 
-                          text-decoration-line: underline decoration-[rgb(205,179,162)]"
+                      className={` ${currentAttachments.length > 0 ? 'bg-white h-12 mt-0 flex items-center' : 'mt-2 ml-5 items-start'} flex  text-[20px] font-[100] font-[Inter,sans-serif] 
+                          text-decoration-line: underline decoration-[rgb(205,179,162)]`}
                     >
-                      Comments
+                      <p className="ml-2">Comments</p>
                     </FormLabel>
                     {uploadedAttachmentLoading ? (
-                      <div
-                        className="flex justify-center items-center h-10 w-full
-                      "
-                      >
+                      <div className="flex justify-center items-center h-10 w-full">
                         <Loader />
                       </div>
                     ) : (
@@ -870,7 +871,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               <div key={index} className="relative">
                                 <div>
                                   <div
-                                    className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 mt-1  cursor-pointer"
+                                    className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 mt-1 cursor-pointer"
                                     onClick={() => {
                                       setCurrentvalue(value.public_id);
                                       setOpenDialog(true);
@@ -953,16 +954,22 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                    <div className="relative flex items-center w-full px-2 mt-2">
+                    <div
+                      className={`relative flex items-center w-full px-2 ${currentAttachments?.length > 0 ? '' : 'mt-2'}`}
+                    >
                       <FormControl className="flex-grow">
                         <Input
                           id="comments"
                           name="comments"
                           type="text"
-                          className="shadow h-10 mt-3 mb-3 w-[98%] ml-2  bg-[rgba(249,249,249,0.65)]"
+                          className={`shadow h-10  ${currentAttachments?.length > 0 ? '' : 'mt-3 mb-3'} w-[98%] ml-2 bg-[rgba(249,249,249,0.65)]`}
                           style={{
-                            border: '1px solid #338db5',
-                            borderRadius: '20px',
+                            border:
+                              currentAttachments?.length > 0
+                                ? 'none'
+                                : '1px solid #338db5',
+                            borderRadius:
+                              currentAttachments?.length > 0 ? 'none' : '20px',
                             boxShadow: 'none',
                           }}
                           placeholder="Write your comment here..."
@@ -991,7 +998,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           id="attachment-button"
                           multiple
                           className="hidden"
-                          accept=""
+                          accept=".docx,.jpg,.jpeg,.png,.gif,.pdf"
                           onChange={(e) => {
                             const files = e.target.files;
                             if (files) {
@@ -1034,7 +1041,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </div>
                     </div>
 
-                    <div className="max-h-[320px] overflow-y-auto flex flex-col gap-2">
+                    <div className="max-h-[320px] overflow-y-auto flex flex-col gap-2 bg-white pb-8">
                       {Tasks.comments?.map((value) => (
                         <div key={value._id} className="h-auto">
                           <div className="flex items-center gap-2">
@@ -1660,6 +1667,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             {showEstimatedTimeField && (
                               <div className="flex items-center text-[rgb(115,122,126)]">
                                 <Input
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                    }
+                                  }}
                                   type="text"
                                   inputMode="numeric"
                                   value={hours}
@@ -1674,6 +1686,11 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                 </span>
 
                                 <Input
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                    }
+                                  }}
                                   type="text"
                                   inputMode="numeric"
                                   value={minutes}
@@ -2041,7 +2058,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               id="attachment-button"
                               multiple
                               className="hidden"
-                              accept=""
+                              accept=".docx,.jpg,.jpeg,.png,.gif,.pdf"
                               onChange={(e) => handleAttachmentChange(e)}
                             />
                           </label>

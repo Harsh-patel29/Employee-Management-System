@@ -53,6 +53,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import RegularizationDetailTable from './RegularizationDetailTable.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
 import { TableContainer } from '@mui/material';
+import AttendanceFilterSheet from './AttendanceFilterSheet.jsx';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -134,15 +135,19 @@ function Row({ row }) {
         <TableCell>{row.TimeOut}</TableCell>
         <TableCell>{row.formattedLogHours}</TableCell>
         <TableCell>
-          <Link
-            onClick={() => {
-              const url = `https://www.google.com/maps?q=${row.Latitude},${row.Longitude}`;
-              window.open(url, '_blank');
-            }}
-            className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
-          >
-            View
-          </Link>
+          {row.Latitude !== null || row.Longitude !== null ? (
+            <Link
+              onClick={() => {
+                const url = `https://www.google.com/maps?q=${row.Latitude},${row.Longitude}`;
+                window.open(url, '_blank');
+              }}
+              className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
+            >
+              View
+            </Link>
+          ) : (
+            <p>No Coordinates</p>
+          )}
         </TableCell>
         <TableCell>
           <div className="flex justify-center gap-2">
@@ -271,16 +276,21 @@ function Row({ row }) {
                           {new Date(attendance.AttendAt).toLocaleTimeString()}
                         </TableCell>
                         <TableCell>
-                          <Link
-                            onClick={() => {
-                              const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
-                              window.open(url, '_blank');
-                            }}
-                            className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
-                          >
-                            {' '}
-                            Map View
-                          </Link>
+                          {attendance.Latitude !== null ||
+                          attendance.Longitude !== null ? (
+                            <Link
+                              onClick={() => {
+                                const url = `https://www.google.com/maps?q=${attendance.Latitude},${attendance.Longitude}`;
+                                window.open(url, '_blank');
+                              }}
+                              className="bg-transparent text-[rgb(51,141,181)] text-[15px]"
+                            >
+                              {' '}
+                              Map View
+                            </Link>
+                          ) : (
+                            <p>No Coordinates</p>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -314,13 +324,14 @@ export default function CollapsibleTable() {
   const [fromDate, setFromDate] = React.useState(null);
   const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
-  const [filteredAttendances, setFilteredAttendances] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
+  const filterValue = useSelector(
+    (state) => state.filter.filterValue.Attendance
+  );
 
   const { newattendance, loading, createdRegularization } = useSelector(
     (state) => state.markAttendance
   );
-
   React.useEffect(() => {
     dispatch(fetchAttendance());
     dispatch(GetRegularization());
@@ -329,7 +340,6 @@ export default function CollapsibleTable() {
   React.useEffect(() => {
     if (newattendance?.message) {
       setAttendances(newattendance.message);
-      setFilteredAttendances(newattendance.message);
     }
   }, [newattendance]);
 
@@ -343,23 +353,6 @@ export default function CollapsibleTable() {
       dispatch(resetRegularization());
     }
   }, [createdRegularization]);
-
-  React.useEffect(() => {
-    if (!fromDate && !toDate) {
-      setFilteredAttendances(attendances);
-    } else {
-      const currentDate = new Date();
-      const from = fromDate ? new Date(fromDate) : currentDate;
-      const to = toDate ? new Date(toDate) : currentDate;
-
-      const filtered = attendances.filter((attendance) => {
-        const attendanceDate = new Date(attendance.AttendAt);
-        return attendanceDate >= from && attendanceDate <= to;
-      });
-
-      setFilteredAttendances(filtered);
-    }
-  }, [fromDate, toDate, attendances]);
 
   const now = new Date();
   const today = new Date().toISOString().split('T')[0];
@@ -409,12 +402,6 @@ export default function CollapsibleTable() {
       ' hh:mm:ss a'
     );
 
-    const timeOut = formatInTimeZone(
-      lastTimeIn?.AttendAt,
-      'Asia/Kolkata',
-      'hh:mm:ss a'
-    );
-
     const sevenPMFormatted = new Date(sevenPmIstInUtc).toLocaleTimeString();
     const punchedInAt = new Date(lastTimeIn?.AttendAt);
     const isPunchedInBefore7PM = punchedInAt < sevenPmIstInUtc;
@@ -426,13 +413,13 @@ export default function CollapsibleTable() {
         image[0] === '' ? (
           <img
             src="./download.png"
-            alt="Attendance"
+            alt="./download.png"
             className="w-8 h-8 object-cover rounded-3xl"
           />
         ) : (
           <img
-            src={image[0]}
-            alt="Attendance"
+            src={image[0] ? image[0] : './download.png'}
+            alt=""
             className="w-8 h-8 object-cover rounded-3xl"
           />
         ),
@@ -441,9 +428,7 @@ export default function CollapsibleTable() {
       userId: userId[0],
       AttendAt: formattedTime,
       TimeOut:
-        isOdd ||
-        isAfter7PMIST ||
-        (isPunchedInAfter7PM && today === date.date && isOdd)
+        isOdd || isAfter7PMIST || (isPunchedInAfter7PM && isOdd)
           ? isOdd && isPunchedInBefore7PM
             ? sevenPMFormatted
             : isOdd && today === date.date
@@ -459,6 +444,28 @@ export default function CollapsibleTable() {
       Latitude: lastTimeIn?.Latitude,
       Longitude: lastTimeIn?.Longitude,
     };
+  });
+
+  const filteredData = formattedData?.filter((item) => {
+    const itemDate = new Date(item.Date);
+
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const userMatch = !filterValue.User || item.User === filterValue.User;
+    const startDate = filterValue.StartDate
+      ? new Date(filterValue.StartDate)
+      : null;
+    const endDate = filterValue.EndDate ? new Date(filterValue.EndDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return userMatch && dateRangeMatch;
   });
 
   const columns = [
@@ -524,26 +531,7 @@ export default function CollapsibleTable() {
             fileName="Attendance"
             className="bg-blue-500 text-white px-4 py-2 rounded-md"
           />
-          <button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
-            onClick={() => setOpenFilterSheet(true)}
-          >
-            <svg
-              className="h-6 w-6"
-              stroke="currentColor"
-              fill="currentColor"
-              stroke-width="0"
-              viewBox="0 0 512 512"
-              height="1em"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
-            >
-              <title>filters</title>
-              <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
-            </svg>
-            Filters
-          </button>
+          <AttendanceFilterSheet screen="Attendance" />
           <button
             onClick={() => dispatch(openAttendanceSheet())}
             className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
@@ -613,7 +601,7 @@ export default function CollapsibleTable() {
       <ReusableTable
         width="full"
         columns={columns}
-        data={formattedData}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
       />

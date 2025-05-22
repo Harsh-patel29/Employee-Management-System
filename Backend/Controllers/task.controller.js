@@ -366,14 +366,12 @@ const Attachment = AsyncHandler(async (req, res) => {
 
 const deleteUploadedImage = AsyncHandler(async (req, res) => {
   const { public_id } = req.body;
-  console.log(public_id);
   if (!public_id) {
     throw new ApiError(400, 'Public id is required');
   }
   const attachment = await Task.findOne({
     Attachments: { $elemMatch: { public_id } },
   });
-  console.log(attachment);
 
   const deletedAttachment = await Task.findOneAndUpdate(
     { CODE: attachment.CODE },

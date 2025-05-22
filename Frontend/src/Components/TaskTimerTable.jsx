@@ -20,6 +20,8 @@ import {
   deleteTaskTimer,
   resetAllTaskTimer,
 } from '../feature/tasktimerfetch/tasktimerslice.js';
+import TaskTimerFilterSheet from './TaskTimerFilter.jsx';
+
 function Row({ row, openDialog }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -98,6 +100,9 @@ export default function TaskTimerTable() {
     useSelector((state) => state.tasktimer);
   const [taskTimer, setTaskTimer] = React.useState([]);
   const [dialogOpen, setdialogOpen] = React.useState(false);
+  const filterValue = useSelector(
+    (state) => state.filter.filterValue.TaskTimerTable
+  );
 
   React.useEffect(() => {
     dispatch(getAllTaskTimer());
@@ -114,6 +119,35 @@ export default function TaskTimerTable() {
       setdialogOpen(true);
     }, 0);
   };
+
+  const extractDateFromDisplay = (displayDateStr) => {
+    if (displayDateStr === null) return;
+    const [datePart] = displayDateStr.split(',');
+    const [day, month, year] = datePart.split('/');
+    const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    return isoDate;
+  };
+
+  const filteredData = allTaskTimer?.message?.filter((item) => {
+    const itemDate = new Date(extractDateFromDisplay(item.StartTime));
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const userMatch = !filterValue.User || item.User === filterValue.User;
+    const startDate = filterValue.StartDate
+      ? new Date(filterValue.StartDate)
+      : null;
+    const endDate = filterValue.EndDate ? new Date(filterValue.EndDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return userMatch && dateRangeMatch;
+  });
 
   React.useEffect(() => {
     if (createdTaskTimer?.success) {
@@ -155,12 +189,13 @@ export default function TaskTimerTable() {
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Task Timer
         </h5>
+        <TaskTimerFilterSheet screen="TaskTimerTable" />
       </div>
       <ReusableTable
         width="full"
         columns={columns}
         RowComponent={Row}
-        data={taskTimer}
+        data={filteredData}
         pagination={true}
         rowProps={{ openDialog }}
         tableStyle={{

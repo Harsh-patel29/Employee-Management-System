@@ -128,7 +128,8 @@ const HolidayTable = () => {
   const { allHoliday, createdholiday, updatedHoliday, deletedHoliday, error } =
     useSelector((state) => state.holiday);
   const { user } = useSelector((state) => state.auth);
-  const filterValue = useSelector((state) => state.filter.filterValue);
+  const filterValue = useSelector((state) => state.filter.filterValue.Holiday);
+
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
@@ -158,18 +159,30 @@ const HolidayTable = () => {
     }, 0);
   };
 
+  function parseDateFromDDMMYYYY(dateString) {
+    const [day, month, year] = dateString.split('-');
+    return new Date(`${year}-${month}-${day}`);
+  }
+
   const filteredData = holiday.filter((item) => {
+    const itemDate = parseDateFromDDMMYYYY(item.Start_Date);
+
     if (
       filterValue === undefined ||
       filterValue === null ||
       Object?.keys(filterValue).length === 0
     )
       return true;
-    const startDateMatch =
-      !filterValue.Start_Date || item.Start_Date === filterValue.Start_Date;
-    const endDateMatch =
-      !filterValue.End_Date || item.End_Date === filterValue.End_Date;
-    return startDateMatch && endDateMatch;
+    const startDate = filterValue.Start_Date
+      ? new Date(filterValue.Start_Date)
+      : null;
+    const endDate = filterValue.End_Date
+      ? new Date(filterValue.End_Date)
+      : null;
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return dateRangeMatch;
   });
 
   React.useEffect(() => {
@@ -279,7 +292,7 @@ const HolidayTable = () => {
             </Sheet>
           )}
           <button>
-            <HolidayFilterSheet />
+            <HolidayFilterSheet screen="Holiday" />
           </button>
         </div>
       </div>

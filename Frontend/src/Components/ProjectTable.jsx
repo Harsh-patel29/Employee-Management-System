@@ -160,7 +160,7 @@ export default function ProjectTable() {
   const { project, projects, logo, loading, deletedproject, updatedproject } =
     useSelector((state) => state.project);
   const { user } = useSelector((state) => state.auth);
-  const filterValue = useSelector((state) => state.filter.filterValue);
+  const filterValue = useSelector((state) => state.filter.filterValue.Project);
 
   const openDialog = (id) => {
     navigate(`/productivity/project/delete/${id}`);
@@ -276,7 +276,7 @@ export default function ProjectTable() {
         </h5>
         <div className="flex items-center">
           <button>
-            <ProjectFilterSheet />
+            <ProjectFilterSheet screen="Project" />
           </button>
           {user.permission.project.canAddProject && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>

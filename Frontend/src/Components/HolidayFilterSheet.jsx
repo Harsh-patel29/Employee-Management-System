@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -10,10 +10,10 @@ import {
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { useDispatch } from 'react-redux';
-import { setFilter } from '../feature/filterSlice/filterSlice';
+import { setFilter, clearFilter } from '../feature/filterSlice/filterSlice';
 import { Button } from '../Components/components/ui/button';
 
-export default function HolidayFilterSheet() {
+export default function HolidayFilterSheet({ screen }) {
   const dispatch = useDispatch();
   const [sheetopen, setsheetopen] = useState(false);
   const [todate, settodate] = useState(null);
@@ -22,14 +22,20 @@ export default function HolidayFilterSheet() {
   const handleFilter = (StartDate, EndDate) => {
     dispatch(
       setFilter({
-        Start_Date: StartDate,
-        End_Date: EndDate,
+        screen,
+        values: {
+          Start_Date: StartDate,
+          End_Date: EndDate,
+        },
       })
     );
   };
-  const clearFilter = () => {
-    dispatch(setFilter());
-  };
+
+  useEffect(() => {
+    if (todate < fromdate) {
+      settodate(null);
+    }
+  }, [fromdate, todate]);
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -57,15 +63,11 @@ export default function HolidayFilterSheet() {
             <h1 className="text-2xl w-full">Filter Task</h1>
             <Button
               id="clear-filter"
-              className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
+              className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5] cursor-pointer"
               onClick={() => {
-                clearFilter();
-                setAsigneeoption(null);
-                setprojectoption(null);
-                settaskoption(null);
+                dispatch(clearFilter({ screen }));
                 setfromdate(null);
                 settodate(null);
-                setstatusoption(null);
               }}
             >
               Clear All

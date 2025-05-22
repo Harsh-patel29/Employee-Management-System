@@ -189,8 +189,6 @@ function Row({ row, openDialog, openSheet }) {
                           className="border-2 border-gray-200"
                         >
                           {day.type}
-
-                          {console.log(day.weeks.length === 5)}
                           {day.weeks?.length > 0 && day.weeks.length !== 5 && (
                             <div
                               style={{ fontSize: '0.85rem', color: 'black' }}
@@ -229,7 +227,7 @@ export default function WeekOffTable() {
   const { allWeekOff, createdWeekOff, deletedWeekOff, updatedWeekOff } =
     useSelector((state) => state.weekoff);
   const { user } = useSelector((state) => state.auth);
-  const filterValue = useSelector((state) => state.filter.filterValue);
+  const filterValue = useSelector((state) => state.filter.filterValue.WeekOff);
 
   React.useEffect(() => {
     dispatch(getAllWeekOff());
@@ -242,16 +240,24 @@ export default function WeekOffTable() {
   }, [allWeekOff]);
 
   const filteredData = weekoff.filter((item) => {
+    const itemDate = new Date(item.Effective_Date);
     if (
       filterValue === undefined ||
       filterValue === null ||
       Object?.keys(filterValue).length === 0
     )
       return true;
-    const effectiveDateMatch =
-      !filterValue.Effective_Date ||
-      item.Effective_Date === filterValue.Effective_Date;
-    return effectiveDateMatch;
+
+    const startDate = filterValue.Effective_Date
+      ? new Date(filterValue.Effective_Date)
+      : null;
+    const endDate = filterValue.toDate ? new Date(filterValue.toDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return dateRangeMatch;
   });
 
   const openSheet = (id) => {
@@ -313,7 +319,7 @@ export default function WeekOffTable() {
   return (
     <>
       <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 mb-2">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
           Week Off
         </h5>
         <div className="flex items-center">
@@ -358,7 +364,7 @@ export default function WeekOffTable() {
             </Sheet>
           )}
           <button>
-            <WeekOffFilterSheet />
+            <WeekOffFilterSheet screen="WeekOff" />
           </button>
         </div>
       </div>

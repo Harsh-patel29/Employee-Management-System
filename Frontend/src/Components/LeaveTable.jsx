@@ -34,6 +34,7 @@ import { MdDelete } from 'react-icons/md';
 import { FaEdit } from 'react-icons/fa';
 import { Bounce, toast } from 'react-toastify';
 import LeaveFilterSheet from './LeaveFilterSheet.jsx';
+
 function Row({ row, openDialog, navigate, openSheet }) {
   const { updatedLeave } = useSelector((state) => state.leave);
   const { user } = useSelector((state) => state.auth);
@@ -142,7 +143,7 @@ const LeaveTable = () => {
   );
   const { user } = useSelector((state) => state.auth);
 
-  const filterValue = useSelector((state) => state.filter.filterValue);
+  const filterValue = useSelector((state) => state.filter.filterValue.Leave);
   const [Leave, setLeave] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [sheetopen, setsheetopen] = React.useState(false);
@@ -161,19 +162,28 @@ const LeaveTable = () => {
   }, [allLeave]);
 
   const filteredData = Leave.filter((item) => {
+    const itemDate = new Date(item.Start_Date);
     if (
       filterValue === undefined ||
       filterValue === null ||
       Object?.keys(filterValue).length === 0
     )
       return true;
+    const UserMatch = !filterValue.User || item.userName === filterValue.User;
     const LeaveStatusMatch =
       !filterValue.Status || item.Status === filterValue.Status;
-    const startDateMatch =
-      !filterValue.Start_Date || item.Start_Date === filterValue.Start_Date;
-    const endDateMatch =
-      !filterValue.End_Date || item.End_Date === filterValue.End_Date;
-    return LeaveStatusMatch && startDateMatch && endDateMatch;
+    const startDate = filterValue.Start_Date
+      ? new Date(filterValue.Start_Date)
+      : null;
+    const endDate = filterValue.End_Date
+      ? new Date(filterValue.End_Date)
+      : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return UserMatch && LeaveStatusMatch && dateRangeMatch;
   });
 
   const openSheet = (id) => {
@@ -305,7 +315,7 @@ const LeaveTable = () => {
             </Sheet>
           )}
           <button>
-            <LeaveFilterSheet />
+            <LeaveFilterSheet screen="Leave" />
           </button>
         </div>
       </div>

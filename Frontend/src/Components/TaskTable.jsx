@@ -190,7 +190,7 @@ export default function TaskTable() {
   const [dialogOpen, setdialogOpen] = React.useState(false);
   const { user } = useSelector((state) => state.auth);
   const { tasks, createtask, deletedTask } = useSelector((state) => state.task);
-  const filterValue = useSelector((state) => state.filter.filterValue);
+  const filterValue = useSelector((state) => state.filter.filterValue.Task);
 
   React.useEffect(() => {
     localStorage.setItem('viewMode', viewMode);
@@ -216,6 +216,7 @@ export default function TaskTable() {
   }, [tasks]);
 
   const filteredData = tasks?.message?.filter((item) => {
+    const itemDate = new Date(item.StartDate);
     if (
       filterValue === undefined ||
       filterValue === null ||
@@ -227,19 +228,19 @@ export default function TaskTable() {
     const projectMatch =
       !filterValue.Project || item.Project === filterValue.Project;
     const taskMatch = !filterValue.Task || item.CODE === filterValue.Task;
-    const startDateMatch =
-      !filterValue.StartDate || item.StartDate === filterValue.StartDate;
-    const endDateMatch =
-      !filterValue.EndDate || item.EndDate === filterValue.EndDate;
+    const startDate = filterValue.StartDate
+      ? new Date(filterValue.StartDate)
+      : null;
+    const endDate = filterValue.EndDate ? new Date(filterValue.EndDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
     const statusMatch =
       !filterValue.Status || item.Status === filterValue.Status;
     return (
-      asigneeMatch &&
-      projectMatch &&
-      taskMatch &&
-      startDateMatch &&
-      endDateMatch &&
-      statusMatch
+      asigneeMatch && projectMatch && taskMatch && dateRangeMatch && statusMatch
     );
   });
 
@@ -340,7 +341,7 @@ export default function TaskTable() {
             </button>
           )}
           <button>
-            <TasksFilterSheet />
+            <TasksFilterSheet screen="Task" />
           </button>
           <button
             className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}

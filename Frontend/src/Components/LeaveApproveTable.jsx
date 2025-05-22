@@ -32,9 +32,10 @@ import {
   resetRejectedLeave,
   deleteLeave,
 } from '../feature/leavefetch/createleaveSlice';
-
 import { Bounce, toast } from 'react-toastify';
 import { AlignJustify } from 'lucide-react';
+import LeaveFilterSheet from './LeaveFilterSheet.jsx';
+
 function Row({ row, openDialog, navigate }) {
   const dispatch = useDispatch();
 
@@ -130,6 +131,9 @@ const LeaveApproveTable = () => {
   const { allLeave, error, approvedLeave, rejectedLeave } = useSelector(
     (state) => state.leave
   );
+  const filterValue = useSelector(
+    (state) => state.filter.filterValue.ApproveLeave
+  );
   const [Leave, setLeave] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
   const [dialogOpen, setdialogOpen] = React.useState(false);
@@ -155,6 +159,32 @@ const LeaveApproveTable = () => {
       setdialogOpen(true);
     }, 0);
   };
+
+  const filteredData = LeavetoBeDisplayed.filter((item) => {
+    const itemDate = new Date(item.Start_Date);
+
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const UserMatch = !filterValue.User || item.userName === filterValue.User;
+    const LeaveStatusMatch =
+      !filterValue.Status || item.Status === filterValue.Status;
+    const startDate = filterValue.Start_Date
+      ? new Date(filterValue.Start_Date)
+      : null;
+    const endDate = filterValue.End_Date
+      ? new Date(filterValue.End_Date)
+      : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return UserMatch && LeaveStatusMatch && dateRangeMatch;
+  });
 
   React.useEffect(() => {
     if (approvedLeave?.success) {
@@ -215,38 +245,12 @@ const LeaveApproveTable = () => {
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Pending Leave
         </h5>
-        <div className="flex items-center">
-          <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
-                <svg
-                  stroke="currentColor"
-                  fill="currentColor"
-                  stroke-width="0"
-                  viewBox="0 0 512 512"
-                  height="1em"
-                  width="1em"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
-                >
-                  <title>filters</title>
-                  <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
-                </svg>
-                Filter
-              </div>
-            </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
-              <SheetHeader>
-                <SheetDescription></SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
-        </div>
+        <LeaveFilterSheet screen="ApproveLeave" />
       </div>
       <ReusableTable
         width="full"
         columns={columns}
-        data={LeavetoBeDisplayed}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, navigate }}

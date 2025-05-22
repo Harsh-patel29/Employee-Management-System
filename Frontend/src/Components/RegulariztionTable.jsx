@@ -1,12 +1,6 @@
 import React from 'react';
 import ReusableTable from '../Components/ReusableTable.jsx';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTrigger,
-} from '../Components/components/ui/sheet';
+
 import {
   Dialog,
   DialogContent,
@@ -17,7 +11,6 @@ import {
 } from '../Components/components/ui/dialog';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import TableHead from '@mui/material/TableHead';
 import { Button } from '../Components/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -27,9 +20,9 @@ import {
   RejectRegularization,
   resetRegularization,
 } from '../feature/attendancefetch/attendanceSlice.js';
-
 import { Bounce, toast } from 'react-toastify';
 import { TableBody } from '@mui/material';
+import AttendanceFilterSheet from './AttendanceFilterSheet.jsx';
 
 function Row({ row, openDialog }) {
   const dispatch = useDispatch();
@@ -139,7 +132,9 @@ const RegularizationTable = () => {
   const [dialogOpen, setdialogOpen] = React.useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const filterValue = useSelector(
+    (state) => state.filter.filterValue.Regularization
+  );
   React.useEffect(() => {
     dispatch(GetRegularization());
   }, []);
@@ -153,6 +148,28 @@ const RegularizationTable = () => {
   const filteredRegularization = Regularization.filter(
     (item) => item.Status === 'Pending'
   );
+
+  const filteredData = filteredRegularization?.filter((item) => {
+    const itemDate = new Date(item.Date);
+
+    if (
+      filterValue === undefined ||
+      filterValue === null ||
+      Object?.keys(filterValue).length === 0
+    )
+      return true;
+    const userMatch = !filterValue.User || item.User.Name === filterValue.User;
+    const startDate = filterValue.StartDate
+      ? new Date(filterValue.StartDate)
+      : null;
+    const endDate = filterValue.EndDate ? new Date(filterValue.EndDate) : null;
+    if (startDate) startDate.setHours(0, 0, 0, 0);
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+    const dateRangeMatch =
+      (!startDate || itemDate >= startDate) &&
+      (!endDate || itemDate <= endDate);
+    return userMatch && dateRangeMatch;
+  });
 
   const openDialog = () => {
     setTimeout(() => {
@@ -216,11 +233,12 @@ const RegularizationTable = () => {
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Regularization
         </h5>
+        <AttendanceFilterSheet screen="Regularization" />
       </div>
       <ReusableTable
         width="full"
         columns={columns}
-        data={filteredRegularization}
+        data={filteredData}
         RowComponent={Row}
         pagination={true}
         rowProps={{ openDialog, navigate }}
