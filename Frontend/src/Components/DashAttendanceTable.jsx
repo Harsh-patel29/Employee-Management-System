@@ -63,7 +63,7 @@ Row.prototype = {
   }).isRequired,
 };
 
-export default function DashAttendanceTable() {
+export default function DashAttendanceTable({ noDataMessageValue }) {
   const dispatch = useDispatch();
   const { newattendance } = useSelector((state) => state.markAttendance);
   const [attendances, setAttendances] = React.useState([]);
@@ -92,6 +92,12 @@ export default function DashAttendanceTable() {
 
   const formattedData = Object.values(latestAttendance);
 
+  if (formattedData.length === 0) {
+    noDataMessageValue = false;
+  } else {
+    noDataMessageValue = true;
+  }
+
   const columns = [
     { field: 'index', headerName: '#' },
     { field: 'User', headerName: 'User' },
@@ -99,13 +105,25 @@ export default function DashAttendanceTable() {
   ];
 
   return (
-    <ReusableTable
-      width="100%"
-      maxHeight={200}
-      RowComponent={Row}
-      data={formattedData}
-      columns={columns}
-      pagination={true}
-    />
+    <>
+      <div className="w-full">
+        <div
+          className={`${noDataMessageValue === false ? 'hidden w-0' : ''} w-90 max-sm:w-full`}
+        >
+          <h1 className="ml-4 font-semibold text-[20.8px] mb-4 w-full">
+            Log Hours
+          </h1>
+        </div>
+        <ReusableTable
+          width="100%"
+          maxHeight={200}
+          RowComponent={Row}
+          data={formattedData}
+          columns={columns}
+          pagination={true}
+          noDataMessageField={noDataMessageValue}
+        />
+      </div>
+    </>
   );
 }

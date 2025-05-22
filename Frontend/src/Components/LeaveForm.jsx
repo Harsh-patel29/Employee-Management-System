@@ -198,7 +198,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                   className={
                     errors?.Leave_Reason
                       ? 'text-[#737373]'
-                      : 'text-sm font-medium text-gray-700'
+                      : 'text-[15px] font-medium text-gray-700'
                   }
                 >
                   Leave Reason
@@ -230,7 +230,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                   className={
                     errors?.LEAVE_TYPE
                       ? 'text-[#737373]'
-                      : 'text-[16px] font-[500]'
+                      : 'text-[15px] text-gray-700 font-[500]'
                   }
                 >
                   Leave Type
@@ -308,12 +308,12 @@ export default function LeaveForm({ onSubmit, mode, id }) {
             control={control}
             name="Start_Date"
             render={({ field }) => (
-              <FormItem className="flex flex-col ">
+              <FormItem className="flex flex-col">
                 <FormLabel
                   className={
                     errors?.Start_Date
-                      ? 'text-[#737373]'
-                      : 'text-sm font-medium text-gray-700'
+                      ? 'text-[#737373] mb-0.5'
+                      : 'text-[15px] font-medium text-gray-700 mb-0'
                   }
                 >
                   Start Date
@@ -354,7 +354,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                       showYearDropdown
                       scrollableYearDropdown
                       yearDropdownItemNumber={100}
-                      isClearable={true}
+                      isClearable={!!startDate}
                     />
                   </div>
                 </FormControl>
@@ -372,13 +372,13 @@ export default function LeaveForm({ onSubmit, mode, id }) {
             control={control}
             name="StartDateType"
             render={({ field }) => (
-              <FormItem className="flex flex-col ">
+              <FormItem className="flex flex-col">
                 <FormLabel
                   {...field}
                   className={`${
                     errors?.StartDateType
-                      ? 'text-[#737373] h-2'
-                      : 'text-[16px] font-[500]'
+                      ? 'text-[#737373] mb-0.5'
+                      : 'text-[15px] text-gray-700 mb-0 font-[500]'
                   }`}
                 >
                   Start Day
@@ -476,8 +476,8 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                 <FormLabel
                   className={
                     errors?.End_Date
-                      ? 'text-[#737373]'
-                      : 'text-[16px] font-[500]'
+                      ? 'text-[#737373] mb-0.5'
+                      : 'text-[15px] text-gray-700 mb-0 font-[500]'
                   }
                 >
                   End Date
@@ -506,7 +506,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                       showYearDropdown
                       scrollableYearDropdown
                       yearDropdownItemNumber={100}
-                      isClearable={true}
+                      isClearable={!!endDate}
                     />
                   </div>
                 </FormControl>
@@ -527,7 +527,11 @@ export default function LeaveForm({ onSubmit, mode, id }) {
               <FormItem>
                 <FormLabel
                   htmlFor="End_Date_Type"
-                  className={errors?.EndDateType ? 'text-[#737373]' : ''}
+                  className={
+                    errors?.EndDateType
+                      ? 'text-[#737373] mb-0.5'
+                      : 'text-[15px] text-gray-700 mb-0 font-[500]'
+                  }
                 >
                   End Day
                 </FormLabel>

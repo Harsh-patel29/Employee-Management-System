@@ -26,47 +26,56 @@ function Row({ row, openDialog }) {
 
   return (
     <React.Fragment>
-      <TableRow>
-        <TableCell>{row.TaskId}</TableCell>
-        <TableCell>{row.User}</TableCell>
-        <TableCell>{row.StartTime}</TableCell>
-        <TableCell>{row.EndTime}</TableCell>
-        <TableCell>{row.Duration}</TableCell>
-        <TableCell>{row.Message}</TableCell>
-        <TableCell>
-          <div className="flex justify-center">
-            {user.permission.taskTimer.canDeleteTaskTimer && (
-              <Dialog>
-                <DialogTrigger
-                  onClick={() => {
-                    openDialog(row._id);
-                  }}
-                  asChild
-                >
-                  <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the task timer.
-                      <Button
-                        className="flex w-full mt-4 bg-red-600 hover:bg-red-800 cursor-pointer"
-                        onClick={() => {
-                          dispatch(deleteTaskTimer({ data: row._id }));
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-        </TableCell>
-      </TableRow>
+      {row.length === 0 ? (
+        <TableRow>
+          <TableCell colSpan={columns.length}>
+            there are no records to display
+          </TableCell>
+        </TableRow>
+      ) : (
+        <TableRow>
+          <TableCell>{row.index}</TableCell>
+          <TableCell>{row.TaskId}</TableCell>
+          <TableCell>{row.User}</TableCell>
+          <TableCell>{row.StartTime}</TableCell>
+          <TableCell>{row.EndTime}</TableCell>
+          <TableCell>{row.Duration}</TableCell>
+          <TableCell>{row.Message}</TableCell>
+          <TableCell>
+            <div className="flex justify-center">
+              {user.permission.taskTimer.canDeleteTaskTimer && (
+                <Dialog>
+                  <DialogTrigger
+                    onClick={() => {
+                      openDialog(row._id);
+                    }}
+                    asChild
+                  >
+                    <MdDelete className="font-semibold text-lg text-[#ff3b30] cursor-pointer" />
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Are you absolutely sure?</DialogTitle>
+                      <DialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete the task timer.
+                        <Button
+                          className="flex w-full mt-4 bg-red-600 hover:bg-red-800 cursor-pointer"
+                          onClick={() => {
+                            dispatch(deleteTaskTimer({ data: row._id }));
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
     </React.Fragment>
   );
 }
@@ -108,8 +117,6 @@ export default function TaskTimerTable() {
 
   React.useEffect(() => {
     if (createdTaskTimer?.success) {
-      console.log('skjdf');
-
       dispatch(getAllTaskTimer());
       dispatch(resetAllTaskTimer());
     }
@@ -133,6 +140,7 @@ export default function TaskTimerTable() {
   }, [deletedTaskTimer]);
 
   const columns = [
+    { field: 'Index', headerName: '#' },
     { field: 'Task', headerName: 'Task' },
     { field: 'User', headerName: 'User' },
     { field: 'StartTime', headerName: 'StartTime' },
@@ -155,6 +163,12 @@ export default function TaskTimerTable() {
         data={taskTimer}
         pagination={true}
         rowProps={{ openDialog }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 1,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

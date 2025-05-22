@@ -525,6 +525,12 @@ export default function CollapsibleTable() {
           isDefault,
           openDialog,
         }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.6,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

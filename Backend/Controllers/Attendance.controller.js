@@ -70,6 +70,88 @@ function addLogHours(time1, time2) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
+function getDayNumberFromName(dayName) {
+  const days = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  };
+  return days[dayName];
+}
+
+function getWeekdayWeekMap(month, year, dayIndex) {
+  const result = {
+    'First Week': [],
+    'Second Week': [],
+    'Third Week': [],
+    'Fourth Week': [],
+    'Fifth Week': [],
+  };
+
+  const date = new Date(year, month - 1, 1);
+  let weekCount = 0;
+
+  while (date.getMonth() === month - 1) {
+    if (date.getDay() === dayIndex) {
+      weekCount++;
+      if (weekCount === 1) result['First Week'].push(new Date(date));
+      if (weekCount === 2) result['Second Week'].push(new Date(date));
+      if (weekCount === 3) result['Third Week'].push(new Date(date));
+      if (weekCount === 4) result['Fourth Week'].push(new Date(date));
+      if (weekCount === 5) result['Fifth Week'].push(new Date(date));
+    }
+    date.setDate(date.getDate() + 1);
+  }
+
+  return result;
+}
+
+function calculateTotalOffHours(TypeofWeek, month, year, totalHolidayDays) {
+  let totalOffHours = 0;
+
+  TypeofWeek.forEach((entry) => {
+    const [dayNameRaw, typeRaw, weekStrRaw] = entry
+      .split(' - ')
+      .map((x) => x.trim());
+    if (!dayNameRaw || !typeRaw) return;
+
+    const type = typeRaw;
+    const dayName = dayNameRaw;
+    const weekStr = weekStrRaw || '';
+
+    const weeks = weekStr
+      .split(',')
+      .map((w) => w.trim())
+      .filter((w) => w);
+
+    const targetWeekday = getDayNumberFromName(dayName);
+    const weekMap = getWeekdayWeekMap(month, year, targetWeekday);
+
+    weeks.forEach((weekName) => {
+      const days = weekMap[weekName] || [];
+
+      if (type === 'WeekOff') {
+        totalOffHours += days.length * 8;
+      } else if (type === 'Half Day') {
+        totalOffHours += days.length * 6;
+      }
+    });
+  });
+
+  const totalWorkingHoursInMonth = daysInMonth(month, year) * 8;
+
+  const officialHours =
+    totalWorkingHoursInMonth - totalOffHours - totalHolidayDays * 8;
+
+  const OfficalHours = `${officialHours}:00:00`;
+
+  return OfficalHours;
+}
+
 const getLogHours = async (userId, mode, match, date) => {
   let logHours = 0;
   let d;
@@ -141,8 +223,6 @@ const getLogHours = async (userId, mode, match, date) => {
       },
     },
   ]);
-
-  const matchLast = match?.findLast((e) => e);
 
   const a = todayAttendance?.map((item) => item.attendances);
 
@@ -544,9 +624,7 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
 
   const utcDate = fromZonedTime(localDate, 'Asia/Kolkata');
   const sevenPmIstInUtc = new Date(`${regularization.Date}T13:30:00.000Z`);
-  const isPastSevenPmIst = utcDate >= sevenPmIstInUtc;
-  console.log('matchLast', matchLast);
-  let logHours = 0;
+
   try {
     const newAttendance = new Attendance({
       Image: ``,
@@ -563,7 +641,6 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
       utcDate
     );
     newAttendance.LogHours = formattedLogHours;
-    console.log(match.length % 2 !== 1);
 
     const matchLastTime = new Date(matchLast?.AttendAt).getTime();
     const lastTimeInTime = new Date(newAttendance?.AttendAt).getTime();
@@ -598,10 +675,7 @@ const ApproveRegularization = AsyncHandler(async (req, res) => {
     }
 
     await getLogHours(regularization.User, 'regularized', match, utcDate);
-
     await newAttendance.save();
-    console.log(newAttendance);
-
     return res
       .status(200)
       .json(
@@ -818,7 +892,9 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
   ]);
 
   let TypeofWeek;
-  TypeofWeek = weekOff[0]?.days?.map((item) => `${item.type} - ${item.weeks}`);
+  TypeofWeek = weekOff[0]?.days?.map(
+    (item) => `${item.day} - ${item.type} - ${item.weeks} `
+  );
 
   if (weekOff.length === 0) {
     TypeofWeek = [
@@ -832,9 +908,15 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
     ];
   }
 
-  const weekoff = TypeofWeek?.filter((item) => item === 'WeekOff');
   let OfficalHours;
-  OfficalHours = `${(daysInMonth(month, year) - totalHolidayDays - weekoff?.length) * 8}:00:00`;
+
+  OfficalHours = calculateTotalOffHours(
+    TypeofWeek,
+    month,
+    year,
+    totalHolidayDays
+  );
+
   const paredSelectedMonth = parseInt(selectedMonth, 10);
 
   if ((!month, !year)) {
@@ -906,49 +988,68 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
   const allDates = getAllDatesInMonth(selectedYear, selectedMonth);
   let normalizedData;
-  normalizedData = updatedLogHours.map((user) => {
-    const logsMap = new Map(user.logs.map((log) => [log.date, log.LogHours]));
-    const leave = user?.logs?.map((leave) => leave.Leave);
 
-    const leaveData = leave[0].map((Leave) => {
-      return {
-        StartDate: Leave.Start_Date,
-        EndDate: Leave.End_Date,
-        Days: Leave.End_Date,
-        StartDateType: Leave.StartDateType,
-        EndDateType: Leave.EndDateType,
-        Status: Leave.Status,
-      };
-    });
+  const allUsers = await User.find({});
 
-    const fullLogs = allDates.map((date) => ({
-      date,
-      logHours: logsMap.get(date) || '00:00:00',
-      leaveData,
-    }));
+  // Create a map to easily look up user data from updatedLogHours
+  const userLogsMap = new Map();
 
-    return {
-      userName: user.userName,
-      id: user.id,
-      officialHours: OfficalHours,
-      totalLogHours: user.totalLogHours,
-      pendingHours: user.pendingHours,
-      workingHours: user.workingHours,
-      logs: fullLogs,
-      weekOffDays: weekOffDay(),
-    };
+  updatedLogHours.forEach((user) => {
+    userLogsMap.set(user.userName, user);
   });
-  if (LogHours.length === 0) {
-    const users = await User.find({});
-    const workingSeconds = timeToSeconds('00:00:00');
-    const pendingSeconds = officialSeconds - workingSeconds;
 
-    normalizedData = users.map((user) => {
+  // Process all users, whether they have logs or not
+  normalizedData = allUsers.map((user) => {
+    // Check if this user has log data
+    const userWithLogs = userLogsMap.get(user.Name);
+
+    if (userWithLogs) {
+      const logsMap = new Map(
+        userWithLogs.logs.map((log) => [log.date, log.LogHours])
+      );
+
+      const leave = userWithLogs?.logs?.map((leave) => leave.Leave);
+
+      let leaveData = [];
+      if (leave && leave[0]) {
+        leaveData = leave[0].map((Leave) => {
+          return {
+            StartDate: Leave.Start_Date,
+            EndDate: Leave.End_Date,
+            Days: Leave.Days,
+            StartDateType: Leave.StartDateType,
+            EndDateType: Leave.EndDateType,
+            Status: Leave.Status,
+          };
+        });
+      }
+
       const fullLogs = allDates.map((date) => ({
-        date: date,
+        date,
+        logHours: logsMap.get(date) || '00:00:00',
+        leaveData,
+      }));
+
+      return {
+        userName: user.Name,
+        id: user._id,
+        officialHours: OfficalHours,
+        totalLogHours: userWithLogs.totalLogHours,
+        pendingHours: userWithLogs.pendingHours,
+        workingHours: userWithLogs.workingHours,
+        logs: fullLogs,
+        weekOffDays: weekOffDay(),
+      };
+    } else {
+      const workingSeconds = timeToSeconds('00:00:00');
+      const pendingSeconds = officialSeconds - workingSeconds;
+
+      const fullLogs = allDates.map((date) => ({
+        date,
         logHours: '00:00:00',
         leaveData: [],
       }));
+
       return {
         userName: user.Name,
         id: user._id,
@@ -959,12 +1060,8 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
         logs: fullLogs,
         weekOffDays: weekOffDay(),
       };
-    });
-
-    return res
-      .status(200)
-      .json(new ApiResponse(200, normalizedData, 'Fetched (default data)'));
-  }
+    }
+  });
   return res.status(200).json(new ApiResponse(200, normalizedData, 'Fetched'));
 });
 

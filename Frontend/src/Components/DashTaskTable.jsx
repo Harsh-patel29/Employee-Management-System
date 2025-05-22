@@ -84,13 +84,22 @@ export default function DashTaskTable() {
     { field: 'Asignee', headerName: 'Asignee' },
   ];
   return (
-    <ReusableTable
-      width="100%"
-      maxHeight={200}
-      data={filteredTask}
-      RowComponent={Row}
-      columns={columns}
-      pagination={true}
-    />
+    <>
+      <div className="w-full">
+        <div>
+          <h1 className="ml-4 font-semibold text-[20.8px] mb-4">
+            Pending Task List
+          </h1>
+        </div>
+        <ReusableTable
+          width="100%"
+          maxHeight={200}
+          data={filteredTask}
+          RowComponent={Row}
+          columns={columns}
+          pagination={true}
+        />
+      </div>
+    </>
   );
 }

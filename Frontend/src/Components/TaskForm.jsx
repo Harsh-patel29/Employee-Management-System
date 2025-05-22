@@ -1551,7 +1551,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               <PopoverTrigger asChild>
                                 <Input
                                   className="text-[rgb(120,122,126)] p-0"
-                                  disabled={!Tasks?.StartDate}
                                   type=""
                                   style={{
                                     border: 'none',

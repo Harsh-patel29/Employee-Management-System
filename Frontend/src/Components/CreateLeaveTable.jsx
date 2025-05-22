@@ -43,7 +43,9 @@ function Row({ row, openSheet, openDialog, navigate }) {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell className="w-40">{row.Leave_Reason}</TableCell>
+        <TableCell>
+          <div className="flex ml-8 justify-start">{row.Leave_Reason}</div>
+        </TableCell>
         <TableCell className="w-[75%]">{row.Leave_Code}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2 justify-center">
@@ -271,6 +273,12 @@ export default function CreateLeaveTable() {
           openSheet,
           openDialog,
           navigate,
+        }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.9,
+            textAlign: 'center',
+          },
         }}
       />
     </>

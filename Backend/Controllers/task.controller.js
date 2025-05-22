@@ -201,10 +201,7 @@ const updateTask = AsyncHandler(async (req, res) => {
       updateData.Users = req.body.Users;
     }
 
-    if (
-      updateData.StartDate > updateData.EndDate ||
-      updateData.StartDate === ''
-    ) {
+    if (updateData.StartDate > updateData.EndDate) {
       updateData.EndDate = '';
     }
 
@@ -222,7 +219,12 @@ const updateTask = AsyncHandler(async (req, res) => {
     }
 
     if (comments) {
-      updateData.$push.comments = comments;
+      updateData.$push = {
+        comments: {
+          $each: [comments],
+          $position: 0,
+        },
+      };
     }
 
     const updatedTask = await Task.findOneAndUpdate({ CODE: id }, updateData, {

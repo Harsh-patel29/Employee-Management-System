@@ -195,7 +195,7 @@ function Row({ row }) {
             if (appliesToThisWeek) {
               if (type === 'WeekOff') {
                 status = isZero ? 'W' : 'POW';
-              } else if (type === 'Half Day' && isHalfDay) {
+              } else if (type === 'Half Day' || isHalfDay) {
                 status = 'HD';
               } else if (type === 'Leave') {
                 status = 'L';
@@ -210,7 +210,6 @@ function Row({ row }) {
               status = 'A';
             }
           }
-          console.log(item.logHours);
 
           return (
             <TableCell key={item.date} sx={{ color: getColorByStatus(status) }}>

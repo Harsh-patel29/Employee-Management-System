@@ -330,6 +330,12 @@ export default function MissedPunchRegularizationTable() {
         data={formattedData}
         RowComponent={Row}
         pagination={true}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.6,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

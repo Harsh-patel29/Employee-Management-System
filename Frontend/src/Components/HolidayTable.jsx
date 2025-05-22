@@ -291,6 +291,12 @@ const HolidayTable = () => {
         data={filteredData}
         pagination={true}
         rowProps={{ openSheet, openDialog }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.9,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

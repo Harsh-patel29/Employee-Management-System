@@ -83,14 +83,10 @@ const DashBoard = () => {
           </div>{' '}
         </div>
         <div className="flex w-full gap-2 mb-5 px-4 max-sm:flex-col">
-          <div className="w-[30%] max-sm:w-full">
-            <h1 className="ml-4 font-semibold text-[20.8px] mb-4">Log Hours</h1>
+          <div>
             <DashAttendanceTable />
           </div>
-          <div className="w-[70%] max-sm:w-full">
-            <h1 className="ml-4 font-semibold text-[20.8px] mb-4">
-              Pending Task List
-            </h1>
+          <div className="w-full">
             <DashTaskTable />
           </div>
         </div>

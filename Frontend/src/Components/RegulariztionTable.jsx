@@ -29,6 +29,7 @@ import {
 } from '../feature/attendancefetch/attendanceSlice.js';
 
 import { Bounce, toast } from 'react-toastify';
+import { TableBody } from '@mui/material';
 
 function Row({ row, openDialog }) {
   const dispatch = useDispatch();
@@ -38,82 +39,91 @@ function Row({ row, openDialog }) {
 
   return (
     <React.Fragment>
-      <TableRow
-        sx={{
-          backgroundColor: 'white',
-          color: 'black',
-        }}
-      >
-        <TableCell>{row.index}</TableCell>
-        <TableCell>{row.User.Name}</TableCell>
-        <TableCell>{row.Date}</TableCell>
-        <TableCell>{row.MissingPunch}</TableCell>
-        <TableCell>{row.Reason}</TableCell>
-        <TableCell>{row.Remarks}</TableCell>
+      {row.length === 0 ? (
+        <TableRow>
+          <TableBody colSpan={columns.length}>No data available</TableBody>
+        </TableRow>
+      ) : (
+        <TableRow
+          sx={{
+            backgroundColor: 'white',
+            color: 'black',
+          }}
+        >
+          <TableCell>{row.index}</TableCell>
+          <TableCell>{row.User.Name}</TableCell>
+          <TableCell>{row.Date}</TableCell>
+          <TableCell>{row.MissingPunch}</TableCell>
+          <TableCell>{row.Reason}</TableCell>
+          <TableCell>{row.Remarks}</TableCell>
 
-        <TableCell>
-          <div>
-            <Dialog open={dialogOpen} onOpenChange={setdialogOpen}>
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
-                }}
-                asChild
+          <TableCell>
+            <div>
+              <Dialog open={dialogOpen} onOpenChange={setdialogOpen}>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <Button className="px-4 mr-2 py-2 cursor-pointer bg-transparent hover:bg-emerald-600 hover:text-white border border-emerald-500 text-emerald-500 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
+                    Approve
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you sure?</DialogTitle>
+                    <DialogDescription>
+                      Are you sure? You want to approve this Regularization
+                      <Button
+                        onClick={(id) => {
+                          dispatch(ApprovedRegularization(row._id));
+                          setdialogOpen(false);
+                        }}
+                        className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
+                      >
+                        Approve
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+              <Dialog
+                open={rejectDialogOpen}
+                onOpenChange={setrejectDialogOpen}
               >
-                <Button className="px-4 mr-2 py-2 cursor-pointer bg-transparent hover:bg-emerald-600 hover:text-white border border-emerald-500 text-emerald-500 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter]">
-                  Approve
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you sure?</DialogTitle>
-                  <DialogDescription>
-                    Are you sure? You want to approve this Regularization
-                    <Button
-                      onClick={(id) => {
-                        dispatch(ApprovedRegularization(row._id));
-                        setdialogOpen(false);
-                      }}
-                      className=" flex mt-3 w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
-                    >
-                      Approve
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-            <Dialog open={rejectDialogOpen} onOpenChange={setrejectDialogOpen}>
-              <DialogTrigger
-                onClick={() => {
-                  openDialog(row._id);
-                }}
-                asChild
-              >
-                <Button className="px-4 py-2 cursor-pointer bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] ">
-                  Reject
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you sure?</DialogTitle>
-                  <DialogDescription>
-                    Are you sure? You want to Reject this Regularization
-                    <Button
-                      onClick={() => {
-                        dispatch(RejectRegularization(row._id));
-                        setrejectDialogOpen(false);
-                      }}
-                      className="flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
-                    >
-                      Reject
-                    </Button>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </TableCell>
-      </TableRow>
+                <DialogTrigger
+                  onClick={() => {
+                    openDialog(row._id);
+                  }}
+                  asChild
+                >
+                  <Button className="px-4 py-2 cursor-pointer bg-transperant hover:bg-red-700 hover:text-white border border-red-500 text-red-600 font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] ">
+                    Reject
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you sure?</DialogTitle>
+                    <DialogDescription>
+                      Are you sure? You want to Reject this Regularization
+                      <Button
+                        onClick={() => {
+                          dispatch(RejectRegularization(row._id));
+                          setrejectDialogOpen(false);
+                        }}
+                        className="flex mt-3 w-full px-4 py-2 bg-red-500 hover:bg-red-600 hover:text-white border border-red-500 text-white font-medium rounded-md transition-colors duration-200 shadow-none font-[sans-serif,Inter] cursor-pointer"
+                      >
+                        Reject
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
     </React.Fragment>
   );
 }

@@ -21,6 +21,7 @@ const ReusableTable = ({
   cellStyle = {},
   maxHeight = 500,
   width = '98%',
+  noDataMessageField = true,
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -38,8 +39,22 @@ const ReusableTable = ({
     ? data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : data;
 
+  function noDataMessage() {
+    return (
+      <TableRow className="flex h-10">
+        <TableCell
+          colSpan={columns.length}
+          align="center"
+          className="font-semibold text-[15px]"
+        >
+          <h3 className="text-[14px]">There is no Data to display</h3>
+        </TableCell>
+      </TableRow>
+    );
+  }
+
   return (
-    <>
+    <div className={`${noDataMessageField === true ? '' : 'hidden'}`}>
       <TableContainer
         component={Paper}
         sx={{
@@ -72,7 +87,7 @@ const ReusableTable = ({
               ...headStyle,
             }}
           >
-            <TableRow className="">
+            <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.field}
@@ -88,18 +103,22 @@ const ReusableTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedData?.map((row, index) => (
-              <RowComponent
-                key={row._id || index}
-                row={{
-                  ...row,
-                  index: pagination
-                    ? page * rowsPerPage + index + 1
-                    : index + 1,
-                }}
-                {...rowProps}
-              />
-            ))}
+            {paginatedData && paginatedData.length > 0
+              ? paginatedData?.map((row, index) => (
+                  <RowComponent
+                    key={row._id || index}
+                    row={{
+                      ...row,
+                      index: pagination
+                        ? page * rowsPerPage + index + 1
+                        : index + 1,
+                    }}
+                    {...rowProps}
+                  />
+                ))
+              : noDataMessageField === true
+                ? noDataMessage()
+                : ''}
           </TableBody>
         </Table>
       </TableContainer>
@@ -114,7 +133,7 @@ const ReusableTable = ({
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       )}
-    </>
+    </div>
   );
 };
 

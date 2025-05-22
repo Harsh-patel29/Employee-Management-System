@@ -332,6 +332,12 @@ export default function ProjectTable() {
         data={filteredData}
         rowProps={{ openDialog, openSheet, navigate }}
         RowComponent={Row}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.6,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

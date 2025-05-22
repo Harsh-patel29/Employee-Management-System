@@ -359,6 +359,12 @@ export default function WeekOffTable() {
         RowComponent={Row}
         pagination={true}
         rowProps={{ openSheet, openDialog }}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 0.6,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

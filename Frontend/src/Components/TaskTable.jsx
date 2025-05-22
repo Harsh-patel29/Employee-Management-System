@@ -420,6 +420,12 @@ export default function TaskTable() {
           RowComponent={Row}
           rowProps={{ openDialog, navigate }}
           pagination={true}
+          tableStyle={{
+            '& .MuiTableCell-root': {
+              padding: 0.9,
+              textAlign: 'center',
+            },
+          }}
         />
       )}
       {viewMode === 'kanban' && <KanbanView viewType="kanban" />}
