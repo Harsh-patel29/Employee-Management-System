@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -21,6 +21,7 @@ export default function LeaveFilterSheet({ screen }) {
   const [User, setUser] = useState(null);
   const [fromDate, setfromDate] = useState('');
   const [toDate, settoDate] = useState('');
+  const [isFilterApplied, setisFilterApplied] = useState(false);
   const { fetchusers, loading } = useSelector((state) => state.createuser);
 
   const handleFilter = (UserName, value, StartDate, EndDate) => {
@@ -50,10 +51,22 @@ export default function LeaveFilterSheet({ screen }) {
       }))
     : [];
 
+  useEffect(() => {
+    if (toDate < fromDate) {
+      settoDate(null);
+    }
+  }, [fromDate, toDate]);
+
+  useEffect(() => {
+    setisFilterApplied(!!User || !!LeaveStatus || !!fromDate || !!toDate);
+  }, [User, LeaveStatus, fromDate, toDate]);
+
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger>
-        <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+        <button
+          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'}  text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+        >
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -76,7 +89,7 @@ export default function LeaveFilterSheet({ screen }) {
             <h1 className="text-2xl w-full">Filter Task</h1>
             <Button
               id="clear-filter"
-              className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
+              className="bg-[#338DB5] cursor-pointer text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
                 dispatch(clearFilter({ screen }));
                 setUser('');
@@ -89,7 +102,7 @@ export default function LeaveFilterSheet({ screen }) {
             </Button>
           </div>
           <SheetClose>
-            <Button className="absolute -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
+            <Button className="absolute cursor-pointer -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
               &times;
             </Button>
           </SheetClose>
@@ -164,6 +177,7 @@ export default function LeaveFilterSheet({ screen }) {
               <div className="flex flex-col gap-2 items-start w-[46%]">
                 <label>To</label>
                 <DatePicker
+                  minDate={fromDate}
                   className="w-full border-2 border-gray-300 h-10 rounded-sm p-2"
                   placeholderText="DD-MM-YYYY"
                   selected={toDate}

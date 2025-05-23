@@ -31,11 +31,13 @@ import { AddRegularization } from '../feature/attendancefetch/attendanceSlice.js
 import { Bounce, toast } from 'react-toastify';
 import { TableContainer } from '@mui/material';
 import AttendanceFilterSheet from './AttendanceFilterSheet.jsx';
+import { setFilter } from '../feature/filterSlice/filterSlice';
 
 function Row({ row }) {
   const [open, setOpen] = React.useState(false);
   const [DirectSheet, setDirectSheet] = React.useState(false);
   const dispatch = useDispatch();
+
   return (
     <React.Fragment>
       <TableRow
@@ -205,6 +207,16 @@ export default function MissedPunchRegularizationTable() {
 
   React.useEffect(() => {
     dispatch(fetchAttendance());
+    dispatch(
+      setFilter({
+        screen: 'MissedPunchRegularization',
+        values: {
+          User: null,
+          StartDate: new Date().toISOString(),
+          EndDate: new Date().toISOString(),
+        },
+      })
+    );
   }, []);
 
   React.useEffect(() => {
@@ -254,14 +266,14 @@ export default function MissedPunchRegularizationTable() {
       Image:
         image?.[0] === '' ? (
           <img
-            src="./download.png"
-            alt="Attendance"
+            src="https://res.cloudinary.com/dwv1dc72r/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1747976180/attendance/attendance2025-05-2310:26:19%20am.png.png"
+            alt="./download.png"
             className="w-8 h-8 object-cover rounded-3xl"
           />
         ) : (
           <img
-            src={image?.[0]}
-            alt="Attendance"
+            src={image?.[0] !== '' ? image[0] : './download.png'}
+            alt=""
             className="w-8 h-8 object-cover rounded-3xl"
           />
         ),

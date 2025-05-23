@@ -18,6 +18,8 @@ export default function WeekOffFilterSheet({ screen }) {
   const [sheetopen, setsheetopen] = useState(false);
   const [effectiveDate, seteffectiveDate] = useState(null);
   const [todate, settodate] = useState(null);
+  const [isFilterApplied, setisFilterApplied] = useState(false);
+
   const handleFilter = (effectiveDate, toDate) => {
     dispatch(
       setFilter({
@@ -36,10 +38,16 @@ export default function WeekOffFilterSheet({ screen }) {
     }
   }, [effectiveDate, todate]);
 
+  useEffect(() => {
+    setisFilterApplied(!!effectiveDate || !!todate);
+  }, [effectiveDate, todate]);
+
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger>
-        <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+        <button
+          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'} text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+        >
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -62,7 +70,7 @@ export default function WeekOffFilterSheet({ screen }) {
             <h1 className="text-2xl w-full">Filter Task</h1>
             <Button
               id="clear-filter"
-              className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
+              className="bg-[#338DB5] cursor-pointer text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
                 dispatch(clearFilter({ screen }));
                 seteffectiveDate(null);
@@ -73,7 +81,7 @@ export default function WeekOffFilterSheet({ screen }) {
             </Button>
           </div>
           <SheetClose>
-            <Button className="absolute -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
+            <Button className="absolute cursor-pointer -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
               &times;
             </Button>
           </SheetClose>

@@ -25,9 +25,11 @@ export default function TasksFilterSheet({ screen }) {
   const [todate, settodate] = useState(null);
   const [fromdate, setfromdate] = useState(null);
   const [statusoption, setstatusoption] = useState(null);
+  const [isFilterApplied, setisFilterApplied] = useState(false);
   const { fetchusers, loading } = useSelector((state) => state.createuser);
   const { projects } = useSelector((state) => state.project);
   const { tasks } = useSelector((state) => state.task);
+
   useEffect(() => {
     dispatch(fetchuser());
     dispatch(getProjects());
@@ -91,10 +93,30 @@ export default function TasksFilterSheet({ screen }) {
     }
   }, [fromdate, todate]);
 
+  useEffect(() => {
+    setisFilterApplied(
+      !!Asigneeoption ||
+        !!projectoption ||
+        !!taskoption ||
+        !!todate ||
+        !!fromdate ||
+        !!statusoption
+    );
+  }, [
+    Asigneeoption,
+    projectoption,
+    taskoption,
+    todate,
+    fromdate,
+    statusoption,
+  ]);
+
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger>
-        <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+        <button
+          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'} text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+        >
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -117,7 +139,7 @@ export default function TasksFilterSheet({ screen }) {
             <h1 className="text-2xl w-full">Filter Task</h1>
             <Button
               id="clear-filter"
-              className="bg-[#338DB5] text-white mr-6 hover:bg-[#338DB5]"
+              className="bg-[#338DB5] cursor-pointer text-white mr-6 hover:bg-[#338DB5]"
               onClick={() => {
                 dispatch(clearFilter({ screen }));
                 setAsigneeoption(null);
@@ -132,7 +154,7 @@ export default function TasksFilterSheet({ screen }) {
             </Button>
           </div>
           <SheetClose>
-            <Button className="absolute -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
+            <Button className="absolute cursor-pointer -right-2 top-4 bg-transparent text-black shadow-none border-none text-4xl hover:bg-transparent hover:text-black transition-all duration-300">
               &times;
             </Button>
           </SheetClose>

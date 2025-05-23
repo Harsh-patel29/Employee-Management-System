@@ -18,6 +18,7 @@ export default function HolidayFilterSheet({ screen }) {
   const [sheetopen, setsheetopen] = useState(false);
   const [todate, settodate] = useState(null);
   const [fromdate, setfromdate] = useState(null);
+  const [isFilterApplied, setisFilterApplied] = useState(false);
 
   const handleFilter = (StartDate, EndDate) => {
     dispatch(
@@ -37,10 +38,16 @@ export default function HolidayFilterSheet({ screen }) {
     }
   }, [fromdate, todate]);
 
+  useEffect(() => {
+    setisFilterApplied(!!todate || !!fromdate);
+  }, [todate, fromdate]);
+
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
       <SheetTrigger>
-        <button className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+        <button
+          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'} text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+        >
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -107,7 +114,7 @@ export default function HolidayFilterSheet({ screen }) {
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
-                  isClearable={true}
+                  isClearable={!!fromdate}
                 />
               </div>
               <div className="flex flex-col gap-2 items-start w-[46%]">
@@ -136,7 +143,7 @@ export default function HolidayFilterSheet({ screen }) {
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
                   dateFormat="dd-MM-yyyy"
-                  isClearable={true}
+                  isClearable={!!todate}
                 />
               </div>
             </div>

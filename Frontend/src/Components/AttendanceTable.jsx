@@ -54,6 +54,7 @@ import RegularizationDetailTable from './RegularizationDetailTable.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
 import { TableContainer } from '@mui/material';
 import AttendanceFilterSheet from './AttendanceFilterSheet.jsx';
+import { setFilter } from '../feature/filterSlice/filterSlice';
 
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -335,6 +336,16 @@ export default function CollapsibleTable() {
   React.useEffect(() => {
     dispatch(fetchAttendance());
     dispatch(GetRegularization());
+    dispatch(
+      setFilter({
+        screen: 'Attendance',
+        values: {
+          User: null,
+          StartDate: new Date().toISOString(),
+          EndDate: new Date().toISOString(),
+        },
+      })
+    );
   }, []);
 
   React.useEffect(() => {

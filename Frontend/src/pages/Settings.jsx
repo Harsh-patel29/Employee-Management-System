@@ -66,7 +66,10 @@ const Settings = () => {
         Settings
       </div>
       <div className=" ml-8 mt-5 flex gap-x-8 ">
-        <div className="bg-white min-w-[25%] w-auto cursor-pointer shadow-xl rounded-xl flex h-auto flex-col">
+        <div
+          className="bg-white min-w-[25%] w-auto cursor-pointer shadow-xl rounded-xl flex h-auto flex-col"
+          onClick={setsheetopen}
+        >
           <div className="flex h-auto min-h-24">
             <div className="flex h-full ml-2 items-center justify-center">
               <Sheet open={sheetopen} onOpenChange={setsheetopen}>
@@ -99,15 +102,17 @@ const Settings = () => {
                   </SheetHeader>
                 </SheetContent>
               </Sheet>
-            </div>
-
-            <div className="flex flex-col  justify-center px-2">
-              <h1 className="font-semibold text-xl">SMTP Settings</h1>
-              <p className="text-gray-400">Configure email server settings</p>
+              <div className="flex flex-col  justify-center px-2">
+                <h1 className="font-semibold text-xl">SMTP Settings</h1>
+                <p className="text-gray-400">Configure email server settings</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white min-w-[25%] w-auto cursor-pointer rounded-xl shadow-xl flex items-center justify-center">
+        <div
+          className="bg-white min-w-[25%] w-auto cursor-pointer rounded-xl shadow-xl flex items-center justify-center"
+          onClick={setAttendancesheetopen}
+        >
           <div className="flex h-full ml-2 items-center justify-center">
             <Sheet
               open={Attendancesheetopen}
