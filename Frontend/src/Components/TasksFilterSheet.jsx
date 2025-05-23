@@ -31,10 +31,12 @@ export default function TasksFilterSheet({ screen }) {
   const { tasks } = useSelector((state) => state.task);
 
   useEffect(() => {
-    dispatch(fetchuser());
-    dispatch(getProjects());
-    dispatch(getAllTasks());
-  }, [dispatch]);
+    if (sheetopen) {
+      dispatch(fetchuser());
+      dispatch(getProjects());
+      dispatch(getAllTasks());
+    }
+  }, [dispatch, sheetopen]);
 
   const handleFilter = (
     value,

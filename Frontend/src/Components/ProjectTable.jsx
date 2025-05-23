@@ -50,9 +50,9 @@ function Row({ row, openDialog, navigate, openSheet }) {
           color: 'black',
         }}
       >
-        <TableCell>{row.index}</TableCell>
+        <TableCell className="w-10">{row.index}</TableCell>
         <TableCell>
-          <div className="flex items-center gap-2 w-full justify-center text-start">
+          <div className="flex items-center gap-2 w-full text-start">
             {row.logo}
             <Link
               to={`/productivity/project/${row._id}`}
@@ -65,8 +65,8 @@ function Row({ row, openDialog, navigate, openSheet }) {
         </TableCell>
         <TableCell>{row.progress_status}</TableCell>
         <TableCell>{row.status}</TableCell>
-        <TableCell>
-          <div className="flex justify-center">
+        <TableCell className="flex justify-end w-15">
+          <div className="flex">
             {user.permission.project.canUpdateProject && (
               <Sheet
                 open={updatesheetopen}
@@ -253,7 +253,7 @@ export default function ProjectTable() {
   }, [deletedproject?.success]);
 
   React.useEffect(() => {
-    if (!sheetopen && !project?.success) {
+    if (sheetopen && !project?.success) {
       dispatch(deleteLogo(logo?.message?.public_id));
     }
   }, [sheetopen]);
@@ -335,7 +335,7 @@ export default function ProjectTable() {
         tableStyle={{
           '& .MuiTableCell-root': {
             padding: 0.6,
-            textAlign: 'center',
+            textAlign: 'start',
           },
         }}
       />

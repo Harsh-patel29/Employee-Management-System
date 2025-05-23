@@ -108,7 +108,7 @@ export default function DashAttendanceTable({ noDataMessageValue }) {
     <>
       <div className="w-full">
         <div
-          className={`${noDataMessageValue === false ? 'hidden w-0' : ''} w-90 max-sm:w-full`}
+          className={`${noDataMessageValue === false ? 'hidden w-0' : ''} w-91 max-sm:w-full`}
         >
           <h1 className="ml-4 font-semibold text-[20.8px] mb-4 w-full">
             Log Hours

@@ -851,12 +851,9 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 name="comments"
                 render={({ field }) => (
                   <FormItem
-                    className={`w-full flex flex-col mt-6 ${currentAttachments.length > 0 ? 'bg-[rgba(249,249,249,0.65)] pb-0' : 'bg-white pb-8'} shadow-2xl sm:shadow border-t-[rgb(226,226,226)] border-2 h-auto min-h-40 rounded-md ml-2 overflow-y-auto`}
+                    className={`w-full flex flex-col mt-6 shadow-2xl sm:shadow border-t-[rgb(226,226,226)] border-2 h-auto min-h-40  rounded-md ml-2 overflow-y-auto`}
                   >
-                    <FormLabel
-                      className={` ${currentAttachments.length > 0 ? 'bg-white h-12 mt-0 flex items-center' : 'mt-2 ml-5 items-start'} flex  text-[20px] font-[100] font-[Inter,sans-serif] 
-                          text-decoration-line: underline decoration-[rgb(205,179,162)]`}
-                    >
+                    <FormLabel className="mt-2 ml-5 items-start flex text-[20px] font-[100] font-[Inter,sans-serif] text-decoration-line: underline decoration-[rgb(205,179,162)]">
                       <p className="ml-2">Comments</p>
                     </FormLabel>
                     {uploadedAttachmentLoading ? (
@@ -866,12 +863,14 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                     ) : (
                       <>
                         {currentAttachments.length > 0 && (
-                          <div className="flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300">
+                          <div
+                            className={`${currentAttachments.length > 0 ? 'bg-[rgba(249,249,249,0.65)] pb-0 px-2 mb-0 rounded-t-md h-29 flex items-center' : 'bg-white pb-8'} flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300 `}
+                          >
                             {currentAttachments.map((value, index) => (
                               <div key={index} className="relative">
                                 <div>
                                   <div
-                                    className=" absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 mt-1 cursor-pointer"
+                                    className="absolute top-0 right-0 flex justify-end bg-white rounded-full m-1 mt-1 cursor-pointer"
                                     onClick={() => {
                                       setCurrentvalue(value.public_id);
                                       setOpenDialog(true);
@@ -955,90 +954,87 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </AlertDialogContent>
                     </AlertDialog>
                     <div
-                      className={`relative flex items-center w-full px-2 ${currentAttachments?.length > 0 ? '' : 'mt-2'}`}
+                      className={`px-4 ${currentAttachments?.length > 0 ? '' : ''}`}
                     >
-                      <FormControl className="flex-grow">
-                        <Input
-                          id="comments"
-                          name="comments"
-                          type="text"
-                          className={`shadow h-10  ${currentAttachments?.length > 0 ? '' : 'mt-3 mb-3'} w-[98%] ml-2 bg-[rgba(249,249,249,0.65)]`}
-                          style={{
-                            border:
-                              currentAttachments?.length > 0
-                                ? 'none'
-                                : '1px solid #338db5',
-                            borderRadius:
-                              currentAttachments?.length > 0 ? 'none' : '20px',
-                            boxShadow: 'none',
-                          }}
-                          placeholder="Write your comment here..."
-                          {...field}
-                        />
+                      <FormControl>
+                        <div
+                          className={`flex shadow-sm h-10 ${currentAttachments?.length > 0 ? 'h-20 rounded-b-md' : 'mt-3 mb-3 ml-2 rounded-md'} flex items-start  bg-[rgba(249,249,249,0.65)]`}
+                        >
+                          <textarea
+                            id="comments"
+                            name="comments"
+                            type="text"
+                            className={`${currentAttachments?.length > 0 ? '' : 'max-h-8'}shadow-none border-none px-2 mt-2  resize-none bg-transparent outline-none w-full`}
+                            placeholder="Write your comment here..."
+                            {...field}
+                          />
+                          <div
+                            className={`${currentAttachments?.length > 0 ? 'items-start mt-2.5' : 'items-center'} flex gap-x-3 px-2 h-full `}
+                          >
+                            <label
+                              htmlFor="attachment-button"
+                              className="cursor-pointer inline-block"
+                            >
+                              <svg
+                                stroke=""
+                                fill="rgb(51,141,181)"
+                                stroke-width="0"
+                                viewBox="0 0 448 512"
+                                height="20"
+                                width="20"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M43.246 466.142c-58.43-60.289-57.341-157.511 1.386-217.581L254.392 34c44.316-45.332 116.351-45.336 160.671 0 43.89 44.894 43.943 117.329 0 162.276L232.214 383.128c-29.855 30.537-78.633 30.111-107.982-.998-28.275-29.97-27.368-77.473 1.452-106.953l143.743-146.835c6.182-6.314 16.312-6.422 22.626-.241l22.861 22.379c6.315 6.182 6.422 16.312.241 22.626L171.427 319.927c-4.932 5.045-5.236 13.428-.648 18.292 4.372 4.634 11.245 4.711 15.688.165l182.849-186.851c19.613-20.062 19.613-52.725-.011-72.798-19.189-19.627-49.957-19.637-69.154 0L90.39 293.295c-34.763 35.56-35.299 93.12-1.191 128.313 34.01 35.093 88.985 35.137 123.058.286l172.06-175.999c6.177-6.319 16.307-6.433 22.626-.256l22.877 22.364c6.319 6.177 6.434 16.307.256 22.626l-172.06 175.998c-59.576 60.938-155.943 60.216-214.77-.485z"></path>
+                              </svg>
+                            </label>
+                            <input
+                              type="file"
+                              id="attachment-button"
+                              multiple
+                              className="hidden"
+                              accept=".docx,.jpg,.jpeg,.png,.gif,.pdf"
+                              onChange={(e) => {
+                                const files = e.target.files;
+                                if (files) {
+                                  dispatch(uploadAttachment(files));
+                                }
+                              }}
+                            />
+                            <button
+                              id="comment-send-button"
+                              className=" disabled:cursor-not-allowed cursor-pointer"
+                              onClick={() => {
+                                handleUpdateTask('comments', {
+                                  Attachments:
+                                    currentAttachments.map((file) => ({
+                                      url: file.url,
+                                      public_id: file.public_id,
+                                    })) || [],
+                                  comment: field.value,
+                                });
+                                field.onChange('');
+                              }}
+                              disabled={
+                                currentAttachments.length === 0 &&
+                                field.value === ''
+                              }
+                            >
+                              <svg
+                                stroke="currentColor"
+                                fill="rgb(51,141,181)"
+                                stroke-width="0"
+                                viewBox="0 0 16 16"
+                                class="comment-send-icon"
+                                height="20"
+                                width="20"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
                       </FormControl>
-                      <div className="absolute right-6 flex gap-3 mt-3">
-                        <label
-                          htmlFor="attachment-button"
-                          className="cursor-pointer inline-block"
-                        >
-                          <svg
-                            stroke=""
-                            fill="rgb(51,141,181)"
-                            stroke-width="0"
-                            viewBox="0 0 448 512"
-                            height="20"
-                            width="20"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M43.246 466.142c-58.43-60.289-57.341-157.511 1.386-217.581L254.392 34c44.316-45.332 116.351-45.336 160.671 0 43.89 44.894 43.943 117.329 0 162.276L232.214 383.128c-29.855 30.537-78.633 30.111-107.982-.998-28.275-29.97-27.368-77.473 1.452-106.953l143.743-146.835c6.182-6.314 16.312-6.422 22.626-.241l22.861 22.379c6.315 6.182 6.422 16.312.241 22.626L171.427 319.927c-4.932 5.045-5.236 13.428-.648 18.292 4.372 4.634 11.245 4.711 15.688.165l182.849-186.851c19.613-20.062 19.613-52.725-.011-72.798-19.189-19.627-49.957-19.637-69.154 0L90.39 293.295c-34.763 35.56-35.299 93.12-1.191 128.313 34.01 35.093 88.985 35.137 123.058.286l172.06-175.999c6.177-6.319 16.307-6.433 22.626-.256l22.877 22.364c6.319 6.177 6.434 16.307.256 22.626l-172.06 175.998c-59.576 60.938-155.943 60.216-214.77-.485z"></path>
-                          </svg>
-                        </label>
-                        <input
-                          type="file"
-                          id="attachment-button"
-                          multiple
-                          className="hidden"
-                          accept=".docx,.jpg,.jpeg,.png,.gif,.pdf"
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            if (files) {
-                              dispatch(uploadAttachment(files));
-                            }
-                          }}
-                        />
-                        <button
-                          id="comment-send-button"
-                          className="mb-3 disabled:cursor-not-allowed cursor-pointer"
-                          onClick={() => {
-                            handleUpdateTask('comments', {
-                              Attachments:
-                                currentAttachments.map((file) => ({
-                                  url: file.url,
-                                  public_id: file.public_id,
-                                })) || [],
-                              comment: field.value,
-                            });
-                            field.onChange('');
-                          }}
-                          disabled={
-                            currentAttachments.length === 0 &&
-                            field.value === ''
-                          }
-                        >
-                          <svg
-                            stroke="currentColor"
-                            fill="rgb(51,141,181)"
-                            stroke-width="0"
-                            viewBox="0 0 16 16"
-                            class="comment-send-icon"
-                            height="20"
-                            width="20"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"></path>
-                          </svg>
-                        </button>
-                      </div>
                     </div>
 
                     <div className="max-h-[320px] overflow-y-auto flex flex-col gap-2 bg-white pb-8">
@@ -1639,7 +1635,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="EstimatedTime"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11 rounded-md items-center  gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5 text-[rgb(155,159,167)]">
                           <svg
                             stroke=""
@@ -1771,7 +1767,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                   name="Users"
                   render={({ field }) => (
                     <FormItem className="">
-                      <FormLabel className="flex h-11 rounded-md items-center gap-6 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                      <FormLabel className="flex h-11 rounded-md items-center text-[20px] gap-6 font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                         <div className="ml-2.5">
                           <svg
                             stroke="currentColor"
@@ -1787,138 +1783,140 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-w-12">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-w-10">
                           Users:
                         </h2>
-                        <div className="flex gap-1">
-                          {Tasks?.Project &&
-                            Tasks?.Users?.map((user, index) => {
-                              const initials = user
-                                ?.split(' ')
-                                .map((name) => name[0])
-                                .join('')
-                                .toUpperCase();
-                              return (
-                                <p
-                                  key={index}
-                                  className="ml-1 text-sm bg-[rgba(61,66,179,0.92)] text-white rounded-full w-7 h-7 flex items-center justify-center"
-                                >
-                                  {initials}
-                                </p>
-                              );
-                            })}
-                        </div>
-                        <div className="flex justify-between w-full">
-                          <FormControl>
-                            <Select
-                              styles={{
-                                control: (baseStyles) => ({
-                                  ...baseStyles,
-                                  border: 'none',
-                                  boxShadow: 'none',
-                                  fontSize: '15px',
-                                  color: 'rgb(120, 122, 126)',
-                                  backgroundColor: 'transparent',
-                                  width: 'auto',
-                                }),
-                                placeholder: (baseStyles) => ({
-                                  ...baseStyles,
-                                  color: 'rgb(120, 122, 126)',
-                                  fontSize: '15px',
-                                  width: 'auto',
-                                }),
-                                option: (baseStyles, state) => ({
-                                  ...baseStyles,
-                                  backgroundColor: state.isFocused
-                                    ? 'rgb(51,141,181)'
-                                    : 'white',
-                                  color: state.isFocused
-                                    ? 'white'
-                                    : 'rgb(120, 122, 126)',
-                                  ':hover': {
-                                    backgroundColor: 'rgb(51,141,181)',
-                                  },
-                                }),
-                                menu: (baseStyles) => ({
-                                  ...baseStyles,
-                                  backgroundColor: 'white',
-                                  minWidth: '100px',
-                                  maxWidth: 'auto',
-                                }),
-                              }}
-                              className="text-[rgb(120, 122, 126)] text-[14px]"
-                              {...field}
-                              isDisabled={!Tasks?.Project}
-                              onChange={(selectedOption) => {
-                                const updatedUsers = selectedOption
-                                  ? [
-                                      ...Tasks.Users.filter(
-                                        (user) => user !== selectedOption.value
-                                      ),
-                                      selectedOption.value,
-                                    ]
-                                  : [...Tasks.Users];
-                                field.onChange(updatedUsers);
-                                setSelectedUsers(updatedUsers);
-                                handleUpdateTask(
-                                  'Users',
-                                  updatedUsers,
-                                  'Users'
+                        <div className="justify-between flex items-center">
+                          <div className="flex gap-1  max-w-[7rem] overflow-x-auto no-scrollbar items-center">
+                            {Tasks?.Project &&
+                              Tasks?.Users?.map((user, index) => {
+                                const initials = user
+                                  ?.split(' ')
+                                  .map((name) => name[0])
+                                  .join('')
+                                  .toUpperCase();
+                                return (
+                                  <p
+                                    key={index}
+                                    className="text-sm bg-[rgba(61,66,179,0.92)] text-white rounded-full min-w-7 min-h-7 flex items-center justify-center"
+                                  >
+                                    {initials}
+                                  </p>
                                 );
-                              }}
-                              isSearchable={false}
-                              options={userOptions}
-                            />
-                          </FormControl>
-                          <div className=" flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">
-                            {Tasks?.Users?.length > 0 &&
-                              Tasks?.Project.length > 0 &&
-                              showUserDropDown === false && (
-                                <button
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    setShowUserDropDown(true);
-                                  }}
-                                >
-                                  <svg
-                                    stroke="currentColor"
-                                    fill="currentColor"
-                                    stroke-width="0"
-                                    viewBox="0 0 24 24"
-                                    class="tasks-item-icon"
-                                    height="1em"
-                                    width="1em"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path fill="none" d="M0 0h24v24H0z"></path>
-                                    <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
-                                  </svg>
-                                </button>
-                              )}
-                            {Tasks?.Users?.length > 0 &&
-                              showUserDropDown === true && (
-                                <button
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    setShowUserDropDown(false);
-                                  }}
-                                >
-                                  <svg
-                                    stroke="currentColor"
-                                    fill="currentColor"
-                                    stroke-width="0"
-                                    viewBox="0 0 24 24"
-                                    class="tasks-item-icon"
-                                    height="1em"
-                                    width="1em"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path fill="none" d="M0 0h24v24H0z"></path>
-                                    <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path>
-                                  </svg>
-                                </button>
-                              )}
+                              })}
                           </div>
+                          <FormControl>
+                            <div className="">
+                              <Select
+                                styles={{
+                                  control: (baseStyles) => ({
+                                    ...baseStyles,
+                                    border: 'none',
+                                    boxShadow: 'none',
+                                    fontSize: '15px',
+                                    color: 'rgb(120, 122, 126)',
+                                    backgroundColor: 'transparent',
+                                  }),
+                                  placeholder: (baseStyles) => ({
+                                    ...baseStyles,
+                                    // color: 'rgb(120, 122, 126)',
+                                    // fontSize: '15px',
+                                    // width: '0px',
+                                  }),
+                                  option: (baseStyles, state) => ({
+                                    ...baseStyles,
+                                    backgroundColor: state.isFocused
+                                      ? 'rgb(51,141,181)'
+                                      : 'white',
+                                    color: state.isFocused
+                                      ? 'white'
+                                      : 'rgb(120, 122, 126)',
+                                    ':hover': {
+                                      backgroundColor: 'rgb(51,141,181)',
+                                    },
+                                  }),
+                                  menu: (baseStyles) => ({
+                                    ...baseStyles,
+                                    backgroundColor: 'white',
+                                    minWidth: '180px',
+                                    maxWidth: 'auto',
+                                  }),
+                                }}
+                                className="text-[rgb(120, 122, 126)] text-[14px]"
+                                {...field}
+                                isDisabled={!Tasks?.Project}
+                                onChange={(selectedOption) => {
+                                  const updatedUsers = selectedOption
+                                    ? [
+                                        ...Tasks.Users.filter(
+                                          (user) =>
+                                            user !== selectedOption.value
+                                        ),
+                                        selectedOption.value,
+                                      ]
+                                    : [...Tasks.Users];
+                                  field.onChange(updatedUsers);
+                                  setSelectedUsers(updatedUsers);
+                                  handleUpdateTask(
+                                    'Users',
+                                    updatedUsers,
+                                    'Users'
+                                  );
+                                }}
+                                isSearchable={false}
+                                options={userOptions}
+                              />
+                            </div>
+                          </FormControl>
+                        </div>
+                        <div className=" flex justify-end text-[15px] font-[Inter,sans-serif] mr-5 font-[100] bg-transparent">
+                          {Tasks?.Users?.length > 0 &&
+                            Tasks?.Project.length > 0 &&
+                            showUserDropDown === false && (
+                              <button
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  setShowUserDropDown(true);
+                                }}
+                              >
+                                <svg
+                                  stroke="currentColor"
+                                  fill="currentColor"
+                                  stroke-width="0"
+                                  viewBox="0 0 24 24"
+                                  class="tasks-item-icon"
+                                  height="1em"
+                                  width="1em"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path fill="none" d="M0 0h24v24H0z"></path>
+                                  <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
+                                </svg>
+                              </button>
+                            )}
+                          {Tasks?.Users?.length > 0 &&
+                            showUserDropDown === true && (
+                              <button
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  setShowUserDropDown(false);
+                                }}
+                              >
+                                <svg
+                                  stroke="currentColor"
+                                  fill="currentColor"
+                                  stroke-width="0"
+                                  viewBox="0 0 24 24"
+                                  class="tasks-item-icon"
+                                  height="1em"
+                                  width="1em"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path fill="none" d="M0 0h24v24H0z"></path>
+                                  <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path>
+                                </svg>
+                              </button>
+                            )}
                         </div>
                       </FormLabel>
                       {showUserDropDown === true &&
@@ -2313,13 +2311,13 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                         </FormLabel>
                         {showUserTaskTimer === true &&
                           Tasks?.UserTaskTime?.length > 0 && (
-                            <div className="h-auto p-2 rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
+                            <div className="h-auto  p-2 rounded-md pl-2 text-[20px] font-[Inter,sans-serif] ml-5 font-[100] bg-[rgba(231,235,245,0.66)] ">
                               {Tasks?.UserTaskTime?.length > 0 &&
                                 showUserTaskTimer === true && (
-                                  <div className="flex flex-col  justify-end font-light text-[15px] font-[rgb(115,115,115)] gap-2">
+                                  <div className="flex flex-col justify-end font-light text-[15px] font-[rgb(115,115,115)] gap-2">
                                     {Tasks?.UserTaskTime?.map((user) => (
                                       <h1 key={user._id}>
-                                        <p className="flex gap-x-8">
+                                        <p className="flex gap-x-8 px-12">
                                           <h6 className="w-20">{user.Name} </h6>
                                           <h6>
                                             {formatDuration(user.totalDuration)}

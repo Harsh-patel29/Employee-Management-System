@@ -150,7 +150,7 @@ const AssignSheet = () => {
               <div className="relative w-[50%]">
                 <Select
                   className="z-50"
-                  placeholder={selectedUser}
+                  placeholder={selectedUser ? selectedUser : 'Select User'}
                   value={selectedUser}
                   onChange={(e) => setSelectedUser(e.value)}
                   options={selectUserOptions}
@@ -160,7 +160,7 @@ const AssignSheet = () => {
               <div className="relative w-[50%]">
                 <Select
                   className="z-50"
-                  placeholder={selectedRole}
+                  placeholder={selectedRole ? selectedRole : 'Select Role'}
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.value)}
                   options={selectRolesOptions}
@@ -173,6 +173,8 @@ const AssignSheet = () => {
                   if (sheetopen) {
                     dispatch(assignuser({ data, userid }));
                     dispatch(getname(userid));
+                    setSelectedRole('');
+                    setSelectedUser('');
                   }
                 }}
               >

@@ -61,6 +61,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
       Sunday: { halfDay: false, weekOff: false, weeks: [] },
     },
   });
+
   const {
     control,
     handleSubmit,
@@ -134,18 +135,26 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
       const updatedDays = { ...formData.days };
       weekOffbyId?.message?.days.forEach((d) => {
         if (updatedDays[d.day]) {
-          updatedDays[d.day] = {
-            ...updatedDays[d.day],
-            [d.type === 'WeekOff' ? 'weekOff' : '']: true,
-            [d.type === 'Half Day' ? 'halfDay' : '']: true,
-            weeks: d.weeks || [],
-          };
+          const dayData = { ...updatedDays[d.day] };
+          if (d.type === 'WeekOff') {
+            dayData.weekOff = true;
+            dayData.halfDay = false;
+          } else if (d.type === 'Half Day') {
+            dayData.halfDay = true;
+            dayData.weekOff = false;
+          } else {
+            dayData.halfDay = false;
+            dayData.weekOff = false;
+          }
+          dayData.weeks = d.weeks || [];
+          updatedDays[d.day] = dayData;
         }
       });
       setFormData((prev) => ({
         ...prev,
         days: updatedDays,
       }));
+      console.log(formData.days);
     }
   }, [mode, weekOffbyId]);
 
@@ -219,7 +228,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
             {mode === 'update' ? 'Update WeekOff' : 'Create WeekOff'}
           </h1>
           <Button
-            id="create-holiday"
+            id="create-WeekOff"
             type="submit"
             className="bg-white text-black border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
           >

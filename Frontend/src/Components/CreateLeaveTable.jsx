@@ -43,11 +43,11 @@ function Row({ row, openSheet, openDialog, navigate }) {
   return (
     <React.Fragment>
       <TableRow>
-        <TableCell>{row.index}</TableCell>
+        <TableCell className="w-10">{row.index}</TableCell>
         <TableCell>{row.Leave_Reason}</TableCell>
         <TableCell>{row.Leave_Code}</TableCell>
-        <TableCell>
-          <div className="flex items-center justify-center gap-2 ">
+        <TableCell className="flex w-20">
+          <div className="flex  gap-2">
             {user.permission.leaveType.canUpdateLeaveType && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>
                 <SheetTrigger
@@ -278,7 +278,7 @@ export default function CreateLeaveTable() {
         tableStyle={{
           '& .MuiTableCell-root': {
             padding: 0.9,
-            textAlign: 'center',
+            textAlign: 'justify',
           },
         }}
       />

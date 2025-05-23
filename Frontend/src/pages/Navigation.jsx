@@ -264,9 +264,6 @@ const Navigation = () => {
   const isExpanded = useSelector((state) => state.Sidebar.isExpanded);
   const isVisible = useSelector((state) => state.Sidebar.visible);
 
-  React.useEffect(() => {
-    dispatch(checkAuth());
-  }, []);
   const [value, setValue] = useState(() => {
     return localStorage.getItem('val') || 'Dashboard';
   });
@@ -395,7 +392,7 @@ const Navigation = () => {
                 <ul
                   className={`${
                     isExpanded
-                      ? 'fixed left-full top-0 bg-white shadow-md w-[170px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer '
+                      ? 'fixed left-full top-0 bg-[#fff] w-[170px] max-h-[calc(100vh-70px)] h-screen border border-gray-300 z-[1030] font-[Inter,sans-serif] text-[14px] font-[500] text-[rgb(108,117,125)] cursor-pointer rounded-tr-[10px]'
                       : 'hidden'
                   }`}
                 >
@@ -406,27 +403,29 @@ const Navigation = () => {
                       .map((subItem) => (
                         <li
                           key={subItem.link}
-                          className="p-2 pl-4  transition-all duration-300 hover:bg-[#e6f7ffce]"
+                          className="p-2 transition-all mt-1 duration-300 hover:bg-[#e6f7ffce]"
                         >
                           <Link
                             to={`/${subItem.link}`}
                             onClick={() => dispatch(collapedSideBar())}
                           >
                             {
-                              <div className="box-border items-center flex pb-[12px] pt-[12px] pr-[8px] pl-[8px] w-[169.2px] ">
-                                <svg
-                                  stroke="currentColor"
-                                  fill="currentColor"
-                                  stroke-width="0"
-                                  viewBox="0 0 24 24"
-                                  class="me- mb-"
-                                  height="1em"
-                                  width="1em"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  style={{ color: 'var(--SUB-LINE-DOT)' }}
-                                >
-                                  <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
-                                </svg>
+                              <div className="box-border items-center flex h-6 pt-5 pb-5 max-w-[169.2px] ">
+                                <div>
+                                  <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    stroke-width="0"
+                                    viewBox="0 0 24 24"
+                                    class="me- mb-"
+                                    height="1em"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    style={{ color: 'var(--SUB-LINE-DOT)' }}
+                                  >
+                                    <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
+                                  </svg>
+                                </div>
                                 <span className="text-left ms-2">{`${subItem.name}`}</span>
                               </div>
                             }{' '}

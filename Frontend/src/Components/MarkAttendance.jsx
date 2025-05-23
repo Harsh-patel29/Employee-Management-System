@@ -22,14 +22,14 @@ function MarkAttendance() {
   const { attendance, error, isSheetOpen, isSubmitting } = useSelector(
     (state) => state.markAttendance
   );
-  const { fetchedsmtp, updatedsmtp } = useSelector((state) => state.smtpSlice);
+  const { fetchedsmtp } = useSelector((state) => state.smtpSlice);
   const dispatch = useDispatch();
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(getSMTP());
-  }, [updatedsmtp]);
+  }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (fetchedsmtp?.message) {
       const value = Object.values(fetchedsmtp?.message?.[0]?.Attendance);
       setisImageRequired(value);

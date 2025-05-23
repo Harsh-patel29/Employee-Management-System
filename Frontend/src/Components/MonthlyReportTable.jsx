@@ -44,25 +44,12 @@ function formatLogHours(logHourStr) {
   return `${h}:${m}:${s}`;
 }
 
-function Row({ row }) {
+function Row({ row, HolidayDate }) {
   const { fetchedMonthlyReportDetail } = useSelector(
     (state) => state.markAttendance
   );
 
   const dispatch = useDispatch();
-  const [HolidayDate, SetHolidayDate] = React.useState([]);
-
-  const { allHoliday } = useSelector((state) => state.holiday);
-
-  React.useEffect(() => {
-    dispatch(fetchHoliday());
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    if (allHoliday?.message) {
-      SetHolidayDate(allHoliday.message);
-    }
-  }, [allHoliday]);
 
   let holidayDatesSet = new Set();
 
@@ -274,11 +261,24 @@ const MonthlyReportTable = () => {
   const { fetchedMonthlyReportDetail } = useSelector(
     (state) => state.markAttendance
   );
+  const { allHoliday } = useSelector((state) => state.holiday);
+
+  const [HolidayDate, SetHolidayDate] = React.useState([]);
 
   const data = {
     selectedMonth,
     selectedYear,
   };
+
+  React.useEffect(() => {
+    dispatch(fetchHoliday());
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    if (allHoliday?.message) {
+      SetHolidayDate(allHoliday.message);
+    }
+  }, [allHoliday]);
 
   React.useEffect(() => {
     if (selectedMonth && selectedYear) {
@@ -423,7 +423,7 @@ const MonthlyReportTable = () => {
         data={detail}
         padding="1"
         width="99%"
-        rowProps={{ detail }}
+        rowProps={{ detail, HolidayDate }}
         containerStyle={{ borderRadius: 0 }}
         cellStyle={{ border: 2 }}
         tableStyle={{

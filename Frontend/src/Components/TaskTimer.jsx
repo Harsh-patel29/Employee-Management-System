@@ -15,7 +15,7 @@ const TaskTimer = () => {
           setOpenTimer(true);
           dispatch(getTaskByUser({ user: user.Name }));
         }}
-        className="bg-transparent border-[rgb(120,173,196)] border-2 text-white p-2 rounded-full flex items-center justify-center cursor-pointer"
+        className="bg-white border-[rgb(120,173,196)] border-2 text-white p-2 rounded-full flex items-center justify-center cursor-pointer"
       >
         <svg
           stroke="currentColor"

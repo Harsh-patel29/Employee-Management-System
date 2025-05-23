@@ -297,26 +297,6 @@ export default function CollapsibleTable() {
   };
 
   React.useEffect(() => {
-    async function getDetail() {
-      try {
-        const res = await axios.get(
-          'http://localhost:8000/api/v1/user/role/defaultvalue',
-          {
-            withCredentials: true,
-          }
-        );
-        setisDefault(res.data.message);
-      } catch (error) {
-        console.error(
-          'Error fetching users:',
-          error?.response?.data || error.message
-        );
-      }
-    }
-    getDetail();
-  }, []);
-
-  React.useEffect(() => {
     dispatch(fetchuser());
   }, []);
 

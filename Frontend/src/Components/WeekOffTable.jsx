@@ -70,7 +70,7 @@ function Row({ row, openDialog, openSheet }) {
         <TableCell>{row.index}</TableCell>
         <TableCell>{row.WeekOffName}</TableCell>
         <TableCell>{row.Effective_Date}</TableCell>
-        <TableCell>
+        <TableCell className="w-10">
           <div className="flex items-center gap-2 justify-center">
             {user?.permission.weekOff.canUpdateWeekoff && (
               <Sheet open={updatesheetopen} onOpenChange={setupdatesheetopen}>

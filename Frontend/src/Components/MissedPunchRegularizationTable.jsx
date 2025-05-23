@@ -68,8 +68,8 @@ function Row({ row }) {
         <TableCell>{row.AttendAt}</TableCell>
         <TableCell>{row.TimeOut}</TableCell>
         <TableCell>{row.Count}</TableCell>
-        <TableCell>
-          <div className="flex justify-center gap-2">
+        <TableCell className="">
+          <div className="flex justify-center">
             <Sheet open={DirectSheet} onOpenChange={setDirectSheet}>
               <SheetTrigger asChild>
                 <FaEdit className="cursor-pointer font-semibold text-xl text-[#d7d869]" />

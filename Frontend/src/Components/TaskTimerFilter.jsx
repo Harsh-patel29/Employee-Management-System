@@ -24,8 +24,10 @@ export default function TaskTimerFilterSheet({ screen }) {
   const { fetchusers, loading } = useSelector((state) => state.createuser);
 
   useEffect(() => {
-    dispatch(fetchuser());
-  }, [dispatch]);
+    if (sheetopen) {
+      dispatch(fetchuser());
+    }
+  }, [dispatch, sheetopen]);
 
   const handleFilter = (value, startDate, endDate) => {
     dispatch(

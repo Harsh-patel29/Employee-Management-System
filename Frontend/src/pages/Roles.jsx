@@ -53,10 +53,6 @@ const Roles = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(checkAuth());
-  }, []);
-
-  useEffect(() => {
     if (roles?.message) {
       setRoles(roles.message);
     } else {

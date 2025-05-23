@@ -25,9 +25,11 @@ export default function UserFilterSheet({ screen }) {
   const { roles } = useSelector((state) => state.getrole);
 
   useEffect(() => {
-    dispatch(fetchuser());
-    dispatch(getRoles());
-  }, [dispatch]);
+    if (sheetopen) {
+      dispatch(fetchuser());
+      dispatch(getRoles());
+    }
+  }, [dispatch, sheetopen]);
 
   const handleFilter = (user, role, reportingManager) => {
     dispatch(

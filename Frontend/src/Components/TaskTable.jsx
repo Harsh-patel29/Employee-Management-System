@@ -267,13 +267,6 @@ export default function TaskTable() {
   }, [id, navigate]);
 
   React.useEffect(() => {
-    if (!id) {
-      settaskid(null);
-      dispatch(getAllTasks());
-    }
-  }, [id, dispatch]);
-
-  React.useEffect(() => {
     if (deletedTask?.success === true) {
       setdialogOpen(false);
       toast.success('Task Deleted Successfully', {

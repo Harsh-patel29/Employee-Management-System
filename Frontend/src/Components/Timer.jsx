@@ -62,10 +62,6 @@ const Timer = ({ openTimer, setOpenTimer }) => {
   const seconds = time % 60;
 
   useEffect(() => {
-    dispatch(getTaskByUser({ user: user.Name }));
-  }, []);
-
-  useEffect(() => {
     if (taskByUser?.message) {
       setTask(taskByUser.message);
     }

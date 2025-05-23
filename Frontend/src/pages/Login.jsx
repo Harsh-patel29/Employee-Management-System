@@ -9,13 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { resetError } from '../feature/datafetch/datafetchSlice.js';
 import Loader from '../Components/Loader.jsx';
 import { Link } from 'react-router';
-import {
-  verifyOtp,
-  resetOtp,
-  resetVerifyOtp,
-  resetPasswordField,
-  resendOTP,
-} from '../feature/otpfetch/otpSlice.js';
+import { resetOtp, resetVerifyOtp } from '../feature/otpfetch/otpSlice.js';
 
 const Login = () => {
   const navigate = useNavigate();
