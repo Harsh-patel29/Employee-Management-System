@@ -70,6 +70,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    remeberMe: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -98,7 +102,8 @@ userSchema.statics.generateEMPCode = async function () {
   return `EMP${nextNumber.toString().padStart(3, '0')}`;
 };
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function (RemeberMe = false) {
+  const expiresIn = RemeberMe ? '7d' : '1d';
   return jwt.sign(
     {
       _id: this._id,
@@ -106,17 +111,18 @@ userSchema.methods.generateAccessToken = function () {
       EMP_CODE: this.EMP_CODE,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    { expiresIn }
   );
 };
 
-userSchema.methods.generateRefreshToken = function () {
+userSchema.methods.generateRefreshToken = function (RemeberMe = false) {
+  const expiresIn = RemeberMe ? '30d' : '15d';
   return jwt.sign(
     {
       _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    { expiresIn }
   );
 };
 

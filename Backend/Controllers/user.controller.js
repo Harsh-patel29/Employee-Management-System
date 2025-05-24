@@ -7,14 +7,14 @@ import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { Role } from '../Models/Role.model.js';
 import { keysSchema } from '../Models/Roles_keys.js';
 
-const generateAccessandRefreshToken = async (UserID) => {
+const generateAccessandRefreshToken = async (UserID, RemeberMe) => {
   try {
     const user = await User.findById(UserID);
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    const accessToken = await user.generateAccessToken();
-    const refreshToken = await user.generateRefreshToken();
+    const accessToken = await user.generateAccessToken(RemeberMe);
+    const refreshToken = await user.generateRefreshToken(RemeberMe);
 
     user.refreshToken = refreshToken;
 
@@ -85,8 +85,8 @@ const createUser = AsyncHandler(async (req, res) => {
 });
 
 const loginUser = AsyncHandler(async (req, res) => {
-  const { Email, Password } = req.body;
-  const access = req.permission;
+  const { Email, Password, RememberMe } = req.body;
+
   if (!Email || !Password) {
     throw new ApiError(400, 'All fileds are required');
   }
@@ -103,18 +103,31 @@ const loginUser = AsyncHandler(async (req, res) => {
   }
 
   const { accessToken, refreshToken } = await generateAccessandRefreshToken(
-    user._id
+    user._id,
+    RememberMe
   );
 
-  const option = {
-    httpOnly: true,
-  };
+  const accessTokenExpiry = RememberMe
+    ? 7 * 24 * 60 * 60 * 1000
+    : 24 * 60 * 60 * 1000;
+
+  const RefreshTokenExpiry = RememberMe
+    ? 30 * 24 * 60 * 60 * 1000
+    : 15 * 60 * 60 * 1000;
 
   const loggedInUser = await User.findById(user._id).select('-Password ');
   return res
     .status(200)
-    .cookie('accessToken', accessToken, option)
-    .cookie('refreshToken', refreshToken, option)
+    .cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: accessTokenExpiry,
+    })
+    .cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: true,
+      maxAge: RefreshTokenExpiry,
+    })
     .json(new ApiResponse(200, loggedInUser, 'User loggedIn Successfully'));
 });
 
