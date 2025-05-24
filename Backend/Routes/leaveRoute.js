@@ -15,6 +15,7 @@ import {
 } from '../Controllers/leave.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { isAuth } from '../Middlewares/authMiddleware.js';
+import { chechkRole } from '../Middlewares/checkroleMiidleware.js';
 
 const router = Router();
 
@@ -30,6 +31,6 @@ router
   .route('/get-created-leave-by-id')
   .post(authenticate, getCreatedLeaveById);
 router.route('/delete-created-leave').delete(authenticate, deleteCreatedLeave);
-router.route('/approve-leave').post(authenticate, approveLeave);
-router.route('/reject-leave').post(authenticate, rejectLeave);
+router.route('/approve-leave').post(authenticate, chechkRole, approveLeave);
+router.route('/reject-leave').post(authenticate, chechkRole, rejectLeave);
 export default router;

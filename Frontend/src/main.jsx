@@ -31,6 +31,8 @@ import Holiday from './pages/Holiday.jsx';
 import WeekOff from './pages/Weekoff.jsx';
 import MissedPunchRegularization from './pages/MissedPunchRegularization.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
+import UnauthorizedPage from './pages/Unauthorized.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -55,9 +57,21 @@ const router = createBrowserRouter(
           <Route path="/attendance" element={<Attendance />} />
           <Route
             path="attendance/regularization"
-            element={<Regularization />}
+            element={
+              <ProtectedRoute>
+                <Regularization />
+              </ProtectedRoute>
+            }
           />
-          <Route path="attendance/monthlyReport" element={<MonthlyReport />} />
+
+          <Route
+            path="attendance/monthlyReport"
+            element={
+              <ProtectedRoute>
+                <MonthlyReport />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="attendance/missedPunchRegularization"
             element={<MissedPunchRegularization />}
@@ -84,11 +98,19 @@ const router = createBrowserRouter(
           <Route path="/productivity/tasktimer" element={<TaskTimerPage />} />
           <Route path="/leave" element={<Leave />} />
           <Route path="/leave/leaveType" element={<CreateLeave />} />
-          <Route path="/leave/leaveApprove" element={<LeaveApprove />} />
+          <Route
+            path="/leave/leaveApprove"
+            element={
+              <ProtectedRoute>
+                <LeaveApprove />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Route>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/forgotPassword" element={<ForgotPassword />}></Route>
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
     </>
   )
 );

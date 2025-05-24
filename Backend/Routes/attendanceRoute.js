@@ -13,6 +13,8 @@ import {
 } from '../Controllers/Attendance.controller.js';
 import { authenticate } from '../Middlewares/AuthorizeMiddleware.js';
 import { isAuth } from '../Middlewares/authMiddleware.js';
+import { chechkRole } from '../Middlewares/checkroleMiidleware.js';
+
 const router = Router();
 
 router
@@ -36,7 +38,9 @@ router
 
 router.route('/attendanceDetail').get(authenticate, isAuth, getAttendance);
 router.route('/regularization').post(authenticate, AddRegularization);
-router.route('/getRegularization').get(authenticate, getRegularization);
+router
+  .route('/getRegularization')
+  .get(authenticate, chechkRole, getRegularization);
 router
   .route('/getApprovedRegularization')
   .post(authenticate, ApproveRegularization);
@@ -44,5 +48,7 @@ router.route('/RejectRegularization').post(authenticate, RejectRegularization);
 router
   .route('/getRegularizaitonDetail')
   .post(authenticate, getRegularizationbyDateandUser);
-router.route('/getMonthlyReportDetails').post(authenticate, fetchMonthlyReport);
+router
+  .route('/getMonthlyReportDetails')
+  .post(authenticate, chechkRole, fetchMonthlyReport);
 export default router;

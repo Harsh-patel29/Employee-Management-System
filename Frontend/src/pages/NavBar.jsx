@@ -1,11 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { FiPlus } from 'react-icons/fi';
-import { IoMdNotificationsOutline } from 'react-icons/io';
-import { CgProfile } from 'react-icons/cg';
-import { GiSettingsKnobs } from 'react-icons/gi';
-import { BsClock } from 'react-icons/bs';
-import { CiCircleInfo } from 'react-icons/ci';
 import { IoExitOutline } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
@@ -19,8 +13,6 @@ import {
   DropdownMenuTrigger,
 } from '../Components/components/ui/dropdown.tsx';
 import axios from 'axios';
-import { Menu, X } from 'lucide-react';
-import Navigation from './Navigation.jsx';
 import HamburgerController from '../Components/HamBurgerComponent.jsx';
 const NavBar = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -31,13 +23,10 @@ const NavBar = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Check initially
     checkScreenSize();
 
-    // Add event listener
     window.addEventListener('resize', checkScreenSize);
 
-    // Clean up
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
@@ -54,7 +43,6 @@ const NavBar = () => {
     );
     if (res.data.statusCode === 200) {
       navigate('/login');
-      localStorage.removeItem('active');
       localStorage.setItem('val', 'Dashboard');
       localStorage.removeItem('viewMode');
     }
