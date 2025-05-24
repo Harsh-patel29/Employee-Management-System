@@ -56,7 +56,11 @@ const uploadAttachment = AsyncHandler(async (req, res, next) => {
     console.log('attachment uploaded');
   } catch (error) {
     console.log('Error in uploading attachment', error);
-    throw new ApiError(500, 'Failed to upload attachment');
+    throw new ApiError(
+      500,
+      'Failed to upload attachment.Check File Size',
+      error
+    );
   }
   req.attachment = attachmentphoto;
 

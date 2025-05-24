@@ -61,7 +61,9 @@ const getAlltasks = AsyncHandler(async (req, res) => {
   if (ViewAccess === true) {
     allTasks = await Task.find({}).sort({ createdAt: -1 });
   } else {
-    allTasks = await Task.find({ Users: req.user.Name }).sort({
+    allTasks = await Task.find({
+      $or: [{ Users: req.user.Name }, { Asignee: req.user.Name }],
+    }).sort({
       createdAt: -1,
     });
   }

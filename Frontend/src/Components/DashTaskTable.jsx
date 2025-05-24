@@ -68,10 +68,7 @@ export default function DashTaskTable() {
 
   const filteredTask = Tasks?.filter(
     (t) =>
-      t.Status !== 'Completed' &&
-      t.Status !== 'Deployed' &&
-      t.Status !== 'Done' &&
-      t.Status !== 'Backlog'
+      t.Status !== 'Completed' && t.Status !== 'Deployed' && t.Status !== 'Done'
   );
 
   const columns = [

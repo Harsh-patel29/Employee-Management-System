@@ -28,9 +28,12 @@ import {
 } from '../Components/components/ui/radio-group';
 const formSchema = z.object({
   WeekOffName: z.string().min(1, 'WeekOff is required'),
-  Effective_Date: z.string().min(1, {
-    message: 'Effective Date is required',
-  }),
+  Effective_Date: z
+    .string({
+      required_error: 'Effective Date is Required',
+      invalid_type_error: 'Effective Date is required',
+    })
+    .min(1, { message: 'Effective Date is Required' }),
   days: z
     .array(
       z.object({
@@ -154,7 +157,6 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
         ...prev,
         days: updatedDays,
       }));
-      console.log(formData.days);
     }
   }, [mode, weekOffbyId]);
 
@@ -345,11 +347,12 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                       field.onChange(localDate);
                       setdate(localDate);
                     }}
+                    selected={field.value}
                     dateFormat="dd-MM-yyyy"
+                    isClearable={!!date}
                     showYearDropdown
                     scrollableYearDropdown
                     yearDropdownItemNumber={100}
-                    isClearable={true}
                     autoComplete="off"
                   />
                 </FormControl>
@@ -412,7 +415,7 @@ export default function WeekOffForm({ onSubmit, mode, id }) {
                                 <Button
                                   type="button"
                                   variant="default"
-                                  className="px-2 py-1 text-center cursor-pointer shadow bg-[#6794f4]  text-[#FFFFFF] font-semibold rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="px-2 py-1 text-center cursor-pointer shadow bg-[#6794f4] text-[#FFFFFF] font-semibold rounded hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                   Select
                                 </Button>

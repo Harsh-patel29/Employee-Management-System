@@ -286,7 +286,6 @@ const Navigation = () => {
 
   React.useEffect(() => {
     const matchedKey = getActiveKeyFromPath();
-    console.log(matchedKey);
 
     if (matchedKey !== active) {
       setActive(matchedKey);

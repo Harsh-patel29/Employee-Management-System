@@ -117,6 +117,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
     deletedTodo,
     deletedUploadedImage,
     loading,
+    error,
     uploadedImageLoading,
     uploadedAttachmentLoading,
   } = useSelector((state) => state.task);
@@ -157,6 +158,15 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
   useEffect(() => {
     dispatch(getTaskById(taskid));
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error?.message, {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  }, [error]);
 
   useEffect(() => {
     if (getTaskid?.message) {
@@ -857,14 +867,14 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       <p className="ml-2">Comments</p>
                     </FormLabel>
                     {uploadedAttachmentLoading ? (
-                      <div className="flex justify-center items-center h-10 w-full">
-                        <Loader />
+                      <div className="flex justify-center items-center h-14 mb-6 overflow-hidden w-full">
+                        <Loader height={60} width={60} />
                       </div>
                     ) : (
                       <>
                         {currentAttachments.length > 0 && (
                           <div
-                            className={`${currentAttachments.length > 0 ? 'bg-[rgba(249,249,249,0.65)] pb-0 px-2 mb-0 rounded-t-md h-29 flex items-center' : 'bg-white pb-8'} flex flex-wrap gap-2 p-2 ml-4 border-b-2 mr-4 border-gray-300 `}
+                            className={`${currentAttachments.length > 0 ? 'bg-[rgba(249,249,249,0.65)] border-2 px-2 mb-0 pb-3 rounded-t-md min-h-29 border-b-2 flex items-center' : 'bg-white pb-8'} flex flex-wrap gap-2 p-2 ml-4  mr-4 border-gray-300 `}
                           >
                             {currentAttachments.map((value, index) => (
                               <div key={index} className="relative">
@@ -958,13 +968,13 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                     >
                       <FormControl>
                         <div
-                          className={`flex shadow-sm h-10 ${currentAttachments?.length > 0 ? 'h-20 rounded-b-md' : 'mt-3 mb-3 ml-2 rounded-md'} flex items-start  bg-[rgba(249,249,249,0.65)]`}
+                          className={`flex shadow-sm h-10 ${currentAttachments?.length > 0 ? 'h-20 rounded-b-md border-2 border-gray-300' : 'mt-3 mb-3 ml-2 rounded-md border-2'} flex items-start bg-[rgba(249,249,249,0.65)]`}
                         >
                           <textarea
                             id="comments"
                             name="comments"
                             type="text"
-                            className={`${currentAttachments?.length > 0 ? '' : 'max-h-8'}shadow-none border-none px-2 mt-2  resize-none bg-transparent outline-none w-full`}
+                            className={`${currentAttachments?.length > 0 ? '' : 'border-2 max-h-8'}shadow-none border-none px-2 mt-2 resize-none bg-transparent outline-none w-full`}
                             placeholder="Write your comment here..."
                             {...field}
                           />
@@ -1073,7 +1083,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               <div
                                 className={`${value.Attachments.map((file) => (file.url === '' ? '' : ''))}`}
                               ></div>
-                              <div className="grid grid-cols-7 gap-y-2 max-h-48  min-h-auto gap-1 w-full overflow-auto">
+                              <div className="grid grid-cols-7 gap-2 max-h-48 min-h-auto w-full overflow-auto">
                                 {value.Attachments.map((file, index) => (
                                   <div className="ml-1">
                                     {file.url.split('.').includes('pdf') ? (
@@ -1711,7 +1721,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                           <button
                             className={
                               showEstimatedTimeField
-                                ? 'cursor-pointer'
+                                ? 'cursor-pointer outline-none'
                                 : 'hidden'
                             }
                             onClick={handleSave}
@@ -1819,9 +1829,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   }),
                                   placeholder: (baseStyles) => ({
                                     ...baseStyles,
-                                    // color: 'rgb(120, 122, 126)',
-                                    // fontSize: '15px',
-                                    // width: '0px',
                                   }),
                                   option: (baseStyles, state) => ({
                                     ...baseStyles,
@@ -1930,16 +1937,18 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                     key={index}
                                     className="cursor-pointer flex justify-between items-center h-auto pb-2 pt-1"
                                   >
-                                    <span className="flex gap-4 items-center">
-                                      <p className="flex w-7 h-7 items-center justify-center rounded-full bg-[rgba(61,66,179,0.92)] text-white">
-                                        {user
-                                          .split(' ')
-                                          .map((name) => name[0])
-                                          .join('')
-                                          .toUpperCase()}
+                                    <div className="px-12 flex items-center gap-4">
+                                      <p className="flex text-center w-7 h-7 leading-none pt-[-1px] text-md justify-center rounded-full bg-[rgba(61,66,179,0.92)] text-white">
+                                        <span className=" flex mt-[0.8px] items-center ">
+                                          {user
+                                            .split(' ')
+                                            .map((name) => name[0])
+                                            .join('')
+                                            .toUpperCase()}
+                                        </span>
                                       </p>
                                       <h6>{user}</h6>
-                                    </span>
+                                    </div>
                                     <div
                                       className={`${isDeleteable === user ? 'hidden' : ''}`}
                                     >

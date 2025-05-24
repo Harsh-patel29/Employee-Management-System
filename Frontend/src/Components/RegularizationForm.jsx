@@ -54,6 +54,7 @@ const formSchema = (role) => {
 export default function RegularizationForm({
   onSubmit,
   mode,
+  Name,
   id,
   Login,
   LastLogin,
@@ -237,6 +238,14 @@ export default function RegularizationForm({
           </div>
           {mode === 'Direct' && (
             <div className="flex w-full justify-between mb-3  mt-3">
+              {user.user.role === 'Admin' && (
+                <div>
+                  <p className="font-semibold">
+                    <div>User</div>
+                    <div>{Name}</div>
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="font-semibold">
                   <div>Date</div>
@@ -313,7 +322,7 @@ export default function RegularizationForm({
                 )}
               />
             )}
-            {user.user.role === 'Admin' && (
+            {user.user.role === 'Admin' && mode !== 'Direct' && (
               <FormField
                 control={control}
                 name="UserId"

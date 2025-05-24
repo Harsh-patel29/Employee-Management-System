@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';
+import { ApiError } from './ApiError.js';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -120,10 +121,19 @@ const attachment = async (filepaths) => {
 
     const now = new Date();
     const formattedDate = now.toLocaleDateString('en-CA').split('/').join('-');
-    const formattedTime = now.toLocaleTimeString('en-IN').split('-').join('/');
+    const formattedTime = now.toLocaleTimeString('en-IN').replace(/:/g, '-');
 
     const filename = `${firstfilename}${formattedDate}${formattedTime}${extname}`;
     try {
+      const stats = fs.statSync(localFilePath);
+      const maxsize = 10 * 1024 * 1024;
+      if (stats.size > maxsize) {
+        fs.unlinkSync(localFilePath);
+        throw new ApiError(
+          409,
+          `Skipped ${localFilePath} — File too large (${stats.size} bytes). Max allowed is ${maxsize} bytes.`
+        );
+      }
       const response = await cloudinary.uploader.upload(localFilePath, {
         resource_type: 'auto',
         folder: 'attachment',

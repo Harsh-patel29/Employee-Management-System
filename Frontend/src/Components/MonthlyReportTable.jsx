@@ -107,6 +107,8 @@ function Row({ row, HolidayDate }) {
         return 'brown';
       case 'POL':
         return '#1565C0';
+      case 'U':
+        return '#131024';
       default:
         return 'black';
     }
@@ -137,17 +139,22 @@ function Row({ row, HolidayDate }) {
           const dayName = date
             .toLocaleDateString('en-US', { weekday: 'long' })
             .toLowerCase();
-          const weekOfMonth = getWeekOfMonth(item.date);
-          const weekLabel = weekNames[weekOfMonth - 1];
           const logHours = item.logHours;
           const isZero = logHours === '00:00:00' || logHours === '0:0:0';
 
-          const logSeconds = parseTimeToSeconds(logHours);
-          const isUnderTime = logSeconds < 4 * 3600;
-          const isHalfDay = logSeconds >= 4 * 3600 && logSeconds < 6 * 3600;
+          const logSeconds = parseTimeToSeconds(formatLogHours(logHours));
+          console.log(logSeconds < 14400);
+
+          const isUnderTime = logSeconds < 14400;
+          const isHalfDay =
+            formatLogHours(item.logHours) < '06:00:00' &&
+            formatLogHours(item.logHours) > '04:00:00' &&
+            formatLogHours(item.logHours) !== '00:00:00';
 
           let status = isZero ? 'A' : 'P';
-
+          if (isUnderTime && !isZero) {
+            status = 'U';
+          }
           if (holidayDatesSet.has(item.date)) {
             status = isZero ? 'H' : 'POH';
           } else if (leaveEntry) {
@@ -176,13 +183,10 @@ function Row({ row, HolidayDate }) {
             }
           } else if (weekOffMap[dayName]) {
             const { type, weeks } = weekOffMap[dayName];
-            const appliesToThisWeek =
-              weeks.includes('All') || weeks.includes(weekLabel);
-
-            if (appliesToThisWeek) {
-              if (type === 'WeekOff') {
+            if (weeks) {
+              if (weeks[0] === 'WeekOff') {
                 status = isZero ? 'W' : 'POW';
-              } else if (type === 'Half Day' || isHalfDay) {
+              } else if (weeks[0] === 'Half Day' || isHalfDay) {
                 status = 'HD';
               } else if (type === 'Leave') {
                 status = 'L';
@@ -194,7 +198,7 @@ function Row({ row, HolidayDate }) {
             } else if (isHalfDay) {
               status = 'HD';
             } else if (isUnderTime) {
-              status = 'A';
+              status = 'U';
             }
           }
 
@@ -347,7 +351,7 @@ const MonthlyReportTable = () => {
                 minWidth: '120px',
               }),
             }}
-            className="z-50"
+            className="z-45"
             placeholder={monthByName}
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.value)}
@@ -380,7 +384,7 @@ const MonthlyReportTable = () => {
                 minWidth: '120px',
               }),
             }}
-            className="z-50"
+            className="z-45"
             placeholder={selectedYear}
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.value)}
@@ -388,33 +392,36 @@ const MonthlyReportTable = () => {
           />
         </div>
       </div>
-      <div className="flex gap-x-2 w-auto mb-2 overflow-x-auto">
-        <div className="border border-[#03C04A] px-2 text-[#03C04A] rounded-sm">
+      <div className="flex gap-x-2 w-full mb-2 overflow-x-auto items-end">
+        <div className="border border-[#03C04A] px-2 text-[#03C04A] rounded-sm ">
           P --- Present
         </div>
-        <div className="border border-[red] px-2 text-[red] rounded-sm">
+        <div className="border border-[red] px-2 text-[red] rounded-sm ">
           A --- Absent
         </div>
-        <div className="border border-[purple] px-2 text-[purple] rounded-sm">
+        <div className="border border-[purple] px-2 text-[purple] rounded-sm ">
           HD --- Half Day
         </div>
-        <div className="border border-[gray]  text-[gray] px-2 rounded-sm">
+        <div className="border border-[gray]  text-[gray] px-2 rounded-sm ">
           W --- WeekOff
         </div>
-        <div className="border border-[orange] text-[orange] px-2 rounded-sm">
+        <div className="border border-[orange] text-[orange] px-2 rounded-sm ">
           H --- Holiday
         </div>
-        <div className="border border-[blue] text-[blue] px-2 rounded-sm">
+        <div className="border border-[blue] text-[blue] px-2 rounded-sm ">
           L --- Leave
         </div>
-        <div className="border border-[teal] text-[teal] px-2 rounded-sm">
+        <div className="border border-[teal] text-[teal] px-2 rounded-sm ">
           POW --- Present on WeekOff
         </div>
-        <div className="border border-[brown] text-[brown] px-2 rounded-sm">
+        <div className="border border-[brown] text-[brown] px-2 rounded-sm ">
           POH --- Present on Holiday
         </div>
-        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto rounded-sm">
+        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto rounded-sm ">
           POL --- Present on Leave
+        </div>
+        <div className="border border-[#131024] text-[#131024] px-2 w-auto rounded-sm ">
+          U --- UnderTime
         </div>
       </div>
       <ReusableTable

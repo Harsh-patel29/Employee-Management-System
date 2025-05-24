@@ -22,12 +22,12 @@ function MarkAttendance() {
   const { attendance, error, isSheetOpen, isSubmitting } = useSelector(
     (state) => state.markAttendance
   );
-  const { fetchedsmtp } = useSelector((state) => state.smtpSlice);
   const dispatch = useDispatch();
+  const { fetchedsmtp, updatedsmtp } = useSelector((state) => state.smtpSlice);
 
   useEffect(() => {
     dispatch(getSMTP());
-  }, []);
+  }, [updatedsmtp]);
 
   useEffect(() => {
     if (fetchedsmtp?.message) {

@@ -21,12 +21,18 @@ const formSchema = z.object({
   holiday_name: z.string().min(1, {
     message: 'Hoilday Name is required',
   }),
-  Start_Date: z.string().min(1, {
-    message: 'Start Date is required',
-  }),
-  End_Date: z.string().min(1, {
-    message: 'End Date is required',
-  }),
+  Start_Date: z
+    .string({
+      required_error: 'Start Date is Required',
+      invalid_type_error: 'Start Date is required',
+    })
+    .min(1, { message: 'Start Date is Required' }),
+  End_Date: z
+    .string({
+      required_error: 'End Date is Required',
+      invalid_type_error: 'End Date is required',
+    })
+    .min(1, { message: 'Start Date is Required' }),
 });
 
 export default function HolidayForm({ onSubmit, mode, id }) {
@@ -200,7 +206,7 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
-                  isClearable={true}
+                  isClearable={!!startDate}
                   autoComplete="off"
                 />
               </FormControl>
@@ -250,7 +256,7 @@ export default function HolidayForm({ onSubmit, mode, id }) {
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
-                  isClearable={true}
+                  isClearable={!!endDate}
                   autoComplete="off"
                 />
               </FormControl>

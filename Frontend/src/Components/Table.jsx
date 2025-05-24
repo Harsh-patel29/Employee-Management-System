@@ -399,8 +399,6 @@ export default function CollapsibleTable() {
     }
   }, [updatesheetopen]);
 
-  // Delete Users
-
   React.useEffect(() => {
     if (deleteduser?.success === true) {
       navigate(`/users`, { replace: true });
@@ -490,7 +488,10 @@ export default function CollapsibleTable() {
                 Add user
               </div>
             </SheetTrigger>
-            <SheetContent className="bg-white min-w-6xl">
+            <SheetContent
+              showCloseButton={false}
+              className="bg-white min-w-6xl"
+            >
               <SheetHeader>
                 <SheetDescription>
                   <AdminForm

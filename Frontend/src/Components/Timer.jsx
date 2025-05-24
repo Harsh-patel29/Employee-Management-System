@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Play, StopCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader } from './components/ui/dialog';
+import { Play, StopCircle, X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogClose,
+} from './components/ui/dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   createTaskTimer,
@@ -125,11 +130,17 @@ const Timer = ({ openTimer, setOpenTimer }) => {
       <Dialog open={openTimer} onOpenChange={setOpenTimer}>
         <DialogContent className="bg-white border-none p-0 w-100">
           <DialogHeader></DialogHeader>
+
           <div className="inset-0 flex items-center justify-center z-50">
             <div className=" rounded-2xl shadow-none  w-[90%] max-w-md relative">
-              <h2 className="text-xl font-semibold mb-6 text-gray-700">
-                Time Tracker
-              </h2>
+              <div className="flex items-start justify-between w-full">
+                <h2 className="text-xl font-semibold mb-6 text-gray-700">
+                  Time Tracker
+                </h2>
+                <DialogClose>
+                  <X className="h-4 w-4 mt-1.5" />
+                </DialogClose>
+              </div>
               <div className="flex justify-between">
                 {[
                   { label: 'Hours', value: hours },
@@ -185,11 +196,10 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                       setIsRunning(true);
                       errorMessage.textContent = '';
                     } else {
-                      errorMessage.append('Task and Message is Required');
-                      errorMessage.textContent('');
+                      errorMessage.textContent = 'Task and Message is Required';
                     }
                   }}
-                  className="bg-gray-200 text-gray-700 p-3 rounded-full hover:bg-gray-300 cursor-not-allowed"
+                  className="bg-gray-200 text-gray-700 p-3 rounded-full hover:bg-gray-300 "
                 >
                   <button
                     type="submit"
@@ -204,12 +214,15 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                       setHasSentData(false);
                     }}
                   >
-                    <Play />
+                    <button>
+                      <Play />
+                    </button>
                   </button>
                 </button>
                 <button
+                  disabled={!isRunning}
                   onClick={resetTimer}
-                  className="bg-red-600 text-white p-3 rounded-full hover:bg-red-700"
+                  className="bg-red-600 text-white p-3 rounded-full hover:bg-red-700 disabled:cursor-not-allowed"
                 >
                   <button
                     type="submit"

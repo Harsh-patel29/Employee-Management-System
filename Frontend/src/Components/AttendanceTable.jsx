@@ -168,6 +168,7 @@ function Row({ row }) {
                       <SheetDescription>
                         <RegularizationForm
                           mode="Direct"
+                          Name={row.User}
                           id={row.Date}
                           Login={row.AttendAt}
                           LastLogin={row.TimeOut}

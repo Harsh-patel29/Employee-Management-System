@@ -304,7 +304,10 @@ export default function ProjectTable() {
                   Create Project
                 </div>
               </SheetTrigger>
-              <SheetContent className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md">
+              <SheetContent
+                showCloseButton={false}
+                className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md"
+              >
                 <SheetHeader>
                   <SheetDescription>
                     <ProjectForm
