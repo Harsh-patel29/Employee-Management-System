@@ -353,7 +353,7 @@ const deleteLeave = AsyncHandler(async (req, res) => {
 const updateLeave = AsyncHandler(async (req, res) => {
   const leave = await Leave.findById(req.body.id);
   if (!leave) {
-    throw new ApiError('Leave not found', 404);
+    throw new ApiError(404, 'Leave not found');
   }
 
   leave.Leave_Reason = req.body.data.Leave_Reason;

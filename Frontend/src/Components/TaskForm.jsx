@@ -2130,7 +2130,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   {Tasks?.Attachments?.map((file, index) => (
                                     <div
                                       key={index}
-                                      className="cursor-pointer flex justify-between items-center pr-2 h-auto pb-0.5 "
+                                      className="cursor-pointer flex justify-between items-center pr-2 h-auto pb-0.5"
                                     >
                                       <span className="flex items-center gap-4">
                                         <svg

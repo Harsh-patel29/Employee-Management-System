@@ -18,6 +18,7 @@ import holidaySliceReducer from '../feature/hoildayfetch/hoildaySlice.js';
 import weekOffSliceReducer from '../feature/weekofffetch/weekoffslice.js';
 import smtpSliceReducer from '../feature/smtpfetch/smtpSlice.js';
 import otpSliceReducer from '../feature/otpfetch/otpSlice.js';
+import salarySliceReducer from '../feature/salaryfetch/addsalaryslice.js';
 
 export default configureStore({
   reducer: {
@@ -40,5 +41,6 @@ export default configureStore({
     weekoff: weekOffSliceReducer,
     smtpSlice: smtpSliceReducer,
     otpSlice: otpSliceReducer,
+    salarySlice: salarySliceReducer,
   },
 });

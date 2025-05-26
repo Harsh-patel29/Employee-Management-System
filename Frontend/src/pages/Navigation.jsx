@@ -176,6 +176,7 @@ const menuItems = [
         link: 'master/holiday',
       },
       { key: 'Weekoff', name: 'Weekoff', link: 'master/weekoff' },
+      { key: 'Salary', name: 'Salary', link: 'master/salary' },
     ],
   },
   {

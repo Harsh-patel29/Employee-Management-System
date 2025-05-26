@@ -33,6 +33,7 @@ import MissedPunchRegularization from './pages/MissedPunchRegularization.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import UnauthorizedPage from './pages/Unauthorized.jsx';
+import Salary from './pages/Salaray.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -52,6 +53,7 @@ const router = createBrowserRouter(
           <Route path="/master" element={<Master />}>
             <Route path="/master/holiday" element={<Holiday />} />
             <Route path="/master/weekoff" element={<WeekOff />} />
+            <Route path="/master/salary" element={<Salary />} />
           </Route>
           <Route path="/settings" element={<Settings />} />
           <Route path="/attendance" element={<Attendance />} />

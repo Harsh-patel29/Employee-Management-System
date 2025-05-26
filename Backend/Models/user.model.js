@@ -63,6 +63,9 @@ const userSchema = new Schema(
     ReportingManager: {
       type: String,
     },
+    salary: {
+      type: String,
+    },
     refreshToken: {
       type: String,
     },

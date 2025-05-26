@@ -138,7 +138,7 @@ const Timer = ({ openTimer, setOpenTimer }) => {
                   Time Tracker
                 </h2>
                 <DialogClose>
-                  <X className="h-4 w-4 mt-1.5" />
+                  <X className="h-4 w-4 mt-1.5 cursor-pointer" />
                 </DialogClose>
               </div>
               <div className="flex justify-between">

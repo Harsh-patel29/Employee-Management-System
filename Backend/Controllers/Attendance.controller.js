@@ -893,7 +893,7 @@ const fetchMonthlyReport = AsyncHandler(async (req, res) => {
 
   let TypeofWeek;
   TypeofWeek = weekOff[0]?.days?.map(
-    (item) => `${item.day} - ${item.type} - ${item.weeks} `
+    (item) => `${item.day} - ${item.type} - ${item.weeks}`
   );
 
   if (weekOff.length === 0) {

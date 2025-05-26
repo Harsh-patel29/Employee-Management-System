@@ -69,7 +69,7 @@ const NavBar = () => {
         </Link>
       )}
       <div
-        className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11 `}
+        className={`flex items-center xl:w-full lg:w-full md:w-full sm:w-full max-sm:w-full  justify-end mr-10 space-x-11`}
       >
         <div>
           <DropdownMenu>
