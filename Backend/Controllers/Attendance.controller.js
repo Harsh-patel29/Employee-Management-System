@@ -130,7 +130,6 @@ function calculateTotalOffHours(TypeofWeek, month, year, totalHolidayDays) {
 
     const targetWeekday = getDayNumberFromName(dayName);
     const weekMap = getWeekdayWeekMap(month, year, targetWeekday);
-
     weeks.forEach((weekName) => {
       const days = weekMap[weekName] || [];
 
@@ -1076,4 +1075,7 @@ export {
   getRegularizationbyDateandUser,
   fetchMonthlyReport,
   updateAttendanceWithCutoff,
+  getDayNumberFromName,
+  getWeekdayWeekMap,
+  calculateTotalOffHours,
 };
