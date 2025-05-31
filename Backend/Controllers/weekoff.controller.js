@@ -1,4 +1,5 @@
 import { WeekOff } from '../Models/weekoff.model.js';
+import { Salary } from '../Models/salary.model.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { ApiError } from '../Utils/ApiError.js';
@@ -177,13 +178,28 @@ const updateWeekOff = AsyncHandler(async (req, res) => {
 
 const deleteWeekOff = AsyncHandler(async (req, res) => {
   const id = req.body.data;
-  const weekOff = await WeekOff.findByIdAndDelete(id);
+
+  const weekOff = await WeekOff.findById(id);
+
   if (!weekOff) {
     throw new ApiError(404, 'WeekOff not found');
   }
+
+  const salaryCount = await Salary.countDocuments({ WeekOff: weekOff?._id });
+
+  if (salaryCount > 0) {
+    throw new ApiError(
+      400,
+      `Cannot delete this WeekOff policy. It is currently used by ${salaryCount} salary record(s). 
+         Please update those records first.`
+    );
+  }
+
+  const deletedWeekOff = await WeekOff.findByIdAndDelete(id);
+
   return res
     .status(200)
-    .json(new ApiResponse(200, weekOff, 'WeekOff deleted Successfully'));
+    .json(new ApiResponse(200, deletedWeekOff, 'WeekOff deleted Successfully'));
 });
 
 export {

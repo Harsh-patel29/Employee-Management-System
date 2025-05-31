@@ -224,7 +224,7 @@ export default function WeekOffTable() {
   const [weekoff, setweekoff] = React.useState([]);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const { allWeekOff, createdWeekOff, deletedWeekOff, updatedWeekOff } =
+  const { allWeekOff, createdWeekOff, deletedWeekOff, updatedWeekOff, error } =
     useSelector((state) => state.weekoff);
   const { user } = useSelector((state) => state.auth);
   const filterValue = useSelector((state) => state.filter.filterValue.WeekOff);
@@ -279,7 +279,7 @@ export default function WeekOffTable() {
         position: 'top-right',
         autoClose: 3000,
       });
-
+      setsheetopen(false);
       dispatch(getAllWeekOff());
       dispatch(resetWeekOff());
     }
@@ -307,6 +307,17 @@ export default function WeekOffTable() {
       dispatch(resetWeekOff());
     }
   }, [deletedWeekOff]);
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error?.message, {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      setDialogOpen(false);
+      dispatch(resetWeekOff);
+    }
+  }, [error]);
 
   const columns = [
     { field: 'expand', headerName: '', width: 50 },

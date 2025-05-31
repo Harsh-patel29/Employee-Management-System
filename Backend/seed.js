@@ -9,6 +9,8 @@ import { User } from './Models/user.model.js';
 import { Project_Roles } from './Models/projectRoles.js';
 import { keysSchema } from './Models/Roles_keys.js';
 import { Attendance } from './Models/attendance.js';
+import { employeeSalary } from './Models/employeeSalary.model.js';
+import { Salary } from './Models/salary.model.js';
 dotenv.config({
   path: '../.env',
 });
@@ -41,12 +43,7 @@ const seedData = async () => {
     )
   );
   try {
-    const AdminRole = await Attendance.deleteMany({
-      AttendAt: {
-        $gte: startOfDay,
-        $lte: endOfDay,
-      },
-    });
+    const AdminRole = await employeeSalary.deleteMany({});
     // const manageUser = await UserAccess.deleteOne({
     //   manageUser: 0,
     //   manageUserAccess: 0,

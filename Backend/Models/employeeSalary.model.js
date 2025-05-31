@@ -10,6 +10,14 @@ const employeeSalarySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Salary',
     },
+    Salary: {
+      type: String,
+      required: true,
+    },
+    LastUpdatedAt: {
+      type: Date,
+      required: true,
+    },
     month: {
       type: String,
       required: true,
@@ -26,7 +34,15 @@ const employeeSalarySchema = new Schema(
       type: String,
       required: true,
     },
+    halfDays: {
+      type: String,
+      required: true,
+    },
     absentDays: {
+      type: String,
+      required: true,
+    },
+    leaveDays: {
       type: String,
       required: true,
     },

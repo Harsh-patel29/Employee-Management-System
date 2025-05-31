@@ -34,6 +34,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import UnauthorizedPage from './pages/Unauthorized.jsx';
 import Salary from './pages/Salaray.jsx';
+import EmployeeSalary from './pages/EmployeeSalaryPage.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +45,7 @@ const router = createBrowserRouter(
           <Route path="/users" element={<Users />}>
             <Route path="/users/:id" element={<Users />} />
           </Route>
+          <Route path="/EmpSalary" element={<EmployeeSalary />} />
           <Route path="/users/roles" element={<Roles />}>
             <Route path="/users/roles/:id" element={<Roles />} />
             <Route path="/users/roles/delete/:id" element={<Roles />} />

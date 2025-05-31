@@ -202,6 +202,18 @@ const menuItems = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
       </svg>
     ),
+    children: [
+      {
+        key: 'Users',
+        name: 'Users',
+        link: 'users',
+      },
+      {
+        key: 'EmpSalary',
+        name: 'Employee Salary',
+        link: 'EmpSalary',
+      },
+    ],
   },
   {
     id: 7,
@@ -259,6 +271,14 @@ const Navigation = () => {
       Monthly_Report: {
         category: 'Attendance',
         permission: user.user?.role === 'Admin',
+      },
+      Salary: {
+        category: 'Master',
+        permission: user?.user?.role === 'Admin',
+      },
+      EmpSalary: {
+        category: 'users',
+        permission: user?.user?.role === 'Admin',
       },
     };
 

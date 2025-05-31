@@ -1,16 +1,31 @@
-import { User } from '../Models/user.model.js';
 import { Salary } from '../Models/salary.model.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { ApiError } from '../Utils/ApiError.js';
-import { fetchMonthlyReport } from '../Controllers/Attendance.controller.js';
-import { Attendance } from '../Models/attendance.js';
 
 const generateSalary = AsyncHandler(async (req, res) => {
   const { User, WeekOff, Effective_Date, salary } = req.body;
 
   if (!req.body) {
     throw new ApiError(403, 'All fields are required');
+  }
+
+  const SalaryDetailPerUser = await Salary.find({
+    User: req.body.User,
+    is_Deleted: false,
+  });
+
+  const isSalaryLiesinSameMonth = SalaryDetailPerUser.some(
+    (item) =>
+      item.Effective_Date.split('-')[1] ===
+      req.body.Effective_Date.split('-')[1]
+  );
+
+  if (isSalaryLiesinSameMonth) {
+    throw new ApiError(
+      400,
+      'User Salary for this particular month already exists'
+    );
   }
 
   try {
@@ -38,12 +53,12 @@ const generateSalary = AsyncHandler(async (req, res) => {
 const getSalaryDetail = AsyncHandler(async (req, res) => {
   const SalaryDetail = await Salary.find({})
     .populate('User', 'Name')
-    .populate('WeekOff', 'WeekOffName');
+    ?.populate('WeekOff', 'WeekOffName');
 
   const formattedData = SalaryDetail.map((detail) => ({
     _id: detail._id,
     User: detail.User.Name,
-    WeekOff: detail.WeekOff.WeekOffName,
+    WeekOff: detail.WeekOff?.WeekOffName,
     Effective_Date: detail.Effective_Date,
     Salary: detail.Salary,
     is_Deleted: detail.is_Deleted,

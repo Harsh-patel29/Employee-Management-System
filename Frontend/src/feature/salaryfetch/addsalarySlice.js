@@ -107,6 +107,9 @@ const salarySlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    resetError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -173,6 +176,10 @@ const salarySlice = createSlice({
   },
 });
 
-export const { resetAddedSalary, resetUpdatedSalary, resetDeletedSalary } =
-  salarySlice.actions;
+export const {
+  resetAddedSalary,
+  resetUpdatedSalary,
+  resetDeletedSalary,
+  resetError,
+} = salarySlice.actions;
 export default salarySlice.reducer;
