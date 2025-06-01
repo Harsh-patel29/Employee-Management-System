@@ -14,10 +14,6 @@ const employeeSalarySchema = new Schema(
       type: String,
       required: true,
     },
-    LastUpdatedAt: {
-      type: Date,
-      required: true,
-    },
     month: {
       type: String,
       required: true,
@@ -59,7 +55,7 @@ const employeeSalarySchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
 
 export const employeeSalary = mongoose.model(

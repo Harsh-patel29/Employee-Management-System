@@ -55,23 +55,8 @@ function calculateAttendance(
   attendance.salary = salary;
   attendance.salaryId = salaryId;
   attendance.LeaveCount = totalLeaveDays;
-
   return attendance;
 }
-
-const getWeekOffsByMonthYear = async (userId, selectedMonth, selectedYear) => {
-  const startOfNextMonth = new Date(selectedYear, selectedMonth, 1);
-
-  const userWeekOff = await Salary.find({
-    User: new mongoose.Types.ObjectId(userId),
-    is_Deleted: false,
-    Effective_Date: { $lte: startOfNextMonth },
-  })
-    .sort({ Effective_Date: -1 })
-    .populate('WeekOff');
-
-  return userWeekOff;
-};
 
 function getDayNameFromNumber(number) {
   const days = {
@@ -112,188 +97,307 @@ function convertnumbertoWeek(number) {
   }
 }
 
+const getSalaryDataWithRanges = async () => {
+  const Salaryrecords = await Salary.aggregate([
+    {
+      $match: {
+        is_Deleted: false,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'User',
+        foreignField: '_id',
+        as: 'UserData',
+      },
+    },
+    {
+      $lookup: {
+        from: 'weekoffs',
+        localField: 'WeekOff',
+        foreignField: '_id',
+        as: 'WeekOffData',
+      },
+    },
+    {
+      $unwind: '$UserData',
+    },
+    {
+      $unwind: '$WeekOffData',
+    },
+    {
+      $sort: {
+        User: 1,
+        Effective_Date: 1,
+      },
+    },
+    {
+      $group: {
+        _id: '$User',
+        salaries: {
+          $push: {
+            _id: '$_id',
+            Effective_Date: '$Effective_Date',
+            Salary: '$Salary',
+            WeekOff: '$WeekOff',
+            WeekOffDays: '$WeekOffData.days',
+            updatedAt: '$updatedAt',
+          },
+        },
+        UserName: { $first: '$UserData.Name' },
+        UserId: { $first: '$User' },
+      },
+    },
+  ]);
+
+  const earliestDate = await Salary.findOne(
+    { is_Deleted: false },
+    { Effective_Date: 1 }
+  ).sort({ Effective_Date: 1 });
+
+  if (!earliestDate) return [];
+
+  const startDate = new Date(earliestDate.Effective_Date);
+  const endDate = new Date();
+  const monthYearPairs = [];
+  const current = new Date(startDate);
+
+  while (
+    current.getFullYear() < endDate.getFullYear() ||
+    (current.getFullYear() === endDate.getFullYear() &&
+      current.getMonth() <= endDate.getMonth())
+  ) {
+    monthYearPairs.push({
+      month: String(current.getMonth() + 1).padStart(2, '0'),
+      year: String(current.getFullYear()),
+      date: new Date(current),
+    });
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  const result = [];
+
+  Salaryrecords.forEach((userRecord) => {
+    const { salaries, UserName, UserId } = userRecord;
+
+    monthYearPairs.forEach((monthYear) => {
+      const applicableSalary = salaries.reduce((latest, curr) => {
+        const currDate = new Date(curr.Effective_Date);
+        const latestDate = latest ? new Date(latest.Effective_Date) : null;
+
+        return currDate <= monthYear.date && (!latest || currDate > latestDate)
+          ? curr
+          : latest;
+      }, null);
+
+      if (applicableSalary) {
+        const typeOfWeek =
+          applicableSalary.WeekOffDays?.map(
+            (item) => `${item.day} - ${item.type} - ${item.weeks}`
+          ) || [];
+
+        result.push({
+          _id: applicableSalary._id,
+          UserId,
+          UserName,
+          month: monthYear.month,
+          year: monthYear.year,
+          Effective_Date: applicableSalary.Effective_Date,
+          WeekOff: applicableSalary.WeekOff,
+          WeekOffDays: typeOfWeek,
+          Salary: applicableSalary.Salary,
+          updatedAt: applicableSalary.updatedAt,
+        });
+      }
+    });
+  });
+
+  return result;
+};
+
+const insertSalaryDataBulk = async (salaryCalculations) => {
+  try {
+    const data = salaryCalculations.map((item) => ({
+      ...item,
+      UserId: item.UserId,
+      salaryId: item.salaryId,
+      Salary: item.Salary,
+      month: item.month,
+      year: item.year,
+      totaldays: item.totaldays,
+      presentDays: item.presentDays,
+      halfDays: item.halfDays,
+      absentDays: item.absentDays,
+      leaveDays: item.leaveDays,
+      holidayDays: item.holidayDays,
+      actualWorkingDays: item.actualWorkingDays,
+      calculatedSalary: item.calculatedSalary,
+    }));
+
+    const result = await employeeSalary.insertMany(data, {
+      ordered: false,
+      lean: true,
+    });
+    console.log(`Successfully inserted ${result.length} records`);
+    return result;
+  } catch (error) {
+    console.error('Bulk insert error:', error);
+    throw new ApiError(500, 'Bulk Insert Error');
+  }
+};
+
 const cleanUpfunction = async () => {
-  const seen = new Set();
   const toDelete = [];
+  const toDelete2 = [];
+  const toDelete3 = [];
+  const isSalaryActive = await Salary.find(
+    { is_Deleted: false },
+    { _id: 1, Effective_Date: -1, User: 1, Salary: 1 }
+  ).lean();
 
   const existingSalaries = await employeeSalary
-    .find({}, 'salaryId')
-    .sort({ updatedAt: -1 });
+    .find({}, { salaryId: 1, month: -1, year: -1, UserId: 1, Salary: 1 })
+    .lean()
+    .sort({ LastCalculateddAt: -1 });
 
-  for (const entry of existingSalaries) {
-    const idStr = entry.salaryId?.toString();
+  const activeIds = new Set(
+    isSalaryActive.map((entry) => entry._id.toString())
+  );
 
-    if (seen.has(idStr)) {
-      toDelete.push(entry._id);
-    } else {
-      seen.add(idStr);
-    }
+  const datatobeDeleted = existingSalaries.filter(
+    (item) => !activeIds.has(item.salaryId.toString())
+  );
+
+  const datatobeDeleted2 = existingSalaries.filter((item) => {
+    return !isSalaryActive.some((entry) => {
+      const [effYear, effMonth] = entry.Effective_Date.split('-');
+      const itemYear = item.year;
+      const itemMonth = item.month;
+
+      const effYearNum = Number(effYear);
+      const effMonthNum = Number(effMonth);
+      const itemYearNum = Number(itemYear);
+      const itemMonthNum = Number(itemMonth);
+
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const effValue = effYearNum * 100 + effMonthNum;
+      const itemValue = itemYearNum * 100 + itemMonthNum;
+      const currentValue = currentYear * 100 + currentMonth;
+      const inRange = itemValue >= effValue && itemValue <= currentValue;
+      return inRange;
+    });
+  });
+
+  const activeSalaryIds = new Map(
+    isSalaryActive.map((entry) => [entry._id.toString(), entry.User.toString()])
+  );
+
+  const datatobeDeleted3 = existingSalaries.filter((item) => {
+    const activeId = activeSalaryIds.get(item.salaryId.toString());
+    return !activeId || activeId !== item.UserId.toString();
+  });
+
+  toDelete.push(datatobeDeleted);
+  toDelete2.push(datatobeDeleted2);
+  toDelete3.push(datatobeDeleted3);
+
+  if (isSalaryActive.length === 0) {
+    await employeeSalary.deleteMany({});
   }
-  if (toDelete.length > 0) {
-    await employeeSalary.deleteMany({ _id: { $in: toDelete } });
+
+  if (toDelete[0]?.length > 0) {
+    await employeeSalary.deleteMany({
+      _id: { $in: toDelete[0].map((item) => item._id) },
+    });
     console.log(
       `Deleted ${toDelete.length} older salary entries with duplicate salaryID`
     );
+  } else if (toDelete2[0].length > 0) {
+    await employeeSalary.deleteMany({
+      _id: { $in: toDelete2[0].map((item) => item._id) },
+    });
+    console.log(`Deleted ${toDelete2.length} older salary entries.`);
+  } else if (toDelete3[0]?.length > 0) {
+    await employeeSalary.deleteMany({
+      _id: { $in: toDelete3[0].map((item) => item._id) },
+    });
+    console.log(`Deleted ${toDelete3.length} older salary entries.`);
   } else {
     console.log('No duplicates found. All salaryIds are unique');
   }
 };
 
-const createEmployeeSalary = AsyncHandler(async (req, res) => {
-  await cleanUpfunction();
-  const salaryDetail = await Salary.find().populate('User', 'Name');
-
-  const filteredSalaries = salaryDetail.filter((salary) => {
-    return !salary.is_Deleted;
-  });
-
-  const existingSalaries = await employeeSalary
-    .find({}, 'salaryId')
+const isRecalculationNeeded = async () => {
+  let shouldRecalculate = false;
+  const latestSalary = await Salary.findOne({ is_Deleted: false })
+    .lean()
     .sort({ updatedAt: -1 });
+  const lastSalaryUpdateTime = latestSalary?.updatedAt;
+  const latestEmpSalary = await employeeSalary
+    .findOne()
+    .lean()
+    .sort({ LastCalculateddAt: -1 });
+  const lastEmpSalaryUpdateTime = latestEmpSalary?.LastCalculateddAt;
+  const seen = new Set();
+  const latestAttendance = await Attendance.findOne()
+    .lean()
+    .sort({ updatedAt: -1 });
+  const lastAttendanceUpdateTime = latestAttendance?.updatedAt;
+  const latestHoliday = await Holiday.findOne().lean().sort({ updatedAt: -1 });
+  const lastHolidayUpdateTime = latestHoliday?.updatedAt;
+  const latestLeave = await Leave.findOne({ Status: 'Approved' })
+    .lean()
+    .sort({ updatedAt: -1 });
+  const lastLeaveUpdateTime = latestLeave?.updatedAt;
+  const latestWeekOff = await WeekOff.findOne().lean().sort({ updatedAt: -1 });
+  const lastWeekOffUpdateTime = latestWeekOff?.updatedAt;
 
-  const validCombinations = filteredSalaries.map((salary) => salary._id);
-
-  const entriesToDelete = existingSalaries.filter((entry) => {
-    return !validCombinations.some(
-      (valid) => valid?._id?.toString() === entry?.salaryId?.toString()
-    );
+  seen.add({
+    lastAttendanceUpdateTime,
+    lastHolidayUpdateTime,
+    lastLeaveUpdateTime,
+    lastWeekOffUpdateTime,
+    lastSalaryUpdateTime,
   });
-
-  if (entriesToDelete.length > 0) {
-    const idsToDelete = entriesToDelete.map((entry) => entry._id);
-
-    await employeeSalary.deleteMany({ _id: { $in: idsToDelete } });
-
-    console.log(`Deleted ${idsToDelete.length} unmatched salary entries.`);
-  } else {
-    console.log('No unmatched salary entries found to delete.');
-  }
-
-  const upsertEmployeeSalaries = async (bulkInsertData) => {
-    const operations = bulkInsertData.map((data) => ({
-      updateOne: {
-        filter: {
-          UserId: data.UserId,
-          month: data.month,
-          year: data.year,
-        },
-        update: { $set: data },
-        upsert: true,
-      },
-    }));
-
-    const result = await employeeSalary.bulkWrite(operations);
-    console.log('Salary inserted/updated:', result);
-    return result;
-  };
-
-  const bulkInsertData = [];
-  for (const salary of filteredSalaries) {
-    const userID = salary.User._id;
-
-    const earliestSalary = await Salary.findOne({
-      User: userID,
-      Effective_Date: { $gte: salary.Effective_Date },
-      is_Deleted: false,
-    }).sort({
-      Effective_Date: 1,
-    });
-
-    if (!earliestSalary) {
-      return [];
-    }
-
-    const startDate = new Date(earliestSalary.Effective_Date);
-    const endDate = new Date();
-
-    const monthYearPairs = [];
-    const current = new Date(startDate);
-
-    while (
-      current.getFullYear() < endDate.getFullYear() ||
-      (current.getFullYear() === endDate.getFullYear() &&
-        current.getMonth() <= endDate.getMonth())
+  seen.forEach((data) => {
+    if (
+      data.lastAttendanceUpdateTime >= lastEmpSalaryUpdateTime ||
+      data.lastSalaryUpdateTime >= lastEmpSalaryUpdateTime ||
+      data.lastHolidayUpdateTime >= lastEmpSalaryUpdateTime ||
+      data.lastLeaveUpdateTime >= lastEmpSalaryUpdateTime ||
+      data.lastWeekOffUpdateTime >= lastEmpSalaryUpdateTime ||
+      (lastSalaryUpdateTime && lastEmpSalaryUpdateTime === undefined)
     ) {
-      const month = String(current.getMonth() + 1).padStart(2, '0');
-      const year = String(current.getFullYear());
-      monthYearPairs.push({ month, year });
-
-      current.setMonth(current.getMonth() + 1);
+      shouldRecalculate = true;
+    } else {
+      console.log('No Recalculation needed');
     }
+  });
+  return shouldRecalculate;
+};
 
-    for (const { month, year } of monthYearPairs) {
-      const datePrefix = `${year}-${month}`;
+const createEmployeeSalary = AsyncHandler(async (req, res) => {
+  const ShouldRecalculate = await isRecalculationNeeded();
 
-      const salaryEntry = await Salary.findOne({
-        User: userID,
-        Effective_Date: { $regex: `^${datePrefix}` },
-        is_Deleted: false,
-      });
+  await cleanUpfunction();
+  if (ShouldRecalculate) {
+    const result = await getSalaryDataWithRanges();
 
-      let Salarys;
-      if (salaryEntry === null) {
-        Salarys = await Salary.findOne({
-          User: userID,
-          Effective_Date: { $lt: datePrefix + '-01' },
-          is_Deleted: false,
-        })
-          .sort({ Effective_Date: -1 })
-          .limit(1);
+    let data = [];
 
-        if (!Salarys) {
-          console.log('No salary entry found for user');
-        }
-      } else {
-        Salarys = salaryEntry;
-      }
+    for (const salary of result) {
+      const datePrefix = salary.Effective_Date;
 
-      const weekOff = await getWeekOffsByMonthYear(userID, month, year);
-
-      const existingSalary = await employeeSalary.findOne({
-        UserId: userID,
-        month: month,
-        year: year,
-      });
-
-      const weekOffData = weekOff[0];
-
-      if (!weekOffData) continue;
-
-      const TypeofWeek = weekOffData?.WeekOff?.days?.map(
-        (item) => `${item.day} - ${item.type} - ${item.weeks}`
+      const holiday = await Holiday.find(
+        {
+          Start_Date: {
+            $gte: datePrefix,
+          },
+        },
+        ['End_Date', 'Start_Date']
       );
-
-      const holiday = await Holiday.find({
-        Start_Date: { $regex: `^${datePrefix}` },
-      });
-
-      const holidayDay = holiday.map((item) => {
-        return {
-          StartDay: new Date(item.Start_Date),
-          EndDay: new Date(item.End_Date),
-        };
-      });
-
-      const isHolidayinWeekOff = TypeofWeek.filter((item) => {
-        const [dayName, type, week] = item.split(' - ');
-
-        const weeksArray = week.split(',');
-
-        return holidayDay.some((holiday) => {
-          const date = new Date(holiday.StartDay);
-          const weekNumber = getWeekOfMonth(date);
-          const weekString = convertnumbertoWeek(weekNumber);
-
-          return (
-            getDayNameFromNumber(new Date(holiday.StartDay).getDay()) ===
-              dayName &&
-            getDayNameFromNumber(new Date(holiday.EndDay).getDay()) ===
-              dayName &&
-            type === 'WeekOff' &&
-            weeksArray.includes(weekString)
-          );
-        });
-      });
 
       const holidayDays = holiday.map((item) =>
         Math.abs(new Date(item.End_Date) - new Date(item.Start_Date))
@@ -302,328 +406,256 @@ const createEmployeeSalary = AsyncHandler(async (req, res) => {
       const formattedDays = holidayDays.map((item) =>
         Math.ceil(item / (1000 * 60 * 60 * 24) + 1)
       );
-      let totalHolidayDays;
-      if (isHolidayinWeekOff.length > 0) {
-        const filteredHolidays = holiday.filter((holiday) => {
+
+      const isHolidayinWeekOff = salary.WeekOffDays.filter((item) => {
+        const [dayName, type, week] = item.split(' - ');
+
+        const weeksArray = week.split(',');
+
+        return holiday.some((holiday) => {
           const date = new Date(holiday.Start_Date);
           const weekNumber = getWeekOfMonth(date);
-
           const weekString = convertnumbertoWeek(weekNumber);
 
-          return !TypeofWeek.some((item) => {
-            const [dayName, type, week] = item.split(' - ');
-            const weeksArray = week.split(',').map((w) => w.trim());
-
-            return (
-              getDayNameFromNumber(new Date(holiday.Start_Date).getDay()) ===
-                dayName &&
-              getDayNameFromNumber(new Date(holiday.End_Date).getDay()) ===
-                dayName &&
-              type === 'WeekOff' &&
-              weeksArray.includes(weekString)
-            );
-          });
+          return (
+            getDayNameFromNumber(new Date(holiday.Start_Date).getDay()) ===
+              dayName &&
+            getDayNameFromNumber(new Date(holiday.End_Date).getDay()) ===
+              dayName &&
+            type === 'WeekOff' &&
+            weeksArray.includes(weekString)
+          );
         });
+      });
 
-        const filteredHolidayDays = filteredHolidays.map((item) =>
-          Math.abs(new Date(item.End_Date) - new Date(item.Start_Date))
-        );
-
-        const filteredFormattedDays = filteredHolidayDays.map((item) =>
-          Math.ceil(item / (1000 * 60 * 60 * 24) + 1)
-        );
-
-        totalHolidayDays = filteredFormattedDays.reduce(
-          (sum, val) => sum + val,
-          0
-        );
+      let totalHolidayDays;
+      if (isHolidayinWeekOff.length > 0) {
+        totalHolidayDays =
+          formattedDays.reduce((sum, val) => sum + val, 0) -
+          isHolidayinWeekOff.length;
       } else {
         totalHolidayDays = formattedDays.reduce((sum, val) => sum + val, 0);
       }
 
-      const lastCalculated = new Date(existingSalary?.updatedAt);
-      const lastSalaryUpdate = new Date(salary?.updatedAt);
+      const officialHours = calculateTotalOffHours(
+        salary.WeekOffDays,
+        parseInt(salary?.month, 10),
+        salary?.year,
+        totalHolidayDays
+      );
+      const [hours] = officialHours.split(':');
+      const workingDays = Math.round(hours / 8);
 
-      const startOfMonth = new Date(`${year}-${month}-01T00:00:00.000Z`);
-      const endOfMonth = new Date(year, parseInt(month), 1);
-
-      const shouldRecalculate = lastCalculated < lastSalaryUpdate;
-
-      const latestHoliday = await Holiday.findOne({
-        Start_Date: {
-          $regex: `^${year}-${month}`,
+      const AttendanceData = await Attendance.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'User',
+            foreignField: '_id',
+            as: 'userData',
+          },
         },
-      }).sort({ updatedAt: -1 });
-
-      const latestLeave = await Leave.findOne({
-        Start_Date: {
-          $regex: `^${year}-${month}`,
+        {
+          $unwind: '$userData',
         },
-      }).sort({ updatedAt: -1 });
-
-      const latestAttendance = await Attendance.findOne({
-        AttendAt: {
-          $gte: startOfMonth,
-          $lt: endOfMonth,
+        {
+          $lookup: {
+            from: 'leaves',
+            localField: 'userData.Name',
+            foreignField: 'userName',
+            as: 'result',
+          },
         },
-      }).sort({
-        updatedAt: -1,
-      });
-
-      const weekOffUpdatedAt = weekOffData?.WeekOff?.updatedAt;
-      let shouldUpsert = false;
-
-      if (existingSalary === null) {
-        shouldUpsert = true;
-      } else {
-        const lastSalaryUpdate = new Date(existingSalary.updatedAt);
-        const latestHolidayUpdate = latestHoliday
-          ? new Date(latestHoliday?.updatedAt)
-          : null;
-        const latestLeaveUpdate = latestLeave
-          ? new Date(latestLeave?.updatedAt)
-          : null;
-        const latestAttendanceUpdate = latestAttendance
-          ? new Date(latestAttendance?.updatedAt)
-          : null;
-        const latestWeekOffUpdate = weekOffUpdatedAt
-          ? new Date(weekOffUpdatedAt)
-          : null;
-
-        if (
-          (latestHolidayUpdate && latestHolidayUpdate > lastSalaryUpdate) ||
-          (latestWeekOffUpdate && latestWeekOffUpdate > lastSalaryUpdate) ||
-          (latestLeaveUpdate && latestLeaveUpdate > lastSalaryUpdate) ||
-          (latestAttendanceUpdate &&
-            latestAttendanceUpdate > lastSalaryUpdate) ||
-          existingSalary.holidayDays !== String(totalHolidayDays) ||
-          shouldRecalculate
-        ) {
-          shouldUpsert = true;
-        }
-      }
-
-      try {
-        if (shouldUpsert) {
-          const AttendanceData = await Attendance.aggregate([
-            {
-              $lookup: {
-                from: 'users',
-                localField: 'User',
-                foreignField: '_id',
-                as: 'userData',
+        {
+          $addFields: {
+            attendMonthOnly: {
+              $dateToString: {
+                format: '%m',
+                date: '$AttendAt',
+                timezone: 'Asia/Kolkata',
               },
             },
-            {
-              $unwind: '$userData',
-            },
-            {
-              $lookup: {
-                from: 'leaves',
-                localField: 'userData.Name',
-                foreignField: 'userName',
-                as: 'result',
+            attendDateOnly: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$AttendAt',
+                timezone: 'Asia/Kolkata',
               },
             },
-            {
-              $addFields: {
-                attendMonthOnly: {
-                  $dateToString: {
-                    format: '%m',
-                    date: '$AttendAt',
-                    timezone: 'Asia/Kolkata',
-                  },
-                },
-                attendDateOnly: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$AttendAt',
-                    timezone: 'Asia/Kolkata',
-                  },
-                },
-                attendYearOnly: {
-                  $dateToString: {
-                    format: '%Y',
-                    date: '$AttendAt',
-                    timezone: 'Asia/Kolkata',
-                  },
-                },
+            attendYearOnly: {
+              $dateToString: {
+                format: '%Y',
+                date: '$AttendAt',
+                timezone: 'Asia/Kolkata',
               },
             },
-            {
-              $group: {
-                _id: {
-                  month: '$attendMonthOnly',
-                  date: '$attendDateOnly',
-                  year: '$attendYearOnly',
-                  UserName: '$userData.Name',
-                },
-                logHours: {
-                  $push: '$$ROOT',
-                },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: '$attendMonthOnly',
+              date: '$attendDateOnly',
+              year: '$attendYearOnly',
+              UserName: '$userData.Name',
+            },
+            logHours: {
+              $push: '$$ROOT',
+            },
+          },
+        },
+        {
+          $sort: {
+            '_id.UserName': 1,
+            '_id.date': 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: '$_id.month',
+              year: '$_id.year',
+              UserName: '$_id.UserName',
+            },
+            dates: {
+              $push: {
+                date: '$_id.date',
+                logHours: '$logHours',
               },
             },
-            {
-              $sort: {
-                '_id.UserName': 1,
-                '_id.date': 1,
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  month: '$_id.month',
-                  year: '$_id.year',
-                  UserName: '$_id.UserName',
-                },
-                dates: {
-                  $push: {
-                    date: '$_id.date',
-                    logHours: '$logHours',
-                  },
-                },
-              },
-            },
-            {
-              $match: {
-                '_id.month': month,
-                '_id.year': year,
-              },
-            },
-            {
-              $project: {
-                _id: 1,
-                dates: {
-                  $map: {
-                    input: '$dates',
-                    as: 'd',
-                    in: {
-                      date: '$$d.date',
-                      LogHours: {
-                        $arrayElemAt: [
-                          '$$d.logHours',
+          },
+        },
+        {
+          $match: {
+            '_id.month': salary.month,
+            '_id.year': salary.year,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            dates: {
+              $map: {
+                input: '$dates',
+                as: 'd',
+                in: {
+                  date: '$$d.date',
+                  LogHours: {
+                    $arrayElemAt: [
+                      '$$d.logHours',
+                      {
+                        $subtract: [
                           {
-                            $subtract: [
-                              {
-                                $size: '$$d.logHours',
-                              },
-                              1,
-                            ],
+                            $size: '$$d.logHours',
                           },
+                          1,
                         ],
                       },
-                    },
+                    ],
                   },
                 },
               },
             },
-            {
-              $unwind: '$dates',
-            },
-          ]);
+          },
+        },
+        {
+          $unwind: '$dates',
+        },
+      ]);
 
-          const attendanceDate = AttendanceData.map((item) => item.dates);
-          const logvalue = attendanceDate.map((item) => {
-            return {
-              User: item.LogHours.User.toString(),
-              LogHours: item.LogHours.LogHours,
-              Leave: item.LogHours.result,
-            };
-          });
+      const attendanceDate = AttendanceData.map((item) => item.dates);
+      const logvalue = attendanceDate.map((item) => {
+        return {
+          User: item.LogHours.User.toString(),
+          LogHours: item.LogHours.LogHours,
+          Leave: item.LogHours.result,
+        };
+      });
 
-          const leave = logvalue?.flatMap((leave) => leave.Leave);
-          const filterLeave = leave.filter(
-            (item) => item.Status === 'Approved'
-          );
-          const uniqueLeave = Array.from(
-            new Map(filterLeave.map((l) => [l._id.toString(), l])).values()
-          );
+      const leave = logvalue?.flatMap((leave) => leave.Leave);
+      const filterLeave = leave.filter((item) => item.Status === 'Approved');
 
-          const OfficalHours = calculateTotalOffHours(
-            TypeofWeek,
-            parseInt(month, 10),
-            year,
-            totalHolidayDays
-          );
+      const uniqueLeave = Array.from(
+        new Map(filterLeave.map((l) => [l._id.toString(), l])).values()
+      );
+      const userLogData = logvalue.filter(
+        (log) => log.User === salary.UserId.toString()
+      );
 
-          const [hours] = OfficalHours.split(':');
-          const WorkingDays = Math.round(hours / 8);
+      const userTotalLeaveDays = uniqueLeave
+        .filter(
+          (leave) =>
+            leave.userName === salary.UserName &&
+            leave.Start_Date.split('-')[1] === salary.month &&
+            leave.Start_Date.split('-')[0] === salary.year
+        )
+        .map((val) => val.Days);
 
-          const userLogData = logvalue.filter(
-            (log) => log.User === userID.toString()
-          );
+      const attendanceStats = calculateAttendance(
+        userLogData,
+        workingDays,
+        totalHolidayDays,
+        userTotalLeaveDays,
+        salary?.Salary,
+        salary?._id
+      );
 
-          const userTotalLeaveDays = uniqueLeave
-            .filter(
-              (leave) =>
-                leave.userName === salary.User.Name &&
-                leave.Start_Date.split('-')[1] === month &&
-                leave.Start_Date.split('-')[0] === year
+      const monthlySalary = Number(attendanceStats.salary || 0);
+      const perDaySalary =
+        Number(attendanceStats.actualWorkingDays) > 0
+          ? Math.round(
+              monthlySalary / Number(attendanceStats.actualWorkingDays)
             )
-            .map((val) => val.Days);
-          const attendanceStats = calculateAttendance(
-            userLogData,
-            WorkingDays,
-            totalHolidayDays,
-            userTotalLeaveDays,
-            Salarys?.Salary,
-            salaryEntry?._id
-          );
+          : 0;
+      const calculatedSalary =
+        perDaySalary * attendanceStats.presentDays +
+        attendanceStats.halfDays * perDaySalary * 0.5;
 
-          const userStats = Array(attendanceStats).find(
-            (stat) =>
-              stat.userId === userID.toString() || stat.userId === undefined
-          );
+      data.push({
+        UserId: new mongoose.Types.ObjectId(salary.UserId),
+        salaryId: attendanceStats.salaryId,
+        Salary: attendanceStats.salary,
+        month: salary.month,
+        year: salary.year,
+        totaldays: String(attendanceStats.WorkingDays) || '0',
+        presentDays: String(attendanceStats.presentDays) || '0',
+        halfDays: String(attendanceStats.halfDays) || '0',
+        absentDays: String(attendanceStats.absentDays) || '0',
+        leaveDays: String(attendanceStats.LeaveCount),
+        holidayDays: String(attendanceStats.holidayCount),
+        actualWorkingDays: String(attendanceStats.actualWorkingDays),
+        calculatedSalary: String(Math.round(calculatedSalary)),
+        LastCalculateddAt: new Date(),
+      });
+    }
 
-          if (!userStats) continue;
+    try {
+      const result = await insertSalaryDataBulk(data);
 
-          const monthlySalary = Number(userStats.salary || 0);
-          const actualWorkingDays = Number(userStats.actualWorkingDays || 0);
-          const leaveDays = userStats.LeaveCount;
-          const presentDays = Number(userStats.presentDays || 0);
-          const halfDays = Number(userStats.halfDays || 0);
-          const perDaySalary =
-            actualWorkingDays > 0
-              ? Math.round(monthlySalary / actualWorkingDays)
-              : 0;
-          const calculatedSalary =
-            perDaySalary * presentDays + halfDays * perDaySalary * 0.5;
-
-          bulkInsertData.push({
-            UserId: new mongoose.Types.ObjectId(userID),
-            salaryId: userStats.salaryId,
-            Salary: String(monthlySalary),
-            month: month,
-            year: year,
-            totaldays: String(userStats.WorkingDays) || '0',
-            presentDays: String(presentDays) || '0',
-            halfDays: String(halfDays) || '0',
-            absentDays: String(userStats.absentDays) || '0',
-            leaveDays: String(leaveDays),
-            holidayDays: String(userStats.holidayCount) || totalHolidayDays,
-            actualWorkingDays: String(actualWorkingDays),
-            calculatedSalary: String(Math.round(calculatedSalary)),
-            LastCalculateddAt: new Date(),
+      await Promise.all(
+        result.map(async (inserted) => {
+          await employeeSalary.deleteMany({
+            UserId: inserted.UserId,
+            _id: { $ne: inserted._id },
+            month: inserted.month,
+            year: inserted.year,
           });
-        } else {
-          console.log('No calculation needed');
-        }
-      } catch (error) {
-        console.error('Upsert Error:', error);
-        throw error;
-      }
+        })
+      );
+      return res.status(200).json(new ApiResponse(200, result, 'Ok'));
+    } catch (error) {
+      throw new ApiError(500, 'DataBase Error', error);
     }
-    if (bulkInsertData.length > 0) {
-      await upsertEmployeeSalaries(bulkInsertData);
-    } else {
-      console.log('No salary data calculated, skipping upsert.');
-    }
+  } else {
+    const EmpSalary = await employeeSalary
+      .find()
+      .populate('UserId', 'Name')
+      .populate('salaryId', 'Salary')
+      .sort({ month: 1 });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, EmpSalary, 'Employee Salary Fetched'));
   }
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, bulkInsertData, 'Salaries data summarize and saved')
-    );
 });
 
 const getemployeeSalary = AsyncHandler(async (req, res) => {
