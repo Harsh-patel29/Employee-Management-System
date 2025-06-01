@@ -316,11 +316,11 @@ export default function MissedPunchRegularizationTable() {
   const columns = [
     { field: 'expand', headerName: '', width: 50 },
     { field: 'index', headerName: '#' },
-    { field: 'image', headerName: 'Image' },
-    { field: 'date', headerName: 'Date' },
-    { field: 'user', headerName: 'User' },
-    { field: 'TimeIn', headerName: 'TimeIn' },
-    { field: 'timeOut', headerName: 'Time Out' },
+    { field: 'Image', headerName: 'Image' },
+    { field: 'Date', headerName: 'Date' },
+    { field: 'User', headerName: 'User' },
+    { field: 'AttendAt', headerName: 'TimeIn' },
+    { field: 'TimeOut', headerName: 'Time Out' },
     { field: 'Count', headerName: 'Count' },
     { field: 'regularization', headerName: 'Regularization' },
   ];
@@ -335,8 +335,8 @@ export default function MissedPunchRegularizationTable() {
         <div className="flex items-center">
           <AttendanceFilterSheet screen="MissedPunchRegularization" />
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+            <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  mr-3 w-[155px] border-[rgb(51,141,181)] rounded-lg">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   className="h-6 w-6"
                   stroke="currentColor"

@@ -175,7 +175,7 @@ export default function TaskTimerTable() {
 
   const columns = [
     { field: 'Index', headerName: '#' },
-    { field: 'Task', headerName: 'Task' },
+    { field: 'TaskId', headerName: 'Task' },
     { field: 'User', headerName: 'User' },
     { field: 'StartTime', headerName: 'StartTime' },
     { field: 'EndTime', headerName: 'EndTime' },
@@ -186,10 +186,12 @@ export default function TaskTimerTable() {
   return (
     <>
       <div className="inline-flex justify-between w-full bg-white h-15 rounded-md mt-1 ">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
           Task Timer
         </h5>
-        <TaskTimerFilterSheet screen="TaskTimerTable" />
+        <div className="flex items-center">
+          <TaskTimerFilterSheet screen="TaskTimerTable" />
+        </div>
       </div>
       <ReusableTable
         width="full"

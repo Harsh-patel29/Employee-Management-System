@@ -48,13 +48,7 @@ import ExporttoExcel from './Export.jsx';
 import { TableContainer } from '@mui/material';
 import UserFilterSheet from './UserFilterSheet.jsx';
 
-function Row({
-  row,
-  openSheet,
-  navigate,
-
-  openDialog,
-}) {
+function Row({ row, openSheet, navigate, openDialog }) {
   const [open, setOpen] = React.useState(false);
   const [updatesheetopen, setupdatesheetopen] = React.useState(false);
   const { updateduser } = useSelector((state) => state.createuser);
@@ -437,7 +431,7 @@ export default function CollapsibleTable() {
         <div className="flex items-center">
           {user?.permission?.user?.can_view_user_access && (
             <button
-              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300"
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff]  transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
               onClick={() => navigate('/users/roles')}
             >
               <svg
@@ -463,10 +457,10 @@ export default function CollapsibleTable() {
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
               className={`
-                  ${canAddUser ? 'flex' : 'hidden'}
+                  ${canAddUser ? 'flex focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px]  border-[rgb(51,141,181)] rounded-lg' : 'hidden'}
                   `}
             >
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   className="w-6 h-6 flex"
                   aria-hidden="true"

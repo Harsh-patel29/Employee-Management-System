@@ -44,9 +44,9 @@ export default function WeekOffFilterSheet({ screen }) {
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-      <SheetTrigger>
-        <button
-          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'} text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[120px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+      <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[120px]  border-[rgb(51,141,181)] rounded-lg">
+        <div
+          className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'} text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
         >
           <svg
             stroke="currentColor"
@@ -62,7 +62,7 @@ export default function WeekOffFilterSheet({ screen }) {
             <path d="M16 120h480v48H16zm80 112h320v48H96zm96 112h128v48H192z"></path>
           </svg>
           Filters
-        </button>
+        </div>
       </SheetTrigger>
       <SheetContent className="min-w-lg" showCloseButton={false}>
         <SheetHeader>

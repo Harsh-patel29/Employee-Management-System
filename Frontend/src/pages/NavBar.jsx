@@ -61,10 +61,10 @@ const NavBar = () => {
       {isMobile ? (
         <HamburgerController onClick={toggleSidebar} />
       ) : (
-        <Link to="/dashboard">
+        <Link to="/dashboard" className="focus:outline-none">
           <img
             src="https://ems.jiyantech.com/assets/imgs/theme/logo.png"
-            className="xl:h-13 xl:w-50 xl:mt-2.5 xl:ml-12 max-sm:w-70 max-sm:h-10 max-sm:p-0.5 max-sm:ml-2 max-sm:mt-3 flex items-center lg:h-15 lg:w-50 lg:p-1 lg:ml-2 lg:mt-2 md:h-16 md:w-45 md:ml-2 md:p-1 md:mt-2 sm:h-17 sm:w-50 sm:p-2 sm:mt-1"
+            className="xl:h-13 xl:w-50 xl:mt-2.5 xl:ml-12 max-sm:w-70 max-sm:h-10 max-sm:p-0.5 max-sm:ml-2 max-sm:mt-3 flex items-center lg:h-15 lg:w-50 lg:p-1 lg:ml-2 lg:mt-2 md:h-16 md:w-45 md:ml-2 md:p-1 md:mt-2 sm:h-17 sm:w-50 sm:p-2 sm:mt-1 focus:outline-none"
           />
         </Link>
       )}
@@ -73,7 +73,7 @@ const NavBar = () => {
       >
         <div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger className="focus:outline-none focus:ring-1 focus:ring-[#0000] rounded-2xl">
               <div
                 className={`
                   ${theme === 'light' ? 'bg-[#64B2D559]' : 'bg-[#1e2939] '}

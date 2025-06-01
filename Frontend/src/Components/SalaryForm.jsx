@@ -24,9 +24,7 @@ const formSchema = z.object({
   User: z.string().min(1, { message: 'Please Select User' }),
   WeekOff: z.string().min(1, { message: 'Please Select WeekOff' }),
   Effective_Date: z.string().min(1, { message: 'Date is required' }),
-  salary: z.string().min(1, {
-    message: 'Salary is required',
-  }),
+  salary: z.string().regex(/^[0-9]+$/, { message: 'Salary is required' }),
 });
 
 export default function SalaryForm({ onSubmit, mode, id }) {

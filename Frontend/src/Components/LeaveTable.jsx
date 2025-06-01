@@ -256,8 +256,8 @@ const LeaveTable = () => {
 
   const columns = [
     { field: 'index', headerName: '#' },
-    { field: 'EMP_CODE', headerName: 'EMP CODE' },
-    { field: 'Name', headerName: 'User Name' },
+    { field: 'EMPCODE', headerName: 'EMP CODE' },
+    { field: 'userName', headerName: 'User Name' },
     { field: 'Leave_Reason', headerName: 'Leave Reason' },
     { field: 'LEAVE_TYPE', headerName: 'Leave Type' },
     { field: 'Start_Date', headerName: 'Start Date' },
@@ -276,8 +276,8 @@ const LeaveTable = () => {
         <div className="flex items-center">
           {user?.permission.leave.canAddLeave && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger>
-                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3  w-[130px] border-[rgb(51,141,181)] rounded-lg">
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg  justify-center w-full text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     className="h-6 w-6"
                     stroke="currentColor"
@@ -314,9 +314,7 @@ const LeaveTable = () => {
               </SheetContent>
             </Sheet>
           )}
-          <button>
-            <LeaveFilterSheet screen="Leave" />
-          </button>
+          <LeaveFilterSheet screen="Leave" />
         </div>
       </div>
       <ReusableTable

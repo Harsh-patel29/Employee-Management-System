@@ -253,8 +253,8 @@ const HolidayTable = () => {
         <div className="flex items-center">
           {user.permission.holiday.canAddHoliday && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger>
-                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[130px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px]  border-[rgb(51,141,181)] rounded-lg">
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     className="h-6 w-6"
                     stroke="currentColor"
@@ -291,9 +291,7 @@ const HolidayTable = () => {
               </SheetContent>
             </Sheet>
           )}
-          <button>
-            <HolidayFilterSheet screen="Holiday" />
-          </button>
+          <HolidayFilterSheet screen="Holiday" />
         </div>
       </div>
 

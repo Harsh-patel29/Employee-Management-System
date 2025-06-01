@@ -36,6 +36,7 @@ import {
   resetUpdatedSalary,
   deletesalary,
   resetDeletedSalary,
+  resetError,
 } from '../feature/salaryfetch/addsalaryslice.js';
 import { Play, StopCircle, X } from 'lucide-react';
 import SalaryFilterSheet from './SalaryFilter.jsx';
@@ -138,11 +139,19 @@ export default function SalaryTable() {
   const [SalaryDetail, setSalaryDetail] = React.useState();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const dispatch = useDispatch();
-  const { addedSalary, fetchedSalary, updatedSalary, deletedSalary, loading } =
-    useSelector((state) => state.salarySlice);
+  const {
+    addedSalary,
+    fetchedSalary,
+    updatedSalary,
+    deletedSalary,
+    loading,
+    error,
+  } = useSelector((state) => state.salarySlice);
+
   const filterValue = useSelector(
     (state) => state.filter.filterValue.SalaryDetail
   );
+
   React.useEffect(() => {
     dispatch(getSalary());
   }, []);
@@ -199,7 +208,6 @@ export default function SalaryTable() {
 
   const filteredData = SalaryDetail?.filter((item) => {
     const itemDate = new Date(item.Effective_Date);
-
     if (
       filterValue === undefined ||
       filterValue === null ||
@@ -222,6 +230,16 @@ export default function SalaryTable() {
     return dateRangeMatch && UserMatch && WeekOffMatch;
   });
 
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error?.message, {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+    resetError();
+  }, [error]);
+
   const columns = [
     { field: 'index', headerName: '#' },
     { field: 'User', headerName: 'User' },
@@ -230,8 +248,6 @@ export default function SalaryTable() {
     { field: 'Salary', headerName: 'Salary' },
     { field: 'Action', headerName: 'Action' },
   ];
-
-  console.log(SalaryDetail);
 
   return loading ? (
     <Loader />
@@ -244,8 +260,8 @@ export default function SalaryTable() {
         <div className="flex items-center">
           <SalaryFilterSheet screen="SalaryDetail" />
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+            <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3  w-[160px] border-[rgb(51,141,181)] rounded-lg">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   class="w-6 h-6 text-[#338DB5]"
                   aria-hidden="true"
@@ -284,13 +300,11 @@ export default function SalaryTable() {
             </SheetContent>
           </Sheet>
 
-          <button>
-            <ExporttoExcel
-              data={SalaryDetail}
-              fileName="Projects"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            />
-          </button>
+          <ExporttoExcel
+            data={SalaryDetail}
+            fileName="Projects"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+          />
         </div>
       </div>
 

@@ -143,9 +143,9 @@ function Row({ row, openDialog, navigate, openSheet }) {
 Row.propTypes = {
   row: PropTypes.shape({
     index: PropTypes.number,
-    Project: PropTypes.string,
-    Progress: PropTypes.string,
-    Status: PropTypes.string,
+    name: PropTypes.string,
+    progress_status: PropTypes.string,
+    status: PropTypes.string,
   }).isRequired,
 };
 export default function ProjectTable() {
@@ -260,9 +260,9 @@ export default function ProjectTable() {
 
   const columns = [
     { field: 'index', headerName: '#' },
-    { field: 'Project', headerName: 'Project' },
-    { field: 'Progress', headerName: 'Progress' },
-    { field: 'Status', headerName: 'Status' },
+    { field: 'name', headerName: 'Project' },
+    { field: 'progress_status', headerName: 'Progress' },
+    { field: 'status', headerName: 'Status' },
     { field: 'Action', headerName: 'Action' },
   ];
 
@@ -275,13 +275,13 @@ export default function ProjectTable() {
           Project
         </h5>
         <div className="flex items-center">
-          <button>
+          <div>
             <ProjectFilterSheet screen="Project" />
-          </button>
+          </div>
           {user.permission.project.canAddProject && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger>
-                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  border-[rgb(51,141,181)]  w-[155px] h-9 mr-3 text-[17px] rounded-lg">
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     class="w-6 h-6 text-[#338DB5]"
                     aria-hidden="true"
@@ -319,13 +319,11 @@ export default function ProjectTable() {
               </SheetContent>
             </Sheet>
           )}
-          <button>
-            <ExporttoExcel
-              data={Projects}
-              fileName="Projects"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            />
-          </button>
+          <ExporttoExcel
+            data={Projects}
+            fileName="Projects"
+            className="bg-blue-500 text-white rounded-md"
+          />
         </div>
       </div>
 

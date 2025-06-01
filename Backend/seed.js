@@ -43,17 +43,26 @@ const seedData = async () => {
     )
   );
   try {
-    const AdminRole = await employeeSalary.deleteMany({});
-    // const manageUser = await UserAccess.deleteOne({
-    //   manageUser: 0,
-    //   manageUserAccess: 0,
-    //   role: AdminRole._id,
-    // });
+    const salaries = await Salary.find({});
 
-    // AdminRole.permission = [manageUser._id];
-    // await AdminRole.save();
-    console.log(`${AdminRole.deletedCount} records deleted.`);
-    console.log('Seeding dones', AdminRole);
+    for (let salary of salaries) {
+      console.log(salary.Effective_Date);
+      if (typeof salary.Effective_Date === 'string') {
+        salary.Effective_Date = new Date(salary.Effective_Date);
+        await salary.save();
+      }
+    }
+
+    // const AdminRole = await employeeSalary.deleteMany({});
+    // // const manageUser = await UserAccess.deleteOne({
+    // //   manageUser: 0,
+    // //   manageUserAccess: 0,
+    // //   role: AdminRole._id,
+    // // });
+    // // AdminRole.permission = [manageUser._id];
+    // // await AdminRole.save();
+    // console.log(`${AdminRole.deletedCount} records deleted.`);
+    // console.log('Seeding dones', salaries);
   } catch (error) {
     throw new ApiError(500, 'Seeding failed', error);
   }

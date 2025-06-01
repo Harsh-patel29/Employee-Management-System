@@ -221,7 +221,7 @@ const RegularizationTable = () => {
     { field: 'index', headerName: '#' },
     { field: 'User', headerName: 'User' },
     { field: 'Date', headerName: 'Date' },
-    { field: 'PunchTime', headerName: 'Punch Time' },
+    { field: 'MissingPunch', headerName: 'Punch Time' },
     { field: 'Reason', headerName: 'Reason' },
     { field: 'Remarks', headerName: 'Remarks' },
     { field: 'Action', headerName: 'Action' },
@@ -233,7 +233,9 @@ const RegularizationTable = () => {
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Regularization
         </h5>
-        <AttendanceFilterSheet screen="Regularization" />
+        <div className="flex items-center">
+          <AttendanceFilterSheet screen="Regularization" />
+        </div>
       </div>
       <ReusableTable
         width="full"

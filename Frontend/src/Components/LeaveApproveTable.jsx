@@ -229,8 +229,8 @@ const LeaveApproveTable = () => {
 
   const columns = [
     { field: 'index', headerName: '#' },
-    { field: 'EMP_CODE', headerName: 'EMP CODE' },
-    { field: 'Name', headerName: 'User Name' },
+    { field: 'EMPCODE', headerName: 'EMP CODE' },
+    { field: 'userName', headerName: 'User Name' },
     { field: 'Leave_Reason', headerName: 'Leave Reason' },
     { field: 'LEAVE_TYPE', headerName: 'Leave Type' },
     { field: 'Start_Date', headerName: 'Start Date' },
@@ -245,7 +245,9 @@ const LeaveApproveTable = () => {
         <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
           Pending Leave
         </h5>
-        <LeaveFilterSheet screen="ApproveLeave" />
+        <div className="flex items-center">
+          <LeaveFilterSheet screen="ApproveLeave" />
+        </div>
       </div>
       <ReusableTable
         width="full"

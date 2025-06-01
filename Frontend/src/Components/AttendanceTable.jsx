@@ -319,12 +319,9 @@ Row.propTypes = {
     otherAttendances: PropTypes.array,
   }).isRequired,
 };
+
 export default function CollapsibleTable() {
   const dispatch = useDispatch();
-  const [openFilterSheet, setOpenFilterSheet] = React.useState(false);
-  const [isOpen, setisOpen] = React.useState(false);
-  const [fromDate, setFromDate] = React.useState(null);
-  const [toDate, setToDate] = React.useState(null);
   const [attendances, setAttendances] = React.useState([]);
   const [sheetopen, setsheetopen] = React.useState(false);
   const filterValue = useSelector(
@@ -334,6 +331,7 @@ export default function CollapsibleTable() {
   const { newattendance, loading, createdRegularization } = useSelector(
     (state) => state.markAttendance
   );
+
   React.useEffect(() => {
     dispatch(fetchAttendance());
     dispatch(GetRegularization());
@@ -483,12 +481,12 @@ export default function CollapsibleTable() {
   const columns = [
     { field: 'expand', headerName: '', width: 50 },
     { field: 'index', headerName: '#' },
-    { field: 'image', headerName: 'Image' },
-    { field: 'date', headerName: 'Date' },
-    { field: 'user', headerName: 'User' },
-    { field: 'TimeIn', headerName: 'TimeIn' },
-    { field: 'timeOut', headerName: 'Time Out' },
-    { field: 'logHours', headerName: 'Log Hours' },
+    { field: 'Image', headerName: 'Image' },
+    { field: 'Date', headerName: 'Date' },
+    { field: 'User', headerName: 'User' },
+    { field: 'AttendAt', headerName: 'TimeIn' },
+    { field: 'TimeOut', headerName: 'Time Out' },
+    { field: 'formattedLogHours', headerName: 'Log Hours' },
     { field: 'location', headerName: 'Location' },
     { field: 'regularization', headerName: 'Regularization' },
   ];
@@ -503,8 +501,8 @@ export default function CollapsibleTable() {
         </h5>
         <div className="flex items-center">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger>
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[155px] justify-center text-[17px] h-9 mr-3 flex items-center  hover:bg-[#dbf4ff] transition-all duration-300">
+            <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  border-[rgb(51,141,181)] border border-solid w-[155px] h-9 mr-3 text-[17px] rounded-lg">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 cursor-pointer rounded-lg justify-center flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   className="h-6 w-6"
                   stroke="currentColor"
@@ -541,12 +539,12 @@ export default function CollapsibleTable() {
           <ExporttoExcel
             data={formattedData}
             fileName="Attendance"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            className="bg-blue-500 text-white rounded-md"
           />
           <AttendanceFilterSheet screen="Attendance" />
           <button
             onClick={() => dispatch(openAttendanceSheet())}
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
           >
             <svg
               stroke="currentColor"
@@ -565,51 +563,6 @@ export default function CollapsibleTable() {
           </button>
         </div>
       </div>
-      <Sheet open={openFilterSheet} onOpenChange={setOpenFilterSheet}>
-        <SheetContent className="min-w-2xl">
-          <SheetHeader>
-            <SheetTitle>Filter Attendance</SheetTitle>
-            <div className="flex w-full justify-between mt-2">
-              <h1 className="ml-30">From</h1>
-              <h1 className="mr-30">To</h1>
-            </div>
-          </SheetHeader>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DemoContainer components={['DateRangeCalendar']}>
-              <div className="flex flex-row gap-4 mt-4">
-                <DateCalendar
-                  label="From Date"
-                  value={fromDate}
-                  onChange={(value) => {
-                    setFromDate(value);
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-                <DateCalendar
-                  label="To Date"
-                  minDate={fromDate}
-                  value={toDate}
-                  onChange={(newValue) => setToDate(newValue)}
-                  slots={(params) => <TextField {...params} />}
-                />
-              </div>
-            </DemoContainer>
-          </LocalizationProvider>
-          <div className="flex justify-end mt-4">
-            <Button
-              onClick={() => {
-                setFromDate(null);
-                setToDate(null);
-              }}
-              className="px-6 py-2 bg-red-500 text-white hover:bg-red-600 w-full ml-40 mr-40 "
-            >
-              Clear Filter
-            </Button>
-          </div>
-          <SheetFooter></SheetFooter>
-        </SheetContent>
-      </Sheet>
-
       <ReusableTable
         width="full"
         columns={columns}

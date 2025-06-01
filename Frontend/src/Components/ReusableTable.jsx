@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
+import { TableSortLabel } from '@mui/material';
 
 const ReusableTable = ({
   columns,
@@ -25,6 +26,10 @@ const ReusableTable = ({
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [sortConfig, SetsortConfig] = React.useState({
+    field: null,
+    direction: 'asc',
+  });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -35,10 +40,34 @@ const ReusableTable = ({
     setPage(0);
   };
 
-  const paginatedData = pagination
-    ? data?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    : data;
+  const handleSort = (field) => {
+    SetsortConfig((prev) => ({
+      field,
+      direction:
+        prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
 
+  const sortedRows = React.useMemo(() => {
+    if (!sortConfig.field) return data;
+    return [...data].sort((a, b) => {
+      const aValue = a[sortConfig.field];
+      const bValue = b[sortConfig.field];
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortConfig]);
+
+  const paginatedData = React.useMemo(() => {
+    if (!pagination) return sortedRows;
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return sortedRows?.slice(startIndex, endIndex);
+  }, [sortedRows, page, rowsPerPage, pagination]);
+
+  // console.log(sortConfig.field);
   function noDataMessage() {
     return (
       <TableRow className="flex h-10">
@@ -96,8 +125,30 @@ const ReusableTable = ({
                     fontSize: 'medium',
                     ...cellStyle,
                   }}
+                  sortDirection={
+                    sortConfig.field === column.field
+                      ? sortConfig.direction
+                      : false
+                  }
                 >
-                  {column.headerName}
+                  <TableSortLabel
+                    sx={{
+                      '.MuiTableSortLabel-icon': {
+                        opacity: sortConfig.field === column.field ? 1 : 0,
+                        margin: 0,
+                      },
+                    }}
+                    active={sortConfig.field === column.field}
+                    hideSortIcon={sortConfig.field !== column.field}
+                    direction={
+                      sortConfig.field === column.field
+                        ? sortConfig.direction
+                        : 'asc'
+                    }
+                    onClick={() => handleSort(column.field)}
+                  >
+                    {column.headerName}
+                  </TableSortLabel>
                 </TableCell>
               ))}
             </TableRow>

@@ -171,7 +171,7 @@ Row.propTypes = {
     StartDate: PropTypes.string,
     EndDate: PropTypes.string,
     Project: PropTypes.string,
-    Totatime: PropTypes.string,
+    Totaltime: PropTypes.string,
     createdBy: PropTypes.string,
     Status: PropTypes.string,
     Asignee: PropTypes.string,
@@ -293,7 +293,7 @@ export default function TaskTable() {
     { field: 'StartDate', headerName: 'Start Date' },
     { field: 'EndDate', headerName: 'End Date' },
     { field: 'Project', headerName: 'Project' },
-    { field: 'Totatime', headerName: 'Total Time' },
+    { field: 'Totaltime', headerName: 'Total Time' },
     { field: 'createdBy', headerName: 'Created By' },
     { field: 'Status', headerName: 'Status' },
     { field: 'Asignee', headerName: 'Asignee' },
@@ -309,7 +309,7 @@ export default function TaskTable() {
         <div className="flex items-center">
           {user?.permission.task.canAddTask && (
             <button
-              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
               onClick={() => handleCreateTask()}
             >
               <svg
@@ -333,11 +333,9 @@ export default function TaskTable() {
               Task
             </button>
           )}
-          <button>
-            <TasksFilterSheet screen="Task" />
-          </button>
+          <TasksFilterSheet screen="Task" />
           <button
-            className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+            className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5]  `}
             onClick={() => {
               handleViewChange('list');
               dispatch(getAllTasks());
@@ -362,7 +360,7 @@ export default function TaskTable() {
             </svg>
           </button>
           <button
-            className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+            className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
             onClick={() => handleViewChange('board')}
           >
             <svg
@@ -385,7 +383,7 @@ export default function TaskTable() {
             </svg>
           </button>
           <button
-            className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
+            className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
             onClick={() => handleViewChange('kanban')}
           >
             <svg

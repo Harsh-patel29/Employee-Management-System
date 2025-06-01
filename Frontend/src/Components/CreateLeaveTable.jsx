@@ -112,8 +112,8 @@ function Row({ row, openSheet, openDialog, navigate }) {
 Row.propTypes = {
   row: PropTypes.shape({
     index: PropTypes.string,
-    name: PropTypes.string,
-    code: PropTypes.string,
+    Leave_Reason: PropTypes.string,
+    Leave_Code: PropTypes.string,
   }).isRequired,
 };
 
@@ -210,7 +210,7 @@ export default function CreateLeaveTable() {
 
   const columns = [
     { field: 'index', headerName: '#' },
-    { field: 'Leave_Reason', headerName: 'Leave Reason' },
+    { field: 'Leave_Reasons', headerName: 'Leave Reason' },
     { field: 'Leave_Code', headerName: 'Leave Code' },
     { field: 'Action', headerName: 'Action' },
   ];
@@ -224,8 +224,8 @@ export default function CreateLeaveTable() {
         <div className="flex items-center">
           {user.permission.leaveType.canAddLeaveType && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger>
-                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3  border-[rgb(51,141,181)] w-[160px] rounded-lg">
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg  justify-center w-full text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     className="h-6 w-6"
                     stroke="currentColor"

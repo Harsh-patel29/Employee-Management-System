@@ -10,6 +10,7 @@ import {
 } from '../Components/components/ui/sheet';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -43,6 +44,7 @@ import {
 } from '../feature/weekofffetch/weekoffslice.js';
 import WeekOffForm from './WeekOffForm.jsx';
 import WeekOffFilterSheet from './WeekOffFilterSheet.jsx';
+import { X } from 'lucide-react';
 function Row({ row, openDialog, openSheet }) {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
@@ -110,7 +112,13 @@ function Row({ row, openDialog, openSheet }) {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Are you absolutely sure?</DialogTitle>
+                      <DialogTitle className="flex items-center justify-between">
+                        Are you absolutely sure?
+                        <DialogClose className="cursor-pointer">
+                          {' '}
+                          <X size={16} />
+                        </DialogClose>
+                      </DialogTitle>
                       <DialogDescription>
                         This action cannot be undone. This will permanently
                         delete the WeekOff.
@@ -322,7 +330,7 @@ export default function WeekOffTable() {
   const columns = [
     { field: 'expand', headerName: '', width: 50 },
     { field: 'index', headerName: '#' },
-    { field: 'WeekOff', headerName: 'WeekOff' },
+    { field: 'WeekOffName', headerName: 'WeekOff' },
     { field: 'Effective_Date', headerName: 'Effective Date' },
     { field: 'Action', headerName: 'Action' },
   ];
@@ -336,8 +344,8 @@ export default function WeekOffTable() {
         <div className="flex items-center">
           {user?.permission.weekOff.canAddWeekoff && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger>
-                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[160px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[160px]  border-[rgb(51,141,181)] rounded-lg">
+                <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     className="h-6 w-6"
                     stroke="currentColor"
@@ -374,9 +382,7 @@ export default function WeekOffTable() {
               </SheetContent>
             </Sheet>
           )}
-          <button>
-            <WeekOffFilterSheet screen="WeekOff" />
-          </button>
+          <WeekOffFilterSheet screen="WeekOff" />
         </div>
       </div>
       <ReusableTable
