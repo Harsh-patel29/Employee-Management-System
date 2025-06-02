@@ -14,7 +14,7 @@ import EmployeeSalaryFilterSheet from './EmployeeSalaryFilter.jsx';
 import ExporttoExcel from '../Components/Export.jsx';
 
 function Row({ row }) {
-  const UserName = row.UserId?.Name;
+  const UserName = row?.UserId?.Name;
   return (
     <React.Fragment>
       <TableRow>
@@ -107,7 +107,7 @@ const EmployeeSalaryTable = () => {
   const dataforExcel = data.map((item) => {
     return {
       _id: item._id,
-      UserName: item.UserId.Name,
+      UserName: item?.UserId?.Name,
       Salary: item.Salary,
       TotalDays: item.totaldays,
       HolidayDays: item.holidayDays,

@@ -388,7 +388,7 @@ const createEmployeeSalary = AsyncHandler(async (req, res) => {
     let data = [];
 
     for (const salary of result) {
-      const datePrefix = salary.Effective_Date;
+      const datePrefix = `${salary.year}-${salary.month}`;
 
       const holiday = await Holiday.find(
         {

@@ -113,7 +113,7 @@ function getWeekdayWeekMap(month, year, dayIndex) {
 function calculateTotalOffHours(TypeofWeek, month, year, totalHolidayDays) {
   let totalOffHours = 0;
 
-  TypeofWeek.forEach((entry) => {
+  TypeofWeek?.forEach((entry) => {
     const [dayNameRaw, typeRaw, weekStrRaw] = entry
       .split(' - ')
       .map((x) => x.trim());
