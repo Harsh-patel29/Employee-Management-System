@@ -141,9 +141,9 @@ export default function AdminForm({ onSubmit, mode }) {
       <Form {...control}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
-            <h1 className="text-xl w-full">Create Leave</h1>
+            <h1 className="text-xl w-full text-start">Create User</h1>
             <Button
-              id="create-leave"
+              id="create-User"
               type="submit"
               className="bg-white text-black border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
             >
@@ -195,7 +195,7 @@ export default function AdminForm({ onSubmit, mode }) {
             </SheetClose>
           </div>
           <div
-            className={`mt-4 grid grid-cols-3 gap-6 items-center justify-evenly ml-10`}
+            className={`mt-4 grid grid-cols-3 max-[670px]:grid-cols-2 max-[530px]:grid-cols-2 max-[530px]:ml-0 gap-6 max-[530px]:gap-y-6 items-center justify-evenly ml-10`}
           >
             <FormField
               control={control}
@@ -542,7 +542,7 @@ export default function AdminForm({ onSubmit, mode }) {
                   </FormLabel>
                   <FormControl>
                     <Select
-                      className="shadow w-[90%]"
+                      className="shadow w-[90%] text-start"
                       styles={{
                         control: (baseStyles) => ({
                           ...baseStyles,

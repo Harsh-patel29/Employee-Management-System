@@ -529,8 +529,8 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
               </FormItem>
             )}
           />
-          <div className="flex xl:flex-row lg:flex-row xl:gap-x-4 lg:gap-x-4 md:flex-row sm:flex-col max-sm:flex-col w-full h-full justify-between items-start pb-3 ">
-            <div className="flex flex-col px-2 min-md:w-[65%] max-md:w-full">
+          <div className="flex xl:flex-row lg:flex-row xl:gap-x-1 lg:gap-x-1 md:gap-x-4 md:flex-row sm:flex-col max-sm:flex-col w-full h-full justify-between items-start pb-3 ">
+            <div className="flex flex-col px-2 md:w-[55%] max-md:w-full">
               <FormField
                 control={control}
                 name="description"
@@ -793,7 +793,6 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                       </div>
                     )}
 
-                    {/* Update Todo Alert */}
                     <AlertDialog
                       open={openTodoUpdateDialog}
                       onOpenChange={setOpenTodoUpdateDialog}
@@ -968,7 +967,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                     >
                       <FormControl>
                         <div
-                          className={`flex shadow-sm h-10 ${currentAttachments?.length > 0 ? 'h-20 rounded-b-md border-2 border-gray-300' : 'mt-3 mb-3 ml-2 rounded-md border-2'} flex items-start bg-[rgba(249,249,249,0.65)]`}
+                          className={`flex shadow-sm max-lg:h-15 h-10 ${currentAttachments?.length > 0 ? 'h-20 rounded-b-md border-2 border-gray-300' : ' mt-3 mb-3 ml-2 rounded-md border-2'} flex items-start bg-[rgba(249,249,249,0.65)]`}
                         >
                           <textarea
                             id="comments"
@@ -979,7 +978,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             {...field}
                           />
                           <div
-                            className={`${currentAttachments?.length > 0 ? 'items-start mt-2.5' : 'items-center'} flex gap-x-3 px-2 h-full `}
+                            className={`${currentAttachments?.length > 0 ? 'items-start mt-2.5' : 'items-center'} flex gap-x-3 px-2 h-full`}
                           >
                             <label
                               htmlFor="attachment-button"
@@ -1063,7 +1062,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                     .join('')
                                     .toUpperCase()}
                             </p>
-                            <div className="flex flex-col bg-[rgba(249,249,249,0.65)] rounded-2xl  p-2 mr-7 overflow-y-auto mt-2  justify-center border-2 border-[rgb(226,226,226)] w-full">
+                            <div className="flex flex-col bg-[rgba(249,249,249,0.65)] rounded-2xl p-2 mr-7 overflow-y-auto mt-2 justify-center border-2 border-[rgb(226,226,226)] w-full">
                               <div className="flex items-center gap-6">
                                 <p className="ml-3">
                                   {value.user || user.user.Name}
@@ -1083,7 +1082,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                               <div
                                 className={`${value.Attachments.map((file) => (file.url === '' ? '' : ''))}`}
                               ></div>
-                              <div className="grid grid-cols-7 gap-2 max-h-48 min-h-auto w-full overflow-auto">
+                              <div className="grid grid-cols-7 max-md:grid-cols-2 max-xs:grid-cols-1 gap-2 max-h-48 min-h-auto w-full overflow-auto">
                                 {value.Attachments.map((file, index) => (
                                   <div className="ml-1">
                                     {file.url.split('.').includes('pdf') ? (
@@ -1116,7 +1115,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                       <img
                                         key={index}
                                         src={file.url}
-                                        className="w-[90px] h-[90px] cursor-pointer"
+                                        className="min:md-w-[90px] min-md:h-[90px] cursor-pointer"
                                         alt="Attachment"
                                         onClick={() => {
                                           setSelectedFileType('image');
@@ -1199,7 +1198,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                 )}
               />
             </div>
-            <div className="pb-6 min-md:w-[35%] max-md:w-full">
+            <div className="pb-6 md:w-[55%] md:bg-green-400 lg:bg-red-200 lg:min-w-[40%] xl:w-[35%] max-md:w-full">
               <h2
                 className="flex items-start mt-6 mb-1 text-[20px]  ml-6 font-[100] font-[Inter,sans-serif] 
                  text-decoration-line: underline decoration-[rgb(205,179,162)] min-md:hidden"
@@ -1665,13 +1664,17 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             ></path>
                           </svg>
                         </div>
-                        <h2 className="text-[rgb(120, 122, 126)] text-[15px]">
+                        <h2 className="text-[rgb(120, 122, 126)] text-[15px] min-lg:w-auto min-md:w-18">
                           Estimated Time:
                         </h2>
                         <FormControl {...field}>
-                          <div>
+                          <div
+                            className={`${showEstimatedTimeField ? 'flex w-15' : 'hidden'}`}
+                          >
                             {showEstimatedTimeField && (
-                              <div className="flex items-center text-[rgb(115,122,126)]">
+                              <div
+                                className={`flex items-center text-[rgb(115,122,126)]`}
+                              >
                                 <Input
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
@@ -1684,7 +1687,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   onChange={handleHourChange}
                                   onBlur={() => handleBlur('hours')}
                                   onClick={() => hours === '00' && setHours('')}
-                                  className=" w-10 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  className="rounded-sm w-10  shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
 
                                 <span className="text-lg mb-0.5 font-semibold text-gray-700">
@@ -1705,7 +1708,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                                   onClick={() =>
                                     minutes === '00' && setMinutes('')
                                   }
-                                  className="h-9.5 w-15 rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  className="h-9.5 w-15  rounded-sm shadow-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                               </div>
                             )}
@@ -1746,7 +1749,7 @@ export default function TaskUpdateForm({ onSubmit, mode }) {
                             className={`${
                               showEstimatedTimeField
                                 ? 'hidden'
-                                : ' ml-10 cursor-pointer'
+                                : 'min-lg:ml-10 sm:ml-10 xs:ml-10 md:ml-0 cursor-pointer'
                             } `}
                           >
                             <svg

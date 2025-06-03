@@ -115,7 +115,10 @@ export default function EmployeeSalaryFilterSheet({ screen }) {
           Filters
         </div>
       </SheetTrigger>
-      <SheetContent className="min-w-lg" showCloseButton={false}>
+      <SheetContent
+        className="min-w-lg max-xs:min-w-screen"
+        showCloseButton={false}
+      >
         <SheetHeader>
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
             <h1 className="text-2xl w-full">Filter Task</h1>
@@ -169,6 +172,7 @@ export default function EmployeeSalaryFilterSheet({ screen }) {
                     minWidth: '120px',
                   }),
                 }}
+                className="text-start"
                 value={User}
                 id="User-filter"
                 isClearable={true}
@@ -211,6 +215,7 @@ export default function EmployeeSalaryFilterSheet({ screen }) {
                     minWidth: '120px',
                   }),
                 }}
+                className="text-start"
                 isClearable={!!selectedMonth}
                 placeholder={'Select Month'}
                 value={selectedMonth}
@@ -250,6 +255,7 @@ export default function EmployeeSalaryFilterSheet({ screen }) {
                     minWidth: '120px',
                   }),
                 }}
+                className="text-start"
                 isClearable={!!selectedYear}
                 placeholder={'Select Year'}
                 value={selectedYear}

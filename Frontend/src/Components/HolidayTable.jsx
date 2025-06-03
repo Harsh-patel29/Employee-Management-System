@@ -247,7 +247,7 @@ const HolidayTable = () => {
   return (
     <>
       <div className="inline-flex justify-between w-full bg-white h-15 rounded-lg mt-1 mb-2">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif]  flex items-center ml-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
           Holiday
         </h5>
         <div className="flex items-center">
@@ -277,7 +277,7 @@ const HolidayTable = () => {
               </SheetTrigger>
               <SheetContent
                 showCloseButton={false}
-                className="bg-white min-w-xl"
+                className="bg-white min-w-xl max-xs:min-w-screen"
               >
                 <SheetHeader>
                   <SheetDescription>
@@ -291,10 +291,14 @@ const HolidayTable = () => {
               </SheetContent>
             </Sheet>
           )}
-          <HolidayFilterSheet screen="Holiday" />
+          <div className="max-[400px]:hidden">
+            <HolidayFilterSheet screen="Holiday" />
+          </div>
         </div>
       </div>
-
+      <div className="max-[400px]:flex min-[400px]:hidden flex justify-end">
+        <HolidayFilterSheet screen="Holiday" />
+      </div>
       <ReusableTable
         width="full"
         columns={columns}

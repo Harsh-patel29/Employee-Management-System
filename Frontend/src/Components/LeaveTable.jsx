@@ -276,7 +276,7 @@ const LeaveTable = () => {
         <div className="flex items-center">
           {user?.permission.leave.canAddLeave && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3  w-[130px] border-[rgb(51,141,181)] rounded-lg">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px] border-[rgb(51,141,181)] rounded-lg">
                 <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg  justify-center w-full text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     className="h-6 w-6"
@@ -300,7 +300,7 @@ const LeaveTable = () => {
               </SheetTrigger>
               <SheetContent
                 showCloseButton={false}
-                className="bg-white min-w-xl"
+                className="bg-white min-w-xl max-xs:min-w-screen"
               >
                 <SheetHeader>
                   <SheetDescription>
@@ -314,8 +314,13 @@ const LeaveTable = () => {
               </SheetContent>
             </Sheet>
           )}
-          <LeaveFilterSheet screen="Leave" />
+          <div className="max-[370px]:hidden">
+            <LeaveFilterSheet screen="Leave" />
+          </div>
         </div>
+      </div>
+      <div className="max-[370px]:flex min-[370px]:hidden flex justify-end mb-2">
+        <LeaveFilterSheet screen="Leave" />
       </div>
       <ReusableTable
         width="full"

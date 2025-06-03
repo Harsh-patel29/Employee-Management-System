@@ -275,12 +275,12 @@ export default function ProjectTable() {
           Project
         </h5>
         <div className="flex items-center">
-          <div>
+          <div className="max-xs:ml-1">
             <ProjectFilterSheet screen="Project" />
           </div>
           {user.permission.project.canAddProject && (
             <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  border-[rgb(51,141,181)]  w-[155px] h-9 mr-3 text-[17px] rounded-lg">
+              <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  border-[rgb(51,141,181)] w-[155px] max-xs:px-0.5 h-9 mr-3 text-[17px] rounded-lg max-xs:flex max-xs:flex-col">
                 <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                   <svg
                     class="w-6 h-6 text-[#338DB5]"
@@ -306,7 +306,7 @@ export default function ProjectTable() {
               </SheetTrigger>
               <SheetContent
                 showCloseButton={false}
-                className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md"
+                className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-screen max-xs:min-w-screen"
               >
                 <SheetHeader>
                   <SheetDescription>
@@ -319,12 +319,21 @@ export default function ProjectTable() {
               </SheetContent>
             </Sheet>
           )}
-          <ExporttoExcel
-            data={Projects}
-            fileName="Projects"
-            className="bg-blue-500 text-white rounded-md"
-          />
+          <div className="max-xs:hidden">
+            <ExporttoExcel
+              data={Projects}
+              fileName="Projects"
+              className="bg-blue-500 text-white rounded-md"
+            />
+          </div>
         </div>
+      </div>
+      <div className="max-xs:flex min-xs:hidden w-full justify-end">
+        <ExporttoExcel
+          data={Projects}
+          fileName="Projects"
+          className="bg-blue-500 text-white rounded-md"
+        />
       </div>
 
       <ReusableTable

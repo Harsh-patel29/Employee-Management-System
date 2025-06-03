@@ -69,7 +69,7 @@ export default function LeaveFilterSheet({ screen }) {
 
   return (
     <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-      <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[120px]  border-[rgb(51,141,181)] rounded-lg">
+      <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[120px] border-[rgb(51,141,181)] rounded-lg">
         <div
           className={`${isFilterApplied ? 'bg-[#dbf4ff]' : 'bg-[#ffffff]'}  text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300`}
         >
@@ -89,7 +89,10 @@ export default function LeaveFilterSheet({ screen }) {
           Filters
         </div>
       </SheetTrigger>
-      <SheetContent className="min-w-lg" showCloseButton={false}>
+      <SheetContent
+        className="min-w-lg max-xs:min-w-screen"
+        showCloseButton={false}
+      >
         <SheetHeader>
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
             <h1 className="text-2xl w-full">Filter Task</h1>
@@ -116,6 +119,7 @@ export default function LeaveFilterSheet({ screen }) {
             <div className="flex flex-col gap-2">
               <label className="text-[16px] font-[500]">User</label>
               <Select
+                className="text-start"
                 value={User}
                 id="User-filter"
                 isClearable={true}
@@ -131,6 +135,7 @@ export default function LeaveFilterSheet({ screen }) {
                 <>
                   <label className="text-[16px] font-[500]">Leave Status</label>
                   <Select
+                    className="text-start"
                     value={LeaveStatus}
                     id="LeaveStatus-filter"
                     isClearable={true}

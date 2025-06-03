@@ -237,7 +237,7 @@ export default function RegularizationForm({
             </SheetClose>
           </div>
           {mode === 'Direct' && (
-            <div className="flex w-full justify-between mb-3  mt-3">
+            <div className="flex w-full justify-between mb-3 mt-3">
               {user.user.role === 'Admin' && (
                 <div>
                   <p className="font-semibold">
@@ -267,7 +267,7 @@ export default function RegularizationForm({
             </div>
           )}
           <div
-            className={`${user.user.role === 'Admin' ? 'flex items-center justify-between' : ''}`}
+            className={`${user.user.role === 'Admin' ? 'flex items-center justify-between w-full' : ''}`}
           >
             {mode !== 'Direct' && (
               <FormField
@@ -275,7 +275,7 @@ export default function RegularizationForm({
                 name="Date"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex flex-col">
+                    <div className="flex w-[264px] max-xs:w-[100%] pr-2 flex-col">
                       <FormLabel
                         className={
                           errors?.Date
@@ -287,10 +287,10 @@ export default function RegularizationForm({
                       </FormLabel>
                       <FormControl>
                         <DatePicker
-                          className="w-full h-9.5 border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
+                          className="h-9.5 w-full border border-gray-300 text-[rgb(0,0,0)] text-[15px] font-[450] rounded-sm p-3 outline-none"
                           placeholderText="Select Date"
                           autoComplete="off"
-                          selected={field.value ? new Date(field.value) : null} // convert string -> Date
+                          selected={field.value ? new Date(field.value) : null}
                           onChange={(date) => {
                             const localDate = date
                               ? new Date(
@@ -300,7 +300,7 @@ export default function RegularizationForm({
                                   .toISOString()
                                   .split('T')[0]
                               : '';
-                            field.onChange(localDate); // store only string
+                            field.onChange(localDate);
                           }}
                           maxDate={new Date()}
                           dateFormat="dd-MM-yyyy"
@@ -327,7 +327,7 @@ export default function RegularizationForm({
                 control={control}
                 name="UserId"
                 render={({ field }) => (
-                  <FormItem className="w-[40%] gap-0 flex flex-col">
+                  <FormItem className="w-[50%] max-xs:w-[60%] gap-0 pl-1 flex flex-col">
                     <FormLabel
                       className={
                         errors?.UserId
@@ -339,6 +339,7 @@ export default function RegularizationForm({
                     </FormLabel>
                     <FormControl>
                       <Select
+                        className="text-start"
                         styles={{
                           control: (baseStyles) => ({
                             ...baseStyles,

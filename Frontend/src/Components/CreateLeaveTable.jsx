@@ -248,7 +248,7 @@ export default function CreateLeaveTable() {
               </SheetTrigger>
               <SheetContent
                 showCloseButton={false}
-                className="bg-white min-w-xl"
+                className="bg-white min-w-xl max-xs:min-w-screen"
               >
                 <SheetHeader>
                   <SheetDescription>

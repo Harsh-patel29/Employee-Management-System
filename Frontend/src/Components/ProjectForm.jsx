@@ -22,6 +22,7 @@ import {
 } from '../feature/projectfetch/createproject.js';
 import { Bounce, toast } from 'react-toastify';
 import Loader from './Loader.jsx';
+import Select from 'react-select';
 
 const getLogoSchema = (mode) => {
   if (mode === 'update') {
@@ -189,6 +190,19 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
     }
   }, [onClose]);
 
+  const ProgressOptions = [
+    { value: 'Pending', label: 'Pending' },
+    { value: 'Progress', label: 'Progress' },
+    { value: 'Hold', label: 'Hold' },
+    { value: 'Completed', label: 'Completed' },
+    { value: 'Scrapped', label: 'Scrapped' },
+  ];
+
+  const statusOptions = [
+    { value: 'Active', label: 'Active' },
+    { value: 'In-Active', label: 'In-Active' },
+  ];
+
   return (
     <Form {...form}>
       <form
@@ -254,14 +268,14 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           control={control}
           name="logo"
           render={({ field }) => (
-            <FormItem className="mt-4">
+            <FormItem className="mt-4 max-sm:flex max-sm:flex-col max-sm:w-full max-sm:justify-center">
               <FormLabel className={errors?.logo ? 'text-[#737373]' : ''}>
                 Project Logo
               </FormLabel>
               <label
                 id="label"
                 htmlFor="file-upload"
-                className={`${logoloading ? 'w-80 h-60 flex items-center justify-center' : 'w-80 h-60'} flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50`}
+                className={`${logoloading ? 'w-80 h-60 flex items-center justify-center' : 'w-80 h-60 max-sm:w-full'} flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-gray-500 cursor-pointer hover:bg-gray-50`}
               >
                 {logoloading ? (
                   <Loader />
@@ -271,13 +285,13 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                       <img
                         src={logos}
                         alt=""
-                        className={`${logoloading ? 'hidden' : ''} h-60 w-80`}
+                        className={`${logoloading ? 'hidden' : ''} h-60 w-80 max-sm:w-full`}
                       />
                     ) : (
                       <img
                         src={projectbyid?.message?.logo.url}
                         alt=""
-                        className="h-60 w-80 rounded-md"
+                        className="h-60 w-80 rounded-md max-sm:w-full"
                       />
                     )}
                   </>
@@ -285,7 +299,11 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                   <>
                     {logos ? (
                       <>
-                        <img src={logos} alt="" className="h-60 w-80" />
+                        <img
+                          src={logos}
+                          alt=""
+                          className="h-60 w-80 max-sm:w-full"
+                        />
                       </>
                     ) : (
                       <>Upload</>
@@ -340,14 +358,14 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
           name="name"
           render={({ field }) => (
             <FormItem
-              className={`${logoloading ? 'opacity-50 cursor-not-allowed' : ''} mt-4`}
+              className={`${logoloading ? 'opacity-50 cursor-not-allowed' : ''} mt-4 `}
             >
               <FormLabel className={errors?.name ? 'text-[#737373]' : ''}>
                 Project Name
               </FormLabel>
               <FormControl>
                 <Input
-                  className="w-[90%]"
+                  className="w-[90%] max-sm:w-full"
                   type="text"
                   placeholder="Enter Project Name"
                   {...field}
@@ -377,19 +395,44 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                 Project Progress
               </FormLabel>
               <FormControl>
-                <select
-                  className="flex border w-[90%] h-9 rounded-md shadow pl-2"
+                <Select
+                  className="shadow w-[90%] max-sm:w-full text-start"
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      boxShadow: 'none',
+                      fontSize: '15px',
+                      color: 'rgb(120, 122, 126)',
+                      width: '100%',
+                    }),
+                    placeholder: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'rgb(120, 122, 126)',
+                      fontSize: '15px',
+                    }),
+                    option: (baseStyles, state) => ({
+                      ...baseStyles,
+                      backgroundColor: state.isFocused
+                        ? 'rgb(51,141,181)'
+                        : 'white',
+                      color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                      ':hover': {
+                        backgroundColor: 'rgb(51,141,181)',
+                      },
+                    }),
+                    menu: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: 'white',
+                    }),
+                  }}
                   {...field}
-                >
-                  <option value="" disabled selected>
-                    Select Progress
-                  </option>
-                  <option value="Pending">Pending</option>
-                  <option value="In-Progress">In-Progress</option>
-                  <option value="Hold">Hold</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Scrapped">Scrapped</option>
-                </select>
+                  placeholder={field.value || 'Select Progress'}
+                  value={field.value}
+                  onChange={(selectedOptions) => {
+                    field.onChange(selectedOptions.value);
+                  }}
+                  options={ProgressOptions}
+                />
               </FormControl>
               <div>
                 {errors?.progress_status && (
@@ -412,16 +455,44 @@ export default function ProjectForm({ onSubmit, mode, onClose }) {
                 Project Status
               </FormLabel>
               <FormControl>
-                <select
-                  className={`flex border w-[90%] h-9 rounded-md shadow pl-2`}
+                <Select
+                  className="shadow w-[90%] max-sm:w-full text-start"
+                  styles={{
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      boxShadow: 'none',
+                      fontSize: '15px',
+                      color: 'rgb(120, 122, 126)',
+                      width: '100%',
+                    }),
+                    placeholder: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'rgb(120, 122, 126)',
+                      fontSize: '15px',
+                    }),
+                    option: (baseStyles, state) => ({
+                      ...baseStyles,
+                      backgroundColor: state.isFocused
+                        ? 'rgb(51,141,181)'
+                        : 'white',
+                      color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+                      ':hover': {
+                        backgroundColor: 'rgb(51,141,181)',
+                      },
+                    }),
+                    menu: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: 'white',
+                    }),
+                  }}
                   {...field}
-                >
-                  <option value="" disabled selected>
-                    Select Status
-                  </option>
-                  <option value="Active">Active</option>
-                  <option value="In-Active">In-Active</option>
-                </select>
+                  placeholder={field.value || 'Select Progress'}
+                  value={field.value}
+                  onChange={(selectedOptions) => {
+                    field.onChange(selectedOptions.value);
+                  }}
+                  options={statusOptions}
+                />
               </FormControl>
               <div>
                 {errors?.status && (

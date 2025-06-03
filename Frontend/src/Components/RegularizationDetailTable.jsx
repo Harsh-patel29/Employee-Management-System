@@ -72,6 +72,12 @@ export default function RegularizationDetailTable({ user, UserName, Date }) {
         data={detail}
         RowComponent={Row}
         pagination={false}
+        tableStyle={{
+          '& .MuiTableCell-root': {
+            padding: 1,
+            textAlign: 'center',
+          },
+        }}
       />
     </>
   );

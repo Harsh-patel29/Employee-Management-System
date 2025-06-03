@@ -368,7 +368,7 @@ export default function WeekOffTable() {
               </SheetTrigger>
               <SheetContent
                 showCloseButton={false}
-                className="bg-white min-w-xl"
+                className="bg-white min-w-xl max-xs:min-w-screen"
               >
                 <SheetHeader>
                   <SheetDescription>
@@ -382,8 +382,13 @@ export default function WeekOffTable() {
               </SheetContent>
             </Sheet>
           )}
-          <WeekOffFilterSheet screen="WeekOff" />
+          <div className="max-[417px]:hidden">
+            <WeekOffFilterSheet screen="WeekOff" />
+          </div>
         </div>
+      </div>
+      <div className="min-[417px]:hidden max-[417px]:flex flex justify-end">
+        <WeekOffFilterSheet screen="WeekOff" />
       </div>
       <ReusableTable
         columns={columns}

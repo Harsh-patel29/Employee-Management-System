@@ -136,11 +136,11 @@ export default function LeaveForm({ onSubmit, mode, id }) {
       <Form {...control}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
-            <h1 className="text-xl w-full">Create Leave</h1>
+            <h1 className="text-xl w-full text-start">Create Leave</h1>
             <Button
               id="create-leave"
               type="submit"
-              className="bg-white text-black border border-gray-300 mr-6 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
+              className="bg-white text-black border border-gray-300 mr-6 max-xs:mr-2 hover:bg-white font-[Inter,sans-serif] h-auto text-md p-1.5 cursor-pointer"
             >
               <svg
                 className="h-8 w-8"
@@ -287,6 +287,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                           )
                         : field.value
                     }
+                    className="text-start"
                     placeholder="Select Leave Type"
                     options={LeaveTypeOptions}
                     onChange={(value) => {
@@ -442,7 +443,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                         maxWidth: 'auto',
                       }),
                     }}
-                    className="h-9.5"
+                    className="h-9.5 text-start"
                     value={
                       typeof field.value === 'string'
                         ? StartDateTypeOptions.find(
@@ -585,6 +586,7 @@ export default function LeaveForm({ onSubmit, mode, id }) {
                           )
                         : field.value
                     }
+                    className="text-start"
                     placeholder="Select End Day Leave"
                     isClearable={true}
                     options={EndDateTypeOptions}

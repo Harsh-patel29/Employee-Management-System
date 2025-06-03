@@ -316,14 +316,14 @@ const MonthlyReportTable = () => {
 
   return (
     <>
-      <div className="inline-flex justify-between w-full px-2 bg-white h-15 rounded-md  mb-2">
-        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2">
+      <div className="inline-flex justify-between w-full px-2 bg-white h-15 rounded-md max-[625px]:hidden mb-2">
+        <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2 max-[625px]:hidden">
           Attendance Monthly Report
         </h5>
-        <h2 className="flex items-center text-[22px] mr-10">
+        <h2 className="flex items-center text-[22px] mr-10 max-[625px]:hidden">
           {monthByName}-{selectedYear}
         </h2>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center max-[625px]:hidden">
           <Select
             styles={{
               control: (baseStyles) => ({
@@ -384,7 +384,7 @@ const MonthlyReportTable = () => {
                 minWidth: '120px',
               }),
             }}
-            className="z-45"
+            className="z-45 "
             placeholder={selectedYear}
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.value)}
@@ -392,32 +392,106 @@ const MonthlyReportTable = () => {
           />
         </div>
       </div>
-      <div className="flex gap-x-2 w-full mb-2 overflow-x-auto items-end">
-        <div className="border border-[#03C04A] px-2 text-[#03C04A] rounded-sm ">
+      <h5 className="text-[22px] font-[450] font-[Inter,sans-serif] flex items-center ml-2 max-[625px]:flex min-[625px]:hidden  justify-center">
+        Attendance Monthly Report
+      </h5>
+      <h2 className="flex items-center text-[22px]  max-[625px]:flex min-[625px]:hidden justify-center ">
+        {monthByName}-{selectedYear}
+      </h2>
+      <div className="flex justify-center gap-2 mb-2 max-[625px]:flex min-[625px]:hidden">
+        <Select
+          styles={{
+            control: (baseStyles) => ({
+              ...baseStyles,
+              fontSize: '15px',
+              backgroundColor: 'transparent',
+              width: 'auto',
+            }),
+            placeholder: (baseStyles) => ({
+              ...baseStyles,
+              fontSize: '15px',
+              width: 'auto',
+            }),
+            option: (baseStyles, state) => ({
+              ...baseStyles,
+              backgroundColor: state.isFocused ? 'rgb(51,141,181)' : 'white',
+              color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+              ':hover': {
+                backgroundColor: 'rgb(51,141,181)',
+              },
+            }),
+            menu: (baseStyles) => ({
+              ...baseStyles,
+              backgroundColor: 'white',
+              minWidth: '120px',
+            }),
+          }}
+          className="z-45 "
+          placeholder={monthByName}
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.value)}
+          options={monthOptions}
+        />
+        <Select
+          styles={{
+            control: (baseStyles) => ({
+              ...baseStyles,
+              fontSize: '15px',
+              backgroundColor: 'transparent',
+              width: 'auto',
+            }),
+            placeholder: (baseStyles) => ({
+              ...baseStyles,
+              fontSize: '15px',
+              width: 'auto',
+            }),
+            option: (baseStyles, state) => ({
+              ...baseStyles,
+              backgroundColor: state.isFocused ? 'rgb(51,141,181)' : 'white',
+              color: state.isFocused ? 'white' : 'rgb(120, 122, 126)',
+              ':hover': {
+                backgroundColor: 'rgb(51,141,181)',
+              },
+            }),
+            menu: (baseStyles) => ({
+              ...baseStyles,
+              backgroundColor: 'white',
+              minWidth: '120px',
+            }),
+          }}
+          className="z-45 "
+          placeholder={selectedYear}
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.value)}
+          options={YearDropdown()}
+        />
+      </div>
+      <div className="flex gap-x-2  w-full mb-2 overflow-x-auto items-end">
+        <div className="border border-[#03C04A] px-2 text-[#03C04A] rounded-sm max-[1184px]:min-w-20">
           P --- Present
         </div>
-        <div className="border border-[red] px-2 text-[red] rounded-sm ">
+        <div className="border border-[red] px-2 text-[red] rounded-sm max-[1184px]:min-w-20">
           A --- Absent
         </div>
-        <div className="border border-[purple] px-2 text-[purple] rounded-sm ">
+        <div className="border border-[purple] px-2 text-[purple] rounded-sm max-[1184px]:min-w-20">
           HD --- Half Day
         </div>
-        <div className="border border-[gray]  text-[gray] px-2 rounded-sm ">
+        <div className="border border-[gray]  text-[gray] px-2 rounded-sm max-[1184px]:min-w-22">
           W --- WeekOff
         </div>
-        <div className="border border-[orange] text-[orange] px-2 rounded-sm ">
+        <div className="border border-[orange] text-[orange] px-2 rounded-sm max-[1184px]:min-w-20">
           H --- Holiday
         </div>
-        <div className="border border-[blue] text-[blue] px-2 rounded-sm ">
+        <div className="border border-[blue] text-[blue] px-2 rounded-sm max-[1184px]:min-w-20">
           L --- Leave
         </div>
-        <div className="border border-[teal] text-[teal] px-2 rounded-sm ">
+        <div className="border border-[teal] text-[teal] px-2 rounded-sm max-[1184px]:min-w-40">
           POW --- Present on WeekOff
         </div>
-        <div className="border border-[brown] text-[brown] px-2 rounded-sm ">
+        <div className="border border-[brown] text-[brown] px-2 rounded-sm max-[1184px]:min-w-40">
           POH --- Present on Holiday
         </div>
-        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto rounded-sm ">
+        <div className="border border-[#1565C0] text-[#1565C0] px-2 w-auto rounded-sm max-[1184px]:min-w-40">
           POL --- Present on Leave
         </div>
         <div className="border border-[#131024] text-[#131024] px-2 w-auto rounded-sm ">

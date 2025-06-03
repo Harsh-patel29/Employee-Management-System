@@ -20,6 +20,7 @@ import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -28,6 +29,7 @@ import {
 } from '../Components/components/ui/dialog';
 import { Bounce, toast } from 'react-toastify';
 import { checkAuth } from '../feature/datafetch/datafetchSlice.js';
+import { X } from 'lucide-react';
 
 const updateAccess = (userId, key, value, category) => {
   return axios.put(
@@ -142,10 +144,10 @@ const Roles = () => {
     <>
       <div className="flex flex-col h-[80%]  bg-[#ffffff] rounded-xl  w-full px-3 transition-all duration-300">
         <div
-          className={`${user?.permission?.user?.can_add_user_roles ? '' : 'justify-center'} flex items-center justify-between  p-4 border-b border-gray-200`}
+          className={`${user?.permission?.user?.can_add_user_roles ? '' : 'justify-center'} flex items-center max-[420px]:justify-center min-[420px]:justify-between p-4 min-[420px]:border-b border-gray-200`}
         >
           <Button
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid max-[420px]:hidden cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
             onClick={() => {
               navigate('/users');
             }}
@@ -170,13 +172,13 @@ const Roles = () => {
             Go back
           </Button>
           <h1
-            className={`${user?.permission?.user?.can_add_user_roles ? '' : 'flex justify-center w-full mr-24 text-2xl font-semibold'}text-2xl font-semibold  `}
+            className={`${user?.permission?.user?.can_add_user_roles ? '' : 'flex justify-center w-full mr-24 text-2xl font-semibold'}text-2xl font-semibold flex text-center justify-center`}
           >
             Manage Access
           </h1>
           {user?.permission?.user?.can_add_user_roles && (
             <button
-              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg max-[420px]:hidden w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
               onClick={() => navigate('/create/roles/')}
             >
               <svg
@@ -200,7 +202,61 @@ const Roles = () => {
             </button>
           )}
         </div>
-        <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl px-10 transition-all duration-300">
+        <div
+          className={`${user?.permission?.user?.can_add_user_roles ? '' : 'justify-center'} flex items-center min-[420px]:hidden justify-between p-4 border-b border-gray-200`}
+        >
+          <Button
+            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid max-[420px]:flex min-[420px]:hidden cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+            onClick={() => {
+              navigate('/users');
+            }}
+          >
+            <svg
+              className="w-6 h-6"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14M5 12l4-4m-4 4 4 4"
+              ></path>
+            </svg>
+            Go back
+          </Button>
+          {user?.permission?.user?.can_add_user_roles && (
+            <button
+              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg max-[420px]:flex min-[420px]:hidden w-[125px] justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300"
+              onClick={() => navigate('/create/roles/')}
+            >
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="#338DB5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 12h14m-7 7V5"
+                ></path>
+              </svg>
+              New Role
+            </button>
+          )}
+        </div>
+        <div className="flex flex-col h-screen overflow-y-auto bg-[#ffffff] rounded-xl px-10 max-xs:px-0 transition-all duration-300">
           <Accordion type="single" collapsible className="w-[100%] ">
             {Roles.map((role) => (
               <AccordionItem key={role._id} value={role._id}>
@@ -213,10 +269,10 @@ const Roles = () => {
                 >
                   <div
                     variant="outline"
-                    className="w-full flex justify-start h-full items-center ml-8 -mt-0.5"
+                    className="w-full flex justify-start h-full items-center ml-8 max-xs:ml-2 -mt-0.5"
                   >
                     <svg
-                      class="w-8 h-8"
+                      class="min-w-8 min-h-8"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -228,10 +284,10 @@ const Roles = () => {
                     </svg>
 
                     <span className="font-semibold">{role.name}</span>
-                    <div className="flex justify-end w-full items-center gap-5 text-2xl">
+                    <div className="flex justify-end w-full items-center gap-5 text-2xl max-xs:text-xl">
                       {user?.permission?.user?.can_update_user_roles && (
                         <FaEdit
-                          className=" font-semibold text-[#338DB5]"
+                          className="font-semibold text-[#338DB5]"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/update/roles/${role._id}`);
@@ -259,8 +315,13 @@ const Roles = () => {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>
+                              <DialogTitle className="flex justify-between">
                                 Are you absolutely sure?
+                                <DialogClose
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <X size={16} />
+                                </DialogClose>
                               </DialogTitle>
                               <DialogDescription>
                                 This action cannot be undone. This will
@@ -297,7 +358,7 @@ const Roles = () => {
                                   <AccordionContent
                                     key={`${category}-${permission}`}
                                     index={index}
-                                    className="flex w-full justify-between p-2 pl-32 pr-32 h-full items-start capitalize font-medium"
+                                    className="flex w-full justify-between p-2 pl-32 pr-32 max-xs:pl-0 max-xs:pr-0 max-xs:px-2 h-full items-start capitalize font-medium"
                                   >
                                     <h6 className="flex text-md gap-1">
                                       {idx + 1}.{' '}

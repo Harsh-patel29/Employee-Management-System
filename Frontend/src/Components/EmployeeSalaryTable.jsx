@@ -148,8 +148,13 @@ const EmployeeSalaryTable = () => {
         </h5>
         <div className="flex gap-2 items-center">
           <EmployeeSalaryFilterSheet screen="EmpSalary" />
-          <ExporttoExcel data={dataforExcel} fileName="EmpSalary" />
+          <div className="max-[406px]:hidden">
+            <ExporttoExcel data={dataforExcel} fileName="EmpSalary" />
+          </div>
         </div>
+      </div>
+      <div className="min-[406px]:hidden max-[406px]:flex justify-end mb-2">
+        <ExporttoExcel data={dataforExcel} fileName="EmpSalary" />
       </div>
       <ReusableTable
         data={filteredData}

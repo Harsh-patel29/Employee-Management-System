@@ -67,18 +67,18 @@ const Settings = () => {
         Settings
       </div>
       {user.user.role === 'Admin' && (
-        <div className=" ml-8 mt-5 flex gap-x-8 ">
+        <div className=" ml-8 mt-5 flex max-xs:flex-col max-xs:gap-y-8 gap-x-8 ">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger asChild>
-              <div className="bg-white min-w-[25%] w-auto cursor-pointer shadow-xl rounded-xl flex h-auto flex-col">
+              <div className="bg-white min-w-[25%] w-auto cursor-pointer shadow-xl rounded-xl max-xs:items-center flex h-auto flex-col">
                 <div className="flex h-auto min-h-24">
-                  <div className="flex h-full ml-2 items-center justify-center">
+                  <div className="flex ml-2 items-center justify-center">
                     <img
                       src="./SMTP_Image.png"
                       className="h-15 w-15 rounded-md cursor-pointer"
                       alt="SMTP Image"
                     />
-                    <div className="flex flex-col  justify-center px-2">
+                    <div className="flex flex-col justify-center px-2">
                       <h1 className="font-semibold text-xl">SMTP Settings</h1>
                       <p className="text-gray-400">
                         Configure email server settings
@@ -88,7 +88,10 @@ const Settings = () => {
                 </div>
               </div>
             </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
+            <SheetContent
+              showCloseButton={false}
+              className="bg-white min-w-xl max-xs:min-w-screen"
+            >
               <SheetHeader>
                 <SheetDescription>
                   <SmtpForm
@@ -143,7 +146,10 @@ const Settings = () => {
                 </div>
               </div>
             </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
+            <SheetContent
+              showCloseButton={false}
+              className="bg-white min-w-xl max-xs:min-w-screen"
+            >
               <SheetHeader>
                 <SheetDescription>
                   <AttendanceSettingForm

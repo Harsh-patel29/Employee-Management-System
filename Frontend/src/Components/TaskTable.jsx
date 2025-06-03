@@ -309,7 +309,7 @@ export default function TaskTable() {
         <div className="flex items-center">
           {user?.permission.task.canAddTask && (
             <button
-              className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
+              className="bg-[#ffffff] text-[#338DB5] max-xs:ml-1 font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[100px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
               onClick={() => handleCreateTask()}
             >
               <svg
@@ -334,76 +334,146 @@ export default function TaskTable() {
             </button>
           )}
           <TasksFilterSheet screen="Task" />
-          <button
-            className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5]  `}
-            onClick={() => {
-              handleViewChange('list');
-              dispatch(getAllTasks());
-            }}
-          >
-            <svg
-              className="w-6 h-6 "
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
+          <div className="flex max-xs:hidden">
+            <button
+              className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5]  `}
+              onClick={() => {
+                handleViewChange('list');
+                dispatch(getAllTasks());
+              }}
             >
-              <title>List View</title>
-              <path
+              <svg
+                className="w-6 h-6 "
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <title>List View</title>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                  d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"
+                ></path>
+              </svg>
+            </button>
+            <button
+              className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
+              onClick={() => handleViewChange('board')}
+            >
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <title>Board View</title>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
+                ></path>
+              </svg>
+            </button>
+            <button
+              className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
+              onClick={() => handleViewChange('kanban')}
+            >
+              <svg
+                className="w-6 h-6"
                 stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2"
-                d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"
-              ></path>
-            </svg>
-          </button>
-          <button
-            className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
-            onClick={() => handleViewChange('board')}
-          >
-            <svg
-              className="w-6 h-6"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <title>Board View</title>
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
-              ></path>
-            </svg>
-          </button>
-          <button
-            className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
-            onClick={() => handleViewChange('kanban')}
-          >
-            <svg
-              className="w-6 h-6"
-              stroke="currentColor"
-              fill="currentColor"
-              stroke-width="0"
-              viewBox="0 0 24 24"
-              height="24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <title>Kanban View</title>
-              <path fill="none" d="M0 0h24v24H0z"></path>
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h6v14H5zm14 0h-6v-7h6v7zm0-9h-6V5h6v5z"></path>
-            </svg>
-          </button>
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 24 24"
+                height="24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Kanban View</title>
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h6v14H5zm14 0h-6v-7h6v7zm0-9h-6V5h6v5z"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
-
+      <div className="flex justify-end min-xs:hidden">
+        <button
+          className={`${viewMode == 'list' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5]  `}
+          onClick={() => {
+            handleViewChange('list');
+            dispatch(getAllTasks());
+          }}
+        >
+          <svg
+            className="w-6 h-6 "
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <title>List View</title>
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeWidth="2"
+              d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"
+            ></path>
+          </svg>
+        </button>
+        <button
+          className={`${viewMode == 'board' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
+          onClick={() => handleViewChange('board')}
+        >
+          <svg
+            className="w-6 h-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <title>Board View</title>
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
+            ></path>
+          </svg>
+        </button>
+        <button
+          className={`${viewMode == 'kanban' ? 'bg-blue-100' : ''} bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[70px] justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] `}
+          onClick={() => handleViewChange('kanban')}
+        >
+          <svg
+            className="w-6 h-6"
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            viewBox="0 0 24 24"
+            height="24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>Kanban View</title>
+            <path fill="none" d="M0 0h24v24H0z"></path>
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h6v14H5zm14 0h-6v-7h6v7zm0-9h-6V5h6v5z"></path>
+          </svg>
+        </button>
+      </div>
       {viewMode === 'list' && (
         <ReusableTable
           width="full"

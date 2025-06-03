@@ -457,7 +457,7 @@ export default function CollapsibleTable() {
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger
               className={`
-                  ${canAddUser ? 'flex focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px]  border-[rgb(51,141,181)] rounded-lg' : 'hidden'}
+                  ${canAddUser ? 'flex focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px]  border-[rgb(51,141,181)] rounded-lg max-[422px]:hidden' : 'hidden'}
                   `}
             >
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
@@ -495,6 +495,67 @@ export default function CollapsibleTable() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+
+          <div className="max-[548px]:hidden">
+            {user?.permission.user.can_export_user && (
+              <ExporttoExcel
+                data={users}
+                fileName="Users"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+              />
+            )}
+          </div>
+
+          <div className="max-[680px]:hidden">
+            <UserFilterSheet screen="User" />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end mb-2">
+        <Sheet open={sheetopen} onOpenChange={setsheetopen}>
+          <SheetTrigger
+            className={`
+            ${canAddUser ? 'flex focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3 w-[130px]  border-[rgb(51,141,181)] rounded-lg min-[422px]:hidden max-[422px]:flex ' : 'hidden'}
+            `}
+          >
+            <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+              <svg
+                className="w-6 h-6 flex"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="#338DB5"
+                viewBox="0 0 24 24"
+                style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
+              >
+                <title>Add User</title>
+                <path
+                  fill-rule="evenodd"
+                  d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              Add user
+            </div>
+          </SheetTrigger>
+          <SheetContent
+            showCloseButton={false}
+            className="bg-white min-w-6xl max-lg:min-w-screen"
+          >
+            <SheetHeader>
+              <SheetDescription>
+                <AdminForm
+                  mode="create"
+                  onSubmit={(data) => dispatch(createuser(data))}
+                />
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <div className="flex justify-end">
+        <div className="min-[548px]:hidden max-[548px]:flex">
           {user?.permission.user.can_export_user && (
             <ExporttoExcel
               data={users}
@@ -502,6 +563,8 @@ export default function CollapsibleTable() {
               className="bg-blue-500 text-white px-4 py-2 rounded-md"
             />
           )}
+        </div>
+        <div className="min-[680px]:hidden max-[680px]:flex">
           <UserFilterSheet screen="User" />
         </div>
       </div>

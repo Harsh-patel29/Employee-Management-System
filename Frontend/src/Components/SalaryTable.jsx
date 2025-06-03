@@ -258,7 +258,6 @@ export default function SalaryTable() {
           Salary Data
         </h5>
         <div className="flex items-center">
-          <SalaryFilterSheet screen="SalaryDetail" />
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
             <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5] mr-3  w-[160px] border-[rgb(51,141,181)] rounded-lg">
               <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-full justify-center text-[17px] h-9 mr-3 flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
@@ -286,7 +285,7 @@ export default function SalaryTable() {
             </SheetTrigger>
             <SheetContent
               showCloseButton={false}
-              className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md"
+              className="bg-white xl:min-w-2xl lg:min-w-xl md:w-lg sm:min-w-md max-xs:min-w-screen"
             >
               <SheetHeader>
                 <SheetDescription>
@@ -299,7 +298,23 @@ export default function SalaryTable() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-
+          <div className="max-[400px]:hidden">
+            <SalaryFilterSheet screen="SalaryDetail" />
+          </div>
+          <div className="max-[520px]:hidden">
+            <ExporttoExcel
+              data={SalaryDetail}
+              fileName="Projects"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <div className="min-[400px]:hidden max-[400px]:flex">
+          <SalaryFilterSheet screen="SalaryDetail" />
+        </div>
+        <div className="max-[520px]:flex min-[520px]:hidden">
           <ExporttoExcel
             data={SalaryDetail}
             fileName="Projects"
@@ -307,7 +322,6 @@ export default function SalaryTable() {
           />
         </div>
       </div>
-
       <ReusableTable
         width="full"
         columns={columns}

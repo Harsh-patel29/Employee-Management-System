@@ -144,7 +144,7 @@ function MarkAttendance() {
           if (!open) dispatch(closeAttendanceSheet());
         }}
       >
-        <SheetContent className="min-w-xl">
+        <SheetContent className="min-w-xl max-xs:min-w-screen">
           <SheetHeader>
             <SheetTitle>Mark Attendance</SheetTitle>
           </SheetHeader>

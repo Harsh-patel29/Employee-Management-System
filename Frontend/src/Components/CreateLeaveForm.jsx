@@ -61,7 +61,7 @@ export default function CreateLeaveForm({ onSubmit, mode, id }) {
     <Form {...control}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
         <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
-          <h1 className="text-xl w-full">Create Leave </h1>
+          <h1 className="text-xl w-full text-start">Create Leave </h1>
           <Button
             id="create-leave"
             type="submit"

@@ -89,7 +89,10 @@ export default function AttendanceFilterSheet({ screen }) {
           Filters
         </div>
       </SheetTrigger>
-      <SheetContent className="min-w-lg" showCloseButton={false}>
+      <SheetContent
+        className="min-w-lg max-xs:min-w-screen"
+        showCloseButton={false}
+      >
         <SheetHeader>
           <div className="flex w-full justify-end items-center border-b-2 border-gray-200 pb-4">
             <h1 className="text-2xl w-full">Filter Attendnace</h1>
@@ -115,6 +118,7 @@ export default function AttendanceFilterSheet({ screen }) {
             <div className="flex flex-col gap-2">
               <label className="text-[16px] font-[500]">User</label>
               <Select
+                className="text-start"
                 value={User}
                 id="User-filter"
                 isClearable={true}

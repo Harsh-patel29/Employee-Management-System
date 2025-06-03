@@ -163,7 +163,7 @@ function Row({ row }) {
                   <SheetTrigger asChild>
                     <FaEdit className="cursor-pointer font-semibold text-xl text-[#d7d869]" />
                   </SheetTrigger>
-                  <SheetContent className="bg-white min-w-xl">
+                  <SheetContent className="bg-white min-w-xl max-xs:min-w-screen">
                     <SheetHeader>
                       <SheetDescription>
                         <RegularizationForm
@@ -501,8 +501,8 @@ export default function CollapsibleTable() {
         </h5>
         <div className="flex items-center">
           <Sheet open={sheetopen} onOpenChange={setsheetopen}>
-            <SheetTrigger className="focus:outline-none focus:ring-1 focus:ring-[#338DB5]  border-[rgb(51,141,181)] border border-solid w-[155px] h-9 mr-3 text-[17px] rounded-lg">
-              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3 cursor-pointer rounded-lg justify-center flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
+            <SheetTrigger className="focus:outline-none focus:ring-1 min-[850px]:ml-2 focus:ring-[#338DB5] border-[rgb(51,141,181)] border border-solid w-[155px] h-9 mr-3 text-[17px] rounded-lg">
+              <div className="bg-[#ffffff] text-[#338DB5] font-[400] gap-3  cursor-pointer rounded-lg justify-center flex items-center hover:bg-[#dbf4ff] transition-all duration-300">
                 <svg
                   className="h-6 w-6"
                   stroke="currentColor"
@@ -523,7 +523,10 @@ export default function CollapsibleTable() {
                 Regularization
               </div>
             </SheetTrigger>
-            <SheetContent showCloseButton={false} className="bg-white min-w-xl">
+            <SheetContent
+              showCloseButton={false}
+              className="bg-white min-w-xl max-xs:min-w-full"
+            >
               <SheetHeader>
                 <SheetDescription>
                   <RegularizationForm
@@ -536,15 +539,19 @@ export default function CollapsibleTable() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-          <ExporttoExcel
-            data={formattedData}
-            fileName="Attendance"
-            className="bg-blue-500 text-white rounded-md"
-          />
-          <AttendanceFilterSheet screen="Attendance" />
+          <div className="max-[421px]:hidden">
+            <ExporttoExcel
+              data={formattedData}
+              fileName="Attendance"
+              className="bg-blue-500 text-white rounded-md"
+            />
+          </div>
+          <div className="max-[588px]:hidden">
+            <AttendanceFilterSheet screen="Attendance" />
+          </div>
           <button
             onClick={() => dispatch(openAttendanceSheet())}
-            className="bg-[#ffffff] text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
+            className="bg-[#ffffff] max-[850px]:hidden text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
           >
             <svg
               stroke="currentColor"
@@ -562,6 +569,37 @@ export default function CollapsibleTable() {
             Attendance
           </button>
         </div>
+      </div>
+      <div className="min-[421px]:hidden max-[421px]:flex w-full justify-end mb-2">
+        <ExporttoExcel
+          data={formattedData}
+          fileName="Attendance"
+          className="bg-blue-500 text-white rounded-md"
+        />
+      </div>
+      <div className="w-full justify-end flex">
+        <div className="max-[588px]:flex min-[588px]:hidden">
+          <AttendanceFilterSheet screen="Attendance" />
+        </div>
+        <button
+          onClick={() => dispatch(openAttendanceSheet())}
+          className="bg-[#ffffff] max-[850px]:flex  min-[850px]:hidden text-[#338DB5] font-[400] gap-2 border-[rgb(51,141,181)] border border-solid cursor-pointer rounded-lg w-[150px] justify-center text-[17px] h-9 mr-8 flex items-center hover:bg-[#dbf4ff] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#338DB5] "
+        >
+          <svg
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            viewBox="0 0 512 512"
+            class="theme-btn-color"
+            className="h-6 w-6"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ fontSize: 'var(--THEME-ICON-SIZE)' }}
+          >
+            <title>Attendace</title>
+            <path d="M256 48C141.6 48 48 141.6 48 256s93.6 208 208 208 208-93.6 208-208S370.4 48 256 48zm-42.7 318.9L106.7 260.3l29.9-29.9 76.8 76.8 162.1-162.1 29.9 29.9-192.1 191.9z"></path>
+          </svg>
+          Attendance
+        </button>
       </div>
       <ReusableTable
         width="full"
